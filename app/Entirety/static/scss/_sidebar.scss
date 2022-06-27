@@ -1,7 +1,17 @@
 $sidebar-height: calc(100vh - #{ $nav-link-height} - #{$nav-link-padding-y * 2});
 $list-group-bg: var(--bs-blue);
+$sidebar-font-size: var(--bs-navbar-brand-font-size);
 
-.sidebar {
-  width: 275px;
+.sidebar-nav {
+  width: 200px;
   height: #{ $sidebar-height};
+
+  ul {
+    .list-group-item {
+      font-size: 24px!important;
+      color: #72767b;
+      border-bottom-color: #72767b!important;
+    }
+  }
+
 }

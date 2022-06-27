@@ -13,23 +13,34 @@
 
     {% compress css %}
         <link type="text/x-scss" href="{% static 'bootstrap/scss/bootstrap.scss' %}" rel="stylesheet" media="screen">
+        <link type="text/x-scss" href="{% static 'bootstrap/scss/bootstrap-icons.scss' %}" rel="stylesheet" media="screen">
         <link type="text/x-scss" href="{% static 'scss/style.scss' %}" rel="stylesheet" media="screen">
     {% endcompress %}
 </head>
 <body>
 <nav class="navbar navbar-dark bg-dark">
     <div class="container-fluid">
-        <a class="navbar-brand" href="#">
-            <img src="{% static 'img/n5geh.png' %}" alt="project logo" height="24"
-                 class="d-inline-block align-text-top">
-            <img src="{% static 'img/fiware.gif' %}" alt="fiware" height="24"
-                 class="d-inline-block align-text-top">
-        </a>
+        <div class="">
+            <button class="navbar-toggler me-2" type="button" data-bs-toggle="collapse" data-bs-target="#sidebar"
+                    aria-controls="sidebar" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <a class="navbar-brand" href="#">
+                <img src="{% static 'img/n5geh.png' %}" alt="project logo" height="30"
+                     class="d-inline-block align-text-top">
+                <img src="{% static 'img/fiware.gif' %}" alt="fiware" height="30"
+                     class="d-inline-block align-text-top">
+            </a>
+        </div>
+
     </div>
 </nav>
-{% include 'sidebar.html' %}
-<div class="container-fluid">
-    {% block content %}(no content - should not be here) {% endblock %}
+
+<div class="container-fluid ps-0 d-flex">
+    {% include 'sidebar.html' %}
+    <main class="d-flex flex-column ps-2 pt-2">
+        {% block content %}(no content - should not be here) {% endblock %}
+    </main>
 </div>
 
 
