@@ -6,9 +6,6 @@
 
 ## Built With
 
-This section should list any major frameworks/libraries and it's release number used in your project. Of course, every
-minor used package should be stored in the requirements.txt together with the version number.
-
  - Django 4.0.5
  - Bootstrap 5.2.0-beta1
  - htmx 1.7.0
@@ -38,8 +35,11 @@ Starting the Django server:
 
 ## Contact
 
-@dnikolay-ebc
-@SBlechmann
+[@SBlechmann](https://github.com/SBlechmann)
+
+[@sbanoeon](https://github.com/sbanoeon)
+
+[@dnikolay-ebc](https://github.com/dnikolay-ebc)
 
 ## License
 
