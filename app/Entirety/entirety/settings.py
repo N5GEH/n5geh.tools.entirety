@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "compressor",
     "projects.apps.ProjectsConfig",
+    "examples.apps.ExamplesConfig",
 ]
 
 MIDDLEWARE = [
