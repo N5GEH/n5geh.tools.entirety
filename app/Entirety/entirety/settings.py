@@ -35,7 +35,8 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-    'django_bootstrap_icons',
+    "django_bootstrap_icons",
+    "compressor",
     "projects.apps.ProjectsConfig",
 ]
 
@@ -112,10 +113,15 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/4.0/howto/static-files/
 
 STATIC_URL = "static/"
+STATIC_ROOT = "static/"
 
 STATICFILES_DIRS = [
     BASE_DIR / "static",
 ]
+
+STATICFILES_FINDERS = ["compressor.finders.CompressorFinder"]
+
+COMPRESS_PRECOMPILERS = (("text/x-scss", "django_libsass.SassCompiler"),)
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.0/ref/settings/#default-auto-field
