@@ -7,7 +7,7 @@ $sidebar-font-size: var(--bs-navbar-brand-font-size);
   height: #{ $sidebar-height};
 
   @include media-breakpoint-down(md) {
-    width: 70px;
+    width: 72px;
   }
 
   ul {
