@@ -6,11 +6,24 @@ $sidebar-font-size: var(--bs-navbar-brand-font-size);
   width: 200px;
   height: #{ $sidebar-height};
 
+  @include media-breakpoint-down(md) {
+    width: 70px;
+  }
+
   ul {
-    .list-group-item {
-      font-size: 24px!important;
-      color: #72767b;
-      border-bottom-color: #72767b!important;
+    .nav-item {
+
+      @include media-breakpoint-down(md) {
+        font-size: 30px !important;
+      }
+
+      font-size: 24px !important;
+      border-bottom-color: #72767b !important;
+
+      .nav-link {
+        color: #72767b;
+        width: 100%;
+      }
     }
   }
 
