@@ -3,7 +3,7 @@ $list-group-bg: var(--bs-blue);
 $sidebar-font-size: var(--bs-navbar-brand-font-size);
 
 .sidebar-nav {
-  width: 200px;
+  width: 208px;
   height: #{ $sidebar-height};
 
   @include media-breakpoint-down(md) {
@@ -19,9 +19,9 @@ $sidebar-font-size: var(--bs-navbar-brand-font-size);
 
       font-size: 24px !important;
       border-bottom-color: black !important;
-      border-bottom-style: double;
+      border-top-color: black !important;
 
-      .nav-link {
+      .nav-link, .dropdown {
         color: #72767b;
         width: 100%;
       }

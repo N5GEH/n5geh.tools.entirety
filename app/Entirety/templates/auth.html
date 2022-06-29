@@ -1,0 +1,34 @@
+{% if user.is_authenticated %}
+    <div class="dropdown">
+        <a href="#"
+           class="d-none d-sm-flex nav-link d-inline-flex justify-content-center align-items-center justify-content-center text-white text-decoration-none dropdown-toggle"
+           id="dd_user" data-bs-toggle="dropdown" aria-expanded="false">
+            <i class="bi bi-person-fill me-1" style="font-size: 1.5rem;"></i>
+            <span class="d-none d-md-inline mx-1">{{ user.email }}</span>
+        </a>
+        <a href="#" class="d-sm-none nav-link py-md-2"
+           id="dd_user" data-bs-toggle="dropdown" aria-expanded="false" title="User">
+            <i class="bi bi-person-fill"></i>
+        </a>
+        <ul class="dropdown-menu dropdown-menu-dark dropdown-menu-md-end text-small shadow " aria-labelledby="dd_user">
+            <li><a class="dropdown-item" href="#">Settings</a></li>
+            <li><a class="dropdown-item" href="#">Profile</a></li>
+            <li>
+                <hr class="dropdown-divider">
+            </li>
+            <li>
+                <form action="{% url 'oidc_logout' %}" method="post">
+                    {% csrf_token %}
+                    <input class="dropdown-item" type="submit" value="Logout">
+                </form>
+            </li>
+        </ul>
+    </div>
+
+{% else %}
+    <a href="{% url 'oidc_authentication_init' %}"
+       class="nav-link d-flex justify-content-center align-items-center justify-content-center text-white text-decoration-none">
+        <i class="bi bi-person me-md-1" style="font-size: 1.5em"></i>
+        <span class="d-none d-md-inline mx-1">Login</span>
+    </a>
+{% endif %}
