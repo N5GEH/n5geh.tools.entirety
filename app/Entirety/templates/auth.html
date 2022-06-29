@@ -10,8 +10,7 @@
            id="dd_user" data-bs-toggle="dropdown" aria-expanded="false" title="User">
             <i class="bi bi-person-fill"></i>
         </a>
-        <ul class="dropdown-menu dropdown-menu-dark dropdown-menu-md-end text-small shadow " aria-labelledby="dd_user">
-            <li><a class="dropdown-item" href="#">Settings</a></li>
+        <ul class="dropdown-menu dropdown-menu-dark dropdown-menu-sm-end text-small shadow " aria-labelledby="dd_user">
             <li><a class="dropdown-item" href="#">Profile</a></li>
             <li>
                 <hr class="dropdown-divider">
@@ -27,8 +26,13 @@
 
 {% else %}
     <a href="{% url 'oidc_authentication_init' %}"
-       class="nav-link d-flex justify-content-center align-items-center justify-content-center text-white text-decoration-none">
+       class="d-none d-sm-flex nav-link d-flex justify-content-center align-items-center justify-content-center text-white text-decoration-none">
         <i class="bi bi-person me-md-1" style="font-size: 1.5em"></i>
         <span class="d-none d-md-inline mx-1">Login</span>
+    </a>
+    <a href="{% url "oidc_authentication_init" %}" class="d-sm-none nav-link py-md-2"
+       data-bs-toggle="tooltip" data-bs-placement="right" data-bs-custom-class="d-md-none"
+       title="Login">
+        <i class="bi bi-person"></i>
     </a>
 {% endif %}

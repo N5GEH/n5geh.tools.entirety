@@ -2,44 +2,53 @@
     <div id="sidebar" class="collapse collapse-horizontal show border-end">
         <div class="sidebar-nav bg-grey">
             <ul class="nav nav-flush flex-column h-100 text-center text-md-start">
-                <li class="nav-item border-bottom d-inline-flex">
-                    <a href="{% url "projects" %}" class="nav-link py-md-2"
-                        data-bs-toggle="tooltip" data-bs-placement="right" data-bs-custom-class="d-md-none" title="Projects">
-                        <i class="bi bi-kanban"></i>
-                        <span class="d-none d-md-inline-flex">Projects</span>
-                    </a>
-                </li>
+                {% if user.is_authenticated %}
+                    <li class="nav-item border-bottom d-inline-flex">
+                        <a href="{% url "projects" %}" class="nav-link py-md-2"
+                           data-bs-toggle="tooltip" data-bs-placement="right" data-bs-custom-class="d-md-none"
+                           title="Projects">
+                            <i class="bi bi-kanban"></i>
+                            <span class="d-none d-md-inline-flex">Projects</span>
+                        </a>
+                    </li>
+                    <li class="nav-item border-bottom d-inline-flex">
+                        <a href="#" class="nav-link py-md-2"
+                           data-bs-toggle="tooltip" data-bs-placement="right" data-bs-custom-class="d-md-none"
+                           title="Entities">
+                            <i class="bi bi-server"></i>
+                            <span class="d-none d-md-inline-flex">Entities</span>
+                        </a>
+                    </li>
+                    <li class="nav-item border-bottom d-inline-flex">
+                        <a href="#" class="nav-link py-md-2"
+                           data-bs-toggle="tooltip" data-bs-placement="right" data-bs-custom-class="d-md-none"
+                           title="Devices">
+                            <i class="bi bi-server"></i>
+                            <span class="d-none d-md-inline-flex">Devices</span>
+                        </a>
+                    </li>
+                    <li class="nav-item border-bottom d-inline-flex">
+                        <a href="#" class="nav-link py-md-2"
+                           data-bs-toggle="tooltip" data-bs-placement="right" data-bs-custom-class="d-md-none"
+                           title="Alarming">
+                            <i class="bi bi-alarm"></i>
+                            <span class="d-none d-md-inline-flex">Alarming</span>
+                        </a>
+                    </li>
+                {% endif %}
                 <li class="nav-item border-bottom d-inline-flex">
                     <a href="{% url "dialog_example" %}" class="nav-link py-md-2"
-                        data-bs-toggle="tooltip" data-bs-placement="right" data-bs-custom-class="d-md-none" title="Examples">
+                       data-bs-toggle="tooltip" data-bs-placement="right" data-bs-custom-class="d-md-none"
+                       title="Examples">
                         <i class="bi bi-body-text"></i>
                         <span class="d-none d-md-inline-flex">Examples</span>
                     </a>
                 </li>
+
                 <li class="nav-item border-top d-inline-flex mt-auto d-sm-none dropend">
                     {% include "auth.html" %}
                 </li>
             </ul>
-
-{#            <ul class="container-fluid list-group-horizontal">#}
-{#                <a href="{% url "projects" %}"#}
-{#                   class="list-group-item align-content-center justify-content-center border-bottom py-2">#}
-{#                    <i class="bi bi-kanban"></i>#}
-{#                    Projects#}
-{#                </a>#}
-{#                <a href="#" class="list-group-item align-content-center justify-content-center border-bottom py-2">#}
-{#                    <i class="bi bi-server"></i>#}
-{#                    Entities#}
-{#                </a>#}
-{#                <a href="#" class="list-group-item align-content-center justify-content-center border-bottom py-2">#}
-{#                    <i class="bi bi-server"></i>#}
-{#                    Devices#}
-{#                </a>#}
-{#                <a href="#" class="list-group-item align-content-center justify-content-center border-bottom py-2">#}
-{#                    <i class="bi bi-alarm"></i>#}
-{#                    Alarming#}
-{#                </a>#}
-{#            </ul>#}
         </div>
     </div>
 </div>
