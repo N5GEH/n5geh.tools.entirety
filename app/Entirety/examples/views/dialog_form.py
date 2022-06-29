@@ -1,3 +1,5 @@
+import json
+
 from django.shortcuts import render, HttpResponse
 from django.views.generic import View
 
@@ -18,8 +20,13 @@ class DialogForm(View):
     def post(self, request):
         form = ExampleForm(request.POST)
         if form.is_valid():
-            form.save()
-            return HttpResponse(status=204)
+            example = form.save()
+            return HttpResponse(
+                status=204,
+                headers={
+                    "HX-Trigger": json.dumps({"showMessage": f"{example.title} added."})
+                },
+            )
 
         return render(
             request,

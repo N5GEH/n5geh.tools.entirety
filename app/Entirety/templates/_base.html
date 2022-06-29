@@ -43,6 +43,7 @@
         {% block content %}(no content - should not be here) {% endblock %}
     </main>
     {% include 'modal.html' %}
+    {% include 'toast.html' %}
 </div>
 
 
@@ -52,6 +53,7 @@
 {% compress js %}
     <script src="{% static 'js/main.js' %}"></script>
     <script src="{% static 'js/dialog.js' %}"></script>
+    <script src="{% static 'js/toast.js' %}"></script>
 
     {% block scripts %}{% endblock %}
 {% endcompress %}
