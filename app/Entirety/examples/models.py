@@ -9,3 +9,13 @@ class ExampleModel(models.Model):
     year = models.PositiveSmallIntegerField(
         validators=[MinValueValidator(1895), MaxValueValidator(2050)]
     )
+
+    rating = models.PositiveSmallIntegerField(
+        choices=(
+            (1, "★☆☆☆☆"),
+            (2, "★★☆☆☆"),
+            (3, "★★★☆☆"),
+            (4, "★★★★☆"),
+            (5, "★★★★★"),
+        )
+    )

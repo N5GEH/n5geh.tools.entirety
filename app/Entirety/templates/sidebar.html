@@ -1,12 +1,19 @@
 <div class="d-flex flex-column col-auto">
     <div id="sidebar" class="collapse collapse-horizontal show border-end">
         <div class="sidebar-nav bg-grey">
-            <ul class="nav nav-flush flex-column mb-auto text-center">
+            <ul class="nav nav-flush flex-column mb-auto text-center text-md-start">
                 <li class="nav-item border-bottom d-inline-flex">
                     <a href="{% url "projects" %}" class="nav-link py-md-2"
                         data-bs-toggle="tooltip" data-bs-placement="right" data-bs-custom-class="d-md-none" title="Projects">
                         <i class="bi bi-kanban"></i>
                         <span class="d-none d-md-inline-flex">Projects</span>
+                    </a>
+                </li>
+                <li class="nav-item border-bottom d-inline-flex">
+                    <a href="{% url "dialog_example" %}" class="nav-link py-md-2"
+                        data-bs-toggle="tooltip" data-bs-placement="right" data-bs-custom-class="d-md-none" title="Examples">
+                        <i class="bi bi-body-text"></i>
+                        <span class="d-none d-md-inline-flex">Examples</span>
                     </a>
                 </li>
             </ul>
