@@ -1,5 +1,21 @@
 {% extends '_base.html' %}
 
 {% block content %}
-Projects
+<div style="display: flex; flex-direction: row; flex-wrap: wrap">
+    {% for project in project_list %}
+    {# Single Card Template:#}
+    <div class="card text-bg-light mb-3" style="width: 18rem; margin: 10px">
+        <div class="card-header">
+            <h5>{{ project.name }}
+                <i class="bi bi-kanban"></i>
+            </h5>
+        </div>
+        <div class="card-body">
+            <p class="card-text">{{ project.description }}</p>
+            <a href="/project/{{ project.id }}/edit" class="btn btn-primary">Edit</a>
+            <a href="/project/{{ project.id }}/delete" class="btn btn-primary">Delete</a>
+        </div>
+    </div>
+    {% endfor %}
+</div>
 {% endblock %}
