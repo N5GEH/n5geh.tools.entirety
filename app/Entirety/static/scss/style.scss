@@ -1,0 +1,11 @@
+// Required
+@import "../bootstrap/scss/functions";
+@import "../bootstrap/scss/variables";
+@import "../bootstrap/scss/mixins";
+
+// components
+@import "sidebar";
+
+.bg-grey {
+  background-color:#292e34 ;
+}
