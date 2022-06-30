@@ -9,11 +9,67 @@ https://docs.djangoproject.com/en/4.0/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.0/ref/settings/
 """
-
+import os
 from pathlib import Path
+from typing import Optional, Dict, Any
+
+from pydantic import (
+    BaseSettings,
+    PostgresDsn, validator, Field
+)
+import dj_database_url
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+
+class SettingsFromEnvironment(BaseSettings):
+    """Defines environment variables with their types and optional defaults"""
+
+    # Database settings
+    DATABASE_USER: str = Field(env="DATABASE_USER", default="postgres",
+                         description="Postgresql connection user name")
+    DATABASE_PASSWORD: str = Field(env="DATABASE_PASSWORD", default="postgres",
+                             description="Postgresql connection user "
+                                         "password")
+    DATABASE_SERVER: str = Field(env="DATABASE_SERVER", default="localhost",
+                           description="Postgresql connection server "
+                                       "name")
+    DATABASE_PORT: str = Field(env="DATABASE_PORT", default="5432",
+                         description="Postgresql connection server port")
+    DATABASE_NAME: str = Field(env="DATABASE_NAME", default="postgres",
+                         description="Postgresql connection database name")
+    DATABASE_URL: PostgresDsn = None
+
+    # Debug settings
+    DEBUG: bool = Field(env="DEBUG", default=False,
+                        description="A boolean that turns on/off debug mode."
+                                    "Don't deploy a site into production with"
+                                    "DEBUG turned on")
+
+    # Precedence of DATABASE_URL over individual settings of database.
+    @validator('DATABASE_URL', pre=True)
+    def create_postgres_uri(cls, v: Optional[str],
+                            values: Dict[str, Any]) -> Any:
+        if isinstance(v, str):
+            return v
+        return PostgresDsn.build(
+            scheme="postgresql",
+            user=values.get("DATABASE_USER"),
+            password=values.get("DATABASE_PASSWORD"),
+            host=values.get("DATABASE_SERVER"),
+            path=f"/{values.get('DATABASE_NAME') or ''}",
+            port=f"{values.get('DATABASE_PORT')}",
+        )
+
+    class Config:
+        """Defines configuration for pydantic environment loading"""
+        env_file = str(BASE_DIR / ".env")
+        case_sensitive = True
+
+
+config = SettingsFromEnvironment()
+
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.0/howto/deployment/checklist/
@@ -22,7 +78,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = "django-insecure-_8e5-lw61o*9ml#eds^!-wc%0g7kabh^8go)!_(7)8x13+fort"
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = config.DEBUG
 
 ALLOWED_HOSTS = []
 
@@ -72,15 +128,9 @@ WSGI_APPLICATION = "entirety.wsgi.application"
 # Database
 # https://docs.djangoproject.com/en/4.0/ref/settings/#databases
 
+os.environ["DATABASE_URL"] = config.DATABASE_URL
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'postgres',
-        'USER': 'postgres',
-        'PASSWORD': 'postgrespw',
-        'HOST': 'localhost',
-        'PORT': '5432'
-    }
+    'default': dj_database_url.config()
 }
 
 # Password validation
