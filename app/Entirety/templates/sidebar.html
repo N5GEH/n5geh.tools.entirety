@@ -1,25 +1,41 @@
 <div class="d-flex flex-column col-auto">
-    <div id="sidebar" class="collapse collapse-horizontal navbar-expand-lg show border-end">
-        <div class="sidebar-nav bg-grey bg-opacity-75">
-            <ul class="container-fluid list-group-horizontal">
-                <a href="#" class="list-group-item align-content-center justify-content-center border-bottom py-2">
-                    <i class="bi bi-kanban"></i>
-                    Projects
-                </a>
-                <a href="#" class="list-group-item align-content-center justify-content-center border-bottom py-2">
-                    <i class="bi bi-server"></i>
-                    Entities
-                </a>
-                <a href="#" class="list-group-item align-content-center justify-content-center border-bottom py-2">
-                    <i class="bi bi-server"></i>
-                    Devices
-                </a>
-                <a href="#" class="list-group-item align-content-center justify-content-center border-bottom py-2">
-                    <i class="bi bi-alarm"></i>
-                    Alarming
-                </a>
+    <div id="sidebar" class="collapse collapse-horizontal show border-end">
+        <div class="sidebar-nav bg-grey">
+            <ul class="nav nav-flush flex-column mb-auto text-center text-md-start">
+                <li class="nav-item border-bottom d-inline-flex">
+                    <a href="{% url "projects" %}" class="nav-link py-md-2"
+                        data-bs-toggle="tooltip" data-bs-placement="right" data-bs-custom-class="d-md-none" title="Projects">
+                        <i class="bi bi-kanban"></i>
+                        <span class="d-none d-md-inline-flex">Projects</span>
+                    </a>
+                </li>
+                <li class="nav-item border-bottom d-inline-flex">
+                    <a href="{% url "dialog_example" %}" class="nav-link py-md-2"
+                        data-bs-toggle="tooltip" data-bs-placement="right" data-bs-custom-class="d-md-none" title="Examples">
+                        <i class="bi bi-body-text"></i>
+                        <span class="d-none d-md-inline-flex">Examples</span>
+                    </a>
+                </li>
             </ul>
-
+{#            <ul class="container-fluid list-group-horizontal">#}
+{#                <a href="{% url "projects" %}"#}
+{#                   class="list-group-item align-content-center justify-content-center border-bottom py-2">#}
+{#                    <i class="bi bi-kanban"></i>#}
+{#                    Projects#}
+{#                </a>#}
+{#                <a href="#" class="list-group-item align-content-center justify-content-center border-bottom py-2">#}
+{#                    <i class="bi bi-server"></i>#}
+{#                    Entities#}
+{#                </a>#}
+{#                <a href="#" class="list-group-item align-content-center justify-content-center border-bottom py-2">#}
+{#                    <i class="bi bi-server"></i>#}
+{#                    Devices#}
+{#                </a>#}
+{#                <a href="#" class="list-group-item align-content-center justify-content-center border-bottom py-2">#}
+{#                    <i class="bi bi-alarm"></i>#}
+{#                    Alarming#}
+{#                </a>#}
+{#            </ul>#}
         </div>
     </div>
 </div>

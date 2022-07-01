@@ -219,3 +219,4 @@ fabric.properties
 .idea
 
 app/Entirety/static/CACHE/
+app/Entirety/**/migrations/

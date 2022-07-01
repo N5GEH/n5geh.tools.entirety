@@ -1,0 +1,20 @@
+{% load crispy_forms_tags %}
+
+<form hx-post="{{ request.path }}" class="modal-content">
+    {% csrf_token %}
+    <div class="modal-header">
+        <h5 class="modal-title">{% block modal_title %}{% endblock %}</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+    </div>
+    <div class="modal-body">
+        {% block modal_body %}
+            {{ form|crispy }}
+        {% endblock %}
+    </div>
+    <div class="modal-footer">
+        {% block modal_footer %}
+            <button type="button" data-bs-dismiss="modal" class="btn btn-secondary">Cancel</button>
+            <button type="submit" class="btn btn-primary">Save</button>
+        {% endblock %}
+    </div>
+</form>

@@ -3,11 +3,13 @@ backports.zoneinfo==0.2.1
 certifi==2022.6.15
 cfgv==3.3.1
 charset-normalizer==2.0.12
+crispy-bootstrap5==0.6
 distlib==0.3.4
 dj-database-url==0.5.0
 Django==4.0.5
 django-appconf==1.0.5
 django-compressor==4.0
+django-crispy-forms==1.14.0
 django-libsass==0.9
 filelock==3.7.1
 identify==2.5.1
