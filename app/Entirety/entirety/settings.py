@@ -1,7 +1,7 @@
 import os
 
 from pathlib import Path
-from pydantic import BaseSettings, Field, AnyHttpUrl, FilePath
+from pydantic import BaseSettings, Field
 
 __version__ = "0.1.0"
 
@@ -37,6 +37,7 @@ class Settings(BaseSettings):
         "crispy_bootstrap5",
         "projects.apps.ProjectsConfig",
         "examples.apps.ExamplesConfig",
+        "users.apps.UsersConfig",
     ]
 
     CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
@@ -102,7 +103,8 @@ class Settings(BaseSettings):
         },
     ]
 
-    AUTHENTICATION_BACKENDS = ("mozilla_django_oidc.auth.OIDCAuthenticationBackend",)
+    AUTHENTICATION_BACKENDS = ("entirety.oidc.CustomOIDCAB",)
+    AUTH_USER_MODEL = "users.User"
 
     LOGIN_URL: str = Field(default="/oidc/authenticate", env="LOGIN_URL")
     LOGIN_REDIRECT_URL: str = Field(default="/oidc/callback/", env="LOGIN_REDIRECT_URL")
@@ -150,7 +152,18 @@ class Settings(BaseSettings):
 
     DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
+    LOGGING = {
+        "version": 1,
+        "disable_existing_loggers": False,
+        "handlers": {
+            "console": {"class": "logging.StreamHandler", "level": "DEBUG"},
+        },
+        "loggers": {
+            "mozilla_django_oidc": {"handlers": ["console"], "level": "DEBUG"},
+        },
+    }
+
     class Config:
         case_sensitive = False
-        env_file = "../.env"
+        env_file = ".env"
         env_file_encoding = "utf-8"
