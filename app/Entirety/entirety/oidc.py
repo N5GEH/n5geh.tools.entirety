@@ -17,7 +17,7 @@ class CustomOIDCAB(OIDCAuthenticationBackend):
         user.last_name = claims.get("family_name", "")
         user.username = claims.get("preferred_username", "")
 
-        user.is_superuser = "super_admin" in roles
+        user.is_superuser = user.is_staff = "super_admin" in roles
         user.is_server_admin = "server_admin" in roles
         user.is_project_admin = "project_admin" in roles
 
