@@ -8,7 +8,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
     <link rel="shortcut icon" type="image/x-icon" href="{% static 'img/favicon.ico' %}">
-    <title>{% block title %}Entirety{% endblock %}</title>
+    <title>Entirety - {% block title %}(Title){% endblock %}</title>
 
 
     {% compress css %}
@@ -42,7 +42,7 @@
 
 <div class="container-fluid ps-0 d-flex">
     {% include 'sidebar.html' %}
-    <main class="d-flex flex-column ps-2 pt-2">
+    <main class="d-flex flex-column flex-fill ps-4 pe-3 py-3">
         {% block content %}(no content - should not be here) {% endblock %}
     </main>
     {% include 'modal.html' %}

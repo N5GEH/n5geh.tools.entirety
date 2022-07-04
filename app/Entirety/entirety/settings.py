@@ -171,7 +171,7 @@ class Settings(BaseSettings):
     # Internationalization
     # https://docs.djangoproject.com/en/4.0/topics/i18n/
 
-    LANGUAGE_CODE: str = Field(default="de-de", env="LANGUAGE_CODE")
+    LANGUAGE_CODE: str = Field(default="en-us", env="LANGUAGE_CODE")
 
     TIME_ZONE: str = Field(default="Europe/Berlin", env="TIME_ZONE")
 
