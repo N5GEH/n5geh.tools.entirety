@@ -1,29 +1,23 @@
 import os
 
 from pathlib import Path
-from pydantic import BaseSettings, Field
+from typing import List
+
+from pydantic import BaseSettings, Field, AnyUrl, validator
+
+from utils.generators import generate_secret_key
 
 __version__ = "0.1.0"
 
 
 class Settings(BaseSettings):
+
     # Build paths inside the project like this: BASE_DIR / 'subdir'.
     BASE_DIR = Path(__file__).resolve().parent.parent
 
     VERSION = __version__
-    # Quick-start development settings - unsuitable for production
-    # See https://docs.djangoproject.com/en/4.0/howto/deployment/checklist/
-
-    # SECURITY WARNING: keep the secret key used in production secret!
-    SECRET_KEY = "django-insecure-_8e5-lw61o*9ml#eds^!-wc%0g7kabh^8go)!_(7)8x13+fort"
-
-    # SECURITY WARNING: don't run with debug turned on in production!
-    DEBUG = True
-
-    ALLOWED_HOSTS = []
 
     # Application definition
-
     INSTALLED_APPS = [
         "django.contrib.admin",
         "django.contrib.auth",
@@ -75,16 +69,6 @@ class Settings(BaseSettings):
 
     WSGI_APPLICATION = "entirety.wsgi.application"
 
-    # Database
-    # https://docs.djangoproject.com/en/4.0/ref/settings/#databases
-
-    DATABASES = {
-        "default": {
-            "ENGINE": "django.db.backends.sqlite3",
-            "NAME": BASE_DIR / "db.sqlite3",
-        }
-    }
-
     # Password validation
     # https://docs.djangoproject.com/en/4.0/ref/settings/#auth-password-validators
 
@@ -105,26 +89,6 @@ class Settings(BaseSettings):
 
     AUTHENTICATION_BACKENDS = ("entirety.oidc.CustomOIDCAB",)
     AUTH_USER_MODEL = "users.User"
-
-    LOGIN_URL: str = Field(default="/oidc/authenticate", env="LOGIN_URL")
-    LOGIN_REDIRECT_URL: str = Field(default="/oidc/callback/", env="LOGIN_REDIRECT_URL")
-    LOGOUT_REDIRECT_URL: str = Field(default="/", env="LOGOUT_REDIRECT_URL")
-
-    OIDC_RP_SIGN_ALGO: str = Field(default="RS256", env="OIDC_RP_SIGN_ALGO")
-    OIDC_OP_JWKS_ENDPOINT: str = Field(env="OIDC_OP_JWKS_ENDPOINT")
-
-    OIDC_RP_CLIENT_ID: str = Field(env="OIDC_RP_CLIENT_ID")
-    OIDC_RP_CLIENT_SECRET: str = Field(env="OIDC_RP_CLIENT_SECRET")
-    OIDC_OP_AUTHORIZATION_ENDPOINT: str = Field(env="OIDC_OP_AUTHORIZATION_ENDPOINT")
-    OIDC_OP_TOKEN_ENDPOINT: str = Field(env="OIDC_OP_TOKEN_ENDPOINT")
-    OIDC_OP_USER_ENDPOINT: str = Field(env="OIDC_OP_USER_ENDPOINT")
-
-    # Internationalization
-    # https://docs.djangoproject.com/en/4.0/topics/i18n/
-
-    LANGUAGE_CODE: str = Field(default="de-de", env="LANGUAGE_CODE")
-
-    TIME_ZONE: str = Field(default="Europe/Berlin", env="TIME_ZONE")
 
     USE_I18N = True
 
@@ -162,6 +126,54 @@ class Settings(BaseSettings):
             "mozilla_django_oidc": {"handlers": ["console"], "level": "DEBUG"},
         },
     }
+
+    # Settings provided by environment
+    SECRET_KEY: str = Field(default=generate_secret_key(), env="DJANGO_SECRET_KEY")
+
+    @validator("SECRET_KEY")
+    def secret_key_not_empty(cls, v) -> str:
+        v_cleaned = v.strip()
+        if not v_cleaned:
+            v_cleaned = generate_secret_key()
+        elif len(v_cleaned) < 32:
+            raise ValueError("Django secret should be at least 32 characters long")
+        return v_cleaned
+
+    # SECURITY WARNING: don't run with debug turned on in production!
+    DEBUG: bool = Field(default=False, env="DJANGO_DEBUG")
+
+    ALLOWED_HOSTS: List = Field(default=[], env="ALLOWED_HOSTS")
+
+    # Database
+    # https://docs.djangoproject.com/en/4.0/ref/settings/#databases
+    # TODO
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.sqlite3",
+            "NAME": BASE_DIR / "db.sqlite3",
+        }
+    }
+
+    LOGIN_URL: str = Field(default="/oidc/authenticate", env="LOGIN_URL")
+
+    LOGIN_REDIRECT_URL: str = Field(default="/oidc/callback/", env="LOGIN_REDIRECT_URL")
+    LOGOUT_REDIRECT_URL: str = Field(default="/", env="LOGOUT_REDIRECT_URL")
+
+    OIDC_RP_SIGN_ALGO: str = Field(default="RS256", env="OIDC_RP_SIGN_ALGO")
+    OIDC_OP_JWKS_ENDPOINT: str = Field(env="OIDC_OP_JWKS_ENDPOINT")
+
+    OIDC_RP_CLIENT_ID: str = Field(env="OIDC_RP_CLIENT_ID")
+    OIDC_RP_CLIENT_SECRET: str = Field(env="OIDC_RP_CLIENT_SECRET")
+    OIDC_OP_AUTHORIZATION_ENDPOINT: str = Field(env="OIDC_OP_AUTHORIZATION_ENDPOINT")
+    OIDC_OP_TOKEN_ENDPOINT: str = Field(env="OIDC_OP_TOKEN_ENDPOINT")
+    OIDC_OP_USER_ENDPOINT: str = Field(env="OIDC_OP_USER_ENDPOINT")
+
+    # Internationalization
+    # https://docs.djangoproject.com/en/4.0/topics/i18n/
+
+    LANGUAGE_CODE: str = Field(default="de-de", env="LANGUAGE_CODE")
+
+    TIME_ZONE: str = Field(default="Europe/Berlin", env="TIME_ZONE")
 
     class Config:
         case_sensitive = False
