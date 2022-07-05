@@ -1,7 +1,7 @@
 <div class="d-flex flex-column col-auto">
-    <div id="sidebar" class="collapse collapse-horizontal show border-end">
+    <div id="sidebar" class="sidebar collapse collapse-horizontal show border-end">
         <div class="sidebar-nav bg-grey">
-            <ul class="nav nav-flush flex-column h-100 text-center text-md-start">
+            <ul class="nav nav-flush flex-column text-center text-md-start">
                 {% if user.is_authenticated %}
                     <li class="nav-item border-bottom d-inline-flex">
                         <a href="{% url "projects" %}" class="nav-link btn-sidebar py-md-2"

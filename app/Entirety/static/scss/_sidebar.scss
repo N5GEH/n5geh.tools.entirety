@@ -1,10 +1,20 @@
-$sidebar-height: calc(100vh - #{ $nav-link-height} - #{$nav-link-padding-y * 2});
+$sidebar-offset: calc(#{ $nav-link-height} + #{$nav-link-padding-y * 2});
+$sidebar-height: calc(100vh - #{ $sidebar-offset});
 $list-group-bg: var(--bs-blue);
 $sidebar-font-size: var(--bs-navbar-brand-font-size);
 
+.sidebar {
+  position: sticky;
+  top:#{ $sidebar-offset};
+}
+
+.sidebar, .sidebar-nav {
+  height: #{ $sidebar-height};
+}
+
 .sidebar-nav {
   width: 208px;
-  height: #{ $sidebar-height};
+
 
   @include media-breakpoint-down(md) {
     width: 72px;
@@ -26,11 +36,15 @@ $sidebar-font-size: var(--bs-navbar-brand-font-size);
         width: 100%;
       }
 
-      .btn-sidebar{
+      .btn-sidebar {
         &.active {
           color: white;
         }
       }
+    }
+
+    &.nav {
+      height: #{ $sidebar-height};
     }
   }
 
