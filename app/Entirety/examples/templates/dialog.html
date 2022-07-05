@@ -1,5 +1,7 @@
 {% extends '_base.html' %}
 
+{% block title %}Example Dialog{% endblock %}
+
 {% block content %}
     <button type="button" class="btn btn-primary" hx-get="{% url 'dialog_example_add' %}" hx-target="#dg_general">
         Add

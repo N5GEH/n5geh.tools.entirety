@@ -1,4 +1,5 @@
 from mozilla_django_oidc.auth import OIDCAuthenticationBackend
+from django.conf import settings
 
 
 class CustomOIDCAB(OIDCAuthenticationBackend):
@@ -17,9 +18,9 @@ class CustomOIDCAB(OIDCAuthenticationBackend):
         user.last_name = claims.get("family_name", "")
         user.username = claims.get("preferred_username", "")
 
-        user.is_superuser = user.is_staff = "super_admin" in roles
-        user.is_server_admin = "server_admin" in roles
-        user.is_project_admin = "project_admin" in roles
+        user.is_superuser = user.is_staff = settings.OIDC_SUPER_ADMIN_ROLE in roles
+        user.is_server_admin = settings.OIDC_SERVER_ADMIN_ROLE in roles
+        user.is_project_admin = settings.OIDC_PROJECT_ADMIN_ROLE in roles
 
         user.save()
 
@@ -27,5 +28,7 @@ class CustomOIDCAB(OIDCAuthenticationBackend):
 
     def verify_claims(self, claims):
         verified = super(CustomOIDCAB, self).verify_claims(claims)
-        is_user = "user" in claims.get("roles", [])
+        is_user = settings.OIDC_USER_ROLE in claims.get(
+            settings.OIDC_TOKEN_ROLE_FIELD, []
+        )
         return verified and is_user

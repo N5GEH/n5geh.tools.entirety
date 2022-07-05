@@ -168,6 +168,18 @@ class Settings(BaseSettings):
     OIDC_OP_TOKEN_ENDPOINT: str = Field(env="OIDC_OP_TOKEN_ENDPOINT")
     OIDC_OP_USER_ENDPOINT: str = Field(env="OIDC_OP_USER_ENDPOINT")
 
+    OIDC_SUPER_ADMIN_ROLE: str = Field(
+        default="super_admin", env="OIDC_SUPER_ADMIN_ROLE"
+    )
+    OIDC_SERVER_ADMIN_ROLE: str = Field(
+        default="server_admin", env="OIDC_SERVER_ADMIN_ROLE"
+    )
+    OIDC_PROJECT_ADMIN_ROLE: str = Field(
+        default="project_admin", env="OIDC_PROJECT_ADMIN_ROLE"
+    )
+    OIDC_USER_ROLE: str = Field(default="user", env="OIDC_USER_ROLE")
+    OIDC_TOKEN_ROLE_FIELD: str = Field(default="roles", env="OIDC_TOKEN_ROLE_FIELD")
+
     # Internationalization
     # https://docs.djangoproject.com/en/4.0/topics/i18n/
 
