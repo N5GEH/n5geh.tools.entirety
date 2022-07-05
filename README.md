@@ -16,17 +16,149 @@
 ## Prerequisites
 
 ### Installing dependencies
-- pip
-    ```bash
-      cd ./app/entirety
-      pip install -r requirements.txt
-    ```
-- pre-commit
-    ```bash
-      pre-commit install
-    ```
+pip
+
+```bash
+  cd ./app/entirety
+  pip install -r requirements.txt
+```
+
+pre-commit
+```bash
+  pre-commit install
+```
+
+### Populate .env File
+
+```bash
+  cp .env.EXAMPLE .env
+```
+
+***DJANGO_SECRET_KEY***
+
+*description:* Django secret
+
+*default:* Auto generated key
+
+***DJANGO_DEBUG***
+
+*description:* Run Django with debug options. Not for production use!
+
+*default:* False
+
+***ALLOWED_HOSTS***
+
+*description:* Hosts that are allowed to access the application.
+Only neccessary if DJANGO_DEBUG=FALSE
+
+*default:* []
+
+***LANGUAGE_CODE***
+
+*description:* Application default language
+
+*default:* en-us
+
+***TIME_ZONE***
+
+*description:* Application timezone
+
+*default:* Europe/Berlin
+
+***LOGIN_URL***
+
+*description:* Application login url. Requires further changes.
+
+*default:* /oidc/authenticate
+
+***LOGIN_REDIRECT_URL***
+
+*description:* Application successful login redirect url.
+
+*default:* /oidc/callback/
+
+***LOGOUT_REDIRECT_URL***
+
+*description:* Application successful logout redirect url.
+
+*default:* /
+
+***OIDC_OP_AUTHORIZATION_ENDPOINT***
+
+*description:* OIDC provider authorization endpoint.
+
+*default:* None
+
+***OIDC_OP_JWKS_ENDPOINT***
+
+*description:* OIDC provider jwks endpoint.
+
+*default:* None
+
+***OIDC_OP_TOKEN_ENDPOINT***
+
+*description:* OIDC provider token endpoint.
+
+*default:* None
+
+***OIDC_OP_USER_ENDPOINT***
+
+*description:* OIDC provider user endpoint.
+
+*default:* None
+
+***OIDC_RP_CLIENT_ID***
+
+*description:* Client id from OIDC provider.
+
+*default:* None
+
+***OIDC_RP_CLIENT_SECRET***
+
+*description:* Client secret from OIDC provider.
+
+*default:* None
+
+***OIDC_SUPER_ADMIN_ROLE***
+
+*description:* Super admin role configured in OIDC provider.
+
+*default:* super_admin
+
+***OIDC_SERVER_ADMIN_ROLE***
+
+*description:* Server admin role configured in OIDC provider.
+Server admins can create/update projects for any project admin.
+
+*default:* server_admin
+
+***OIDC_PROJECT_ADMIN_ROLE***
+
+*description:* Project admin role configured in OIDC provider.
+Project admins can create projects and edit their own projects.
+
+*default:* project_admin
+
+***OIDC_USER_ROLE***
+
+*description:* User role configured in OIDC provider.
+
+*default:* user
+
+***OIDC_TOKEN_ROLE_FIELD***
+
+*description:* Field in ID token that represents user roles.
+
+*default:* roles
 
 ## Usage
+
+Migrate Database
+
+```bash
+  python manage.py makemigrations projects users examples
+  python manage.py migrate
+```
 
 Starting the Django server:
 
