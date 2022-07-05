@@ -1,7 +1,5 @@
 $sidebar-offset: calc(#{ $nav-link-height} + #{$nav-link-padding-y * 2});
 $sidebar-height: calc(100vh - #{ $sidebar-offset});
-$list-group-bg: var(--bs-blue);
-$sidebar-font-size: var(--bs-navbar-brand-font-size);
 
 .sidebar {
   position: sticky;
@@ -14,7 +12,6 @@ $sidebar-font-size: var(--bs-navbar-brand-font-size);
 
 .sidebar-nav {
   width: 208px;
-
 
   @include media-breakpoint-down(md) {
     width: 72px;
