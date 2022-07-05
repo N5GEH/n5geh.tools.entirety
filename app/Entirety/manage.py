@@ -8,7 +8,7 @@ from pydantic_settings import SetUp
 
 def main():
     """Run administrative tasks."""
-    # os.environ.setdefault("DJANGO_SETTINGS_MODULE", "entirety.settings")
+    os.environ.setdefault("DJANGO_SETTINGS_MODULE", "entirety.settings.Settings")
     SetUp().configure()
 
     try:

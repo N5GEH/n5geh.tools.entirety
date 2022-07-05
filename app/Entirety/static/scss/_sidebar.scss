@@ -25,6 +25,12 @@ $sidebar-font-size: var(--bs-navbar-brand-font-size);
         color: #72767b;
         width: 100%;
       }
+
+      .btn-sidebar{
+        &.active {
+          color: white;
+        }
+      }
     }
   }
 

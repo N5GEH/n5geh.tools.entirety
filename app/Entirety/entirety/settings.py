@@ -2,7 +2,7 @@ import os
 
 from pathlib import Path
 from typing import List
-
+from mimetypes import add_type
 from pydantic import BaseSettings, Field, AnyUrl, validator
 
 from utils.generators import generate_secret_key
@@ -11,7 +11,7 @@ __version__ = "0.1.0"
 
 
 class Settings(BaseSettings):
-
+    add_type("text/css", ".css", True)
     # Build paths inside the project like this: BASE_DIR / 'subdir'.
     BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -186,6 +186,8 @@ class Settings(BaseSettings):
     LANGUAGE_CODE: str = Field(default="en-us", env="LANGUAGE_CODE")
 
     TIME_ZONE: str = Field(default="Europe/Berlin", env="TIME_ZONE")
+
+    COMPRESS_ENABLED: bool = Field(default=not DEBUG, env="COMPRESS_ENABLED")
 
     class Config:
         case_sensitive = False

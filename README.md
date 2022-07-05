@@ -7,15 +7,16 @@
 
 ## Built With
 
- - Django 4.0.5
- - Bootstrap 5.2.0-beta1
- - htmx 1.7.0
+- Django 4.0.5
+- Bootstrap 5.2.0-beta1
+- htmx 1.7.0
 
-# Getting Started
+## Getting Started
 
-## Prerequisites
+### Prerequisites
 
-### Installing dependencies
+#### Installing dependencies
+
 pip
 
 ```bash
@@ -24,27 +25,18 @@ pip
 ```
 
 pre-commit
+
 ```bash
   pre-commit install
 ```
 
-### Populate .env File
+#### create .env File
 
 ```bash
   cp .env.EXAMPLE .env
 ```
 
-***DJANGO_SECRET_KEY***
-
-*description:* Django secret
-
-*default:* Auto generated key
-
-***DJANGO_DEBUG***
-
-*description:* Run Django with debug options. Not for production use!
-
-*default:* False
+#### Available settings
 
 ***ALLOWED_HOSTS***
 
@@ -53,29 +45,41 @@ Only neccessary if DJANGO_DEBUG=FALSE
 
 *default:* []
 
+***COMPRESS_ENABLED***
+
+*description:* Compress js/css files
+
+*default:* not DJANGO_DEBUG
+
+***DJANGO_DEBUG***
+
+*description:* Run Django with debug options. Not for production use!
+
+*default:* False
+
+***DJANGO_SECRET_KEY***
+
+*description:* Django secret
+
+*default:* Auto generated key
+
 ***LANGUAGE_CODE***
 
 *description:* Application default language
 
 *default:* en-us
 
-***TIME_ZONE***
+***LOGIN_REDIRECT_URL***
 
-*description:* Application timezone
+*description:* Application successful login redirect url.
 
-*default:* Europe/Berlin
+*default:* /oidc/callback/
 
 ***LOGIN_URL***
 
 *description:* Application login url. Requires further changes.
 
 *default:* /oidc/authenticate
-
-***LOGIN_REDIRECT_URL***
-
-*description:* Application successful login redirect url.
-
-*default:* /oidc/callback/
 
 ***LOGOUT_REDIRECT_URL***
 
@@ -107,6 +111,13 @@ Only neccessary if DJANGO_DEBUG=FALSE
 
 *default:* None
 
+***OIDC_PROJECT_ADMIN_ROLE***
+
+*description:* Project admin role configured in OIDC provider.
+Project admins can create projects and edit their own projects.
+
+*default:* project_admin
+
 ***OIDC_RP_CLIENT_ID***
 
 *description:* Client id from OIDC provider.
@@ -119,12 +130,6 @@ Only neccessary if DJANGO_DEBUG=FALSE
 
 *default:* None
 
-***OIDC_SUPER_ADMIN_ROLE***
-
-*description:* Super admin role configured in OIDC provider.
-
-*default:* super_admin
-
 ***OIDC_SERVER_ADMIN_ROLE***
 
 *description:* Server admin role configured in OIDC provider.
@@ -132,12 +137,17 @@ Server admins can create/update projects for any project admin.
 
 *default:* server_admin
 
-***OIDC_PROJECT_ADMIN_ROLE***
+***OIDC_SUPER_ADMIN_ROLE***
 
-*description:* Project admin role configured in OIDC provider.
-Project admins can create projects and edit their own projects.
+*description:* Super admin role configured in OIDC provider.
 
-*default:* project_admin
+*default:* super_admin
+
+***OIDC_TOKEN_ROLE_FIELD***
+
+*description:* Field in ID token that represents user roles.
+
+*default:* roles
 
 ***OIDC_USER_ROLE***
 
@@ -145,11 +155,11 @@ Project admins can create projects and edit their own projects.
 
 *default:* user
 
-***OIDC_TOKEN_ROLE_FIELD***
+***TIME_ZONE***
 
-*description:* Field in ID token that represents user roles.
+*description:* Application timezone
 
-*default:* roles
+*default:* Europe/Berlin
 
 ## Usage
 

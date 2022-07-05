@@ -12,6 +12,6 @@ import os
 from django.core.asgi import get_asgi_application
 from pydantic_settings import SetUp
 
-# os.environ.setdefault("DJANGO_SETTINGS_MODULE", "entirety.settings")
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "entirety.settings.Settings")
 SetUp().configure()
 application = get_asgi_application()

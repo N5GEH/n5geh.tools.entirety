@@ -4,7 +4,7 @@
             <ul class="nav nav-flush flex-column h-100 text-center text-md-start">
                 {% if user.is_authenticated %}
                     <li class="nav-item border-bottom d-inline-flex">
-                        <a href="{% url "projects" %}" class="nav-link py-md-2"
+                        <a href="{% url "projects" %}" class="nav-link btn-sidebar py-md-2"
                            data-bs-toggle="tooltip" data-bs-placement="right" data-bs-custom-class="d-md-none"
                            title="Projects">
                             <i class="bi bi-kanban"></i>
@@ -12,7 +12,7 @@
                         </a>
                     </li>
                     <li class="nav-item border-bottom d-inline-flex">
-                        <a href="#" class="nav-link py-md-2"
+                        <a href="#" class="nav-link btn-sidebar py-md-2"
                            data-bs-toggle="tooltip" data-bs-placement="right" data-bs-custom-class="d-md-none"
                            title="Entities">
                             <i class="bi bi-server"></i>
@@ -20,7 +20,7 @@
                         </a>
                     </li>
                     <li class="nav-item border-bottom d-inline-flex">
-                        <a href="#" class="nav-link py-md-2"
+                        <a href="#" class="nav-link btn-sidebar py-md-2"
                            data-bs-toggle="tooltip" data-bs-placement="right" data-bs-custom-class="d-md-none"
                            title="Devices">
                             <i class="bi bi-server"></i>
@@ -28,7 +28,7 @@
                         </a>
                     </li>
                     <li class="nav-item border-bottom d-inline-flex">
-                        <a href="#" class="nav-link py-md-2"
+                        <a href="#" class="nav-link btn-sidebar py-md-2"
                            data-bs-toggle="tooltip" data-bs-placement="right" data-bs-custom-class="d-md-none"
                            title="Alarming">
                             <i class="bi bi-alarm"></i>
@@ -37,7 +37,7 @@
                     </li>
                 {% endif %}
                 <li class="nav-item border-bottom d-inline-flex">
-                    <a href="{% url "dialog_example" %}" class="nav-link py-md-2"
+                    <a href="{% url "dialog_example" %}" class="nav-link btn-sidebar py-md-2"
                        data-bs-toggle="tooltip" data-bs-placement="right" data-bs-custom-class="d-md-none"
                        title="Examples">
                         <i class="bi bi-body-text"></i>
