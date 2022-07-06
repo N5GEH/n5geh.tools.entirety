@@ -1,0 +1,16 @@
+{% extends '_base.html' %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+
+    <div class="container">
+        <h2 class="my-4">{{ project.name }}</h2>
+        <form action="" method="post" enctype="multipart/form-data"
+              {% if form_submitted %}class="was-validated" {% endif %}>
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit" class="btn btn-primary">Submit</button>
+        </form>
+    </div>
+
+{% endblock %}

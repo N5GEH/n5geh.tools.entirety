@@ -93,6 +93,7 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "compressor",
     "projects.apps.ProjectsConfig",
+    'crispy_forms'
 ]
 
 MIDDLEWARE = [
@@ -180,3 +181,9 @@ COMPRESS_PRECOMPILERS = (("text/x-scss", "django_libsass.SassCompiler"),)
 # https://docs.djangoproject.com/en/4.0/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+# Media location
+# https://docs.djangoproject.com/en/4.0/howto/static-files/#serving-files-uploaded-by-a-user-during-development
+MEDIA_URL = "/media/"
+
+MEDIA_ROOT = BASE_DIR / "media"

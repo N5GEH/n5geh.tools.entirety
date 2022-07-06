@@ -1,21 +1,39 @@
 {% extends '_base.html' %}
+{% load static %}
 
 {% block content %}
-<div style="display: flex; flex-direction: row; flex-wrap: wrap">
-    {% for project in project_list %}
-    {# Single Card Template:#}
-    <div class="card text-bg-light mb-3" style="width: 18rem; margin: 10px">
-        <div class="card-header">
-            <h5>{{ project.name }}
-                <i class="bi bi-kanban"></i>
-            </h5>
-        </div>
-        <div class="card-body">
-            <p class="card-text">{{ project.description }}</p>
-            <a href="/project/{{ project.id }}/edit" class="btn btn-primary">Edit</a>
-            <a href="/project/{{ project.id }}/delete" class="btn btn-primary">Delete</a>
+
+    <div style="display: flex; flex-direction: row; flex-wrap: wrap">
+        <div class="d-flex justify-content-center align-items-center">
+            <a href="{% url 'projects:create' %}" class="btn btn-info bi-plus-circle">Add Project</a>
+            <form action="">
+                <input type="text" name="search" placeholder="Search by title" value="{{ request.GET.name }}">
+                <input type="submit" value="Search">
+            </form>
         </div>
     </div>
-    {% endfor %}
-</div>
+
+
+    <div style="display: flex; flex-direction: row; flex-wrap: wrap">
+        {% for project in project_list %}
+            <div class="card text-bg-light mb-3" style="width: 18rem; margin: 10px">
+                <div class="card-header">
+                    <h5>{{ project.name }}
+                        <i class="bi bi-kanban"></i>
+                    </h5>
+                </div>
+                {% if project.logo.url|length > 0 %}
+                    <img src="{{ project.logo.url }}" class="card-img-top" alt="{{ project.name }}">
+                {% else %}
+                    <img src="{% static "/img/n5geh.png" %}" class="card-img-top" alt="{{ project.name }}">
+                {% endif %}
+                <div class="card-body">
+                    <p class="card-text">{{ project.description }}</p>
+                    <a href="{% url 'projects:update' project.uuid %}" class="btn btn-primary">Edit</a>
+                    <a href="{% url 'projects:delete' project.uuid %}" class="btn btn-primary">Delete</a>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+
 {% endblock %}
