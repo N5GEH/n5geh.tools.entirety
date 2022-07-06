@@ -8,8 +8,7 @@
         <form action="" method="post" enctype="multipart/form-data"
               {% if form_submitted %}class="was-validated" {% endif %}>
             {% csrf_token %}
-            {{ form.as_p }}
-            <button type="submit" class="btn btn-primary">Submit</button>
+            {% crispy form form.helper %}
         </form>
     </div>
 
