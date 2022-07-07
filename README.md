@@ -176,6 +176,14 @@ Starting the Django server:
   python manage.py runserver
 ```
 
+## Contributing
+
+See the [contributing guide](./docs/CONTRIBUTING.md) for detailed instructions on how to get started with our project.
+
+## Changelog
+
+See [changelog](./docs/CHANGELOG.md) for detailed overview of changes.
+
 ## Contact
 
 [@SBlechmann](https://github.com/SBlechmann)
