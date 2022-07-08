@@ -1,0 +1,9 @@
+{% extends '_base.html' %}
+
+{% block title %}Subscriptions{% endblock %}
+
+{% block content %}
+    {% for subscription in subscription_list %}
+        {{ subscription.name }}
+    {% endfor %}
+{% endblock %}

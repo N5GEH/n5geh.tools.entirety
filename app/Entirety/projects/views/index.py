@@ -7,4 +7,4 @@ class Index(TemplateView):
         user = request.user
 
         context = {"add_project": user.is_project_admin}
-        return render(request, "index.html", context)
+        return render(request, "projects/index.html", context)

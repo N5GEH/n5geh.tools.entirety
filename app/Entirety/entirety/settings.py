@@ -32,6 +32,7 @@ class Settings(BaseSettings):
         "projects.apps.ProjectsConfig",
         "examples.apps.ExamplesConfig",
         "users.apps.UsersConfig",
+        "alarming.apps.AlarmingConfig",
     ]
 
     CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"

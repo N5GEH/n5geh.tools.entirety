@@ -1,3 +1,5 @@
 from django.contrib import admin
 
-# Register your models here.
+from alarming.models import Subscription
+
+admin.site.register(Subscription)
