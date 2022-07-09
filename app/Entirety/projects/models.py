@@ -16,13 +16,13 @@ class Project(models.Model):
     fiware_service_path = models.CharField(max_length=1, default="/", null=True)
 
     owner = models.ForeignKey(User, on_delete=models.CASCADE)
-    users = models.ManyToManyField(User, related_name="users")
+    users = models.ManyToManyField(User, related_name="users", blank=True)
 
     def is_owner(self, user: User):
         return self.owner == user
 
     def is_user(self, user: User):
-        return user in self.users
+        return user in self.users.all()
 
     def __str__(self):
         return self.name
