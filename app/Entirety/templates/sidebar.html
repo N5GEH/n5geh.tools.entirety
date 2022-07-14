@@ -5,6 +5,13 @@
                 {% if user.is_authenticated %}
                     {% if project %}
                         <li class="nav-item border-bottom d-inline-flex">
+                            <a class="nav-link disabled py-md-2"
+                               data-bs-toggle="tooltip" data-bs-placement="right" data-bs-custom-class="d-md-none"
+                               title="{{ project }}">
+                                <span class="d-none d-md-inline-flex">{{ project }}</span>
+                            </a>
+                        </li>
+                        <li class="nav-item border-bottom d-inline-flex">
                             <a href="#" class="nav-link btn-sidebar py-md-2"
                                data-bs-toggle="tooltip" data-bs-placement="right" data-bs-custom-class="d-md-none"
                                title="Entities">
@@ -21,7 +28,8 @@
                             </a>
                         </li>
                         <li class="nav-item border-bottom d-inline-flex">
-                            <a href="{% url "subscriptions" project_id=project.uuid %}" class="nav-link btn-sidebar py-md-2"
+                            <a href="{% url "subscriptions" project_id=project.uuid %}"
+                               class="nav-link btn-sidebar py-md-2"
                                data-bs-toggle="tooltip" data-bs-placement="right" data-bs-custom-class="d-md-none"
                                title="Alarming">
                                 <i class="bi bi-alarm"></i>
