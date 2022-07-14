@@ -4,11 +4,11 @@
 {% block content %}
 
     <div class="container">
-        <h2 class="my-4">{{ project.name }}</h2>
+        <h2 class="my-4">{% if project.name %} Edit {{ project.name }} {% else %} Create New Project {% endif %}</h2>
         <form action="" method="post" enctype="multipart/form-data"
               {% if form_submitted %}class="was-validated" {% endif %}>
             {% csrf_token %}
-            {% crispy form form.helper %}
+            {% crispy form %}
         </form>
     </div>
 
