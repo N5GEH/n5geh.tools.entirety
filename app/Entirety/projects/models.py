@@ -10,7 +10,7 @@ def generate_uuid():
 class Project(models.Model):
     uuid = models.CharField(unique=True, max_length=64,
                             default=generate_uuid, primary_key=True)
-    name = models.CharField(max_length=64)
+    name = models.CharField(max_length=64, unique=True)
     description = models.CharField(max_length=300, null=True)
     date_created = models.DateTimeField(auto_now_add=True)
     date_modified = models.DateTimeField(auto_now=True)
