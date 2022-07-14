@@ -18,6 +18,11 @@ from django.urls import path, include
 
 from . import views
 
+handler404 = "entirety.views.custom_page_not_found_view"
+handler500 = "entirety.views.custom_error_view"
+handler403 = "entirety.views.custom_permission_denied_view"
+handler400 = "entirety.views.custom_bad_request_view"
+
 urlpatterns = [
     path("admin/", admin.site.urls),
     path("", views.home, name="home"),

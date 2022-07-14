@@ -1,0 +1,10 @@
+{% extends '_base.html' %}
+
+{% block title %}Error {{ error_code }}{% endblock %}
+
+{% block content %}
+    <div class="d-flex">
+        {#    TODO: use custom error layout, but hey cats :D #}
+        <img src="https://http.cat/{{ error_code }}.jpg" class="rounded mx-auto d-block" alt="...">
+    </div>
+{% endblock %}
