@@ -7,7 +7,7 @@ from pydantic import BaseSettings, Field, AnyUrl, validator
 
 from utils.generators import generate_secret_key
 
-__version__ = "0.1.0"
+__version__ = "0.2.0"
 
 
 class Settings(BaseSettings):
