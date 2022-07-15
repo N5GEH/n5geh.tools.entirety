@@ -87,6 +87,8 @@ See [changelog](./docs/CHANGELOG.md) for detailed overview of changes.
 
 [@sbanoeon](https://github.com/sbanoeon)
 
+[@djs0109](https://github.com/djs0109)
+
 [@dnikolay-ebc](https://github.com/dnikolay-ebc)
 
 ## License

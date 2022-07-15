@@ -1,6 +1,17 @@
 import requests
 
+from django.http import HttpResponseRedirect
+from django.urls import reverse
 from django.shortcuts import render
+from django.views.generic import View
+
+
+class CustomLogin(View):
+    def get(self, request, **kwargs):
+        return HttpResponseRedirect(
+            reverse("oidc_authentication_init")
+            + ("?next={}".format(request.GET["next"]) if "next" in request.GET else "")
+        )
 
 
 def home(request):
