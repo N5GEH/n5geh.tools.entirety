@@ -18,9 +18,20 @@ from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import path, include
 
+from . import views
+
+handler404 = "entirety.views.custom_page_not_found_view"
+handler500 = "entirety.views.custom_error_view"
+handler403 = "entirety.views.custom_permission_denied_view"
+handler400 = "entirety.views.custom_bad_request_view"
+
 urlpatterns = [
     path("admin/", admin.site.urls),
-    path("projects/", include("projects.urls"))
+    path("", views.home, name="home"),
+    path("projects/", include("projects.urls")),
+    path("user/", include("users.urls")),
+    path("examples/", include("examples.urls")),
+    path("oidc/", include("mozilla_django_oidc.urls")),
 ]
 
 if settings.DEBUG:
