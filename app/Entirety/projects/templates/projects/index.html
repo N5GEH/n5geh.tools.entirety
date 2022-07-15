@@ -35,30 +35,43 @@
     </div>
 
 
-    <div style="display: flex; flex-direction: row; flex-wrap: wrap">
-        {% for project in project_list %}
-            <div class="card text-bg-light mb-3 mt-5 shadow-lg bg-white rounded" style="width: 18rem; margin: 10px">
-                <div class="card-header">
-                    <h5>{{ project.name }}
-                        <i class="bi bi-kanban"></i>
-                    </h5>
-                </div>
-                {% if project.logo.url|length > 0 %}
-                    <img src="{{ project.logo.url }}" class="card-img-top" alt="{{ project.name }}">
-                {% else %}
-                    <img src="{% static "/img/n5geh.png" %}" class="card-img-top" alt="{{ project.name }}">
-                {% endif %}
-                <div class="card-body">
-                    <p class="card-text">{{ project.description }}</p>
-                    <a href="{% url 'projects:update' project.uuid %}" class="btn btn-primary">Edit</a>
-                    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#deleteModal"
-                            data-bs-url={% url 'projects:delete' project.uuid %}>
-                        Delete
-                    </button>
+    <div class="d-flex flex-row flex-wrap">
+        <div class="row row-cols-1 row-cols-md-4 g-4 mt-3 mb-3">
+            {% for project in project_list %}
+                <div class="col mt-5">
+                    <div class="card h-100">
+                        <div class="card-header">
+                            <h5>{{ project.name }}
+                                <i class="bi bi-kanban"></i>
+                            </h5>
+                        </div>
 
+                        {% if project.logo.url|length > 0 %}
+                            <img src="{{ project.logo.url }}" class="card-img-top w-100" alt="{{ project.name }}">
+                        {% else %}
+                            <img src="{% static "/img/n5geh.png" %}" class="card-img-top" alt="{{ project.name }}">
+                        {% endif %}
+
+                        <div class="card-body">
+                            <p class="card-text text-truncate">{{ project.description }}</p>
+                        </div>
+
+                        <div class="ms-3 mb-3">
+                            <a href="{% url 'projects:update' project.uuid %}" class="btn btn-primary">Edit</a>
+                            <button type="button" class="btn btn-primary" data-bs-toggle="modal"
+                                    data-bs-target="#deleteModal"
+                                    data-bs-url={% url 'projects:delete' project.uuid %}>
+                                Delete
+                            </button>
+                        </div>
+
+                        <div class="card-footer text-muted">
+                            <small>{{ project.date_modified }}</small>
+                        </div>
+                    </div>
                 </div>
-            </div>
-        {% endfor %}
+            {% endfor %}
+        </div>
     </div>
 
 
