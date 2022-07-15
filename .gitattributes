@@ -1,0 +1,3 @@
+# Ignore in language detection
+app/Entirety/static/bootstrap/* linguist-vendored
+app/Entirety/static/htmx/* linguist-vendored
