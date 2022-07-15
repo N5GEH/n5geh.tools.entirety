@@ -20,7 +20,7 @@
 pip
 
 ```bash
-  cd ./app/entirety
+  cd ./app/Entirety
   pip install -r requirements.txt
 ```
 
