@@ -1,10 +1,17 @@
-$sidebar-height: calc(100vh - #{ $nav-link-height} - #{$nav-link-padding-y * 2});
-$list-group-bg: var(--bs-blue);
-$sidebar-font-size: var(--bs-navbar-brand-font-size);
+$sidebar-offset: calc(#{ $nav-link-height} + #{$nav-link-padding-y * 2});
+$sidebar-height: calc(100vh - #{ $sidebar-offset});
+
+.sidebar {
+  position: sticky;
+  top:#{ $sidebar-offset};
+}
+
+.sidebar, .sidebar-nav {
+  height: #{ $sidebar-height};
+}
 
 .sidebar-nav {
-  width: 200px;
-  height: #{ $sidebar-height};
+  width: 208px;
 
   @include media-breakpoint-down(md) {
     width: 72px;
@@ -19,12 +26,22 @@ $sidebar-font-size: var(--bs-navbar-brand-font-size);
 
       font-size: 24px !important;
       border-bottom-color: black !important;
-      border-bottom-style: double;
+      border-top-color: black !important;
 
-      .nav-link {
+      .nav-link, .dropdown {
         color: #72767b;
         width: 100%;
       }
+
+      .btn-sidebar {
+        &.active {
+          color: white;
+        }
+      }
+    }
+
+    &.nav {
+      height: #{ $sidebar-height};
     }
   }
 

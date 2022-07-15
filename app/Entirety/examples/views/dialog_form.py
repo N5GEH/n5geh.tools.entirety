@@ -11,7 +11,7 @@ class DialogForm(View):
         form = ExampleForm()
         return render(
             request,
-            "examples/dialog_form.html",
+            "dialog_form.html",
             {
                 "form": form,
             },
