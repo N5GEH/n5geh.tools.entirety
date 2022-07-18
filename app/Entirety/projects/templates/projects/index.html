@@ -1,5 +1,14 @@
 {% extends '_base.html' %}
 
+{% block title %}Projects{% endblock %}
+
 {% block content %}
+    <p>
+        {% if add_project %}
+            You are allowed to add projects
+        {% else  %}
+            You <b>not</b> are allowed to add projects
+        {% endif %}
+    </p>
     Projects
 {% endblock %}

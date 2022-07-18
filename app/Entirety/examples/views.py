@@ -1,8 +1,6 @@
 import json
-
 from django.shortcuts import render, HttpResponse
 from django.views.generic import View
-
 from examples.forms import ExampleForm
 
 
@@ -35,3 +33,9 @@ class DialogForm(View):
                 "form": form,
             },
         )
+
+
+class Dialog(View):
+    def get(self, request):
+        context = {}
+        return render(request, "examples/dialog.html", context)

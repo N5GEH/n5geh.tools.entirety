@@ -8,7 +8,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
     <link rel="shortcut icon" type="image/x-icon" href="{% static 'img/favicon.ico' %}">
-    <title>{% block title %}Entirety{% endblock %}</title>
+    <title>Entirety - {% block title %}(Title){% endblock %}</title>
 
 
     {% compress css %}
@@ -19,19 +19,22 @@
     {% endcompress %}
 </head>
 <body>
-<nav class="navbar navbar-dark bg-dark">
+<nav class="navbar navbar-dark bg-dark sticky-top">
     <div class="container-fluid">
-        <div class="">
+        <div>
             <button class="navbar-toggler me-2" type="button" data-bs-toggle="collapse" data-bs-target="#sidebar"
                     aria-controls="sidebar" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
-            <a class="navbar-brand" href="#">
+            <a class="navbar-brand" href="{% url "home" %}">
                 <img src="{% static 'img/n5geh.png' %}" alt="project logo" height="30"
                      class="d-inline-block align-text-top">
                 <img src="{% static 'img/fiware.gif' %}" alt="fiware" height="30"
                      class="d-inline-block align-text-top">
             </a>
+        </div>
+        <div class="d-none d-sm-flex">
+            {% include 'auth.html' %}
         </div>
 
     </div>
@@ -39,7 +42,7 @@
 
 <div class="container-fluid ps-0 d-flex">
     {% include 'sidebar.html' %}
-    <main class="d-flex flex-column ps-2 pt-2">
+    <main class="d-flex flex-column flex-fill ps-4 pe-3 py-3">
         {% block content %}(no content - should not be here) {% endblock %}
     </main>
     {% include 'modal.html' %}

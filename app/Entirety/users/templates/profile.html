@@ -1,0 +1,41 @@
+{% extends '_base.html' %}
+{% load crispy_forms_tags %}
+
+
+{% block title %}Profile{% endblock %}
+
+{% block content %}
+    {% if user.is_authenticated %}
+        <div class="d-flex">
+            <span class="h3 border-bottom flex-fill">{{ user.username }}</span>
+        </div>
+        <div class="d-flex">
+            {#            {% crispy form %}#}
+            <div class="col-6 col-xl-3 me-2">
+                {{ form.first_name|as_crispy_field }}
+            </div>
+            <div class="col-6 col-xl-3 me-2">
+                {{ form.last_name|as_crispy_field }}
+            </div>
+        </div>
+        <div class="d-flex">
+            <div class="col-6 col-xl-3 me-2">
+                {{ form.email|as_crispy_field }}
+            </div>
+        </div>
+        <div class="d-flex">
+            <span class="h5 border-bottom flex-fill">Roles</span>
+        </div>
+        <div class="d-flex flex-wrap mt-2">
+            <div class="col-12">
+                {{ form.is_superuser|as_crispy_field }}
+            </div>
+            <div class="col-12">
+                {{ form.is_server_admin|as_crispy_field }}
+            </div>
+            <div class="col-12">
+                {{ form.is_project_admin|as_crispy_field }}
+            </div>
+        </div>
+    {% endif %}
+{% endblock %}
