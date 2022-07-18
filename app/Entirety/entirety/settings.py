@@ -1,8 +1,10 @@
 import os
 
 from pathlib import Path
-from typing import List
+from typing import List, Any, Optional
 from mimetypes import add_type
+
+import dj_database_url
 from pydantic import BaseSettings, Field, AnyUrl, validator
 
 from utils.generators import generate_secret_key
@@ -155,39 +157,17 @@ class Settings(BaseSettings):
 
     # Database
     # https://docs.djangoproject.com/en/4.0/ref/settings/#databases
-    DATABASE_USER: str = Field(env="DATABASE_USER", default="postgres",
-                               description="Postgresql connection user name")
-    DATABASE_PASSWORD: str = Field(env="DATABASE_PASSWORD", default="postgres",
-                                   description="Postgresql connection user "
-                                               "password")
-    DATABASE_SERVER: str = Field(env="DATABASE_SERVER", default="localhost",
-                                 description="Postgresql connection server "
-                                             "name")
-    DATABASE_PORT: str = Field(env="DATABASE_PORT", default="5432",
-                               description="Postgresql connection server port")
-    DATABASE_NAME: str = Field(env="DATABASE_NAME", default="postgres",
-                               description="Postgresql connection database "
-                                           "name")
-    DATABASE_URL: PostgresDsn = None
+    DATABASE_URL: str = Field(env="DATABASE_URL",
+                              default="postgres://username:password@host:port/db")
 
-
-    # Precedence of DATABASE_URL over individual settings of database.
     @validator('DATABASE_URL', pre=True)
-    def create_postgres_uri(cls, v: Optional[str],
-                            values: Dict[str, Any]) -> Any:
+    def set_url(cls, v: Optional[str]) -> Any:
         if isinstance(v, str):
+            os.environ['DATABASE_URL'] = v
             return v
-        return PostgresDsn.build(
-            scheme="postgresql",
-            user=values.get("DATABASE_USER"),
-            password=values.get("DATABASE_PASSWORD"),
-            host=values.get("DATABASE_SERVER"),
-            path=f"/{values.get('DATABASE_NAME') or ''}",
-            port=f"{values.get('DATABASE_PORT')}",
-        )
+        else:
+            raise Exception
 
-
-    os.environ["DATABASE_URL"] = config.DATABASE_URL
     DATABASES = {
         'default': dj_database_url.config(conn_max_age=600)
     }
