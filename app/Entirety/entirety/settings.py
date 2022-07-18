@@ -3,6 +3,8 @@ import os
 from pathlib import Path
 from typing import List
 from mimetypes import add_type
+
+import django_loki
 from pydantic import BaseSettings, Field, AnyUrl, validator
 
 from utils.generators import generate_secret_key
@@ -140,7 +142,7 @@ class Settings(BaseSettings):
                 "protocol": "http",
                 "source": "Loki",
                 "src_host": "entirety",
-                "tz": "UTC",
+                "tz": "Europe/Berlin",
             },
         },
         "loggers": {
