@@ -23,7 +23,9 @@ handler500 = "entirety.views.custom_error_view"
 handler403 = "entirety.views.custom_permission_denied_view"
 handler400 = "entirety.views.custom_bad_request_view"
 
+
 urlpatterns = [
+    path("admin/login/", views.CustomLogin.as_view()),
     path("admin/", admin.site.urls),
     path("", views.home, name="home"),
     path("projects/", include("projects.urls")),
