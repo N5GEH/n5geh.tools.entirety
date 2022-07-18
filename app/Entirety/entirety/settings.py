@@ -120,11 +120,36 @@ class Settings(BaseSettings):
     LOGGING = {
         "version": 1,
         "disable_existing_loggers": False,
+        "formatters": {
+            "loki": {
+                "class": "django_loki.LokiFormatter",
+                "format": "[%(asctime)s] %(levelname)s [%(name)s:%(lineno)s] "
+                "[%(funcName)s] %(message)s",
+                "datefmt": "%Y-%m-%d %H:%M:%S",
+            },
+        },
         "handlers": {
             "console": {"class": "logging.StreamHandler", "level": "DEBUG"},
+            "loki": {
+                "level": "DEBUG",
+                "class": "django_loki.LokiHttpHandler",
+                "host": "localhost",
+                "formatter": "loki",
+                "port": 3100,
+                "timeout": 0.5,
+                "protocol": "http",
+                "source": "Loki",
+                "src_host": "entirety",
+                "tz": "UTC",
+            },
         },
         "loggers": {
             "mozilla_django_oidc": {"handlers": ["console"], "level": "DEBUG"},
+            "django": {
+                "handlers": ["loki"],
+                "level": "INFO",
+                "propagate": False,
+            },
         },
     }
 
