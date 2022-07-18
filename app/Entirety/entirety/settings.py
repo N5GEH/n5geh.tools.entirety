@@ -172,7 +172,6 @@ class Settings(BaseSettings):
         'default': dj_database_url.config(conn_max_age=600)
     }
 
-
     LOGIN_URL: str = Field(default="/oidc/authenticate", env="LOGIN_URL")
 
     LOGIN_REDIRECT_URL: str = Field(default="/oidc/callback/", env="LOGIN_REDIRECT_URL")
