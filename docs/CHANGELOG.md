@@ -2,6 +2,10 @@
 
 <!--next-version-placeholder-->
 
+## v0.2.1 (2022-07-18)
+### Fix
+* Use oidc auth in django admin ([`d4d862d`](https://github.com/N5GEH/n5geh.tools.entirety2/commit/d4d862de39c808cb8b8a4d2a5744aca1679423c6))
+
 ## v0.2.0 (2022-07-15)
 ### Feature
 * Add custom error pages ([`a84053a`](https://github.com/N5GEH/n5geh.tools.entirety2/commit/a84053a41948fde9dd9178c7d97a1e55c35dd4f5))
