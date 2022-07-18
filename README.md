@@ -20,7 +20,7 @@
 pip
 
 ```bash
-  cd ./app/entirety
+  cd ./app/Entirety
   pip install -r requirements.txt
 ```
 
@@ -86,6 +86,8 @@ See [changelog](./docs/CHANGELOG.md) for detailed overview of changes.
 [@SBlechmann](https://github.com/SBlechmann)
 
 [@sbanoeon](https://github.com/sbanoeon)
+
+[@djs0109](https://github.com/djs0109)
 
 [@dnikolay-ebc](https://github.com/dnikolay-ebc)
 
