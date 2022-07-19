@@ -4,15 +4,17 @@
 {% block title %}Projects{% endblock %}
 
 {% block content %}
-     <div class="container mt-5">
+    <div class="container mt-5">
         <div class="row">
             <div class="row height d-flex justify-content-center align-items-center">
                 <div class="col-md-1">
                     <span class="input-group-btn">
                         <div class="row">
-                            <a href="{% url 'projects:create' %}" class="btn btn-secondary btn-lg">
-                                <i class="bi-plus-circle"></i>
-                            </a>
+                            {% if view_permissions %}
+                                <a href="{% url 'projects:create' %}" class="btn btn-secondary btn-lg">
+                                    <i class="bi-plus-circle"></i>
+                                </a>
+                            {% endif %}
                         </div>
                     </span>
                 </div>
@@ -56,15 +58,16 @@
                         <div class="card-body">
                             <p class="card-text text-truncate">{{ project.description }}</p>
                         </div>
-
-                        <div class="ms-3 mb-3">
-                            <a href="{% url 'projects:update' project.uuid %}" class="btn btn-primary">Edit</a>
-                            <button type="button" class="btn btn-primary" data-bs-toggle="modal"
-                                    data-bs-target="#deleteModal"
-                                    data-bs-url={% url 'projects:delete' project.uuid %}>
-                                Delete
-                            </button>
-                        </div>
+                        {% if view_permissions %}
+                            <div class="ms-3 mb-3">
+                                <a href="{% url 'projects:update' project.uuid %}" class="btn btn-primary">Edit</a>
+                                <button type="button" class="btn btn-primary" data-bs-toggle="modal"
+                                        data-bs-target="#deleteModal"
+                                        data-bs-url={% url 'projects:delete' project.uuid %}>
+                                    Delete
+                                </button>
+                            </div>
+                        {% endif %}
 
                         <div class="card-footer text-muted">
                             <small>{{ project.date_modified }}</small>
@@ -96,12 +99,4 @@
             </div>
         </div>
     </div>
-    <p>
-        {% if add_project %}
-            You are allowed to add projects
-        {% else  %}
-            You <b>not</b> are allowed to add projects
-        {% endif %}
-    </p>
-    Projects
 {% endblock %}

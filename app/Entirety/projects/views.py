@@ -1,7 +1,6 @@
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.shortcuts import render
 from django.urls import reverse
-from django.views.generic import View
+from django.views.generic import ListView
 from django.views.generic.edit import UpdateView, CreateView, DeleteView
 
 from .forms import ProjectForm
@@ -9,17 +8,21 @@ from .mixins import ProjectCreateMixin, ProjectSelfMixin
 from .models import Project
 
 
-class Index(LoginRequiredMixin, View):
-    def get(self, request, *args, **kwargs):
-        user = request.user
-        projects = Project.objects.filter(
-            name__icontains=request.GET.get("search", default="")
+class Index(LoginRequiredMixin, ListView):
+    model = Project
+    template_name = "projects/index.html"
+
+    def get_queryset(self):
+        return Project.objects.order_by("date_modified").filter(
+            name__icontains=self.request.GET.get("search", default="")
         )
-        context = {
-            "project_list": projects,
-            "add_project": (user.is_project_admin or user.is_server_admin),
-        }
-        return render(request, "projects/index.html", context)
+
+    def get_context_data(self, **kwargs):
+        context = super(Index, self).get_context_data(**kwargs)
+        context["view_permissions"] = (
+            self.request.user.is_project_admin or self.request.user.is_server_admin
+        )
+        return context
 
 
 class Update(LoginRequiredMixin, ProjectSelfMixin, UpdateView):
