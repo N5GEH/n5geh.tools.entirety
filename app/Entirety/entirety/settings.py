@@ -147,10 +147,9 @@ class Settings(BaseSettings):
         },
         "loggers": {
             "mozilla_django_oidc": {"handlers": ["console"], "level": "DEBUG"},
-            "django": {
+            "": {
                 "handlers": ["loki"],
                 "level": "INFO",
-                "propagate": False,
             },
         },
     }
