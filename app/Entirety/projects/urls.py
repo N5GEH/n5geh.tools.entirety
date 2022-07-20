@@ -1,4 +1,4 @@
-from django.urls import path
+from django.urls import path, include
 
 from . import views
 
@@ -8,4 +8,5 @@ urlpatterns = [
     path("create", views.Create.as_view(), name="create"),
     path("<str:pk>/update", views.Update.as_view(), name="update"),
     path("<str:pk>/delete", views.Delete.as_view(), name="delete"),
+    path("<str:project_id>/alarming/", include("alarming.urls")),
 ]
