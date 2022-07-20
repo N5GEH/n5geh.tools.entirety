@@ -10,3 +10,12 @@
 .bg-grey {
   background-color: #292e34;
 }
+
+.card-header {
+  .bi-power {
+    color: red;
+    &.active {
+      color: lawngreen;
+    }
+  }
+}

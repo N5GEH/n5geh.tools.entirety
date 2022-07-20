@@ -1,0 +1,33 @@
+{% extends '_base.html' %}
+{% load crispy_forms_tags %}
+
+{% block title %}Subscriptions{% endblock %}
+
+{% block content %}
+    <div class="d-flex">
+        <span class="h3 border-bottom flex-fill">Subscriptions</span>
+    </div>
+    <div class="d-flex">
+        {% for subscription in object_list %}
+            <div class="col-6 col-xl-3">
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <i class="bi bi-pencil-square h5 mb-0"></i>
+                        <i class="bi bi-power h3 mb-0 {% if subscription.active %}active{% endif %}"></i>
+                        <i class="bi bi-pencil-square h5 mb-0"></i>
+                    </div>
+                    <div class="card-body">
+                        <span class="h5"> {{ subscription.name }} </span>
+                        <p>{{ subscription.description }}</p>
+                    </div>
+                </div>
+            </div>
+
+        {% endfor %}
+
+    </div>
+    {#    <div class="d-flex">#}
+
+    {#    </div>#}
+
+{% endblock %}

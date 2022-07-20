@@ -5,5 +5,5 @@ from projects.views import Index
 
 urlpatterns = [
     path("", login_required(Index.as_view()), name="projects"),
-    path("<str:project_id>/alarming/", include("alarming.urls")),
+    path("<str:project_id>/subscriptions/", include("subscriptions.urls")),
 ]
