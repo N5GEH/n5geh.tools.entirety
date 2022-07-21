@@ -2,6 +2,13 @@
 
 <!--next-version-placeholder-->
 
+## v0.3.1 (2022-07-21)
+### Fix
+* Fixed card grid to auto ([`72e2c71`](https://github.com/N5GEH/n5geh.tools.entirety2/commit/72e2c714a5a4022ab002d1216e0b32245a7bd602))
+* Delete unused view structure ([`d1ed9c8`](https://github.com/N5GEH/n5geh.tools.entirety2/commit/d1ed9c8822c3670c413b3580ee2e733cd2278ec2))
+* Project context mixin ([`e1d22c0`](https://github.com/N5GEH/n5geh.tools.entirety2/commit/e1d22c0774c35357777ec16568305ba55efcf83c))
+* Re-activated alarming url ([`98c8f43`](https://github.com/N5GEH/n5geh.tools.entirety2/commit/98c8f4300c6bb81270fda6134fd0980c97bf20da))
+
 ## v0.3.0 (2022-07-18)
 ### Feature
 * Projects create and update view with form ([`a7fc8f7`](https://github.com/N5GEH/n5geh.tools.entirety2/commit/a7fc8f70ea810099baeddda73d1a8b55750de3a8))
