@@ -4,6 +4,8 @@ from projects.models import Project
 from django.shortcuts import get_object_or_404
 from django.contrib.auth.mixins import UserPassesTestMixin, LoginRequiredMixin
 
+from projects.models import Project
+
 
 class ProjectBaseMixin(LoginRequiredMixin, UserPassesTestMixin, ABC):
     pass

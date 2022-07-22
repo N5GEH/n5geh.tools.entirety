@@ -16,6 +16,7 @@ crispy-bootstrap5==0.6
 cryptography==37.0.2
 datamodel-code-generator==0.13.0
 distlib==0.3.4
+dj-database-url==0.5.0
 Django==4.0.5
 django-appconf==1.0.5
 django-compressor==4.0
@@ -53,9 +54,11 @@ paho-mqtt==1.6.1
 pandas==1.4.3
 pandas-datapackage-reader==0.18.0
 pathspec==0.9.0
+Pillow==9.1.1
 platformdirs==2.5.2
 prance==0.21.8.0
 pre-commit==2.19.0
+psycopg2==2.9.3
 pycparser==2.21
 pydantic==1.9.1
 pyOpenSSL==22.0.0

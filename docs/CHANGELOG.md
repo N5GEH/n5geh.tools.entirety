@@ -2,6 +2,38 @@
 
 <!--next-version-placeholder-->
 
+## v0.3.1 (2022-07-21)
+### Fix
+* Fixed card grid to auto ([`72e2c71`](https://github.com/N5GEH/n5geh.tools.entirety2/commit/72e2c714a5a4022ab002d1216e0b32245a7bd602))
+* Delete unused view structure ([`d1ed9c8`](https://github.com/N5GEH/n5geh.tools.entirety2/commit/d1ed9c8822c3670c413b3580ee2e733cd2278ec2))
+* Project context mixin ([`e1d22c0`](https://github.com/N5GEH/n5geh.tools.entirety2/commit/e1d22c0774c35357777ec16568305ba55efcf83c))
+* Re-activated alarming url ([`98c8f43`](https://github.com/N5GEH/n5geh.tools.entirety2/commit/98c8f4300c6bb81270fda6134fd0980c97bf20da))
+
+## v0.3.0 (2022-07-18)
+### Feature
+* Projects create and update view with form ([`a7fc8f7`](https://github.com/N5GEH/n5geh.tools.entirety2/commit/a7fc8f70ea810099baeddda73d1a8b55750de3a8))
+* Pydantic settings setup ([`c90c031`](https://github.com/N5GEH/n5geh.tools.entirety2/commit/c90c031e5cd85fb1659f6fd984be6259525bd1b9))
+* Projects application model view ([`f2d0060`](https://github.com/N5GEH/n5geh.tools.entirety2/commit/f2d0060ce18658f52e8365773a7de841e2c973eb))
+
+### Fix
+* Remove unused code ([`01d4ca2`](https://github.com/N5GEH/n5geh.tools.entirety2/commit/01d4ca2a13ccd230c6be710ff34cb240eb375fb8))
+* Remove extra line ([`31c9e5c`](https://github.com/N5GEH/n5geh.tools.entirety2/commit/31c9e5caba5832ce57579600d510bf2e95bc9cc4))
+* Database setting ([`bb4750c`](https://github.com/N5GEH/n5geh.tools.entirety2/commit/bb4750c4ca31164cf216a9b73e68a2ad0745763f))
+* Project reference ([`bb8f59e`](https://github.com/N5GEH/n5geh.tools.entirety2/commit/bb8f59e5a84eb71d6838437b3c86fc7a9057e61c))
+* Project card alignment ([`4c93b1c`](https://github.com/N5GEH/n5geh.tools.entirety2/commit/4c93b1c1fad0a2a70fee4130699c37df85d633a2))
+* Remove extra parameter ([`41fa198`](https://github.com/N5GEH/n5geh.tools.entirety2/commit/41fa198a6db9152ded33bd684c976d018177d8e9))
+* Corrected braces ([`aa402f9`](https://github.com/N5GEH/n5geh.tools.entirety2/commit/aa402f92fd85a57b8b6d03981c9d1a2ba81be4b7))
+* Crispy form settings bootstrap5 ([`6782418`](https://github.com/N5GEH/n5geh.tools.entirety2/commit/678241889b7e0360a1413dfa50d27b25c658df5c))
+* Fix requirements and settings ([`1848ca3`](https://github.com/N5GEH/n5geh.tools.entirety2/commit/1848ca32b2df9b87515b074fdb8d4f8705f7018c))
+
+### Documentation
+* Update requirements for image upload ([`8940b96`](https://github.com/N5GEH/n5geh.tools.entirety2/commit/8940b96c20e53dc72408a46b9900392857e229c1))
+* Update requirements ([`3a01011`](https://github.com/N5GEH/n5geh.tools.entirety2/commit/3a010116cd25210a3e375c7e02a91ab10f651cf4))
+
+## v0.2.1 (2022-07-18)
+### Fix
+* Use oidc auth in django admin ([`d4d862d`](https://github.com/N5GEH/n5geh.tools.entirety2/commit/d4d862de39c808cb8b8a4d2a5744aca1679423c6))
+
 ## v0.2.0 (2022-07-15)
 ### Feature
 * Add custom error pages ([`a84053a`](https://github.com/N5GEH/n5geh.tools.entirety2/commit/a84053a41948fde9dd9178c7d97a1e55c35dd4f5))

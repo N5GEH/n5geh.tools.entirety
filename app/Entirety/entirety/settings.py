@@ -1,13 +1,15 @@
 import os
 
 from pathlib import Path
-from typing import List
+from typing import List, Any, Optional
 from mimetypes import add_type
+
+import dj_database_url
 from pydantic import BaseSettings, Field, AnyUrl, validator
 
 from utils.generators import generate_secret_key
 
-__version__ = "0.2.0"
+__version__ = "0.3.1"
 
 
 class Settings(BaseSettings):
@@ -128,6 +130,13 @@ class Settings(BaseSettings):
         },
     }
 
+    # Media location
+    # https://docs.djangoproject.com/en/4.0/howto/static-files/#serving-files
+    # -uploaded-by-a-user-during-development
+    MEDIA_URL = "/media/"
+
+    MEDIA_ROOT = BASE_DIR / "media"
+
     # Settings provided by environment
     SECRET_KEY: str = Field(default=generate_secret_key(), env="DJANGO_SECRET_KEY")
 
@@ -147,13 +156,19 @@ class Settings(BaseSettings):
 
     # Database
     # https://docs.djangoproject.com/en/4.0/ref/settings/#databases
-    # TODO
-    DATABASES = {
-        "default": {
-            "ENGINE": "django.db.backends.sqlite3",
-            "NAME": BASE_DIR / "db.sqlite3",
-        }
-    }
+    DATABASE_URL: str = Field(
+        env="DATABASE_URL", default="postgres://username:password@host:port/db"
+    )
+
+    @validator("DATABASE_URL", pre=True)
+    def set_url(cls, v: Optional[str]) -> Any:
+        if isinstance(v, str):
+            os.environ["DATABASE_URL"] = v
+            return v
+        else:
+            raise Exception
+
+    DATABASES = {"default": dj_database_url.config(conn_max_age=600)}
 
     LOGIN_URL: str = Field(default="/oidc/authenticate", env="LOGIN_URL")
 
