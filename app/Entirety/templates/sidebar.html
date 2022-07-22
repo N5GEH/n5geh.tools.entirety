@@ -5,9 +5,10 @@
                 {% if user.is_authenticated %}
                     {% if project %}
                         <li class="nav-item border-bottom d-inline-flex">
-                            <a class="nav-link disabled py-md-2"
+                            <a href="{% url 'projects:update' project.uuid %}" class="nav-link btn-sidebar py-md-2"
                                data-bs-toggle="tooltip" data-bs-placement="right" data-bs-custom-class="d-md-none"
                                title="{{ project }}">
+                                <i class="bi bi-pencil-square"></i>
                                 <span class="d-none d-md-inline-flex">{{ project }}</span>
                             </a>
                         </li>
@@ -28,7 +29,7 @@
                             </a>
                         </li>
                         <li class="nav-item border-bottom d-inline-flex">
-                            <a href="{% url "subscriptions:list" project_id=project.uuid %}"
+                            <a href="{% url "projects:subscriptions:list" project_id=project.uuid %}"
                                class="nav-link btn-sidebar py-md-2"
                                data-bs-toggle="tooltip" data-bs-placement="right" data-bs-custom-class="d-md-none"
                                title="Alarming">

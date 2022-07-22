@@ -6,5 +6,4 @@ from subscriptions.views import SubscriptionList
 app_name = "subscriptions"
 urlpatterns = [
     path("", SubscriptionList.as_view(), name="list"),
-    # path("", RedirectView.as_view(pattern_name="subscriptions")),
 ]

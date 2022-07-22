@@ -8,7 +8,7 @@ from .mixins import ProjectCreateMixin, ProjectSelfMixin
 from .models import Project
 
 
-class Index(LoginRequiredMixin, ListView):
+class Index(ListView):
     model = Project
     template_name = "projects/index.html"
 
@@ -25,7 +25,7 @@ class Index(LoginRequiredMixin, ListView):
         return context
 
 
-class Update(LoginRequiredMixin, ProjectSelfMixin, UpdateView):
+class Update(ProjectSelfMixin, UpdateView):
     model = Project
     template_name = "projects/detail.html"
     form_class = ProjectForm
@@ -34,7 +34,7 @@ class Update(LoginRequiredMixin, ProjectSelfMixin, UpdateView):
         return reverse("projects:index")
 
 
-class Create(LoginRequiredMixin, ProjectCreateMixin, CreateView):
+class Create(ProjectCreateMixin, CreateView):
     model = Project
     template_name = "projects/detail.html"
     form_class = ProjectForm
@@ -48,7 +48,7 @@ class Create(LoginRequiredMixin, ProjectCreateMixin, CreateView):
         return reverse("projects:index")
 
 
-class Delete(LoginRequiredMixin, ProjectSelfMixin, DeleteView):
+class Delete(ProjectSelfMixin, DeleteView):
     model = Project
     template_name = "projects/index.html"
 
