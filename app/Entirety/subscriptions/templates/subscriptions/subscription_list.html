@@ -1,5 +1,4 @@
 {% extends '_base.html' %}
-{% load crispy_forms_tags %}
 
 {% block title %}Subscriptions{% endblock %}
 
@@ -14,7 +13,9 @@
                     <div class="card-header d-flex justify-content-between align-items-center">
                         <i class="bi bi-pencil-square h5 mb-0"></i>
                         <i class="bi bi-power h3 mb-0 {% if subscription.active %}active{% endif %}"></i>
-                        <i class="bi bi-pencil-square h5 mb-0"></i>
+                        <a href="{% url "projects:subscriptions:update" project_id=project.uuid pk=subscription.uuid %}">
+                            <i class="bi bi-pencil-square h5 mb-0"></i>
+                        </a>
                     </div>
                     <div class="card-body">
                         <span class="h5"> {{ subscription.name }} </span>

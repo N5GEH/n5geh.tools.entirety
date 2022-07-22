@@ -1,0 +1,12 @@
+{% extends '_base.html' %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+
+    <form action="" method="post" enctype="multipart/form-data"
+          {% if form_submitted %}class="was-validated" {% endif %}>
+        {% csrf_token %}
+        {% crispy form %}
+    </form>
+
+{% endblock %}
