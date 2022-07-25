@@ -7,6 +7,7 @@ charset-normalizer==2.0.12
 crispy-bootstrap5==0.6
 cryptography==37.0.2
 distlib==0.3.4
+dj-database-url==0.5.0
 Django==4.0.5
 django-appconf==1.0.5
 django-compressor==4.0
@@ -25,8 +26,10 @@ josepy==1.13.0
 libsass==0.21.0
 mozilla-django-oidc==2.0.0
 nodeenv==1.7.0
+Pillow==9.1.1
 platformdirs==2.5.2
 pre-commit==2.19.0
+psycopg2==2.9.3
 pycparser==2.21
 pydantic==1.9.1
 pyOpenSSL==22.0.0

@@ -1,6 +1,8 @@
+from django.contrib.auth.mixins import UserPassesTestMixin
 from django.core.exceptions import PermissionDenied
-from projects.models import Project
 from django.shortcuts import get_object_or_404
+
+from projects.models import Project
 
 
 class ProjectContextMixin:
@@ -23,3 +25,16 @@ class ProjectContextMixin:
             raise PermissionDenied()
 
         return super().dispatch(request, *args, **kwargs)
+
+
+class ProjectSelfMixin(UserPassesTestMixin):
+    def test_func(self):
+        obj = self.get_object()
+        return (
+            self.request.user.is_project_admin and obj.owner == self.request.user
+        ) or self.request.user.is_server_admin
+
+
+class ProjectCreateMixin(UserPassesTestMixin):
+    def test_func(self):
+        return self.request.user.is_project_admin or self.request.user.is_server_admin

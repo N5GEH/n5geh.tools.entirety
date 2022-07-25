@@ -1,14 +1,102 @@
 {% extends '_base.html' %}
+{% load static %}
 
 {% block title %}Projects{% endblock %}
 
 {% block content %}
-    <p>
-        {% if add_project %}
-            You are allowed to add projects
-        {% else  %}
-            You <b>not</b> are allowed to add projects
-        {% endif %}
-    </p>
-    Projects
+    <div class="container mt-5">
+        <div class="row">
+            <div class="row height d-flex justify-content-center align-items-center">
+                <div class="col-md-1">
+                    <span class="input-group-btn">
+                        <div class="row">
+                            {% if view_permissions %}
+                                <a href="{% url 'projects:create' %}" class="btn btn-secondary btn-lg">
+                                    <i class="bi-plus-circle"></i>
+                                </a>
+                            {% endif %}
+                        </div>
+                    </span>
+                </div>
+                <div class="col-md-8">
+                    <form action="">
+                        <div class="p-3 border border-light rounded-pill bg-light">
+                            <div class="input-group col-md-12 border-0 shadow-none">
+                                <input name="search" type="text" class="form-control input-lg border-light rounded-pill"
+                                       placeholder="Search projects by name"/>
+                                <span class="input-group-btn">
+                                <button class="btn btn-info btn-lg bg-light border-light" type="submit" value="search">
+                                    <i class="bi-search"></i>
+                                </button>
+                                </span>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="d-flex flex-row flex-wrap">
+        <div class="row row-cols-1 row-cols-md-auto g-4 mt-3 mb-3">
+            {% for project in project_list %}
+                <div class="col mt-5">
+                    <div class="card h-100">
+                        <div class="card-header">
+                            <h5>{{ project.name }}
+                                <i class="bi bi-kanban"></i>
+                            </h5>
+                        </div>
+
+                        {% if project.logo.url|length > 0 %}
+                            <img src="{{ project.logo.url }}" class="card-img-top w-100" alt="{{ project.name }}">
+                        {% else %}
+                            <img src="{% static "/img/n5geh.png" %}" class="card-img-top" alt="{{ project.name }}">
+                        {% endif %}
+
+                        <div class="card-body">
+                            <p class="card-text text-truncate">{{ project.description }}</p>
+                        </div>
+                        {% if view_permissions %}
+                            <div class="ms-3 mb-3">
+                                <a href="{% url 'projects:update' project.uuid %}" class="btn btn-primary">Edit</a>
+                                <button type="button" class="btn btn-primary" data-bs-toggle="modal"
+                                        data-bs-target="#deleteModal"
+                                        data-bs-url={% url 'projects:delete' project.uuid %}>
+                                    Delete
+                                </button>
+                            </div>
+                        {% endif %}
+
+                        <div class="card-footer text-muted">
+                            <small>{{ project.date_modified }}</small>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+
+
+    <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="deleteModalLabel">Delete Project</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    Are you sure you want to delete this project?
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <form action="" method="POST" class="modal-form">
+                        {% csrf_token %}
+                        <button class="btn btn-primary">Delete</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
 {% endblock %}

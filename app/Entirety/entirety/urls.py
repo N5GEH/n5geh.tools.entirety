@@ -13,6 +13,8 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
+from django.conf import settings
+from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import path, include
 
@@ -23,7 +25,9 @@ handler500 = "entirety.views.custom_error_view"
 handler403 = "entirety.views.custom_permission_denied_view"
 handler400 = "entirety.views.custom_bad_request_view"
 
+
 urlpatterns = [
+    path("admin/login/", views.CustomLogin.as_view()),
     path("admin/", admin.site.urls),
     path("", views.home, name="home"),
     path("projects/", include("projects.urls")),
@@ -31,3 +35,6 @@ urlpatterns = [
     path("examples/", include("examples.urls")),
     path("oidc/", include("mozilla_django_oidc.urls")),
 ]
+
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
