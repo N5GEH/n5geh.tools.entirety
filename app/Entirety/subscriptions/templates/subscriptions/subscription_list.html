@@ -4,7 +4,12 @@
 
 {% block content %}
     <div class="d-flex">
-        <span class="h3 border-bottom flex-fill">Subscriptions</span>
+        <span class="d-flex border-bottom flex-grow-1 mb-2">
+            <span class="h3">Subscriptions</span>
+            <a href="{% url "projects:subscriptions:create" project_id=project.uuid %}" class="btn btn-primary mb-1 ms-auto">
+                <i class="bi bi-plus"></i>
+            </a>
+        </span>
     </div>
     <div class="d-flex">
         {% for subscription in object_list %}

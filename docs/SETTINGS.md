@@ -7,6 +7,12 @@
 >
 > *default:* []
 
+### CB_URL
+
+> *description:* Orion context broker url.
+>
+> *default:* http://localhost:1026
+
 ### COMPRESS_ENABLED
 
 > *description:* Compress js/css files
