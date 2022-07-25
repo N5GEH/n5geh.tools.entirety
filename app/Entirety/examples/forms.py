@@ -26,5 +26,5 @@ class BasicInfoForm(forms.Form):
     type = forms.CharField()
 
 
-Attributes = formset_factory(AttributeForm, extra=1, can_delete=True)
-Commands = formset_factory(CommandForm, extra=1, can_delete=True)
+Attributes = formset_factory(AttributeForm, extra=1)
+Commands = formset_factory(CommandForm, extra=1)
