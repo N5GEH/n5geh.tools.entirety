@@ -20,6 +20,12 @@
   }
 }
 
+.card-footer {
+  .bi-gear {
+    color: #72767b;
+  }
+}
+
 // card on hover
 .card:hover{
     transform:scale(1.05);
