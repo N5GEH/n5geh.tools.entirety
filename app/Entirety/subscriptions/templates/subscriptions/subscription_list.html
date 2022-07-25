@@ -25,7 +25,7 @@
                     </div>
                     <div class="card-footer d-flex justify-content-end align-items-center">
                         <a href="{% url "projects:subscriptions:update" project_id=project.uuid pk=subscription.uuid %}"
-                           data-bs-toggle="tooltip" data-bs-placement="bottom" title="Edit project {{ project.name }}">
+                           data-bs-toggle="tooltip" data-bs-placement="bottom" title="Edit {{ subscription.name }}">
                             <i class="bi bi-gear"></i>
                         </a>
                     </div>
