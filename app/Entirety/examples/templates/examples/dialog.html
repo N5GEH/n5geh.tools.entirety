@@ -6,4 +6,7 @@
     <button type="button" class="btn btn-primary" hx-get="{% url 'examples:dialog_example_add' %}" hx-target="#dg_general">
         Add
     </button>
+
+    {% include 'accordion.html' %}
+
 {% endblock %}
