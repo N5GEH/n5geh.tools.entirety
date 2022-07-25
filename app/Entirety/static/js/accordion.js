@@ -14,7 +14,20 @@ addButton.addEventListener("click", function (event) {
     formCount++;
 
     newAttrForm.innerHTML = newAttrForm.innerHTML.replace(formRegex, `div_id_form-${formCount}-`);
-    //const parentWithClass = addButton.closest('.form-container');
     mainForm.append(newAttrForm);
-    totalForms.setAttribute('value', `${formCount + 1}`);
+
+    let removeChildButton = newAttrForm.querySelector('.remove-form');
+    removeChildButton.addEventListener("click", function () {
+        removeChildButton.parentElement.remove();
+    })
+
+});
+
+
+let removeButton = document.querySelectorAll(".remove-form");
+removeButton.forEach(function (elem) {
+    elem.addEventListener("click", function () {
+        //elem.preventDefault();
+        elem.parentElement.remove();
+    });
 });
