@@ -11,7 +11,6 @@ from subscriptions.models import Subscription
 class SubscriptionForm(forms.ModelForm):
     _newly_created: bool
     description = forms.CharField(required=False)
-    active = forms.BooleanField(initial=True)
 
     def __init__(self, *args, **kwargs):
         self._newly_created = kwargs.get("instance") is None
@@ -29,7 +28,6 @@ class SubscriptionForm(forms.ModelForm):
             ) as cb_client:
                 cb_sub = cb_client.get_subscription(self.instance.uuid)
                 self.initial["description"] = cb_sub.description
-                self.initial["active"] = cb_sub.status == Status.ACTIVE
 
     class Meta:
         model = Subscription

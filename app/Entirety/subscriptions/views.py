@@ -28,7 +28,7 @@ class List(ProjectContextMixin, ListView):
             for sub in qs:
                 cb_sub = cb_client.get_subscription(sub.uuid)
                 sub.description = cb_sub.description
-                sub.active = cb_sub.status == Status.ACTIVE
+                sub.status = cb_sub.status
                 data.append(sub)
         return data
 
@@ -45,4 +45,4 @@ class Create(ProjectContextMixin, CreateView):
     form_class = SubscriptionForm
 
     def get_success_url(self):
-        return reverse("projects:index")
+        return reverse("projects:subscriptions:list")
