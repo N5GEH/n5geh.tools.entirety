@@ -3,10 +3,12 @@
 {% block title %}Example Dialog{% endblock %}
 
 {% block content %}
+    <h3>Modal Template</h3>
     <button type="button" class="btn btn-primary" hx-get="{% url 'examples:dialog_example_add' %}" hx-target="#dg_general">
         Add
     </button>
 
+    <h3 class="mt-5">Accordion Template</h3>
     {% include 'accordion.html' %}
 
 {% endblock %}
