@@ -1,66 +1,18 @@
 {% extends '_base.html' %}
-{% load crispy_forms_tags %}
+
+{#{% block title %}Edit Device{% endblock %}#}
+
 {% block content %}
+    <h3 class="mt-5">{{ action }} Device</h3>
 
-<body>
-    <form action="{% url 'devices:submit' %}" method="post">
-    {% csrf_token %}
+    {% if action == "Create" %}
+        <form action="{% url 'devices:create_submit' %}" method="post">
+    {% elif action == "Edit" %}
+        <form action="{% url 'devices:edit-submit' %}" method="post">
+    {% endif %}
+        {% csrf_token %}
+            {% include 'accordion.html' %}
+            <input type="submit" value="Save">
+        </form>
 
-        <div class="container mt-3">
-        {#maybe use context like "titel"#}
-          <h3> {{ action }} Device</h3>
-          <p>_____________________________________________________________________________</p>
-          <div id="accordion">
-            <div class="card">
-              <div class="card-header">
-                <a class="btn" data-bs-toggle="collapse" href="#collapseOne">
-                  Basis Information
-                </a>
-              </div>
-              <div id="collapseOne" class="collapse show" data-bs-parent="#accordion">
-                <div class="card-body">
-                    {% for basis_field in form.get_basis_fields %}
-                        {{ basis_field|as_crispy_field }}
-                    {% endfor %}
-                </div>
-              </div>
-            </div>
-            <div class="card">
-              <div class="card-header">
-                <a class="collapsed btn" data-bs-toggle="collapse" href="#collapseTwo">
-                Attributes
-              </a>
-              </div>
-              <div id="collapseTwo" class="collapse" data-bs-parent="#accordion">
-                <div class="card-body">
-                    {% for attr_fieldset in form.get_attr_fieldsets %}
-                        <h4> {{ attr_fieldset.alias }} </h4>
-                        {% for attr_field in attr_fieldset.fields %}
-                            {{ attr_field|as_crispy_field }}
-                        {% endfor %}
-                    {% endfor %}
-                </div>
-              </div>
-            </div>
-            <div class="card">
-              <div class="card-header">
-                <a class="collapsed btn" data-bs-toggle="collapse" href="#collapseThree">
-                  Command
-                </a>
-              </div>
-              <div id="collapseThree" class="collapse" data-bs-parent="#accordion">
-                <div class="card-body">
-        {#            {% for comm_field in form.get_command_fields %}#}
-        {#            {{ comm_field|as_crispy_field }}#}
-        {#            {% endfor %}#}
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-
-        <input type="submit" value="Save">
-    </form>
-</body>
 {% endblock %}
