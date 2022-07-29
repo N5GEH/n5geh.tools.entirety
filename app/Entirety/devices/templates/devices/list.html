@@ -1,12 +1,5 @@
 {% extends '_base.html' %}
 {% block content %}
-{#    {{ Devices }}#}
-{#    <form action="{% url 'devices:devices' %}" method="post">#}
-{#    {% csrf_token %}#}
-{#            <button class="btn btn-primary">#}
-{#                Refresh#}
-{#            </button>#}
-{#    </form>#}
 
 <form action="{% url 'devices:create' %}" method="get">
     <button type="submit" class="btn btn-primary" >
@@ -14,107 +7,39 @@
     </button>
 </form>
 
-    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModalToggle">
-                Open test modal
-    </button>
-
-
-    <table class="table" style="width:600px">
-      <thead>
-        <tr>
-          <th scope="col"></th>
-          <th scope="col">Device id</th>
-          <th scope="col">Entity name</th>
-          <th scope="col">Entity type</th>
-          <th scope="col"></th>
-        </tr>
-      </thead>
-      <tbody class="table-group-divider">
-      {% for device in Devices %}
-        <tr>
-            <td>
-              <div class="custom-control custom-checkbox">
-                  <input type="checkbox" class="custom-control-input" id="deviceCheckBox{{ device.device_id }}" >
-                  <label for="deviceCheckBox{{ device.device_id }}"></label>
-              </div>
-            </td>
-          <td>{{ device.device_id }}</td>
-          <td>{{ device.entity_name }}</td>
-          <td>{{ device.entity_type }}</td>
-          <td>
-              {#Edit button for every device#}
-              <form action="{% url 'devices:edit' %}" method="get">
-                  <input type="hidden" value="{{ device.device_id }}" name="device_id">
-                <button type="submit" class="btn btn-primary" value="{{ device.device_id }}">
-                            Edit
-                </button>
-              </form>
-          </td>
-        </tr>
-      {% endfor %}
-      </tbody>
-    </table>
-
-    <!-- Modal -->
-    <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-      <div class="modal-dialog">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title" id="exampleModalLabel">Create Device</h5>
-            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+<table class="table" style="width:600px">
+  <thead>
+    <tr>
+      <th scope="col"></th>
+      <th scope="col">Device id</th>
+      <th scope="col">Entity name</th>
+      <th scope="col">Entity type</th>
+      <th scope="col"></th>
+    </tr>
+  </thead>
+  <tbody class="table-group-divider">
+  {% for device in Devices %}
+    <tr>
+        <td>
+          <div class="custom-control custom-checkbox">
+              <input type="checkbox" class="custom-control-input" id="deviceCheckBox{{ device.device_id }}" >
+              <label for="deviceCheckBox{{ device.device_id }}"></label>
           </div>
-          <div class="modal-body">
-              <label for="device_id">device id:</label>
-              <input type="text" name="device_id" maxlength="100" id="device_id" value=""><br><br>
-              <label for="entity_id">entity_id:</label>
-              <input type="text" name="entity_id" maxlength="100" id="entity_id" value="urn:ngsi-ld:"><br><br>
-              <label for="entity_type">entity_type:</label>
-              <input type="text" name="entity_type" maxlength="100" id="entity_type" value=""><br><br>
-                  <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal">
-                    Add Attribute {# push this button to reload the modal? or we should use a page and a form to create attribtues#}
-                  </button>
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-            <button type="button" class="btn btn-primary">Save changes</button>
-          </div>
-        </div>
-      </div>
-    </div>
-
-
-    <div class="modal fade" id="exampleModalToggle" aria-hidden="true" aria-labelledby="exampleModalToggleLabel" tabindex="-1">
-      <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title" id="exampleModalToggleLabel">Modal 1</h5>
-            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-          </div>
-          <div class="modal-body">
-            Show a second modal and hide this one with the button below.
-          </div>
-          <div class="modal-footer">
-            <button class="btn btn-primary" data-bs-target="#exampleModalToggle2" data-bs-toggle="modal">Open second modal</button>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div class="modal fade" id="exampleModalToggle2" aria-hidden="true" aria-labelledby="exampleModalToggleLabel2" tabindex="-1">
-      <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title" id="exampleModalToggleLabel2">Modal 2</h5>
-            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-          </div>
-          <div class="modal-body">
-            Hide this modal and show the first with the button below.
-          </div>
-          <div class="modal-footer">
-            <button class="btn btn-primary" data-bs-target="#exampleModalToggle" data-bs-toggle="modal">Back to first</button>
-          </div>
-        </div>
-      </div>
-    </div>
-
+        </td>
+      <td>{{ device.device_id }}</td>
+      <td>{{ device.entity_name }}</td>
+      <td>{{ device.entity_type }}</td>
+      <td>
+          {#Edit button for every device#}
+          <form action="{% url 'devices:edit' %}" method="get">
+              <input type="hidden" value="{{ device.device_id }}" name="device_id">
+            <button type="submit" class="btn btn-primary" value="{{ device.device_id }}">
+                        Edit
+            </button>
+          </form>
+      </td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
 {% endblock %}
