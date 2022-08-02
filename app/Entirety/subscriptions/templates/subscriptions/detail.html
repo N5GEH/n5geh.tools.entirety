@@ -1,14 +1,55 @@
 {% extends '_base.html' %}
 {% load crispy_forms_tags %}
+{% load crispy_forms_field %}
 
-{% block title %}Subscription{% endblock %}
+{% block title %}
+    {% if subscription.name %} {{ subscription.name }}
+    {% else %} New Subscription
+    {% endif %}
+{% endblock %}
+
+{% block page_title %}
+    {% if subscription.name %} Edit {{ subscription.name }}
+    {% else %} Create New Subscription
+    {% endif %}
+{% endblock %}
+
+{% block page_buttons %}
+    <button type="submit" form="f_subscription"
+            class="btn btn-primary btn-submit mb-1 ms-auto" data-bs-toggle="tooltip" data-bs-placement="bottom"
+            title="Save">
+        <i class="bi bi-save"></i>
+    </button>
+{% endblock %}
 
 {% block content %}
 
-    <form action="" method="post" enctype="multipart/form-data"
+    <form id="f_subscription" action="" method="post" enctype="multipart/form-data"
           {% if form_submitted %}class="was-validated" {% endif %}>
         {% csrf_token %}
         {% crispy form %}
+
+        {#        <label for="{{ form.entities.id_for_label }}"#}
+        {#               class="{% if 'form-horizontal' in form_class %}col-form-label#}
+        {#                        {% else %}form-label{% endif %}{{ label_class }}{% if form.entities.field.required %}#}
+        {#                        requiredField{% endif %}">#}
+        {#            {{ form.entities.label }}{% if form.entities.field.required %}#}
+        {#                <span class="asteriskField">*</span>{% endif %}#}
+        {#        </label>#}
+        {#        <div class="input-group">#}
+        {#            <span class="input-group-text p-0">#}
+        {#                {% if form.entity_select %}#}
+        {#                    {% crispy_field form.entity_select 'class' 'form-select is-invalid' %}#}
+        {#                {% else %}#}
+        {#                    {% crispy_field form.entity_select 'class' 'form-select' %}#}
+        {#                {% endif %}#}
+        {#            </span>#}
+        {#            {% if form.entities.errors %}#}
+        {#                {% crispy_field form.entities 'class' 'form-control is-invalid' %}#}
+        {#            {% else %}#}
+        {#                {% crispy_field form.entities 'class' 'form-control' %}#}
+        {#            {% endif %}#}
+        {#        </div>#}
     </form>
 
 {% endblock %}

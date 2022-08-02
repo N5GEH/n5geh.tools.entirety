@@ -4,15 +4,15 @@ from pydantic import Field
 from typing import Optional
 from utils.generators import generate_uuid
 from projects.models import Project
-from subscriptions.managers import SubscriptionsManager
 
 
 class Subscription(models.Model):
-    # default_manager = SubscriptionsManager()
     uuid = models.CharField(
         unique=True, max_length=64, primary_key=True
     )  # later uuid from cb
     name = models.CharField(max_length=64)
+    date_created = models.DateTimeField(auto_now_add=True)
+    date_modified = models.DateTimeField(auto_now=True)
 
     project = models.ForeignKey(Project, on_delete=models.CASCADE)
 
@@ -21,10 +21,3 @@ class Subscription(models.Model):
 
     class Meta:
         ordering = ["name"]
-
-
-class SubscriptionList(Subscription):
-    default_manager = SubscriptionsManager()
-
-    class Meta:
-        proxy = True
