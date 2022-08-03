@@ -1,15 +1,26 @@
+from projects.models import Project
 from requests import HTTPError
-
 from filip.clients.ngsi_v2 import IoTAClient
 from filip.models import FiwareHeader
 from filip.models.ngsi_v2.iot import Device, DeviceAttribute, DeviceCommand
 
-# TODO for test
+# TODO need to be loaded from envs
 IOTA_URL = "http://localhost:4041/"
-dummy_project = {"fiware_service": "test", "service_path": "/"}
 
 prefix_attributes = "attributes"
 prefix_commands = "commands"
+
+
+def get_project_data(uuid):
+    """Get project by project id"""
+    project = Project.objects.get(uuid=uuid)
+    project_data = {
+        "fiware_service": project.fiware_service,
+        "service_path": project.fiware_service_path,
+        "description": project.description,
+        "name": project.name
+    }
+    return project_data
 
 
 def get_device_by_id(current_project, device_id):
@@ -64,11 +75,16 @@ def get_attribute_list(data_attributes: dict):
         # print(key, flush=True)
         if key.endswith("name"):
             prefix = key.split("name")[0]
+            # TODO a quick fix, should be remove later
+            if "__prefix__" in prefix:
+                continue
             attribute_dict = {
                 "name": data_attributes[f"{prefix}name"],
                 "type": data_attributes[f"{prefix}type"],
                 "object_id": data_attributes[f"{prefix}object_id"],
             }
+            print("attribute dict")
+            print(attribute_dict, flush=True)
             attribute = DeviceAttribute(**attribute_dict)
             attributes.append(attribute)
     return attributes
@@ -95,7 +111,7 @@ def parse_device(data_basic, data_attributes, data_commands):
     return device
 
 
-def post_device(device: Device):
+def post_device(device: Device, current_project: dict):
     """
     Post the device to IoTAgent
     """
@@ -103,8 +119,8 @@ def post_device(device: Device):
         with IoTAClient(
             url=IOTA_URL,
             fiware_header=FiwareHeader(
-                service=dummy_project["fiware_service"],
-                service_path=dummy_project["service_path"],
+                service=current_project["fiware_service"],
+                service_path=current_project["service_path"],
             ),
         ) as iota_client:
             iota_client.post_device(device=device)
@@ -113,7 +129,7 @@ def post_device(device: Device):
         return e
 
 
-def update_device(device: Device):
+def update_device(device: Device, current_project: dict):
     """
     Update the device to IoTAgent
     """
@@ -121,8 +137,8 @@ def update_device(device: Device):
         with IoTAClient(
             url=IOTA_URL,
             fiware_header=FiwareHeader(
-                service=dummy_project["fiware_service"],
-                service_path=dummy_project["service_path"],
+                service=current_project["fiware_service"],
+                service_path=current_project["service_path"],
             ),
         ) as iota_client:
             iota_client.update_device(device=device)
@@ -136,8 +152,6 @@ def parse_request_data(data):
     Parse the query dict, and separat the data to
     basic information, attributes, and commands
     """
-    print("all request data:", flush=True)
-    print(data, flush=True)
 
     data_basic = {
         "device_id": data["device_id"],

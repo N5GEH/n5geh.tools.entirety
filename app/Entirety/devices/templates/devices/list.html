@@ -1,7 +1,7 @@
 {% extends '_base.html' %}
 {% block content %}
 
-<form action="{% url 'devices:create' %}" method="get">
+<form action="{% url 'devices:create' project_id %}" method="get">
     <button type="submit" class="btn btn-primary" >
                 Add
     </button>
@@ -31,7 +31,7 @@
       <td>{{ device.entity_type }}</td>
       <td>
           {#Edit button for every device#}
-          <form action="{% url 'devices:edit' %}" method="get">
+          <form action="{% url 'devices:edit' project_id %}" method="get">
               <input type="hidden" value="{{ device.device_id }}" name="device_id">
             <button type="submit" class="btn btn-primary" value="{{ device.device_id }}">
                         Edit
