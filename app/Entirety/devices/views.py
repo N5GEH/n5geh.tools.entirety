@@ -8,34 +8,35 @@ from django.http import HttpRequest
 from devices.utils import *
 
 
-class DeviceListView(View):
+class DeviceListView(LoginRequiredMixin, View):
     def get(self, request: HttpRequest, project_id):
-        project_data = get_project_data(project_id)
-        device_list = get_devices(current_project=project_data)
+        project = get_project(project_id)
+        device_list = get_devices(project=project)
         # pass device model of filip directly to context
-        context = {"Devices": device_list, "project_id": project_id}
+        context = {"Devices": device_list,
+                   "user": self.request.user, "project": project}
         return render(request, "devices/list.html", context)
 
 
-class DeviceCreateView(View):
+class DeviceCreateView(LoginRequiredMixin, View):
     def get(self, request: HttpRequest, project_id):
         basic_info = DeviceBasic()
         attributes = Attributes(prefix=prefix_attributes)
         commands = Commands(prefix=prefix_commands)
+        project = get_project(project_id)
         context = {
             "basic_info": basic_info,
             "attributes": attributes,
             "commands": commands,
             "action": "Create",
-            "project_id": project_id
+            "project": project
         }
         return render(request, "devices/detail.html", context)
 
 
-class DeviceCreateSubmitView(View):
+class DeviceCreateSubmitView(LoginRequiredMixin, View):
     def post(self, request: HttpRequest, project_id):
-        project_data = get_project_data(project_id)
-
+        project = get_project(project_id)
         # print("Device Create Submit request data")
         # print(request.POST)
         # preprocess the request query data
@@ -50,7 +51,7 @@ class DeviceCreateSubmitView(View):
                 data_attributes=data_attributes,
                 data_commands=data_commands,
             )
-            post_device(device, current_project=project_data)  # TODO need to capture and display the request error
+            post_device(device, project=project)  # TODO need to capture and display the request error
             return redirect("devices:list", project_id=project_id)
         else:
             context = {
@@ -58,17 +59,17 @@ class DeviceCreateSubmitView(View):
                 "attributes": attributes,
                 "commands": commands,
                 "action": "Create",
-                "project_id": project_id
+                "project": project
             }
         return render(request, "devices/detail.html", context)
 
 
-class DeviceEditView(View):
+class DeviceEditView(LoginRequiredMixin, View):
     def get(self, request: HttpRequest, project_id):
-        project_data = get_project_data(project_id)
+        project = get_project(project_id)
 
         device_id = request.GET["device_id"]
-        device = get_device_by_id(current_project=project_data, device_id=device_id)
+        device = get_device_by_id(project=project, device_id=device_id)
         device_dict = device.dict()
 
         basic_info = DeviceBasic(initial=device_dict)  # TODO disable editing the basic information
@@ -90,14 +91,14 @@ class DeviceEditView(View):
             "attributes": attributes,
             "commands": commands,
             "action": "Edit",
-            "project_id": project_id
+            "project": project
         }
         return render(request, "devices/detail.html", context)
 
 
-class DeviceEditSubmitView(View):
+class DeviceEditSubmitView(LoginRequiredMixin, View):
     def post(self, request: HttpRequest, project_id):
-        project_data = get_project_data(project_id)
+        project = get_project(project_id)
 
         # preprocess the POST request data
         data_basic, data_attributes, data_commands = parse_request_data(request.POST)
@@ -116,7 +117,7 @@ class DeviceEditSubmitView(View):
                 data_attributes=data_attributes,
                 data_commands=data_commands,
             )
-            update_device(device, current_project=project_data)  # TODO need to capture and display the request error
+            update_device(device, project=project)  # TODO need to capture and display the request error
 
             return redirect("devices:list", project_id=project_id)
         else:
@@ -125,6 +126,6 @@ class DeviceEditSubmitView(View):
                 "attributes": attributes,
                 "commands": commands,
                 "action": "Edit",
-                "project_id": project_id
+                "project": project
             }
         return render(request, "devices/detail.html", context)

@@ -6,9 +6,9 @@
     <h3 class="mt-5">{{ action }} Device</h3>
 
     {% if action == "Create" %}
-        <form action="{% url 'devices:create_submit' project_id %}" method="post">
+        <form action="{% url 'devices:create_submit' project.uuid %}" method="post">
     {% elif action == "Edit" %}
-        <form action="{% url 'devices:edit-submit' project_id %}" method="post">
+        <form action="{% url 'devices:edit-submit' project.uuid %}" method="post">
     {% endif %}
         {% csrf_token %}
             {% include 'accordion.html' %}

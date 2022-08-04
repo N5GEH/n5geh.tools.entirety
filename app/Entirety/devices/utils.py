@@ -11,23 +11,15 @@ prefix_attributes = "attributes"
 prefix_commands = "commands"
 
 
-def get_project_data(uuid):
-    """Get project by project id"""
-    project = Project.objects.get(uuid=uuid)
-    project_data = {
-        "fiware_service": project.fiware_service,
-        "service_path": project.fiware_service_path,
-        "description": project.description,
-        "name": project.name
-    }
-    return project_data
+def get_project(uuid):
+    return Project.objects.get(uuid=uuid)
 
 
-def get_device_by_id(current_project, device_id):
+def get_device_by_id(project: Project, device_id):
     """
     Get device by id for current project
     Args:
-        current_project: dict
+        project: dict
         device_id: str
 
     Returns:
@@ -36,18 +28,18 @@ def get_device_by_id(current_project, device_id):
     with IoTAClient(
         url=IOTA_URL,
         fiware_header=FiwareHeader(
-            service=current_project.get("fiware_service"),
-            service_path=current_project.get("service_path"),
+            service=project.fiware_service,
+            service_path=project.fiware_service_path,
         ),
     ) as iota_client:
         return iota_client.get_device(device_id=device_id)
 
 
-def get_devices(current_project):
+def get_devices(project: Project):
     """
     Get devices for current project
     Args:
-        current_project: dict
+        project: dict
 
     Returns:
         list of devices
@@ -56,8 +48,8 @@ def get_devices(current_project):
         with IoTAClient(
             url=IOTA_URL,
             fiware_header=FiwareHeader(
-                service=current_project.get("fiware_service"),
-                service_path=current_project.get("service_path"),
+                service=project.fiware_service,
+                service_path=project.fiware_service_path,
             ),
         ) as iota_client:
             devices = iota_client.get_device_list()
@@ -111,7 +103,7 @@ def parse_device(data_basic, data_attributes, data_commands):
     return device
 
 
-def post_device(device: Device, current_project: dict):
+def post_device(device: Device, project: Project):
     """
     Post the device to IoTAgent
     """
@@ -119,8 +111,8 @@ def post_device(device: Device, current_project: dict):
         with IoTAClient(
             url=IOTA_URL,
             fiware_header=FiwareHeader(
-                service=current_project["fiware_service"],
-                service_path=current_project["service_path"],
+                service=project.fiware_service,
+                service_path=project.fiware_service_path,
             ),
         ) as iota_client:
             iota_client.post_device(device=device)
@@ -129,7 +121,7 @@ def post_device(device: Device, current_project: dict):
         return e
 
 
-def update_device(device: Device, current_project: dict):
+def update_device(device: Device, project: Project):
     """
     Update the device to IoTAgent
     """
@@ -137,8 +129,8 @@ def update_device(device: Device, current_project: dict):
         with IoTAClient(
             url=IOTA_URL,
             fiware_header=FiwareHeader(
-                service=current_project["fiware_service"],
-                service_path=current_project["service_path"],
+                service=project.fiware_service,
+                service_path=project.fiware_service_path,
             ),
         ) as iota_client:
             iota_client.update_device(device=device)
