@@ -39,15 +39,8 @@
                     </div>
                 </div>
                 <div id="form-container" class="container d-flex flex-wrap row g-5">
-                    {{ formset.management_form|crispy }}
-                    {% for form in attributes %}
-                        <div class="d_attr_form col-6">
-                            {% crispy form %}
-                            <button class="remove-form btn btn-danger rounded-pill btn-sm"><i class="bi bi-trash"></i></button>
-                        </div>
-                    {% endfor %}
+                    {% crispy attributes attributes.form.helper %}
                 </div>
-
             </div>
         </div>
     </div>

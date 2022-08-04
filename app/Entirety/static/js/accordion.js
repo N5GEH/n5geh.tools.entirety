@@ -2,6 +2,7 @@ const attrForm = document.getElementsByClassName("d_attr_form");
 const mainForm = document.querySelector("#form-container");
 const addButton = document.querySelector("#add-form");
 const emptyForm = document.querySelector("#empty_form");
+let totalForms = document.querySelector("#id_form-TOTAL_FORMS")
 
 let formCount = attrForm.length - 1;
 
@@ -16,16 +17,13 @@ addButton.addEventListener("click", function (event) {
     let newAttrFormToInsert = document.createElement('div');
     newAttrFormToInsert.classList.add('d_attr_form', 'col-6');
 
-    let innerAttrForm = document.createElement('form');
-    innerAttrForm.method = 'POST';
-    innerAttrForm.append(...newAttrForm.childNodes);
-
     let innerAttrButton = document.createElement('button');
     innerAttrButton.classList.add('remove-form', 'btn', 'btn-danger', 'rounded-pill', 'btn-sm');
     innerAttrButton.innerHTML = "<i class='bi bi-trash'></i>";
-    newAttrFormToInsert.append(innerAttrForm, innerAttrButton);
+    newAttrFormToInsert.append(...newAttrForm.childNodes, innerAttrButton);
 
-    mainForm.append(newAttrFormToInsert);
+    mainForm.firstElementChild.append(newAttrFormToInsert);
+    totalForms.setAttribute('value', (formCount+1).toString())
 
     let removeChildButton = newAttrFormToInsert.querySelector('.remove-form');
     removeChildButton.addEventListener("click", function () {
