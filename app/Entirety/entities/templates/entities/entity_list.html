@@ -1,0 +1,9 @@
+{% extends '_base.html' %}
+
+{% block title %}Entities{% endblock %}
+
+{% block content %}
+    {% for entity in object_list %}
+        {{ entity.id }}
+    {% endfor %}
+{% endblock %}

@@ -36,6 +36,7 @@ class Settings(BaseSettings):
         "examples.apps.ExamplesConfig",
         "users.apps.UsersConfig",
         "alarming.apps.AlarmingConfig",
+        "entities.apps.EntitiesConfig",
     ]
 
     CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
@@ -113,7 +114,6 @@ class Settings(BaseSettings):
         "compressor.finders.CompressorFinder",
     ]
 
-
     COMPRESS_PRECOMPILERS = (("text/x-scss", "django_libsass.SassCompiler"),)
 
     # Default primary key field type
@@ -182,20 +182,19 @@ class Settings(BaseSettings):
 
     # Database
     # https://docs.djangoproject.com/en/4.0/ref/settings/#databases
-    DATABASE_URL: str = Field(env="DATABASE_URL",
-                              default="postgres://username:password@host:port/db")
+    DATABASE_URL: str = Field(
+        env="DATABASE_URL", default="postgres://username:password@host:port/db"
+    )
 
-    @validator('DATABASE_URL', pre=True)
+    @validator("DATABASE_URL", pre=True)
     def set_url(cls, v: Optional[str]) -> Any:
         if isinstance(v, str):
-            os.environ['DATABASE_URL'] = v
+            os.environ["DATABASE_URL"] = v
             return v
         else:
             raise Exception
 
-    DATABASES = {
-        'default': dj_database_url.config(conn_max_age=600)
-    }
+    DATABASES = {"default": dj_database_url.config(conn_max_age=600)}
 
     LOGIN_URL: str = Field(default="/oidc/authenticate", env="LOGIN_URL")
 
