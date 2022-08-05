@@ -21,6 +21,7 @@ class AttributeForm(forms.Form):
         super(AttributeForm, self).__init__(*args, **kwargs)
 
         self.helper = FormHelper(self)
+        self.helper.form_tag = False
         self.helper.layout = Layout(
             Div(
                 "name",

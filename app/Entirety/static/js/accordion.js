@@ -22,7 +22,7 @@ addButton.addEventListener("click", function (event) {
     innerAttrButton.innerHTML = "<i class='bi bi-trash'></i>";
     newAttrFormToInsert.append(...newAttrForm.childNodes, innerAttrButton);
 
-    mainForm.firstElementChild.append(newAttrFormToInsert);
+    mainForm.append(newAttrFormToInsert);
     totalForms.setAttribute('value', (formCount+1).toString())
 
     let removeChildButton = newAttrFormToInsert.querySelector('.remove-form');
