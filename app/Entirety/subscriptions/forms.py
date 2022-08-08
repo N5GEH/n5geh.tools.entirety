@@ -14,16 +14,36 @@ from subscriptions.models import Subscription
 class SubscriptionForm(forms.ModelForm):
     _newly_created: bool
 
-    description = forms.CharField()
-    entities = forms.CharField()
-    entity_select = forms.ChoiceField(
+    attributes = forms.MultipleChoiceField(
         choices=[
-            ("id", "ID"),
-            ("id_pattern", "ID Pattern"),
+            ("id", "id"),
+            ("test1", "test1"),
+            ("test2", "test2"),
+            ("test3", "test3"),
+        ],
+        widget=forms.CheckboxSelectMultiple,
+    )
+    description = forms.CharField()
+    entities = forms.MultiValueField(
+        fields=(
+            forms.ChoiceField(
+                choices=[
+                    ("id", "ID"),
+                    ("id_pattern", "ID Pattern"),
+                ],
+                initial="id_pattern",
+            ),
+            forms.CharField(),
+        )
+    )
+    type_select = forms.ChoiceField(
+        choices=[
             ("type", "Type"),
             ("type_pattern", "Type Pattern"),
-        ]
+        ],
+        initial="type_pattern",
     )
+    types = forms.CharField()
 
     # helper = FormHelper()
     # helper.layout = Layout(
@@ -39,7 +59,9 @@ class SubscriptionForm(forms.ModelForm):
     # notification: Notification
 
     def __init__(self, *args, **kwargs):
-        self._newly_created = kwargs.get("instance") is None
+        self._newly_created = (
+            kwargs.get("instance") is None
+        )  # instance won't bo None after super init
         super().__init__(*args, **kwargs)
         self.__populate()
 
@@ -76,7 +98,9 @@ class SubscriptionForm(forms.ModelForm):
             ) as cb_client:
                 cb_sub = cb_client.get_subscription(self.instance.uuid)
                 self.initial["description"] = cb_sub.description
+                self.initial["id_select"] = "id_pattern" if cb_sub else "id"
 
     class Meta:
         model = Subscription
-        fields = ["name", "description", "entity_select", "entities"]
+        exclude = ["uuid", "project"]
+        # fields = "__all__"

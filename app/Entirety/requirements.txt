@@ -3,7 +3,7 @@ anyio==3.6.1
 argcomplete==2.0.0
 asgiref==3.5.2
 attrs==21.4.0
-backports.zoneinfo==0.2.1
+backports.zoneinfo==0.2.1;python_version<"3.9"
 black==22.6.0
 certifi==2022.6.15
 cffi==1.15.0
@@ -19,11 +19,15 @@ distlib==0.3.4
 dj-database-url==0.5.0
 Django==4.0.5
 django-appconf==1.0.5
+django-bootstrap-icons==0.7.9
 django-compressor==4.0
 django-crispy-forms==1.14.0
 django-discover-runner==1.0
 django-libsass==0.9
+django-loki==0.1.4
+django-ninja==0.19.0
 django-pydantic-settings==0.6.3
+djantic==0.7.0
 dnspython==2.2.1
 email-validator==1.2.1
 filelock==3.7.1

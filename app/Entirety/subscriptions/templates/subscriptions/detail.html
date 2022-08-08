@@ -1,6 +1,5 @@
 {% extends '_base.html' %}
 {% load crispy_forms_tags %}
-{% load crispy_forms_field %}
 
 {% block title %}
     {% if subscription.name %} {{ subscription.name }}
@@ -27,29 +26,80 @@
     <form id="f_subscription" action="" method="post" enctype="multipart/form-data"
           {% if form_submitted %}class="was-validated" {% endif %}>
         {% csrf_token %}
-        {% crispy form %}
-
-        {#        <label for="{{ form.entities.id_for_label }}"#}
-        {#               class="{% if 'form-horizontal' in form_class %}col-form-label#}
-        {#                        {% else %}form-label{% endif %}{{ label_class }}{% if form.entities.field.required %}#}
-        {#                        requiredField{% endif %}">#}
-        {#            {{ form.entities.label }}{% if form.entities.field.required %}#}
-        {#                <span class="asteriskField">*</span>{% endif %}#}
-        {#        </label>#}
-        {#        <div class="input-group">#}
-        {#            <span class="input-group-text p-0">#}
-        {#                {% if form.entity_select %}#}
-        {#                    {% crispy_field form.entity_select 'class' 'form-select is-invalid' %}#}
-        {#                {% else %}#}
-        {#                    {% crispy_field form.entity_select 'class' 'form-select' %}#}
-        {#                {% endif %}#}
-        {#            </span>#}
-        {#            {% if form.entities.errors %}#}
-        {#                {% crispy_field form.entities 'class' 'form-control is-invalid' %}#}
-        {#            {% else %}#}
-        {#                {% crispy_field form.entities 'class' 'form-control' %}#}
-        {#            {% endif %}#}
-        {#        </div>#}
+        <div class="accordion mt-3">
+            <div class="accordion-item">
+                <h2 class="accordion-header" id="acc_h_basic">
+                    <button class="accordion-button" type="button" data-bs-toggle="collapse"
+                            data-bs-target="#acc_c_basic" aria-expanded="true"
+                            aria-controls="acc_c_basic">
+                        <i class="bi bi-info-circle me-2"></i>
+                        Basic Information
+                    </button>
+                </h2>
+                <div id="acc_c_basic" class="accordion-collapse collapse show"
+                     aria-labelledby="acc_h_basic">
+                    <div class="accordion-body">
+                        {{ form.name|as_crispy_field }}
+                        {{ form.description|as_crispy_field }}
+                    </div>
+                </div>
+            </div>
+            <div class="accordion-item">
+                <h2 class="accordion-header" id="acc_h_subject">
+                    <button class="accordion-button" type="button" data-bs-toggle="collapse"
+                            data-bs-target="#acc_c_subject" aria-expanded="true"
+                            aria-controls="acc_c_subject">
+                        <i class="bi bi-info-circle me-2"></i>
+                        Subject
+                    </button>
+                </h2>
+                <div id="acc_c_subject" class="accordion-collapse collapse show"
+                     aria-labelledby="acc_h_subject">
+                    <div class="accordion-body">
+{#                        {{ form.entites|as_crispy_field }}#}
+                        {{ form.attributes|as_crispy_field }}
+                    </div>
+                </div>
+            </div>
+            <div class="accordion-item">
+                <h2 class="accordion-header" id="acc_h_notification">
+                    <button class="accordion-button" type="button" data-bs-toggle="collapse"
+                            data-bs-target="#acc_c_notification" aria-expanded="true"
+                            aria-controls="acc_c_notification">
+                        <i class="bi bi-info-circle me-2"></i>
+                        Notification
+                    </button>
+                </h2>
+                <div id="acc_c_notification" class="accordion-collapse collapse show"
+                     aria-labelledby="acc_h_notification">
+                    <div class="accordion-body">
+                    </div>
+                </div>
+            </div>
+        </div>
     </form>
 
 {% endblock %}
+
+
+{#        <label for="{{ form.entities.id_for_label }}"#}
+{#               class="{% if 'form-horizontal' in form_class %}col-form-label#}
+{#                        {% else %}form-label{% endif %}{{ label_class }}{% if form.entities.field.required %}#}
+{#                        requiredField{% endif %}">#}
+{#            {{ form.entities.label }}{% if form.entities.field.required %}#}
+{#                <span class="asteriskField">*</span>{% endif %}#}
+{#        </label>#}
+{#        <div class="input-group">#}
+{#            <span class="input-group-text p-0">#}
+{#                {% if form.entity_select %}#}
+{#                    {% crispy_field form.entity_select 'class' 'form-select is-invalid' %}#}
+{#                {% else %}#}
+{#                    {% crispy_field form.entity_select 'class' 'form-select' %}#}
+{#                {% endif %}#}
+{#            </span>#}
+{#            {% if form.entities.errors %}#}
+{#                {% crispy_field form.entities 'class' 'form-control is-invalid' %}#}
+{#            {% else %}#}
+{#                {% crispy_field form.entities 'class' 'form-control' %}#}
+{#            {% endif %}#}
+{#        </div>#}
