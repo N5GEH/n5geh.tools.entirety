@@ -49,11 +49,13 @@
                             </h5>
                         </div>
 
-                        {% if project.logo.url|length > 0 %}
-                            <img src="{{ project.logo.url }}" class="card-img-top w-100" alt="{{ project.name }}">
-                        {% else %}
-                            <img src="{% static "/img/n5geh.png" %}" class="card-img-top" alt="{{ project.name }}">
-                        {% endif %}
+                        <a href="{% url 'projects:detail' project.uuid %}">
+                            {% if project.logo.url|length > 0 %}
+                                <img src="{{ project.logo.url }}" class="card-img-top w-100" alt="{{ project.name }}">
+                            {% else %}
+                                <img src="{% static "/img/n5geh.png" %}" class="card-img-top" alt="{{ project.name }}">
+                            {% endif %}
+                        </a>
 
                         <div class="card-body">
                             <p class="card-text text-truncate">{{ project.description }}</p>
