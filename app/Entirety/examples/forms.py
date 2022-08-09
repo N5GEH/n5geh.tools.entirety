@@ -38,6 +38,23 @@ class AttributeForm(forms.Form):
 class CommandForm(forms.Form):
     name = forms.CharField()
 
+    def __init__(self, *args, **kwargs):
+        super(CommandForm, self).__init__(*args, **kwargs)
+
+        self.helper = FormHelper(self)
+        self.helper.form_tag = False
+        self.helper.layout = Layout(
+            Div(
+                "name",
+                "type",
+                "value",
+                HTML(
+                    "<button class='remove-form btn btn-danger rounded-pill btn-sm'><i class='bi bi-trash'></i></button>"
+                ),
+                css_class="d_attr_form col-6",
+            )
+        )
+
 
 class BasicInfoForm(forms.Form):
     name = forms.CharField()

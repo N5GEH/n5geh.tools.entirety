@@ -38,11 +38,14 @@ class DialogForm(View):
 class Dialog(View):
     def get(self, request):
         basic_info = BasicInfoForm()
-        attributes = Attributes()
-        commands = Commands()
+        attributes = Attributes(prefix="attr")
+        commands = Commands(prefix="cmd")
         context = {
             "basic_info": basic_info,
             "attributes": attributes,
             "commands": commands,
         }
         return render(request, "examples/dialog.html", context)
+
+    def post(self, request):
+        return render(request, "examples/dialog_form.html")
