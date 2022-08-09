@@ -2,7 +2,7 @@ import json
 import logging
 from django.shortcuts import render, HttpResponse
 from django.views.generic import View
-from examples.forms import ExampleForm
+from examples.forms import ExampleForm, Attributes, Commands, BasicInfoForm
 
 logger = logging.getLogger(__name__)
 
@@ -41,5 +41,15 @@ class DialogForm(View):
 
 class Dialog(View):
     def get(self, request):
-        context = {}
+        basic_info = BasicInfoForm()
+        attributes = Attributes(prefix="attr")
+        commands = Commands(prefix="cmd")
+        context = {
+            "basic_info": basic_info,
+            "attributes": attributes,
+            "commands": commands,
+        }
         return render(request, "examples/dialog.html", context)
+
+    def post(self, request):
+        return render(request, "examples/dialog_form.html")
