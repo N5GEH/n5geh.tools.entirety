@@ -1,5 +1,6 @@
 {% extends '_base.html' %}
 {% load crispy_forms_tags %}
+{% load static %}
 
 {% block title %}
     {% if subscription.name %} {{ subscription.name }}
@@ -23,7 +24,7 @@
 
 {% block content %}
 
-    <form id="f_subscription" action="" method="post" enctype="multipart/form-data"
+    <form id="f_subscription" method="post" enctype="multipart/form-data"
           {% if form_submitted %}class="was-validated" {% endif %}>
         {% csrf_token %}
         <div class="accordion mt-3">
@@ -41,6 +42,8 @@
                     <div class="accordion-body">
                         {{ form.name|as_crispy_field }}
                         {{ form.description|as_crispy_field }}
+                        {{ form.throttling|as_crispy_field }}
+                        {{ form.expires|as_crispy_field }}
                     </div>
                 </div>
             </div>
@@ -56,8 +59,9 @@
                 <div id="acc_c_subject" class="accordion-collapse collapse show"
                      aria-labelledby="acc_h_subject">
                     <div class="accordion-body">
-{#                        {{ form.entites|as_crispy_field }}#}
+{#                        {{ form.entities|as_crispy_field }}#}
                         {{ form.attributes|as_crispy_field }}
+                        {#                        {{ form.type_select|as_crispy_field }}#}
                     </div>
                 </div>
             </div>
@@ -73,14 +77,30 @@
                 <div id="acc_c_notification" class="accordion-collapse collapse show"
                      aria-labelledby="acc_h_notification">
                     <div class="accordion-body">
+                        {{ form.http|as_crispy_field }}
+                        {{ form.mqtt|as_crispy_field }}
+                        {{ form.attributes_format|as_crispy_field }}
+
+                        {#                        {{ form.times_sent|as_crispy_field }}#}
+                        {#                        {{ form.last_notification|as_crispy_field }}#}
+                        {#                        {{ form.last_failure|as_crispy_field }}#}
                     </div>
                 </div>
             </div>
         </div>
+        <button type="submit" class="btn btn-primary btn-submit mb-1 ms-auto" data-bs-toggle="tooltip"
+                data-bs-placement="bottom"
+                title="Save">
+            <i class="bi bi-save"></i>
+        </button>
     </form>
 
 {% endblock %}
 
+
+{% block scripts %}
+    <script src="{% static 'js/subscription.js' %}"></script>
+{% endblock %}
 
 {#        <label for="{{ form.entities.id_for_label }}"#}
 {#               class="{% if 'form-horizontal' in form_class %}col-form-label#}

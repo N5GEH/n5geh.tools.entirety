@@ -52,6 +52,7 @@ class Settings(PydanticSettings):
         "django.contrib.sessions",
         "django.contrib.messages",
         "django.contrib.staticfiles",
+        "django.forms",
         "mozilla_django_oidc",
         "compressor",
         "crispy_forms",
@@ -78,7 +79,7 @@ class Settings(PydanticSettings):
     ]
 
     ROOT_URLCONF = "entirety.urls"
-
+    FORM_RENDERER = "django.forms.renderers.TemplatesSetting"
     TEMPLATES: List[TemplateBackendModel] = [
         {
             "BACKEND": "django.template.backends.django.DjangoTemplates",

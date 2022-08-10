@@ -1,91 +1,78 @@
 from django import forms
 from django.conf import settings
-from crispy_bootstrap5.bootstrap5 import Field, FloatingField
-from crispy_forms.helper import FormHelper
-from crispy_forms.layout import Layout
-from crispy_forms.bootstrap import PrependedText
 
 from filip.clients.ngsi_v2.cb import ContextBrokerClient
 from filip.models import FiwareHeader
+from filip.models.ngsi_v2.subscriptions import Notification
+from filip.models.ngsi_v2.base import AttrsFormat
 
 from subscriptions.models import Subscription
+from entirety.fields import SelectTextMultiField, MQTTURLField
 
 
 class SubscriptionForm(forms.ModelForm):
     _newly_created: bool
+    _entity_choices = [
+        ("id", "ID"),
+        ("id_pattern", "ID Pattern"),
+    ]
 
+    # Base info
+    description = forms.CharField(
+        help_text="A free text used by the client to describe the subscription."
+    )
+    expires = forms.DateField(
+        widget=forms.TextInput(
+            attrs={"type": "date"},
+        ),
+        required=False,
+        help_text="Subscription expiration date format. "
+        "Permanent subscriptions must omit this field.",
+    )
+    throttling = forms.IntegerField(
+        required=False,
+        help_text="Minimal period of time in seconds which must elapse "
+        "between two consecutive notifications. "
+        "It is optional.",
+    )
+
+    # Subject
     attributes = forms.MultipleChoiceField(
-        choices=[
-            ("id", "id"),
-            ("test1", "test1"),
-            ("test2", "test2"),
-            ("test3", "test3"),
-        ],
+        choices=[("id", "id")],
         widget=forms.CheckboxSelectMultiple,
     )
-    description = forms.CharField()
-    entities = forms.MultiValueField(
-        fields=(
-            forms.ChoiceField(
-                choices=[
-                    ("id", "ID"),
-                    ("id_pattern", "ID Pattern"),
-                ],
-                initial="id_pattern",
-            ),
-            forms.CharField(),
-        )
-    )
-    type_select = forms.ChoiceField(
-        choices=[
-            ("type", "Type"),
-            ("type_pattern", "Type Pattern"),
-        ],
-        initial="type_pattern",
-    )
-    types = forms.CharField()
 
-    # helper = FormHelper()
-    # helper.layout = Layout(
-    #     Field('name'),
-    #     Field('description'),
-    #     # FloatingField('entities')
-    #     # CustomPrependedText('entities', entity_select),
+    # entities = SelectTextMultiField(
+    #     choices=_entity_choices,
+    #     initial=["id_pattern", ".*"]
     # )
 
-    # entities: List[EntityPattern]
-    # attrs: Optional[List[str]]
-    # expression: Optional[List[str]]
-    # notification: Notification
+    # Notification
+
+    # TODO: attrs or exceptAttrs
+    # TODO: httpCustom
+    http = forms.URLField()
+    # TODO: mqttCustom
+    mqtt = MQTTURLField()
+
+    attributes_format = forms.ChoiceField(
+        choices=[(format.value, format.value) for format in AttrsFormat],
+        help_text="specifies how the entities are represented in notifications.",
+    )
+
+    # TODO: metadata
+
+    # Not implemented in Filip
+    # times_sent = forms.IntegerField(disabled=True, required=False)
+    # last_notification = forms.DateField(disabled=True, required=False)
+    # last_failure = forms.DateField(disabled=True, required=False)
 
     def __init__(self, *args, **kwargs):
         self._newly_created = (
             kwargs.get("instance") is None
-        )  # instance won't bo None after super init
+        )  # instance won't be None after super init
         super().__init__(*args, **kwargs)
         self.__populate()
-
-    # def save(self, commit=True, *args, **kwargs):
-    #     instance = super(SubscriptionForm, self).save(commit=False, *args, **kwargs)
-    #
-    #     with ContextBrokerClient(
-    #             url=settings.CB_URL,
-    #             fiware_header=FiwareHeader(
-    #                 service=instance.project.fiware_service,
-    #                 service_path=instance.project.fiware_service_path,
-    #             ),
-    #     ) as cb_client:
-    #         if instance.pk:
-    #             cb_sub = cb_client.get_subscription(instance.pk)
-    #             cb_sub.description = self.cleaned_data["description"]
-    #             cb_client.update_subscription(cb_sub)
-    #         else:
-    #             cb_sub = Subscription()
-    #             cb_sub.description = self.cleaned_data["description"]
-    #             cb_client.update_subscription(cb_sub)
-    #     if commit:
-    #         instance.save()
-    #     return instance
 
     def __populate(self):
         if not self._newly_created:
@@ -98,7 +85,10 @@ class SubscriptionForm(forms.ModelForm):
             ) as cb_client:
                 cb_sub = cb_client.get_subscription(self.instance.uuid)
                 self.initial["description"] = cb_sub.description
-                self.initial["id_select"] = "id_pattern" if cb_sub else "id"
+                # self.initial["id_select"] = "id_pattern" if cb_sub else "id"
+
+    # def clean(self):
+    #     cleaned_data = super().clean()
 
     class Meta:
         model = Subscription
