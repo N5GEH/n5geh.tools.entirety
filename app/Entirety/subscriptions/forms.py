@@ -1,5 +1,6 @@
 from django import forms
 from django.conf import settings
+from django.core.exceptions import ValidationError
 
 from filip.clients.ngsi_v2.cb import ContextBrokerClient
 from filip.models import FiwareHeader
@@ -51,13 +52,14 @@ class SubscriptionForm(forms.ModelForm):
 
     # TODO: attrs or exceptAttrs
     # TODO: httpCustom
-    http = forms.URLField()
+    http = forms.URLField(required=False)
     # TODO: mqttCustom
-    mqtt = MQTTURLField()
+    mqtt = MQTTURLField(required=False)
 
     attributes_format = forms.ChoiceField(
         choices=[(format.value, format.value) for format in AttrsFormat],
         help_text="specifies how the entities are represented in notifications.",
+        initial="normalized",
     )
 
     # TODO: metadata
@@ -87,8 +89,12 @@ class SubscriptionForm(forms.ModelForm):
                 self.initial["description"] = cb_sub.description
                 # self.initial["id_select"] = "id_pattern" if cb_sub else "id"
 
-    # def clean(self):
-    #     cleaned_data = super().clean()
+    def clean(self):
+        cleaned_data = super().clean()
+        if not (bool(cleaned_data.get("http")) != bool(cleaned_data.get("mqtt"))):
+            message = "Exactly one of http or mqtt must have a value."
+            self.add_error("http", message)
+            self.add_error("mqtt", message)
 
     class Meta:
         model = Subscription
