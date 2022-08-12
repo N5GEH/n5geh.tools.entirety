@@ -11,12 +11,28 @@ from subscriptions.models import Subscription
 from entirety.fields import SelectTextMultiField, MQTTURLField
 
 
+class EntitiesForm(forms.Form):
+    _entity_choices = [
+        ("id", "id"),
+        ("id_pattern", "id pattern"),
+    ]
+    _type_choices = [
+        ("type", "type"),
+        ("type_pattern", "type pattern"),
+    ]
+
+    entity_selector = forms.ChoiceField(choices=_entity_choices)
+    entity = forms.CharField()
+
+    type_selector = forms.ChoiceField(choices=_type_choices, required=False)
+    entity_type = forms.CharField(required=False)
+
+
+Entities = forms.formset_factory(EntitiesForm)
+
+
 class SubscriptionForm(forms.ModelForm):
     _newly_created: bool
-    _entity_choices = [
-        ("id", "ID"),
-        ("id_pattern", "ID Pattern"),
-    ]
 
     # Base info
     description = forms.CharField(
@@ -38,6 +54,7 @@ class SubscriptionForm(forms.ModelForm):
     )
 
     # Subject
+    entities = Entities()
     attributes = forms.MultipleChoiceField(
         choices=[("id", "id")],
         widget=forms.CheckboxSelectMultiple,
@@ -91,6 +108,8 @@ class SubscriptionForm(forms.ModelForm):
 
     def clean(self):
         cleaned_data = super().clean()
+        if not self.entities.is_valid():
+            test = self.entities.errors
         if not (bool(cleaned_data.get("http")) != bool(cleaned_data.get("mqtt"))):
             message = "Exactly one of http or mqtt must have a value."
             self.add_error("http", message)
