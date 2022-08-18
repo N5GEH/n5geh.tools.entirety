@@ -87,6 +87,16 @@ class SubscriptionForm(forms.ModelForm):
             ) as cb_client:
                 cb_sub = cb_client.get_subscription(self.instance.uuid)
                 self.initial["description"] = cb_sub.description
+                self.initial["http"] = (
+                    str(cb_sub.notification.http.url)
+                    if cb_sub.notification.http
+                    else None
+                )
+                self.initial["mqtt"] = (
+                    str(cb_sub.notification.mqtt.url)
+                    if cb_sub.notification.mqtt
+                    else None
+                )
                 # self.initial["id_select"] = "id_pattern" if cb_sub else "id"
 
     def clean(self):
