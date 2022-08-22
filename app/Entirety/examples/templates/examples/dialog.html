@@ -9,6 +9,10 @@
     </button>
 
     <h3 class="mt-5">Accordion Template</h3>
-    {% include 'accordion.html' %}
-
+    <form method="post" action="{% url 'examples:dialog_example' %}">
+        <div>
+            {% include 'accordion.html' %}
+            <button type="submit">Submit</button>
+        </div>
+    </form>
 {% endblock %}

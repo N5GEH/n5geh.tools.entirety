@@ -1,3 +1,5 @@
+from crispy_forms.helper import FormHelper
+from crispy_forms.layout import Layout, Div, HTML
 from django import forms
 
 from examples.models import ExampleModel
@@ -15,9 +17,43 @@ class AttributeForm(forms.Form):
     type = forms.CharField()
     value = forms.CharField()
 
+    def __init__(self, *args, **kwargs):
+        super(AttributeForm, self).__init__(*args, **kwargs)
+
+        self.helper = FormHelper(self)
+        self.helper.form_tag = False
+        self.helper.layout = Layout(
+            Div(
+                "name",
+                "type",
+                "value",
+                HTML(
+                    "<button class='remove-form btn btn-danger rounded-pill btn-sm'><i class='bi bi-trash'></i></button>"
+                ),
+                css_class="d_attr_form col-6",
+            )
+        )
+
 
 class CommandForm(forms.Form):
     name = forms.CharField()
+
+    def __init__(self, *args, **kwargs):
+        super(CommandForm, self).__init__(*args, **kwargs)
+
+        self.helper = FormHelper(self)
+        self.helper.form_tag = False
+        self.helper.layout = Layout(
+            Div(
+                "name",
+                "type",
+                "value",
+                HTML(
+                    "<button class='remove-form btn btn-danger rounded-pill btn-sm'><i class='bi bi-trash'></i></button>"
+                ),
+                css_class="d_attr_form col-6",
+            )
+        )
 
 
 class BasicInfoForm(forms.Form):
