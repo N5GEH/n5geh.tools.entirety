@@ -1,5 +1,5 @@
 from crispy_forms.helper import FormHelper
-from crispy_forms.layout import Submit, Layout, Fieldset, Row, Column
+from crispy_forms.layout import Submit, Layout, Fieldset, Row, Column, Div, HTML
 from django import forms
 from django.forms import formset_factory
 
@@ -24,6 +24,17 @@ class DeviceAttributes(forms.Form):
         super().__init__(*args, **kwargs)
         self.helper = FormHelper(self)
         self.helper.form_tag = False
+        self.helper.layout = Layout(
+            Div(
+                "name",
+                "type",
+                "object_id",
+                HTML(
+                    "<button class='remove-form btn btn-danger rounded-pill btn-sm'><i class='bi bi-trash'></i></button>"
+                ),
+                css_class="d_attr_form col-6",
+            )
+        )
 
 
 class DeviceCommands(forms.Form):
@@ -34,6 +45,16 @@ class DeviceCommands(forms.Form):
         super().__init__(*args, **kwargs)
         self.helper = FormHelper(self)
         self.helper.form_tag = False
+        self.helper.layout = Layout(
+            Div(
+                "name",
+                "type",
+                HTML(
+                    "<button class='remove-form btn btn-danger rounded-pill btn-sm'><i class='bi bi-trash'></i></button>"
+                ),
+                css_class="d_attr_form col-6",
+            )
+        )
 
 
 Attributes = formset_factory(DeviceAttributes, extra=1)
