@@ -9,7 +9,7 @@ ENV PYTHONUNBUFFERED=1
 #RUN apk add -u gcc musl-dev
 #RUN apk add --no-cache bash
 
-COPY ./app /app
+COPY ./app/Entirety /app
 
 WORKDIR /app
 EXPOSE 8000

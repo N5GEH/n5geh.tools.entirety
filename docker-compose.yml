@@ -2,13 +2,20 @@ version: "3.9"
 services:
   postgres:
     image: postgres:latest
+    hostname: entirety-db
     environment:
       - POSTGRES_DB=postgres
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgrespw
-    ports:
-      - 5432:5432
     volumes:
       - pgdata:/var/lib/postgresql
+  web:
+    restart: always
+    build:
+      context: .
+      dockerfile: ./docker/Dockerfile
+    expose:
+      - "8000:8000"
+    command: ["python", "Entirety/manage.py", "runserver"]
 volumes:
   pgdata:
