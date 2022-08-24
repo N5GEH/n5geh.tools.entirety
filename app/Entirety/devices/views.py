@@ -7,7 +7,7 @@ from devices.forms import DeviceBasic, Attributes, Commands
 from django.http import HttpRequest
 from devices.utils import get_project, get_devices, post_device, \
     update_device, prefix_attributes, prefix_commands, parse_request_data, \
-    build_device, get_device_by_id
+    build_device, get_device_by_id, delete_device
 
 
 # Devices list
@@ -143,3 +143,24 @@ class DeviceEditSubmitView(LoginRequiredMixin, View):
                 "project": project
             }
         return render(request, "devices/detail.html", context)
+
+
+class DeviceDeleteView(LoginRequiredMixin, View):
+    def post(self, request: HttpRequest, project_id):
+        # TODO might not require this code
+        project = get_project(project_id)
+
+        print("Delete Device get called", flush=True)
+
+        # # get the device id from the checkbox
+        device_id = request.POST["device_id"]
+        print(f"request Data: {request.POST}", flush=True)
+
+        # delete the device and entity?
+        delete_device(project=project, device_id=device_id)
+            # if delete entity, redirect to Entities App?
+        ...
+
+        # if success, redirect to devices list view
+        ...  # TODO try to get the device?
+        return redirect("devices:list", project_id=project_id)

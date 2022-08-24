@@ -31,12 +31,22 @@
       <td>{{ device.entity_type }}</td>
       <td>
           {#Edit button for every device#}
+          <div class="btn-group">
           <form action="{% url 'devices:edit' project.uuid %}" method="get">
               <input type="hidden" value="{{ device.device_id }}" name="device_id">
             <button type="submit" class="btn btn-primary" value="{{ device.device_id }}">
                         Edit
             </button>
           </form>
+          {#Delete button for every device, change this later#}
+          <form action="{% url 'devices:delete' project.uuid %}" method="post">
+              {% csrf_token %}
+              <input type="hidden" value="{{ device.device_id }}" name="device_id">
+            <button type="submit" class="btn btn-danger" value="{{ device.device_id }}">
+                        Delete
+            </button>
+          </form>
+          </div>
       </td>
     </tr>
   {% endfor %}
