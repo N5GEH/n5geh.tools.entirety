@@ -3,9 +3,11 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from projects.mixins import ProjectContextMixin
 from django.shortcuts import render, redirect
 from django.views.generic import View
-from devices.forms import *
+from devices.forms import DeviceBasic, Attributes, Commands
 from django.http import HttpRequest
-from devices.utils import *
+from devices.utils import get_project, get_devices, post_device, \
+    update_device, prefix_attributes, prefix_commands, parse_request_data, \
+    build_device, get_device_by_id
 
 
 class DeviceListView(LoginRequiredMixin, View):
