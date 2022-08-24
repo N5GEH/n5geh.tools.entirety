@@ -1,7 +1,23 @@
 from crispy_forms.helper import FormHelper
-from crispy_forms.layout import Submit, Layout, Fieldset, Row, Column, Div, HTML
+from crispy_forms.layout import Layout, Div, HTML
 from django import forms
 from django.forms import formset_factory
+from filip.models.ngsi_v2.iot import DataType
+
+
+ATTRIBUTES_TYPE = [
+    DataType.NUMBER.value,
+    DataType.FLOAT.value,
+    DataType.INTEGER.value,
+    DataType.BOOLEAN.value,
+    DataType.TEXT.value,
+    DataType.DATETIME.value,
+    DataType.ARRAY.value
+]
+
+COMMANDS_TYPE = [
+    DataType.COMMAND.value
+]
 
 
 class DeviceBasic(forms.Form):
@@ -17,8 +33,9 @@ class DeviceBasic(forms.Form):
 
 class DeviceAttributes(forms.Form):
     name = forms.CharField(label="Name", required=True)
-    type = forms.CharField(label="Type", required=True)
-    object_id = forms.CharField(label="Object ID", required=True)
+    type_choices = tuple([(f"{i}", t) for i, t in enumerate(ATTRIBUTES_TYPE)])
+    type = forms.ChoiceField(label="Type", required=True, choices=type_choices)
+    object_id = forms.CharField(label="Object ID", required=False)
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -39,7 +56,8 @@ class DeviceAttributes(forms.Form):
 
 class DeviceCommands(forms.Form):
     name = forms.CharField(label="Name", required=True)
-    type = forms.CharField(label="Type", required=True)
+    type_choices = tuple([(f"{i}", t) for i, t in enumerate(COMMANDS_TYPE)])
+    type = forms.ChoiceField(label="Type", required=True, choices=type_choices)
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
