@@ -84,7 +84,25 @@ def get_attribute_list(data_attributes: dict):
 
 def get_commands_list(data_commands: dict):
     # TODO implement when the accordion template is finished
-    return []
+    commands = []
+    # print("loop over all commands", flush=True)
+    # print(data_commands, flush=True)
+    for key in data_commands:
+        # print(key, flush=True)
+        if key.endswith("name"):
+            prefix = key.split("name")[0]
+            # TODO a quick fix, should be remove later
+            if "__prefix__" in prefix:
+                continue
+            command_dict = {
+                "name": data_commands[f"{prefix}name"],
+                "type": data_commands[f"{prefix}type"]
+            }
+            # print("command dict")
+            # print(command_dict, flush=True)
+            command = DeviceCommand(**command_dict)
+            commands.append(command)
+    return commands
 
 
 def parse_device(data_basic, data_attributes, data_commands):
