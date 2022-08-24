@@ -7,6 +7,7 @@ from filip.models.ngsi_v2.iot import Device, DeviceAttribute, DeviceCommand
 # TODO need to be loaded from envs
 IOTA_URL = "http://localhost:4041/"
 
+# global settings
 prefix_attributes = "attributes"
 prefix_commands = "commands"
 
@@ -75,8 +76,8 @@ def get_attribute_list(data_attributes: dict):
                 "type": data_attributes[f"{prefix}type"],
                 "object_id": data_attributes[f"{prefix}object_id"],
             }
-            print("attribute dict")
-            print(attribute_dict, flush=True)
+            # print("attribute dict")
+            # print(attribute_dict, flush=True)
             attribute = DeviceAttribute(**attribute_dict)
             attributes.append(attribute)
     return attributes
@@ -105,7 +106,8 @@ def get_commands_list(data_commands: dict):
     return commands
 
 
-def parse_device(data_basic, data_attributes, data_commands):
+def build_device(data_basic, data_attributes, data_commands):
+    """Build device object base on the query data"""
     attributes = get_attribute_list(data_attributes)
     commands = get_commands_list(data_commands)
     device = Device(

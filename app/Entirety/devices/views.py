@@ -10,6 +10,7 @@ from devices.utils import get_project, get_devices, post_device, \
     build_device, get_device_by_id
 
 
+# Devices list
 class DeviceListView(LoginRequiredMixin, View):
     def get(self, request: HttpRequest, project_id):
         project = get_project(project_id)
@@ -20,6 +21,7 @@ class DeviceListView(LoginRequiredMixin, View):
         return render(request, "devices/list.html", context)
 
 
+# Create devices
 class DeviceCreateView(LoginRequiredMixin, View):
     def get(self, request: HttpRequest, project_id):
         basic_info = DeviceBasic()
@@ -41,14 +43,17 @@ class DeviceCreateSubmitView(LoginRequiredMixin, View):
         project = get_project(project_id)
         # print("Device Create Submit request data")
         # print(request.POST)
+
         # preprocess the request query data
         data_basic, data_attributes, data_commands = parse_request_data(request.POST)
+
+        # create forms from query data
         basic_info = DeviceBasic(data=data_basic)
         attributes = Attributes(data=data_attributes, prefix=prefix_attributes)
         commands = Commands(data=data_commands, prefix=prefix_commands)
 
         if basic_info.is_valid() and attributes.is_valid() and commands.is_valid():
-            device = parse_device(
+            device = build_device(
                 data_basic=data_basic,
                 data_attributes=data_attributes,
                 data_commands=data_commands,
@@ -66,6 +71,7 @@ class DeviceCreateSubmitView(LoginRequiredMixin, View):
         return render(request, "devices/detail.html", context)
 
 
+# Edit devices
 class DeviceEditView(LoginRequiredMixin, View):
     def get(self, request: HttpRequest, project_id):
         project = get_project(project_id)
@@ -101,6 +107,8 @@ class DeviceEditView(LoginRequiredMixin, View):
 class DeviceEditSubmitView(LoginRequiredMixin, View):
     def post(self, request: HttpRequest, project_id):
         project = get_project(project_id)
+        print("Device Create Submit request data")
+        print(request.POST)
 
         # preprocess the POST request data
         data_basic, data_attributes, data_commands = parse_request_data(request.POST)
@@ -111,10 +119,14 @@ class DeviceEditSubmitView(LoginRequiredMixin, View):
 
         # check whether it's valid:
         print(
-            f"Edit submit get called and the validation is : {basic_info.is_valid() and attributes.is_valid() and commands.is_valid()}"
+            f"Edit submit get called and the validation is : "
+            f"basic: {basic_info.is_valid()} error: {basic_info.errors} \n"
+            f"attribute: {attributes.is_valid()} error: {attributes.errors} data {attributes.data}\n"  # TODO here cant get validated
+            # TODO the validation is made directly during the instantiation
+            f"command: {commands.is_valid()} error: {commands.errors} \n"
         )
         if basic_info.is_valid() and attributes.is_valid() and commands.is_valid():
-            device = parse_device(
+            device = build_device(
                 data_basic=data_basic,
                 data_attributes=data_attributes,
                 data_commands=data_commands,
