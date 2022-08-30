@@ -37,14 +37,14 @@ class ProjectForm(forms.ModelForm):
                     "title": "Fiware service",
                 }
             ),
-            "webpage_url": forms.URLField(
+            "webpage_url": forms.URLInput(
                 attrs={
                     "data-bs-toggle": "tooltip",
                     "data-bs-placement": "top",
                     "title": "Project webpage url",
                 }
             ),
-            "logo": forms.ImageField(
+            "logo": forms.ClearableFileInput(
                 attrs={
                     "data-bs-toggle": "tooltip",
                     "data-bs-placement": "top",
