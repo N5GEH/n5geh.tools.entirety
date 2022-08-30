@@ -219,4 +219,5 @@ fabric.properties
 .idea
 
 app/Entirety/static/CACHE/
-app/Entirety/**/migrations/
+app/Entirety/**/migrations/*
+!app/Entirety/**/migrations/__init__.py
