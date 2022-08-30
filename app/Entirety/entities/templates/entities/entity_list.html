@@ -1,9 +1,20 @@
 {% extends '_base.html' %}
+{% load django_tables2 %}
 
 {% block title %}Entities{% endblock %}
 
+
 {% block content %}
-    {% for entity in object_list %}
-        {{ entity.id }}
-    {% endfor %}
+    <div class="d-flex">
+        <span class="d-flex border-bottom flex-grow-1 mb-2">
+            <span class="h3">Entities </span>
+            <a href="{% url "projects:entities:create" project_id=project.uuid %}" class="btn btn-primary mb-1 ms-auto">
+                <i class="bi bi-plus"></i>
+            </a>
+        </span>
+    </div>
+
+
+{% render_table table %}
+
 {% endblock %}

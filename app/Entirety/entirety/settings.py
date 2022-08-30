@@ -28,6 +28,7 @@ class Settings(BaseSettings):
         "django.contrib.sessions",
         "django.contrib.messages",
         "django.contrib.staticfiles",
+        "django_tables2",
         "mozilla_django_oidc",
         "compressor",
         "crispy_forms",
@@ -230,6 +231,8 @@ class Settings(BaseSettings):
     TIME_ZONE: str = Field(default="Europe/Berlin", env="TIME_ZONE")
 
     COMPRESS_ENABLED: bool = Field(default=not DEBUG, env="COMPRESS_ENABLED")
+
+    DJANGO_TABLES2_TEMPLATE = "django_tables2/bootstrap4.html"
 
     class Config:
         case_sensitive = False
