@@ -161,8 +161,6 @@ class Settings(PydanticSettings):
     # -uploaded-by-a-user-during-development
     MEDIA_URL = "/media/"
 
-    MEDIA_ROOT: str = os.path.join(BASE_DIR, "media/")
-
     # Settings provided by environment
     SECRET_KEY: str = Field(default=generate_secret_key(), env="DJANGO_SECRET_KEY")
 
@@ -217,6 +215,9 @@ class Settings(PydanticSettings):
 
     STATIC_ROOT: DirectoryPath = Field(
         default=os.path.join(BASE_DIR, "static/"), env="STATIC_ROOT"
+    )
+    MEDIA_ROOT: DirectoryPath = Field(
+        default=os.path.join(BASE_DIR, "media/"), env="MEDIA_ROOT"
     )
 
     TIME_ZONE: str = Field(default="Europe/Berlin", env="TIME_ZONE")

@@ -28,6 +28,7 @@ services:
       - 8000
     volumes:
       - /var/entirety/static/:/var/entirety/static/
+      - media:/var/entirety/media/
     depends_on:
       - postgres
 
@@ -39,8 +40,10 @@ services:
     volumes:
       - ./config/nginx.conf:/etc/nginx/conf.d/default.conf
       - /var/entirety/static/:/var/entirety/static/
+      - media:/var/entirety/media/
     depends_on:
       - entirety
 
 volumes:
   pgdata:
+  media:
