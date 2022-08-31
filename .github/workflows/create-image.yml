@@ -2,6 +2,8 @@ name: Create Docker Image
 
 on:
   push:
+    branches:
+      - development
 
 
 env:
