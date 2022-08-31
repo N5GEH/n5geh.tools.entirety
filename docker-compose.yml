@@ -20,14 +20,15 @@ services:
       - postgres
 
   entirety:
-    build:
-      context: .
-      dockerfile: ./docker/Dockerfile
+    image: ghcr.io/n5geh/n5geh.tools.entirety2:development
+    #    build:
+    #      context: .
+    #      dockerfile: ./docker/Dockerfile
     restart: unless-stopped
     expose:
       - 8000
     volumes:
-      - /var/entirety/static/:/var/entirety/static/
+      - static:/var/entirety/static/
       - media:/var/entirety/media/
     depends_on:
       - postgres
@@ -39,7 +40,7 @@ services:
       - "80:80"
     volumes:
       - ./docker/nginx:/etc/nginx/templates/
-      - /var/entirety/static/:/var/entirety/static/
+      - static:/var/entirety/static/
       - media:/var/entirety/media/
     environment:
       NGINX_ENVSUBST_TEMPLATE_SUFFIX: ".conf"
@@ -48,5 +49,6 @@ services:
       - entirety
 
 volumes:
+  static:
   pgdata:
   media:

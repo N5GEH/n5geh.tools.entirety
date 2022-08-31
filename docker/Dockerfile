@@ -23,4 +23,5 @@ RUN pip install uwsgi
 RUN pip install --no-cache-dir -r ./requirements.txt
 
 # Runner script here
+RUN chmod +x ./runner.sh
 CMD ["./runner.sh"]
