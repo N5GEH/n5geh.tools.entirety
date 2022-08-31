@@ -2,7 +2,6 @@ name: Create Docker Image
 
 on:
   push:
-  workflow_dispatch:
 
 
 env:
@@ -37,6 +36,6 @@ jobs:
         with:
           context: .
           file: ./docker/Dockerfile
-          push: false
+          push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
