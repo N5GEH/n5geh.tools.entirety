@@ -176,7 +176,7 @@ class Settings(PydanticSettings):
     # SECURITY WARNING: don't run with debug turned on in production!
     DEBUG: bool = Field(default=False, env="DJANGO_DEBUG")
 
-    ALLOWED_HOSTS: List = Field(default=[], env="ALLOWED_HOSTS")
+    ALLOWED_HOSTS: List = Field(default=["*"], env="ALLOWED_HOSTS")
 
     CB_URL: AnyUrl = Field(default="http://localhost:1026", env="CB_URL")
     # Database

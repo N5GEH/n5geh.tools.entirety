@@ -27,6 +27,21 @@ services:
     restart: unless-stopped
     expose:
       - 8000
+    environment:
+      DJANGO_SECRET_KEY: ${DJANGO_SECRET_KEY}
+      DATABASE_URL: ${DATABASE_URL}
+      STATIC_ROOT: ${STATIC_ROOT:-/var/entirety/static/}
+      MEDIA_ROOT: ${MEDIA_ROOT:-/var/entirety/media/}
+      OIDC_OP_AUTHORIZATION_ENDPOINT: ${OIDC_OP_AUTHORIZATION_ENDPOINT}
+      OIDC_OP_JWKS_ENDPOINT: ${OIDC_OP_JWKS_ENDPOINT}
+      OIDC_OP_TOKEN_ENDPOINT: ${OIDC_OP_TOKEN_ENDPOINT}
+      OIDC_OP_USER_ENDPOINT: ${OIDC_OP_USER_ENDPOINT}
+      OIDC_RP_CLIENT_ID: ${OIDC_RP_CLIENT_ID}
+      OIDC_RP_CLIENT_SECRET: ${OIDC_RP_CLIENT_SECRET}
+      CB_URL: ${CB_URL}
+#    For development purposes mostly
+#    env_file:
+#      - ./app/Entirety/.env
     volumes:
       - static:/var/entirety/static/
       - media:/var/entirety/media/
