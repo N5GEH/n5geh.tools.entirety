@@ -1,7 +1,7 @@
 version: "3.9"
 services:
   postgres:
-    image: postgres:latest
+    image: postgres:14.5
     hostname: entirety-db
     restart: unless-stopped
     environment:
@@ -12,7 +12,7 @@ services:
       - pgdata:/var/lib/postgresql
 
   adminer:
-    image: adminer
+    image: adminer:4.8.1
     restart: unless-stopped
     ports:
       - "8080:8080"
@@ -43,20 +43,20 @@ services:
 #    env_file:
 #      - ./app/Entirety/.env
     volumes:
-      - static:/var/entirety/static/
-      - media:/var/entirety/media/
+      - static:${STATIC_ROOT:-/var/entirety/static/}
+      - media:${MEDIA_ROOT:-/var/entirety/media/}
     depends_on:
       - postgres
 
   nginx:
-    image: nginx:latest
+    image: nginx:1.23.1
     hostname: ng
     ports:
       - "80:80"
     volumes:
       - ./docker/nginx:/etc/nginx/templates/
-      - static:/var/entirety/static/
-      - media:/var/entirety/media/
+      - static:${STATIC_ROOT:-/var/entirety/static/}
+      - media:${MEDIA_ROOT:-/var/entirety/media/}
     environment:
       NGINX_ENVSUBST_TEMPLATE_SUFFIX: ".conf"
       WEB_URL: ${WEB_URL:-localhost}
