@@ -57,10 +57,10 @@ class Settings(PydanticSettings):
         "compressor",
         "crispy_forms",
         "crispy_bootstrap5",
-        "projects.apps.ProjectsConfig",
-        "examples.apps.ExamplesConfig",
-        "users.apps.UsersConfig",
-        "subscriptions.apps.SubscriptionsConfig",
+        "projects",
+        "examples",
+        "users",
+        "subscriptions",
     ]
 
     CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
@@ -127,13 +127,13 @@ class Settings(PydanticSettings):
     # https://docs.djangoproject.com/en/4.0/howto/static-files/
 
     STATIC_URL = "static/"
-    STATIC_ROOT: DirectoryPath = os.path.join(BASE_DIR, "static/")
 
     STATICFILES_DIRS: List[DirectoryPath] = [
         os.path.join(BASE_DIR, "static"),
     ]
 
     STATICFILES_FINDERS: List[str] = [
+        "django.contrib.staticfiles.finders.FileSystemFinder",
         "django.contrib.staticfiles.finders.AppDirectoriesFinder",
         "compressor.finders.CompressorFinder",
     ]
@@ -161,8 +161,6 @@ class Settings(PydanticSettings):
     # -uploaded-by-a-user-during-development
     MEDIA_URL = "/media/"
 
-    MEDIA_ROOT: str = os.path.join(BASE_DIR, "media/")
-
     # Settings provided by environment
     SECRET_KEY: str = Field(default=generate_secret_key(), env="DJANGO_SECRET_KEY")
 
@@ -178,7 +176,7 @@ class Settings(PydanticSettings):
     # SECURITY WARNING: don't run with debug turned on in production!
     DEBUG: bool = Field(default=False, env="DJANGO_DEBUG")
 
-    ALLOWED_HOSTS: List = Field(default=[], env="ALLOWED_HOSTS")
+    ALLOWED_HOSTS: List = Field(default=["*"], env="ALLOWED_HOSTS")
 
     CB_URL: AnyUrl = Field(default="http://localhost:1026", env="CB_URL")
     # Database
@@ -214,6 +212,13 @@ class Settings(PydanticSettings):
     # https://docs.djangoproject.com/en/4.0/topics/i18n/
 
     LANGUAGE_CODE: str = Field(default="en-us", env="LANGUAGE_CODE")
+
+    STATIC_ROOT: DirectoryPath = Field(
+        default=os.path.join(BASE_DIR, "static/"), env="STATIC_ROOT"
+    )
+    MEDIA_ROOT: DirectoryPath = Field(
+        default=os.path.join(BASE_DIR, "media/"), env="MEDIA_ROOT"
+    )
 
     TIME_ZONE: str = Field(default="Europe/Berlin", env="TIME_ZONE")
 
