@@ -9,4 +9,5 @@ urlpatterns = [
     path("<str:pk>/update", views.Update.as_view(), name="update"),
     path("<str:pk>/delete", views.Delete.as_view(), name="delete"),
     path("<str:project_id>/alarming/", include("alarming.urls")),
+    path("<str:project_id>/devices/", include("devices.urls"))
 ]

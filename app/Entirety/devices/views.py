@@ -59,7 +59,7 @@ class DeviceCreateSubmitView(LoginRequiredMixin, View):
                 data_commands=data_commands,
             )
             post_device(device, project=project)  # TODO need to capture and display the request error
-            return redirect("devices:list", project_id=project_id)
+            return redirect("projects:devices:list", project_id=project_id)
         else:
             context = {
                 "basic_info": basic_info,
@@ -133,7 +133,7 @@ class DeviceEditSubmitView(LoginRequiredMixin, View):
             )
             update_device(device, project=project)  # TODO need to capture and display the request error
 
-            return redirect("devices:list", project_id=project_id)
+            return redirect("projects:devices:list", project_id=project_id)
         else:
             context = {
                 "basic_info": basic_info,
@@ -163,4 +163,4 @@ class DeviceDeleteView(LoginRequiredMixin, View):
 
         # if success, redirect to devices list view
         ...  # TODO try to get the device?
-        return redirect("devices:list", project_id=project_id)
+        return redirect("projects:devices:list", project_id=project_id)

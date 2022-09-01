@@ -33,8 +33,7 @@ urlpatterns = [
     path("projects/", include("projects.urls")),
     path("user/", include("users.urls")),
     path("examples/", include("examples.urls")),
-    path("oidc/", include("mozilla_django_oidc.urls")),
-    path("devices/", include("devices.urls")),
+    path("oidc/", include("mozilla_django_oidc.urls"))
 ]
 
 if settings.DEBUG:
