@@ -4,11 +4,12 @@ from django.core.exceptions import ValidationError
 
 from filip.clients.ngsi_v2.cb import ContextBrokerClient
 from filip.models import FiwareHeader
-from filip.models.ngsi_v2.subscriptions import Notification
+from filip.models.ngsi_v2.subscriptions import Notification, Subscription
 from filip.models.ngsi_v2.base import AttrsFormat
 
 from subscriptions.models import Subscription
-from entirety.fields import SelectTextMultiField, MQTTURLField
+from entirety.fields import SelectTextMultiField, MQTTURLField, HTTPURLField
+from entirety.validators import CustomURLValidator
 
 
 class EntitiesForm(forms.Form):
@@ -28,7 +29,7 @@ class EntitiesForm(forms.Form):
     entity_type = forms.CharField(required=False)
 
 
-Entities = forms.formset_factory(EntitiesForm)
+Entities = forms.formset_factory(EntitiesForm, extra=3)
 
 
 class SubscriptionForm(forms.ModelForm):
@@ -54,7 +55,7 @@ class SubscriptionForm(forms.ModelForm):
     )
 
     # Subject
-    entities = Entities()
+
     attributes = forms.MultipleChoiceField(
         choices=[("id", "id")],
         widget=forms.CheckboxSelectMultiple,
@@ -69,7 +70,7 @@ class SubscriptionForm(forms.ModelForm):
 
     # TODO: attrs or exceptAttrs
     # TODO: httpCustom
-    http = forms.URLField(required=False)
+    http = HTTPURLField(required=False)
     # TODO: mqttCustom
     mqtt = MQTTURLField(required=False)
 
@@ -118,8 +119,6 @@ class SubscriptionForm(forms.ModelForm):
 
     def clean(self):
         cleaned_data = super().clean()
-        if not self.entities.is_valid():
-            test = self.entities.errors
         if not (bool(cleaned_data.get("http")) != bool(cleaned_data.get("mqtt"))):
             message = "Exactly one of http or mqtt must have a value."
             self.add_error("http", message)
