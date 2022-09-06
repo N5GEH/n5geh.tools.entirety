@@ -43,6 +43,7 @@
 <div class="container-fluid ps-0 d-flex">
     {% include 'sidebar.html' %}
     <main class="d-flex flex-column flex-fill ps-4 pe-3 py-3">
+        {% include 'messages.html' %}
         {% block content %}(no content - should not be here) {% endblock %}
     </main>
     {% include 'modal.html' %}
