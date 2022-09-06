@@ -21,9 +21,33 @@ COMMANDS_TYPE = [
 
 
 class DeviceBasic(forms.Form):
-    device_id = forms.CharField(label="Device ID", max_length=100, required=True)
-    entity_name = forms.CharField(label="Entity Name", max_length=100, required=True)
-    entity_type = forms.CharField(label="Entity Type", max_length=100, required=True)
+    device_id = forms.CharField(label="Device ID", max_length=100, required=True,
+                                widget=forms.TextInput(
+                                    attrs={
+                                        "data-bs-toggle": "tooltip",
+                                        "data-bs-placement": "top ",
+                                        "title": "Deice id",
+                                    }
+                                ),
+                                )
+    entity_name = forms.CharField(label="Entity Name", max_length=100, required=True,
+                                  widget=forms.TextInput(
+                                      attrs={
+                                          "data-bs-toggle": "tooltip",
+                                          "data-bs-placement": "top ",
+                                          "title": "Entity id",
+                                      }
+                                  ),
+                                  )
+    entity_type = forms.CharField(label="Entity Type", max_length=100,
+                                  widget=forms.TextInput(
+                                      attrs={
+                                          "data-bs-toggle": "tooltip",
+                                          "data-bs-placement": "top ",
+                                          "title": "Entity type",
+                                      }
+                                  ),
+                                  )
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
