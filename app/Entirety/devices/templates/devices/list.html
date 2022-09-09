@@ -1,55 +1,99 @@
 {% extends '_base.html' %}
+{% load django_tables2 %}
+
+{% block title %}Devices{% endblock %}
+
+
 {% block content %}
+{#        <div class="d-flex">#}
+{#        <span class="d-flex border-bottom flex-grow-1 mb-2">#}
+{#            <span class="h3">Devices </span>#}
+{##}
+{#            <a href="{% url "projects:devices:create" project_id=project.uuid %}" class="btn btn-primary mb-1 ms-auto"#}
+{#               data-toggle="tooltip" data-placement="bottom" title="Create Device">#}
+{#                <i class="bi bi-plus"></i>#}
+{#            </a>#}
+{#            <a href="{% url "projects:devices:delete" project_id=project.uuid %}" class="btn btn-danger mb-1"#}
+{#               data-toggle="tooltip" data-placement="bottom" title="Delete Device">#}
+{#                                    <i class="bi bi-trash"></i>#}
+{#            </a>#}
+{#            <button type="submit" class="btn btn-danger mb-1"  data-toggle="tooltip" data-placement="bottom" title="Delete Device">#}
+{#                                    <i class="bi bi-trash"></i>#}
+{#                                </button>#}
+{#            <a href="{% url "projects:devices:edit" project_id=project.uuid %}" class="btn btn-secondary mb-1"#}
+{#               data-toggle="tooltip" data-placement="bottom" title="Edit Device">#}
+{#                                    <i class="bi bi-pen"></i>#}
+{#                                </a>#}
+{##}
+{##}
+{##}
+{#        </span>#}
+{#        </div>#}
 
-<form action="{% url 'projects:devices:create' project.uuid %}" method="get">
-    <button type="submit" class="btn btn-primary" >
-                Add
-    </button>
-</form>
+<form action="{% url 'projects:devices:list_submit' project.uuid %}" method="GET" >
+        {% csrf_token %}
 
-<table class="table" style="width:600px">
-  <thead>
-    <tr>
-      <th scope="col"></th>
-      <th scope="col">Device id</th>
-      <th scope="col">Entity name</th>
-      <th scope="col">Entity type</th>
-      <th scope="col"></th>
-    </tr>
-  </thead>
-  <tbody class="table-group-divider">
-  {% for device in Devices %}
-    <tr>
-        <td>
-          <div class="custom-control custom-checkbox">
-              <input type="checkbox" class="custom-control-input" id="deviceCheckBox{{ device.device_id }}" >
-              <label for="deviceCheckBox{{ device.device_id }}"></label>
-          </div>
-        </td>
-      <td>{{ device.device_id }}</td>
-      <td>{{ device.entity_name }}</td>
-      <td>{{ device.entity_type }}</td>
-      <td>
-          {#Edit button for every device#}
-          <div class="btn-group">
-          <form action="{% url 'projects:devices:edit' project.uuid %}" method="get">
-              <input type="hidden" value="{{ device.device_id }}" name="device_id">
-            <button type="submit" class="btn btn-primary" value="{{ device.device_id }}">
-                        Edit
+     <div class="d-flex">
+        <span class="d-flex border-bottom flex-grow-1 mb-2">
+            <span class="h3">Devices </span>
+
+            <button type="submit" class="btn btn-primary mb-1 ms-auto" data-toggle="tooltip" data-placement="bottom"
+                    title="Create Device" value="True" name="Create">
+                        <i class="bi bi-plus"></i>
             </button>
-          </form>
-          {#Delete button for every device, change this later#}
-          <form action="{% url 'projects:devices:delete' project.uuid %}" method="post">
-              {% csrf_token %}
-              <input type="hidden" value="{{ device.device_id }}" name="device_id">
-            <button type="submit" class="btn btn-danger" value="{{ device.device_id }}">
+
+{#            <button type="submit" class="btn btn-danger mb-1"  data-toggle="tooltip" data-placement="bottom"#}
+{#                    title="Delete Device" value="True" name="Delete">#}
+{#                        <i class="bi bi-trash"></i>#}
+{#            </button>#}
+            <button type="button" class="btn btn-danger mb-1" data-toggle="tooltip" data-placement="bottom"
+                    title="Delete Entity" data-bs-toggle="modal" data-bs-target="#deleteModal">
+                        <i class="bi bi-trash"></i>
+            </button>
+
+            <button type="submit" class="btn btn-secondary mb-1" data-toggle="tooltip" data-placement="bottom"
+                    title="Edit Device" value="True" name="Edit">
+                        <i class="bi bi-pen"></i>
+            </button>
+        </span>
+        </div>
+
+        {% render_table table %}
+
+
+    <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="deleteModalLabel">Delete Project</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    Are you sure you want to delete this device?
+{#                    <div class="container">#}
+{#                        <div class="form-check form-switch">#}
+{#                          <input class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckSubscriptions">#}
+{#                          <label class="form-check-label" for="flexSwitchCheckSubscriptions">Subscriptions</label>#}
+{#                        </div>#}
+{#                        <div class="form-check form-switch">#}
+{#                          <input class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckRelationships">#}
+{#                          <label class="form-check-label" for="flexSwitchCheckRelationships">Relationships</label>#}
+{#                        </div>#}
+{#                        <div class="form-check form-switch">#}
+{#                          <input class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckDevices">#}
+{#                          <label class="form-check-label" for="flexSwitchCheckDevices">Devices</label>#}
+{#                        </div>#}
+{#                    </div>#}
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-danger" name="Delete" value="True">
                         Delete
-            </button>
-          </form>
-          </div>
-      </td>
-    </tr>
-  {% endfor %}
-  </tbody>
-</table>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
 {% endblock %}

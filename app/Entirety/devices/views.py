@@ -1,17 +1,21 @@
+from django_tables2 import SingleTableMixin
+
 from projects.models import Project
 from django.contrib.auth.mixins import LoginRequiredMixin
 from projects.mixins import ProjectContextMixin
 from django.shortcuts import render, redirect
-from django.views.generic import View
+from django.views.generic import View, TemplateView
 from devices.forms import DeviceBasic, Attributes, Commands
 from django.http import HttpRequest
 from devices.utils import get_project, get_devices, post_device, \
     update_device, prefix_attributes, prefix_commands, parse_request_data, \
     build_device, get_device_by_id, delete_device
+from devices.tables import DevicesTable
 
 
 # Devices list
-class DeviceListView(LoginRequiredMixin, View):
+# TODO remove after adjustment
+class DeviceListView_Old(LoginRequiredMixin, View):
     def get(self, request: HttpRequest, project_id):
         project = get_project(project_id)
         device_list = get_devices(project=project)
@@ -21,9 +25,50 @@ class DeviceListView(LoginRequiredMixin, View):
         return render(request, "devices/list.html", context)
 
 
+class DeviceListView(ProjectContextMixin, SingleTableMixin, TemplateView):
+    # TODO as_view() already can render the template. Dont need to call
+    template_name = "devices/list.html"
+    table_class = DevicesTable
+    table_pagination = {"per_page": 15}
+
+    def get_table_data(self):
+        return get_devices(self.project)
+
+    # TODO add context to html
+    def get_context_data(self, **kwargs):
+        context = super(DeviceListView, self).get_context_data(**kwargs)
+        context["project"] = self.project
+        context["table"] = DeviceListView.get_table(self)
+        return context
+
+
+class DeviceListSubmitView(ProjectContextMixin, View):
+    # Redirect the request to corresponding view
+    def get(self, request, *args, **kwargs):
+        # print(f"request Data: {request.GET}", flush=True)
+        # print(f"session Data: {request.session.keys()}", flush=True)
+        if request.GET.get("Delete"):
+            print("Delete Device get called", flush=True)
+            # TODO need to add error handling if no device is selected
+            request.session["devices"] = request.GET.get("selection")
+            return redirect("projects:devices:delete", project_id=self.project.uuid)
+        elif request.GET.get("Create"):
+            print("Create Device get called", flush=True)
+            return redirect("projects:devices:create", project_id=self.project.uuid)
+        elif request.GET.get("Edit"):
+            request.session["devices"] = request.GET.get("selection")
+            print("Edit Device get called", flush=True)
+            return redirect("projects:devices:edit", project_id=self.project.uuid)
+
+
+
 # Create devices
 class DeviceCreateView(LoginRequiredMixin, View):
     def get(self, request: HttpRequest, project_id):
+        print("Device Create request data", flush=True)
+        print(request.GET, flush=True)
+        print("Device Create session data", flush=True)
+        print(request.session.keys(), flush=True)
         basic_info = DeviceBasic()
         attributes = Attributes(prefix=prefix_attributes)
         commands = Commands(prefix=prefix_commands)
@@ -75,8 +120,9 @@ class DeviceCreateSubmitView(LoginRequiredMixin, View):
 class DeviceEditView(LoginRequiredMixin, View):
     def get(self, request: HttpRequest, project_id):
         project = get_project(project_id)
-
-        device_id = request.GET["device_id"]
+        print(f"session data: {request.session.get('devices')}", flush=True)
+        device_id = request.session.get("devices")  # TODO may have error
+        # device_id = request.GET["device_id"]
         device = get_device_by_id(project=project, device_id=device_id)
         device_dict = device.dict()
 
@@ -146,14 +192,35 @@ class DeviceEditSubmitView(LoginRequiredMixin, View):
 
 
 class DeviceDeleteView(LoginRequiredMixin, View):
-    def post(self, request: HttpRequest, project_id):
+    # def post(self, request: HttpRequest, project_id):
+    #     # TODO might not require this code
+    #     print("Delete Device get called", flush=True)
+    #     print(f"request Data: {request.POST}", flush=True)
+    #     project = get_project(project_id)
+    #
+    #     # # get the device id from the checkbox
+    #     # device_id = request.POST["device_id"]
+    #     device_id = request.session.get("devices")  # TODO may have error
+    #     print(f"request Data: {request.POST}", flush=True)
+    #
+    #     # delete the device and entity?
+    #     delete_device(project=project, device_id=device_id)
+    #         # if delete entity, redirect to Entities App?
+    #     ...
+    #
+    #     # if success, redirect to devices list view
+    #     ...  # TODO try to get the device?
+    #     return redirect("projects:devices:list", project_id=project_id)
+
+    def get(self, request: HttpRequest, project_id):
         # TODO might not require this code
+        print("Delete Device get called", flush=True)
+        print(f"request Data: {request.GET}", flush=True)
         project = get_project(project_id)
 
-        print("Delete Device get called", flush=True)
-
         # # get the device id from the checkbox
-        device_id = request.POST["device_id"]
+        # device_id = request.POST["device_id"]
+        device_id = request.session.get("devices")  # TODO may have error
         print(f"request Data: {request.POST}", flush=True)
 
         # delete the device and entity?
