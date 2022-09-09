@@ -41,3 +41,32 @@ class AttributeForm(forms.Form):
                 css_class="d_attr_form col-6",
             )
         )
+
+
+class SubscriptionForm(forms.Form):
+    name = forms.BooleanField(label="name", required=False)
+    description = forms.CharField(widget=forms.HiddenInput(), required=False)
+    subject = forms.CharField(widget=forms.HiddenInput(), required=False)
+    status = forms.CharField(widget=forms.HiddenInput(), required=False)
+
+    def __init__(self, *args, **kwargs):
+        super(SubscriptionForm, self).__init__(*args, **kwargs)
+
+        self.helper = FormHelper(self)
+        self.helper.form_tag = False
+
+
+class DeviceForm(forms.Form):
+    name = forms.CharField(required=False)
+
+
+class RelationshipForm(forms.Form):
+    name = forms.BooleanField(label="name", required=False)
+    type = forms.CharField(widget=forms.HiddenInput(), required=False)
+    attribute_name = forms.CharField(widget=forms.HiddenInput(), required=False)
+
+    def __init__(self, *args, **kwargs):
+        super(RelationshipForm, self).__init__(*args, **kwargs)
+
+        self.helper = FormHelper(self)
+        self.helper.form_tag = False
