@@ -1,0 +1,12 @@
+{% extends '_base.html' %}
+
+{% block title %}Update Entity{% endblock %}
+
+{% block content %}
+    <form method="post" action="">
+        <div>
+            {% include 'accordion.html' %}
+            <button class="btn btn-warning rounded-pill" type="submit">Update</button>
+        </div>
+    </form>
+{% endblock %}

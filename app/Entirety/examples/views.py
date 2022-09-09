@@ -1,11 +1,15 @@
 import json
+import logging
 from django.shortcuts import render, HttpResponse
 from django.views.generic import View
 from examples.forms import ExampleForm, Attributes, Commands, BasicInfoForm
 
+logger = logging.getLogger(__name__)
+
 
 class DialogForm(View):
     def get(self, request):
+        logger.info("Dialog form data rendering")
         form = ExampleForm()
         return render(
             request,

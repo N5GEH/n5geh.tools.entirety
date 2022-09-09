@@ -1,6 +1,6 @@
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.urls import reverse
-from django.views.generic import ListView
+from django.views.generic import ListView, DetailView
 from django.views.generic.edit import UpdateView, CreateView, DeleteView
 
 from .forms import ProjectForm
@@ -25,9 +25,14 @@ class Index(LoginRequiredMixin, ListView):
         return context
 
 
-class Update(LoginRequiredMixin, ProjectSelfMixin, UpdateView):
+class Detail(LoginRequiredMixin, DetailView):
     model = Project
     template_name = "projects/detail.html"
+
+
+class Update(LoginRequiredMixin, ProjectSelfMixin, UpdateView):
+    model = Project
+    template_name = "projects/update.html"
     form_class = ProjectForm
 
     def get_success_url(self):
@@ -36,7 +41,7 @@ class Update(LoginRequiredMixin, ProjectSelfMixin, UpdateView):
 
 class Create(LoginRequiredMixin, ProjectCreateMixin, CreateView):
     model = Project
-    template_name = "projects/detail.html"
+    template_name = "projects/update.html"
     form_class = ProjectForm
 
     def form_valid(self, form):
