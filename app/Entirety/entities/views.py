@@ -38,10 +38,18 @@ class EntityList(ProjectContextMixin, SingleTableMixin, TemplateView):
 
     def post(self, request, *args, **kwargs):
         selected = self.request.POST.getlist("selection")
+        if self.request.POST.get("Edit"):
+            return redirect(
+                "projects:entities:update",
+                project_id=self.project.uuid,
+                entity_id=selected[0].split("&")[0],
+                entity_type=selected[0].split("&")[1],
+            )
         return redirect(
             "projects:entities:delete",
             project_id=self.project.uuid,
-            entity_id=selected[0],
+            entity_id=selected[0].split("&")[0],
+            entity_type=selected[0].split("&")[1],
         )
 
 
@@ -101,7 +109,9 @@ class Update(ProjectContextMixin, UpdateView):
         id = kwargs.get("entity_id")
         type = kwargs.get("entity_type")
         entity = get_entity(self, id, type)
-        basic_info = EntityForm({"id": entity.id, "type": entity.type})
+        basic_info = EntityForm(initial={"id": entity.id, "type": entity.type})
+        basic_info.fields["id"].disabled = True
+        basic_info.fields["type"].disabled = True
         initial = []
         for attr in entity.get_attributes():
             initial.append({"name": attr.name, "type": attr.type, "value": attr.value})
@@ -152,7 +162,7 @@ class Delete(ProjectContextMixin, DeleteView):
 
     def get(self, request, *args, **kwargs):
         id = kwargs.get("entity_id")
-        type = "weather_station"  # kwargs.get('entity_type')
+        type = kwargs.get("entity_type")
         entity = get_entity(self, id, type)
         # subscriptions
         subscriptions_list = get_subscriptions(id, type)
