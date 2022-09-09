@@ -3,14 +3,23 @@ from django_tables2 import tables
 from entities.requests import get_entities_list
 
 
+class CheckBoxColumnWithName(tables.columns.CheckBoxColumn):
+    @property
+    def header(self):
+        return self.verbose_name
+
+
 class EntityTable(tables.Table):
     # using & character as a splitter between id and type because this character is not allowed in NGSIv2 entity id
     # and entity type
-    selection = tables.columns.CheckBoxColumn(
+    selection = CheckBoxColumnWithName(
+        verbose_name="Select",
         accessor="id",
         attrs={
-            "th__input": {"onclick": "toggle(this)"},
-            "td__input": {"value": lambda record: record.id + "&" + record.type},
+            "td__input": {
+                "value": lambda record: record.id + "&" + record.type,
+                "type": "radio",
+            },
         },
         orderable=False,
     )
