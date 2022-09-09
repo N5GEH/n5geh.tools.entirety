@@ -20,6 +20,7 @@ django-pydantic-settings==0.6.3
 dnspython==2.2.1
 email-validator==1.2.1
 filelock==3.7.1
+filip==0.2.3
 identify==2.5.1
 idna==3.3
 josepy==1.13.0

@@ -155,7 +155,7 @@ class Delete(ProjectContextMixin, DeleteView):
         type = "weather_station"  # kwargs.get('entity_type')
         entity = get_entity(self, id, type)
         # subscriptions
-        subscriptions_list = get_subscriptions()
+        subscriptions_list = get_subscriptions(id, type)
         # devices
         devices = get_devices(entity_id=entity.id)
         # relationships

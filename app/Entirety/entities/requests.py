@@ -3,6 +3,7 @@ from enum import Enum
 from django.conf import settings
 from filip.clients.ngsi_v2 import ContextBrokerClient, IoTAClient
 from filip.models import FiwareHeader
+from filip.utils.filter import filter_subscriptions_by_entity
 
 
 class AttributeTypes(Enum):
@@ -90,13 +91,13 @@ def delete_relationship(entity_id, attribute_name, entity_type):
         # cb_client.delete_entity_attribute(entity_id, attribute_name, entity_type)
 
 
-def get_subscriptions():
-    with ContextBrokerClient(
+def get_subscriptions(entity_id, entity_type):
+    return filter_subscriptions_by_entity(
+        entity_id=entity_id,
+        entity_type=entity_type,
         url=settings.CB_URL,
         fiware_header=FiwareHeader(service="w2f", service_path="/testing"),
-    ) as cb_client:
-        # TODO: get utils subsscriptions
-        return cb_client.get_subscription_list()
+    )
 
 
 def get_devices(entity_id):
