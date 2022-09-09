@@ -5,6 +5,7 @@
 
 
 {% block content %}
+    <form action="" method="POST" >
         <div class="d-flex">
         <span class="d-flex border-bottom flex-grow-1 mb-2">
             <span class="h3">Entities </span>
@@ -18,7 +19,7 @@
 {#            <button type="submit" class="btn btn-danger mb-1"  data-toggle="tooltip" data-placement="bottom" title="Delete Entity">#}
 {#                                    <i class="bi bi-trash"></i>#}
 {#                                </button>#}
-            <button type="submit" class="btn btn-secondary mb-1" data-toggle="tooltip" data-placement="bottom" title="Edit Entity">
+            <button type="submit" class="btn btn-secondary mb-1" data-toggle="tooltip" data-placement="bottom" title="Edit Entity" name="Edit" value="Edit">
                                     <i class="bi bi-pen"></i>
                                 </button>
 
@@ -27,7 +28,7 @@
         </span>
         </div>
 
-<form action="" method="POST" >
+
         {% csrf_token %}
         {% render_table table %}
 
@@ -61,7 +62,7 @@
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
 
                         {% csrf_token %}
-                        <button type="submit" class="btn btn-primary">Delete</button>
+                        <button type="submit" class="btn btn-danger">Delete</button>
 
                 </div>
             </div>
