@@ -26,9 +26,15 @@ class EntityList(ProjectContextMixin, SingleTableMixin, TemplateView):
     template_name = "entities/entity_list.html"
     table_class = EntityTable
     table_pagination = {"per_page": 15}
+    queryset = EntityTable.get_query_set(EntityTable)
 
     def get_table_data(self):
-        return EntityTable.get_query_set(self)
+        search = self.request.GET.get("search", default="")
+        filtered = []
+        for entity in EntityTable.get_query_set(self):
+            if search in entity.id or search in entity.type:
+                filtered.append(entity)
+        return filtered
 
     def get_context_data(self, **kwargs):
         context = super(EntityList, self).get_context_data(**kwargs)
@@ -118,6 +124,7 @@ class Update(ProjectContextMixin, UpdateView):
         attributes_form_set = formset_factory(AttributeForm, max_num=0)
         attributes = attributes_form_set(prefix="attr", initial=initial)
         context = {
+            "update_entity": entity.id,
             "basic_info": basic_info,
             "attributes": attributes,
             "commands": None,
