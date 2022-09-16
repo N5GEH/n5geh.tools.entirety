@@ -25,7 +25,9 @@ def get_entities_list(self):
         fiware_header=FiwareHeader(service="w2f", service_path="/testing"),
     ) as cb_client:
         for entity in cb_client.get_entity_list():
-            data.append(entity)
+            entity_to_add = entity.copy()
+            entity_to_add.attrs = len(entity.dict()) - 2
+            data.append(entity_to_add)
     return data
 
 
