@@ -56,7 +56,8 @@ class Dialog(View):
             "basic_info": basic_info,
             "attributes": attributes,
             "commands": commands,
-        }        return render(request, "examples/dialog.html", context)
+        }
+        return render(request, "examples/dialog.html", context)
 
     def post(self, request):
         return render(request, "examples/dialog_form.html")
