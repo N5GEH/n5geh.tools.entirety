@@ -1,42 +1,69 @@
 import os
 
 from pathlib import Path
-from typing import List, Any, Optional
+from typing import List, Any, Optional, Sequence
 from mimetypes import add_type
 
 import django_loki
 import dj_database_url
-from pydantic import BaseSettings, Field, AnyUrl, validator
-
+from pydantic import BaseSettings, Field, AnyUrl, validator, DirectoryPath
+from pydantic_settings import PydanticSettings
+from pydantic_settings.database import DatabaseDsn
+from pydantic_settings.settings import (
+    DatabaseSettings,
+    PydanticSettings,
+    TemplateBackendModel,
+)
 from utils.generators import generate_secret_key
+from django.contrib.messages import constants as messages
 
 __version__ = "0.3.1"
 
 
-class Settings(BaseSettings):
+class Databases(DatabaseSettings):
+    DEFAULT: DatabaseDsn = Field(
+        env="DATABASE_URL", default="postgres://username:password@host:port/db"
+    )
+
+    @validator("DEFAULT", pre=True)
+    def set_url(cls, v: Optional[str]) -> Any:
+        if isinstance(v, str):
+            os.environ["DATABASE_URL"] = v
+            return v
+        else:
+            raise Exception
+
+    class Config:
+        case_sensitive = False
+        env_file = ".env"
+        env_file_encoding = "utf-8"
+
+
+class Settings(PydanticSettings):
     add_type("text/css", ".css", True)
     # Build paths inside the project like this: BASE_DIR / 'subdir'.
-    BASE_DIR = Path(__file__).resolve().parent.parent
+    BASE_DIR: DirectoryPath = Path(__file__).resolve().parent.parent
 
     VERSION = __version__
 
     # Application definition
-    INSTALLED_APPS = [
+    INSTALLED_APPS: List[str] = [
         "django.contrib.admin",
         "django.contrib.auth",
         "django.contrib.contenttypes",
         "django.contrib.sessions",
         "django.contrib.messages",
         "django.contrib.staticfiles",
-        "django_tables2",
+        "django.forms",
+		"django_tables2",
         "mozilla_django_oidc",
         "compressor",
         "crispy_forms",
         "crispy_bootstrap5",
-        "projects.apps.ProjectsConfig",
-        "examples.apps.ExamplesConfig",
-        "users.apps.UsersConfig",
-        "alarming.apps.AlarmingConfig",
+        "projects",
+        "examples",
+        "users",
+        "alarming",
         "entities.apps.EntitiesConfig",
         "devices.apps.DevicesConfig"
     ]
@@ -45,7 +72,7 @@ class Settings(BaseSettings):
 
     CRISPY_TEMPLATE_PACK = "bootstrap5"
 
-    MIDDLEWARE = [
+    MIDDLEWARE: List[str] = [
         "django.middleware.security.SecurityMiddleware",
         "django.contrib.sessions.middleware.SessionMiddleware",
         "django.middleware.common.CommonMiddleware",
@@ -56,9 +83,17 @@ class Settings(BaseSettings):
         "mozilla_django_oidc.middleware.SessionRefresh",
     ]
 
-    ROOT_URLCONF = "entirety.urls"
+    MESSAGE_TAGS = {
+        messages.DEBUG: "alert-info",
+        messages.INFO: "alert-info",
+        messages.SUCCESS: "alert-success",
+        messages.WARNING: "alert-warning",
+        messages.ERROR: "alert-danger",
+    }
 
-    TEMPLATES = [
+    ROOT_URLCONF = "entirety.urls"
+    FORM_RENDERER = "django.forms.renderers.TemplatesSetting"
+    TEMPLATES: List[TemplateBackendModel] = [
         {
             "BACKEND": "django.template.backends.django.DjangoTemplates",
             "DIRS": ["templates"],
@@ -79,7 +114,7 @@ class Settings(BaseSettings):
     # Password validation
     # https://docs.djangoproject.com/en/4.0/ref/settings/#auth-password-validators
 
-    AUTH_PASSWORD_VALIDATORS = [
+    AUTH_PASSWORD_VALIDATORS: List[dict] = [
         {
             "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator",
         },
@@ -94,7 +129,7 @@ class Settings(BaseSettings):
         },
     ]
 
-    AUTHENTICATION_BACKENDS = ("entirety.oidc.CustomOIDCAB",)
+    AUTHENTICATION_BACKENDS: Sequence[str] = ("entirety.oidc.CustomOIDCAB",)
     AUTH_USER_MODEL = "users.User"
 
     USE_I18N = True
@@ -105,13 +140,13 @@ class Settings(BaseSettings):
     # https://docs.djangoproject.com/en/4.0/howto/static-files/
 
     STATIC_URL = "static/"
-    STATIC_ROOT = os.path.join(BASE_DIR, "static/")
 
-    STATICFILES_DIRS = [
+    STATICFILES_DIRS: List[DirectoryPath] = [
         os.path.join(BASE_DIR, "static"),
     ]
 
-    STATICFILES_FINDERS = [
+    STATICFILES_FINDERS: List[str] = [
+        "django.contrib.staticfiles.finders.FileSystemFinder",
         "django.contrib.staticfiles.finders.AppDirectoriesFinder",
         "compressor.finders.CompressorFinder",
     ]
@@ -139,7 +174,7 @@ class Settings(BaseSettings):
             "loki": {
                 "level": "DEBUG",
                 "class": "django_loki.LokiHttpHandler",
-                "host": "localhost",
+                "host": "logging-loki-1",
                 "formatter": "loki",
                 "port": 3100,
                 "timeout": 0.5,
@@ -163,8 +198,6 @@ class Settings(BaseSettings):
     # -uploaded-by-a-user-during-development
     MEDIA_URL = "/media/"
 
-    MEDIA_ROOT = BASE_DIR / "media"
-
     # Settings provided by environment
     SECRET_KEY: str = Field(default=generate_secret_key(), env="DJANGO_SECRET_KEY")
 
@@ -180,7 +213,7 @@ class Settings(BaseSettings):
     # SECURITY WARNING: don't run with debug turned on in production!
     DEBUG: bool = Field(default=False, env="DJANGO_DEBUG")
 
-    ALLOWED_HOSTS: List = Field(default=[], env="ALLOWED_HOSTS")
+    ALLOWED_HOSTS: List = Field(default=["*"], env="ALLOWED_HOSTS")
 
     CB_URL: AnyUrl = Field(default="http://localhost:1026", env="CB_URL")
 
@@ -232,6 +265,13 @@ class Settings(BaseSettings):
     # https://docs.djangoproject.com/en/4.0/topics/i18n/
 
     LANGUAGE_CODE: str = Field(default="en-us", env="LANGUAGE_CODE")
+
+    STATIC_ROOT: DirectoryPath = Field(
+        default=os.path.join(BASE_DIR, "static/"), env="STATIC_ROOT"
+    )
+    MEDIA_ROOT: DirectoryPath = Field(
+        default=os.path.join(BASE_DIR, "media/"), env="MEDIA_ROOT"
+    )
 
     TIME_ZONE: str = Field(default="Europe/Berlin", env="TIME_ZONE")
 
