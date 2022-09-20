@@ -64,8 +64,8 @@ class Settings(PydanticSettings):
         "examples",
         "users",
         "alarming",
-        "entities.apps.EntitiesConfig",
-        "devices.apps.DevicesConfig"
+        "entities",
+        "devices"
     ]
 
     CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
@@ -141,9 +141,9 @@ class Settings(PydanticSettings):
 
     STATIC_URL = "static/"
 
-    STATICFILES_DIRS: List[DirectoryPath] = [
-        os.path.join(BASE_DIR, "static"),
-    ]
+    # STATICFILES_DIRS: List[DirectoryPath] = [
+    #     os.path.join(BASE_DIR, "static"),
+    # ]
 
     STATICFILES_FINDERS: List[str] = [
         "django.contrib.staticfiles.finders.FileSystemFinder",
@@ -221,20 +221,7 @@ class Settings(PydanticSettings):
 
     # Database
     # https://docs.djangoproject.com/en/4.0/ref/settings/#databases
-    DATABASE_URL: str = Field(
-        env="DATABASE_URL", default="postgres://username:password@host:port/db"
-    )
-
-    @validator("DATABASE_URL", pre=True)
-    def set_url(cls, v: Optional[str]) -> Any:
-        if isinstance(v, str):
-            os.environ["DATABASE_URL"] = v
-            return v
-        else:
-            raise Exception
-
-    DATABASES = {"default": dj_database_url.config(conn_max_age=600)}
-
+    DATABASES: Databases = Field({})
     LOGIN_URL: str = Field(default="/oidc/authenticate", env="LOGIN_URL")
 
     LOGIN_REDIRECT_URL: str = Field(default="/oidc/callback/", env="LOGIN_REDIRECT_URL")
