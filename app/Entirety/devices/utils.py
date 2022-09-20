@@ -59,54 +59,42 @@ def post_device(device: Device, project: Project):
     """
     Post the device to IoTAgent
     """
-    try:
-        with IoTAClient(
-            url=settings.IOTA_URL,
-            fiware_header=FiwareHeader(
-                service=project.fiware_service,
-                service_path=project.fiware_service_path,
-            ),
-        ) as iota_client:
-            iota_client.post_device(device=device)
-            return True
-    except HTTPError as e:
-        return e
+    with IoTAClient(
+        url=settings.IOTA_URL,
+        fiware_header=FiwareHeader(
+            service=project.fiware_service,
+            service_path=project.fiware_service_path,
+        ),
+    ) as iota_client:
+        iota_client.post_device(device=device)
 
 
 def update_device(device: Device, project: Project):
     """
     Update the device to IoTAgent
     """
-    try:
-        with IoTAClient(
-            url=settings.IOTA_URL,
-            fiware_header=FiwareHeader(
-                service=project.fiware_service,
-                service_path=project.fiware_service_path,
-            ),
-        ) as iota_client:
-            iota_client.update_device(device=device)
-            return True
-    except HTTPError as e:
-        return e
+    with IoTAClient(
+        url=settings.IOTA_URL,
+        fiware_header=FiwareHeader(
+            service=project.fiware_service,
+            service_path=project.fiware_service_path,
+        ),
+    ) as iota_client:
+        iota_client.update_device(device=device)
 
 
 def delete_device(project: Project, device_id):
     """
     Delete a devices by id
     """
-    try:
-        with IoTAClient(
-                url=settings.IOTA_URL,
-                fiware_header=FiwareHeader(
-                    service=project.fiware_service,
-                    service_path=project.fiware_service_path,
-                ),
-        ) as iota_client:
-            iota_client.delete_device(device_id=device_id)
-            return True
-    except HTTPError as e:
-        return e
+    with IoTAClient(
+            url=settings.IOTA_URL,
+            fiware_header=FiwareHeader(
+                service=project.fiware_service,
+                service_path=project.fiware_service_path,
+            ),
+    ) as iota_client:
+        iota_client.delete_device(device_id=device_id)
 
 
 def get_project(uuid):

@@ -1,11 +1,12 @@
 from django_tables2 import SingleTableMixin
-from projects.models import Project
 from django.contrib.auth.mixins import LoginRequiredMixin
-from projects.mixins import ProjectContextMixin
-from django.shortcuts import render, redirect
+from django.contrib import messages
+from django.shortcuts import render, redirect, reverse
 from django.views.generic import View, TemplateView
-from devices.forms import DeviceBasic, Attributes, Commands
 from django.http import HttpRequest
+from projects.models import Project
+from projects.mixins import ProjectContextMixin
+from devices.forms import DeviceBasic, Attributes, Commands
 from devices.utils import get_project, get_devices, post_device, \
     update_device, prefix_attributes, prefix_commands, parse_request_data, \
     build_device, get_device_by_id, delete_device
@@ -33,18 +34,23 @@ class DeviceListView(ProjectContextMixin, SingleTableMixin, TemplateView):
 class DeviceListSubmitView(ProjectContextMixin, View):
     # Redirect the request to corresponding view
     def get(self, request, *args, **kwargs):
+        # press delete button
         if request.GET.get("Delete"):
-            print("Delete Device get called", flush=True)
-            # TODO need to add error handling if no device is selected
+            if not request.GET.get("selection"):
+                messages.error(request, "Please select one device")
+                return redirect("projects:devices:list", project_id=self.project.uuid)
             # use session to cache the selected devices
             request.session["devices"] = request.GET.get("selection")
             return redirect("projects:devices:delete", project_id=self.project.uuid)
+        # press create button
         elif request.GET.get("Create"):
-            print("Create Device get called", flush=True)
             return redirect("projects:devices:create", project_id=self.project.uuid)
+        # press edit button
         elif request.GET.get("Edit"):
             request.session["devices"] = request.GET.get("selection")
-            print("Edit Device get called", flush=True)
+            if not request.GET.get("selection"):
+                messages.error(request, "Please select one device")
+                return redirect("projects:devices:list", project_id=self.project.uuid)
             return redirect("projects:devices:edit", project_id=self.project.uuid)
 
 
@@ -78,21 +84,26 @@ class DeviceCreateSubmitView(LoginRequiredMixin, View):
         commands = Commands(data=data_commands, prefix=prefix_commands)
 
         if basic_info.is_valid() and attributes.is_valid() and commands.is_valid():
-            device = build_device(
-                data_basic=data_basic,
-                data_attributes=data_attributes,
-                data_commands=data_commands,
-            )
-            post_device(device, project=project)  # TODO need to capture and display the request error
-            return redirect("projects:devices:list", project_id=project_id)
-        else:
-            context = {
-                "basic_info": basic_info,
-                "attributes": attributes,
-                "commands": commands,
-                "action": "Create",
-                "project": project
-            }
+            try:
+                device = build_device(
+                    data_basic=data_basic,
+                    data_attributes=data_attributes,
+                    data_commands=data_commands,
+                )
+                post_device(device, project=project)  # TODO need to capture and display the request error
+                return redirect("projects:devices:list", project_id=project_id)
+            except Exception as e:
+                print(f"validation errors: {e}", flush=True)
+                # TODO parse the error message
+                messages.error(request, e.args[0])
+
+        context = {
+            "basic_info": basic_info,
+            "attributes": attributes,
+            "commands": commands,
+            "action": "Create",
+            "project": project
+        }
         return render(request, "devices/detail.html", context)
 
 
@@ -150,22 +161,25 @@ class DeviceEditSubmitView(LoginRequiredMixin, View):
             f"command: {commands.is_valid()} error: {commands.errors} \n"
         )
         if basic_info.is_valid() and attributes.is_valid() and commands.is_valid():
-            device = build_device(
-                data_basic=data_basic,
-                data_attributes=data_attributes,
-                data_commands=data_commands,
-            )
-            update_device(device, project=project)  # TODO need to capture and display the request error
+            try:
+                device = build_device(
+                    data_basic=data_basic,
+                    data_attributes=data_attributes,
+                    data_commands=data_commands,
+                )
+                update_device(device, project=project)  # TODO need to capture and display the request error
 
-            return redirect("projects:devices:list", project_id=project_id)
-        else:
-            context = {
-                "basic_info": basic_info,
-                "attributes": attributes,
-                "commands": commands,
-                "action": "Edit",
-                "project": project
-            }
+                return redirect("projects:devices:list", project_id=project_id)
+            except Exception as e:
+                messages.error(request, e.args[0])
+
+        context = {
+            "basic_info": basic_info,
+            "attributes": attributes,
+            "commands": commands,
+            "action": "Edit",
+            "project": project
+        }
         return render(request, "devices/detail.html", context)
 
 
@@ -178,8 +192,10 @@ class DeviceDeleteView(LoginRequiredMixin, View):
         print(f"request Data: {request.POST}", flush=True)
 
         # delete the device and entity?
-        delete_device(project=project, device_id=device_id)
-
+        try:
+            delete_device(project=project, device_id=device_id)
+        except Exception as e:
+            messages.error(request, e.args[0])
         # if delete entity, redirect to Entities App?
         ...
 
