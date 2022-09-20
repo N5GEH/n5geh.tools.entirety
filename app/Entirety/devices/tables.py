@@ -1,7 +1,4 @@
 from django_tables2 import tables
-from devices.utils import get_devices
-from devices.utils import get_project
-# from entities.requests import get_entities_list
 
 
 class DevicesTable(tables.Table):
@@ -11,7 +8,3 @@ class DevicesTable(tables.Table):
     device_id = tables.columns.Column()
     entity_name = tables.columns.Column()
     entity_type = tables.columns.Column()
-
-    #
-    # def get_query_set(self, project):
-    #     return get_devices()

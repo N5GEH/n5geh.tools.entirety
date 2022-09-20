@@ -1,11 +1,10 @@
+from django.conf import settings
 from projects.models import Project
 from requests import HTTPError
 from filip.clients.ngsi_v2 import IoTAClient
 from filip.models import FiwareHeader
 from filip.models.ngsi_v2.iot import Device, DeviceAttribute, DeviceCommand
 
-# TODO need to be loaded from envs
-IOTA_URL = "http://localhost:4041/"
 
 # global settings
 prefix_attributes = "attributes"
@@ -23,7 +22,7 @@ def get_device_by_id(project: Project, device_id):
         filip.models.ngsi_v2.iot.Device
     """
     with IoTAClient(
-        url=IOTA_URL,
+        url=settings.IOTA_URL,
         fiware_header=FiwareHeader(
             service=project.fiware_service,
             service_path=project.fiware_service_path,
@@ -43,7 +42,7 @@ def get_devices(project: Project):
     """
     try:
         with IoTAClient(
-            url=IOTA_URL,
+            url=settings.IOTA_URL,
             fiware_header=FiwareHeader(
                 service=project.fiware_service,
                 service_path=project.fiware_service_path,
@@ -62,7 +61,7 @@ def post_device(device: Device, project: Project):
     """
     try:
         with IoTAClient(
-            url=IOTA_URL,
+            url=settings.IOTA_URL,
             fiware_header=FiwareHeader(
                 service=project.fiware_service,
                 service_path=project.fiware_service_path,
@@ -80,7 +79,7 @@ def update_device(device: Device, project: Project):
     """
     try:
         with IoTAClient(
-            url=IOTA_URL,
+            url=settings.IOTA_URL,
             fiware_header=FiwareHeader(
                 service=project.fiware_service,
                 service_path=project.fiware_service_path,
@@ -98,7 +97,7 @@ def delete_device(project: Project, device_id):
     """
     try:
         with IoTAClient(
-                url=IOTA_URL,
+                url=settings.IOTA_URL,
                 fiware_header=FiwareHeader(
                     service=project.fiware_service,
                     service_path=project.fiware_service_path,
@@ -116,13 +115,10 @@ def get_project(uuid):
 
 def get_attribute_list(data_attributes: dict):
     attributes = []
-    # print("loop over all attributes", flush=True)
-    # print(data_attributes, flush=True)
     for key in data_attributes:
-        # print(key, flush=True)
         if key.endswith("name"):
             prefix = key.split("name")[0]
-            # TODO a quick fix, should be remove later
+            # ignore dummy attribute attribute-__prefix__-...
             if "__prefix__" in prefix:
                 continue
             attribute_dict = {
@@ -130,31 +126,24 @@ def get_attribute_list(data_attributes: dict):
                 "type": data_attributes[f"{prefix}type"],
                 "object_id": data_attributes[f"{prefix}object_id"],
             }
-            # print("attribute dict")
-            # print(attribute_dict, flush=True)
+
             attribute = DeviceAttribute(**attribute_dict)
             attributes.append(attribute)
     return attributes
 
 
 def get_commands_list(data_commands: dict):
-    # TODO implement when the accordion template is finished
     commands = []
-    # print("loop over all commands", flush=True)
-    # print(data_commands, flush=True)
     for key in data_commands:
-        # print(key, flush=True)
         if key.endswith("name"):
             prefix = key.split("name")[0]
-            # TODO a quick fix, should be remove later
+            # ignore dummy attribute attribute-__prefix__-...
             if "__prefix__" in prefix:
                 continue
             command_dict = {
                 "name": data_commands[f"{prefix}name"],
                 "type": data_commands[f"{prefix}type"]
             }
-            # print("command dict")
-            # print(command_dict, flush=True)
             command = DeviceCommand(**command_dict)
             commands.append(command)
     return commands
@@ -170,7 +159,7 @@ def build_device(data_basic, data_attributes, data_commands):
         entity_type=data_basic["entity_type"],
         protocol="IoTA-JSON",  # TODO change the hard coded part here
         transport="MQTT",
-        apikey="test",
+        apikey=None,
         attributes=attributes,
         commands=commands,
     )
