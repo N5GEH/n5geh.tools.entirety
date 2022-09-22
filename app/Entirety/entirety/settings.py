@@ -4,6 +4,7 @@ from pathlib import Path
 from typing import List, Any, Optional, Sequence
 from mimetypes import add_type
 
+import django_loki
 import dj_database_url
 from pydantic import BaseSettings, Field, AnyUrl, validator, DirectoryPath
 from pydantic_settings import PydanticSettings
@@ -14,6 +15,7 @@ from pydantic_settings.settings import (
     TemplateBackendModel,
 )
 from utils.generators import generate_secret_key
+from django.contrib.messages import constants as messages
 
 __version__ = "0.3.1"
 
@@ -77,6 +79,14 @@ class Settings(PydanticSettings):
         "django.middleware.clickjacking.XFrameOptionsMiddleware",
         "mozilla_django_oidc.middleware.SessionRefresh",
     ]
+
+    MESSAGE_TAGS = {
+        messages.DEBUG: "alert-info",
+        messages.INFO: "alert-info",
+        messages.SUCCESS: "alert-success",
+        messages.WARNING: "alert-warning",
+        messages.ERROR: "alert-danger",
+    }
 
     ROOT_URLCONF = "entirety.urls"
     FORM_RENDERER = "django.forms.renderers.TemplatesSetting"
@@ -144,11 +154,35 @@ class Settings(PydanticSettings):
     LOGGING = {
         "version": 1,
         "disable_existing_loggers": False,
+        "formatters": {
+            "loki": {
+                "class": "django_loki.LokiFormatter",
+                "format": "[%(asctime)s] %(levelname)s [%(name)s:%(lineno)s] "
+                "[%(funcName)s] %(message)s",
+                "datefmt": "%Y-%m-%d %H:%M:%S",
+            },
+        },
         "handlers": {
             "console": {"class": "logging.StreamHandler", "level": "DEBUG"},
+            "loki": {
+                "level": "DEBUG",
+                "class": "django_loki.LokiHttpHandler",
+                "host": "logging-loki-1",
+                "formatter": "loki",
+                "port": 3100,
+                "timeout": 0.5,
+                "protocol": "http",
+                "source": "Loki",
+                "src_host": "entirety",
+                "tz": "Europe/Berlin",
+            },
         },
         "loggers": {
             "mozilla_django_oidc": {"handlers": ["console"], "level": "DEBUG"},
+            "": {
+                "handlers": ["loki"],
+                "level": "INFO",
+            },
         },
     }
 

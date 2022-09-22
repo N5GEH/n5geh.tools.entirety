@@ -49,6 +49,7 @@
                 {% block page_buttons %}{% endblock %}
             </span>
         </div>
+        {% include 'messages.html' %}
         {% block content %}(no content - should not be here) {% endblock %}
     </main>
     {% include 'modal.html' %}
