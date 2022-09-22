@@ -5,58 +5,37 @@
 
 
 {% block content %}
-{#        <div class="d-flex">#}
-{#        <span class="d-flex border-bottom flex-grow-1 mb-2">#}
-{#            <span class="h3">Devices </span>#}
-{##}
-{#            <a href="{% url "projects:devices:create" project_id=project.uuid %}" class="btn btn-primary mb-1 ms-auto"#}
-{#               data-toggle="tooltip" data-placement="bottom" title="Create Device">#}
-{#                <i class="bi bi-plus"></i>#}
-{#            </a>#}
-{#            <a href="{% url "projects:devices:delete" project_id=project.uuid %}" class="btn btn-danger mb-1"#}
-{#               data-toggle="tooltip" data-placement="bottom" title="Delete Device">#}
-{#                                    <i class="bi bi-trash"></i>#}
-{#            </a>#}
-{#            <button type="submit" class="btn btn-danger mb-1"  data-toggle="tooltip" data-placement="bottom" title="Delete Device">#}
-{#                                    <i class="bi bi-trash"></i>#}
-{#                                </button>#}
-{#            <a href="{% url "projects:devices:edit" project_id=project.uuid %}" class="btn btn-secondary mb-1"#}
-{#               data-toggle="tooltip" data-placement="bottom" title="Edit Device">#}
-{#                                    <i class="bi bi-pen"></i>#}
-{#                                </a>#}
-{##}
-{##}
-{##}
-{#        </span>#}
-{#        </div>#}
 
 <form action="{% url 'projects:devices:list_submit' project.uuid %}" method="GET" >
         {% csrf_token %}
 
      <div class="d-flex">
+{#         <span class="h3">Devices </span>#}
         <span class="d-flex border-bottom flex-grow-1 mb-2">
             <span class="h3">Devices </span>
+        </span>
+     </div>
 
-            <button type="submit" class="btn btn-primary mb-1 ms-auto" data-toggle="tooltip" data-placement="bottom"
-                    title="Create Device" value="True" name="Create">
-                        <i class="bi bi-plus"></i>
-            </button>
+    <div>
+        <button type="submit" class="btn btn-primary mb-1 ms-auto" data-toggle="tooltip" data-placement="bottom"
+                title="Create Device" value="True" name="Create">
+                    <i class="bi bi-plus"></i>
+        </button>
 
 {#            <button type="submit" class="btn btn-danger mb-1"  data-toggle="tooltip" data-placement="bottom"#}
 {#                    title="Delete Device" value="True" name="Delete">#}
 {#                        <i class="bi bi-trash"></i>#}
 {#            </button>#}
-            <button type="button" class="btn btn-danger mb-1" data-toggle="tooltip" data-placement="bottom"
-                    title="Delete Entity" data-bs-toggle="modal" data-bs-target="#deleteModal">
-                        <i class="bi bi-trash"></i>
-            </button>
+        <button type="button" class="btn btn-danger mb-1" data-toggle="tooltip" data-placement="bottom"
+                title="Delete Entity" data-bs-toggle="modal" data-bs-target="#deleteModal">
+                    <i class="bi bi-trash"></i>
+        </button>
 
-            <button type="submit" class="btn btn-secondary mb-1" data-toggle="tooltip" data-placement="bottom"
-                    title="Edit Device" value="True" name="Edit">
-                        <i class="bi bi-pen"></i>
-            </button>
-        </span>
-        </div>
+        <button type="submit" class="btn btn-secondary mb-1" data-toggle="tooltip" data-placement="bottom"
+                title="Edit Device" value="True" name="Edit">
+                    <i class="bi bi-pen"></i>
+        </button>
+     </div>
 
         {% render_table table %}
 
