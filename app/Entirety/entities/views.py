@@ -1,5 +1,7 @@
+import json
 import re
 
+from django.contrib import messages
 from django.forms import formset_factory
 from django.shortcuts import render, redirect
 from django.urls import reverse
@@ -7,7 +9,13 @@ from django.views.generic import CreateView, UpdateView, TemplateView, DeleteVie
 from django_tables2 import SingleTableMixin
 from filip.models.ngsi_v2.context import ContextEntity, ContextAttribute
 
-from entities.forms import EntityForm, AttributeForm, SubscriptionForm, RelationshipForm
+from entities.forms import (
+    EntityForm,
+    AttributeForm,
+    SubscriptionForm,
+    RelationshipForm,
+    SelectionForm,
+)
 from entities.requests import (
     get_entity,
     post_entity,
@@ -26,22 +34,40 @@ class EntityList(ProjectContextMixin, SingleTableMixin, TemplateView):
     template_name = "entities/entity_list.html"
     table_class = EntityTable
     table_pagination = {"per_page": 15}
+    form_class = SelectionForm
 
     def get_table_data(self):
-        return EntityTable.get_query_set(self)
+        search_id = self.request.GET.get("search-id", default="")
+        search_type = self.request.GET.get("search-type", default="")
+        return EntityTable.get_query_set(self, search_id, search_type)
 
     def get_context_data(self, **kwargs):
         context = super(EntityList, self).get_context_data(**kwargs)
         context["project"] = self.project
         context["table"] = EntityList.get_table(self)
+        context["selection_form"] = SelectionForm
         return context
 
     def post(self, request, *args, **kwargs):
         selected = self.request.POST.getlist("selection")
+        if self.request.POST.get("Edit"):
+            return redirect(
+                "projects:entities:update",
+                project_id=self.project.uuid,
+                entity_id=selected[0].split("&")[0],
+                entity_type=selected[0].split("&")[1],
+            )
+        subscriptions = self.request.POST.get("subscriptions")
+        relationships = self.request.POST.get("relationships")
+        devices = self.request.POST.get("devices")
+        request.session["subscriptions"] = subscriptions
+        request.session["relationships"] = relationships
+        request.session["devices"] = devices
         return redirect(
             "projects:entities:delete",
             project_id=self.project.uuid,
-            entity_id=selected[0],
+            entity_id=selected[0].split("&")[0],
+            entity_type=selected[0].split("&")[1],
         )
 
 
@@ -89,8 +115,23 @@ class Create(ProjectContextMixin, CreateView):
                 {self.get_form_kwargs().get("data").get(keys[0]): attr}
             )
             i = i + 1
-        post_entity(self, entity, False)
-        return redirect("projects:entities:list", project_id=self.project.uuid)
+        res = post_entity(self, entity, False)
+        basic_info = EntityForm(request.POST)
+        attributes_form_set = formset_factory(AttributeForm, max_num=0)
+        attributes = attributes_form_set(request.POST, prefix="attr")
+        if res:
+            messages.error(
+                self.request,
+                "Entity not created. Reason: "
+                + json.loads(res.response.text).get("description"),
+            )
+            return render(
+                request,
+                self.template_name,
+                {"basic_info": basic_info, "attributes": attributes},
+            )
+        else:
+            return redirect("projects:entities:list", project_id=self.project.uuid)
 
 
 class Update(ProjectContextMixin, UpdateView):
@@ -101,13 +142,16 @@ class Update(ProjectContextMixin, UpdateView):
         id = kwargs.get("entity_id")
         type = kwargs.get("entity_type")
         entity = get_entity(self, id, type)
-        basic_info = EntityForm({"id": entity.id, "type": entity.type})
+        basic_info = EntityForm(initial={"id": entity.id, "type": entity.type})
+        basic_info.fields["id"].widget.attrs["readonly"] = True
+        basic_info.fields["type"].widget.attrs["readonly"] = True
         initial = []
         for attr in entity.get_attributes():
             initial.append({"name": attr.name, "type": attr.type, "value": attr.value})
         attributes_form_set = formset_factory(AttributeForm, max_num=0)
         attributes = attributes_form_set(prefix="attr", initial=initial)
         context = {
+            "update_entity": entity.id,
             "basic_info": basic_info,
             "attributes": attributes,
             "commands": None,
@@ -139,8 +183,30 @@ class Update(ProjectContextMixin, UpdateView):
                 {self.get_form_kwargs().get("data").get(new_keys[0]): attr}
             )
             i = i + 1
-        update_entity(self, entity)
-        return redirect("projects:entities:list", project_id=self.project.uuid)
+
+        # res = update_entity(self, entity)
+        res = post_entity(self, entity, True)
+        basic_info = EntityForm(request.POST)
+        attributes_form_set = formset_factory(AttributeForm, max_num=0)
+        attributes = attributes_form_set(request.POST, prefix="attr")
+        if res:
+            # messages.error(self.request, "Entity not updated. Reason: " + str(res))
+            messages.error(
+                self.request,
+                "Entity not updated. Reason: "
+                + json.loads(res.response.text).get("description"),
+            )
+            return render(
+                request,
+                self.template_name,
+                {
+                    "basic_info": basic_info,
+                    "attributes": attributes,
+                    "update_entity": entity.id,
+                },
+            )
+        else:
+            return redirect("projects:entities:list", project_id=self.project.uuid)
 
     def get_success_url(self):
         return reverse("projects:entities:list")
@@ -152,60 +218,63 @@ class Delete(ProjectContextMixin, DeleteView):
 
     def get(self, request, *args, **kwargs):
         id = kwargs.get("entity_id")
-        type = "weather_station"  # kwargs.get('entity_type')
+        type = kwargs.get("entity_type")
         entity = get_entity(self, id, type)
         # subscriptions
-        subscriptions_list = get_subscriptions()
+        subscriptions = None
+        if request.session.get("subscriptions"):
+            subscriptions_list = get_subscriptions(id, type)
+            initial_subscriptions = []
+            for subs in subscriptions_list:
+                initial_subscriptions.append(
+                    {
+                        "name": subs.id,
+                        "description": subs.description,
+                        "subject": subs.subject,
+                        "status": subs.status,
+                    }
+                )
+            subscriptions_form_set = formset_factory(SubscriptionForm, max_num=0)
+            subscriptions = subscriptions_form_set(
+                prefix="subs", initial=initial_subscriptions
+            )
+            for initial_form in subscriptions.initial_forms:
+                initial_form.fields.get("name").label = (
+                    "Found " + initial_form.initial.get("status") + " subscription "
+                    "with \
+                                                                            description "
+                    + initial_form.initial.get("description")
+                )  # + " and subject "
         # devices
-        devices = get_devices(entity_id=entity.id)
+        if request.session.get("devices"):
+            devices = get_devices(entity_id=entity.id)
         # relationships
-        relationships_list = get_relationships(entity_id=entity.id)
-
-        initial_subscriptions = []
-        for subs in subscriptions_list:
-            initial_subscriptions.append(
-                {
-                    "name": subs.id,
-                    "description": subs.description,
-                    "subject": subs.subject,
-                    "status": subs.status,
-                }
+        relationships = None
+        if request.session.get("relationships"):
+            relationships_list = get_relationships(entity_id=entity.id)
+            initial_relationships = []
+            for rel in relationships_list:
+                initial_relationships.append(
+                    {
+                        "name": rel.get("id"),
+                        "type": rel.get("type"),
+                        "attribute_name": rel.get("attr_name"),
+                    }
+                )
+            relationships_form_set = formset_factory(RelationshipForm, max_num=0)
+            relationships = relationships_form_set(
+                prefix="rel", initial=initial_relationships
             )
-        subscriptions_form_set = formset_factory(SubscriptionForm, max_num=0)
-        subscriptions = subscriptions_form_set(
-            prefix="subs", initial=initial_subscriptions
-        )
-        for initial_form in subscriptions.initial_forms:
-            initial_form.fields.get("name").label = (
-                "Found " + initial_form.initial.get("status") + " subscription "
-                "with \
-                    description "
-                + initial_form.initial.get("description")
-            )  # + " and subject "
-
-        initial_relationships = []
-        for rel in relationships_list:
-            initial_relationships.append(
-                {
-                    "name": rel.get("id"),
-                    "type": rel.get("type"),
-                    "attribute_name": rel.get("attr_name"),
-                }
-            )
-        relationships_form_set = formset_factory(RelationshipForm, max_num=0)
-        relationships = relationships_form_set(
-            prefix="rel", initial=initial_relationships
-        )
-        for initial_form in relationships.initial_forms:
-            initial_form.fields.get(
-                "name"
-            ).label = "Found attribute " + initial_form.initial.get(
-                "attribute_name"
-            ) + " with " "entity ID " + initial_form.initial.get(
-                "name"
-            ) + " of type " + initial_form.initial.get(
-                "type"
-            )
+            for initial_form in relationships.initial_forms:
+                initial_form.fields.get(
+                    "name"
+                ).label = "Found attribute " + initial_form.initial.get(
+                    "attribute_name"
+                ) + " with " "entity ID " + initial_form.initial.get(
+                    "name"
+                ) + " of type " + initial_form.initial.get(
+                    "type"
+                )
 
         # devices
         context = {

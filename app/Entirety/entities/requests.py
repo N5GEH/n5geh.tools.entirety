@@ -1,8 +1,11 @@
 from enum import Enum
 
+import requests
 from django.conf import settings
+from django.core.exceptions import ValidationError
 from filip.clients.ngsi_v2 import ContextBrokerClient, IoTAClient
 from filip.models import FiwareHeader
+from filip.utils.filter import filter_subscriptions_by_entity
 
 
 class AttributeTypes(Enum):
@@ -17,14 +20,18 @@ class AttributeTypes(Enum):
     NUMBER = "Number"
 
 
-def get_entities_list(self):
+def get_entities_list(self, id_pattern, type_pattern):
     data = []
     with ContextBrokerClient(
         url=settings.CB_URL,
         fiware_header=FiwareHeader(service="w2f", service_path="/testing"),
     ) as cb_client:
-        for entity in cb_client.get_entity_list():
-            data.append(entity)
+        for entity in cb_client.get_entity_list(
+            id_pattern=id_pattern, type_pattern=type_pattern
+        ):
+            entity_to_add = entity.copy()
+            entity_to_add.attrs = len(entity.dict()) - 2
+            data.append(entity_to_add)
     return data
 
 
@@ -33,7 +40,10 @@ def post_entity(self, entity, update):
         url=settings.CB_URL,
         fiware_header=FiwareHeader(service="w2f", service_path="/testing"),
     ) as cb_client:
-        cb_client.post_entity(entity, update)
+        try:
+            cb_client.post_entity(entity, update)
+        except requests.RequestException as err:
+            return err
 
 
 def update_entity(self, entity):
@@ -41,9 +51,12 @@ def update_entity(self, entity):
         url=settings.CB_URL,
         fiware_header=FiwareHeader(service="w2f", service_path="/testing"),
     ) as cb_client:
-        cb_client.update_or_append_entity_attributes(
-            entity.id, entity.type, entity.get_attributes(), False
-        )
+        try:
+            cb_client.update_or_append_entity_attributes(
+                entity.id, entity.type, entity.get_attributes(), False
+            )
+        except (requests.RequestException, ValidationError, Exception) as err:
+            return err
 
 
 def get_entity(self, entity_id, entity_type):
@@ -90,13 +103,13 @@ def delete_relationship(entity_id, attribute_name, entity_type):
         # cb_client.delete_entity_attribute(entity_id, attribute_name, entity_type)
 
 
-def get_subscriptions():
-    with ContextBrokerClient(
+def get_subscriptions(entity_id, entity_type):
+    return filter_subscriptions_by_entity(
+        entity_id=entity_id,
+        entity_type=entity_type,
         url=settings.CB_URL,
         fiware_header=FiwareHeader(service="w2f", service_path="/testing"),
-    ) as cb_client:
-        # TODO: get utils subsscriptions
-        return cb_client.get_subscription_list()
+    )
 
 
 def get_devices(entity_id):

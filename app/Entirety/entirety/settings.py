@@ -55,7 +55,7 @@ class Settings(PydanticSettings):
         "django.contrib.messages",
         "django.contrib.staticfiles",
         "django.forms",
-		"django_tables2",
+        "django_tables2",
         "mozilla_django_oidc",
         "compressor",
         "crispy_forms",
