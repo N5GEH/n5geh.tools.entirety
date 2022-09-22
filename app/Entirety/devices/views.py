@@ -118,6 +118,9 @@ class DeviceEditView(LoginRequiredMixin, View):
         device_dict = device.dict()
 
         basic_info = DeviceBasic(initial=device_dict)  # TODO disable editing the basic information
+        basic_info.fields["device_id"].widget.attrs["readonly"] = True
+        basic_info.fields["entity_name"].widget.attrs["readonly"] = True
+        basic_info.fields["entity_type"].widget.attrs["readonly"] = True
 
         if device_dict.get("attributes"):
             attributes = Attributes(
