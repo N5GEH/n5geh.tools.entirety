@@ -11,6 +11,7 @@ from devices.utils import get_project, get_devices, post_device, \
     update_device, prefix_attributes, prefix_commands, parse_request_data, \
     build_device, get_device_by_id, delete_device
 from devices.tables import DevicesTable
+# from django_filters.views import FilterView
 
 
 # Devices list
@@ -19,6 +20,7 @@ class DeviceListView(ProjectContextMixin, SingleTableMixin, TemplateView):
     template_name = "devices/list.html"
     table_class = DevicesTable
     table_pagination = {"per_page": 15}
+    # filterset_class =
 
     def get_table_data(self):
         return get_devices(self.project)
@@ -55,26 +57,24 @@ class DeviceListSubmitView(ProjectContextMixin, View):
 
 
 # Create devices
-class DeviceCreateView(LoginRequiredMixin, View):
-    def get(self, request: HttpRequest, project_id):
+class DeviceCreateView(ProjectContextMixin, TemplateView):
+    def get(self, request, *args, **kwargs):
         basic_info = DeviceBasic()
         attributes = Attributes(prefix=prefix_attributes)
         commands = Commands(prefix=prefix_commands)
-        project = get_project(project_id)
+        context: dict = super(DeviceCreateView, self).get_context_data(**kwargs)
         context = {
             "basic_info": basic_info,
             "attributes": attributes,
             "commands": commands,
             "action": "Create",
-            "project": project
+            **context
         }
         return render(request, "devices/detail.html", context)
 
 
-class DeviceCreateSubmitView(LoginRequiredMixin, View):
-    def post(self, request: HttpRequest, project_id):
-        project = get_project(project_id)
-
+class DeviceCreateSubmitView(ProjectContextMixin, TemplateView):
+    def post(self, request: HttpRequest, **kwargs):
         # preprocess the request query data
         data_basic, data_attributes, data_commands = parse_request_data(request.POST)
 
@@ -90,31 +90,35 @@ class DeviceCreateSubmitView(LoginRequiredMixin, View):
                     data_attributes=data_attributes,
                     data_commands=data_commands,
                 )
-                post_device(device, project=project)  # TODO need to capture and display the request error
-                return redirect("projects:devices:list", project_id=project_id)
+                post_device(device, project=self.project)  # TODO need to capture and display the request error
+                return redirect("projects:devices:list", project_id=self.project.uuid)
             except Exception as e:
                 print(f"validation errors: {e}", flush=True)
                 # TODO parse the error message
                 messages.error(request, e.args[0])
+
+        # get the project context data
+        context: dict = super(DeviceCreateSubmitView, self).get_context_data(**kwargs)
 
         context = {
             "basic_info": basic_info,
             "attributes": attributes,
             "commands": commands,
             "action": "Create",
-            "project": project
+            **context
         }
         return render(request, "devices/detail.html", context)
 
 
 # Edit devices
-class DeviceEditView(LoginRequiredMixin, View):
-    def get(self, request: HttpRequest, project_id):
-        project = get_project(project_id)
+class DeviceEditView(ProjectContextMixin, TemplateView):
+    def get(self, request: HttpRequest, *args, **kwargs):
+        context = super(DeviceEditView, self).get_context_data()
+
         # get the selected devices from session
         device_id = request.session.get("devices")  # TODO may have error
         # device_id = request.GET["device_id"]
-        device = get_device_by_id(project=project, device_id=device_id)
+        device = get_device_by_id(project=self.project, device_id=device_id)
         device_dict = device.dict()
 
         basic_info = DeviceBasic(initial=device_dict)  # TODO disable editing the basic information
@@ -139,14 +143,14 @@ class DeviceEditView(LoginRequiredMixin, View):
             "attributes": attributes,
             "commands": commands,
             "action": "Edit",
-            "project": project
+            **context
         }
         return render(request, "devices/detail.html", context)
 
 
-class DeviceEditSubmitView(LoginRequiredMixin, View):
-    def post(self, request: HttpRequest, project_id):
-        project = get_project(project_id)
+class DeviceEditSubmitView(ProjectContextMixin, TemplateView):
+    def post(self, request: HttpRequest, **kwargs):
+        context = super(DeviceEditSubmitView, self).get_context_data()
 
         # preprocess the POST request data
         data_basic, data_attributes, data_commands = parse_request_data(request.POST)
@@ -170,9 +174,9 @@ class DeviceEditSubmitView(LoginRequiredMixin, View):
                     data_attributes=data_attributes,
                     data_commands=data_commands,
                 )
-                update_device(device, project=project)  # TODO need to capture and display the request error
+                update_device(device, project=self.project)  # TODO need to capture and display the request error
 
-                return redirect("projects:devices:list", project_id=project_id)
+                return redirect("projects:devices:list", project_id=self.project.uuid)
             except Exception as e:
                 messages.error(request, e.args[0])
 
@@ -181,26 +185,24 @@ class DeviceEditSubmitView(LoginRequiredMixin, View):
             "attributes": attributes,
             "commands": commands,
             "action": "Edit",
-            "project": project
+            **context
         }
         return render(request, "devices/detail.html", context)
 
 
-class DeviceDeleteView(LoginRequiredMixin, View):
-    def get(self, request: HttpRequest, project_id):
-        project = get_project(project_id)
-
+class DeviceDeleteView(ProjectContextMixin, View):
+    def get(self, request: HttpRequest, *args, **kwargs):
         # get the selected devices from session
         device_id = request.session.get("devices")  # TODO may have error
         print(f"request Data: {request.POST}", flush=True)
 
         # delete the device and entity?
         try:
-            delete_device(project=project, device_id=device_id)
+            delete_device(project=self.project, device_id=device_id)
         except Exception as e:
             messages.error(request, e.args[0])
         # if delete entity, redirect to Entities App?
         ...
 
         # if success, redirect to devices list view
-        return redirect("projects:devices:list", project_id=project_id)
+        return redirect("projects:devices:list", project_id=self.project.uuid)
