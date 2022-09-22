@@ -123,3 +123,15 @@ class RelationshipForm(forms.Form):
 
         self.helper = FormHelper(self)
         self.helper.form_tag = False
+
+
+class SelectionForm(forms.Form):
+    subscriptions = forms.BooleanField(initial=False, required=False)
+    relationships = forms.BooleanField(initial=False, required=False)
+    devices = forms.BooleanField(initial=False, required=False)
+
+    def __init__(self, *args, **kwargs):
+        super(SelectionForm, self).__init__(*args, **kwargs)
+
+        self.helper = FormHelper(self)
+        self.helper.form_tag = False

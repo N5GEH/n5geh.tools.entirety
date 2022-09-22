@@ -27,5 +27,5 @@ class EntityTable(tables.Table):
     type = tables.columns.Column()
     attrs = tables.columns.Column(verbose_name="Attributes")
 
-    def get_query_set(self):
-        return get_entities_list(self)
+    def get_query_set(self, id_pattern, type_pattern):
+        return get_entities_list(self, id_pattern, type_pattern)

@@ -9,6 +9,7 @@ import dj_database_url
 from pydantic import BaseSettings, Field, AnyUrl, validator
 
 from utils.generators import generate_secret_key
+from django.contrib.messages import constants as messages
 
 __version__ = "0.3.1"
 
@@ -28,6 +29,7 @@ class Settings(BaseSettings):
         "django.contrib.sessions",
         "django.contrib.messages",
         "django.contrib.staticfiles",
+        "django.forms",
         "django_tables2",
         "mozilla_django_oidc",
         "compressor",
@@ -54,6 +56,14 @@ class Settings(BaseSettings):
         "django.middleware.clickjacking.XFrameOptionsMiddleware",
         "mozilla_django_oidc.middleware.SessionRefresh",
     ]
+
+    MESSAGE_TAGS = {
+        messages.DEBUG: "alert-info",
+        messages.INFO: "alert-info",
+        messages.SUCCESS: "alert-success",
+        messages.WARNING: "alert-warning",
+        messages.ERROR: "alert-danger",
+    }
 
     ROOT_URLCONF = "entirety.urls"
 

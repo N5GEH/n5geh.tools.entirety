@@ -1,23 +1,47 @@
 {% extends '_base.html' %}
 {% load django_tables2 %}
+{% load crispy_forms_tags %}
 {% block title %}Entities{% endblock %}
 
 
 {% block content %}
     <span class="h3">Entities </span>
-    <form action="">
-        <div class="p-3 border border-light rounded-pill bg-light">
-            <div class="input-group border-0 shadow-none">
-                <input name="search" type="text" class="form-control input-lg border-light rounded-pill"
-                       placeholder="Search entities by id or type"/>
-                <span class="input-group-btn">
-                                <button class="btn btn-info btn-lg bg-light border-light" type="submit" value="search">
-                                    <i class="bi-search"></i>
-                                </button>
-                                </span>
-            </div>
+    <div class="row justify-content-center">
+        <div class="col-4">
+            <form action="">
+                <div class="p-3 border border-light rounded-pill bg-light">
+                    <div class="input-group border-0 shadow-none">
+                        <input name="search-id" type="text" class="form-control border-light rounded-pill"
+                               placeholder="Search entities by id"/>
+                        <span class="input-group-btn">
+                                        <button class="btn btn-info btn-lg bg-light border-light" type="submit"
+                                                value="search">
+                                            <i class="bi-search"></i>
+                                        </button>
+                                        </span>
+                    </div>
+                </div>
+            </form>
         </div>
-    </form>
+        <div class="col-4">
+            <form action="">
+                <div class="p-3 border border-light rounded-pill bg-light">
+                    <div class="input-group border-0 shadow-none">
+                        <input name="search-type" type="text" class="form-control border-light rounded-pill"
+                               placeholder="Search entities by type"/>
+                        <span class="input-group-btn">
+                                        <button class="btn btn-info btn-lg bg-light border-light" type="submit"
+                                                value="search">
+                                            <i class="bi-search"></i>
+                                        </button>
+                                        </span>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+
     <form action="" method="POST">
         <a href="{% url "projects:entities:create" project_id=project.uuid %}" class="btn btn-primary mb-1 ms-auto"
            data-toggle="tooltip" data-placement="bottom" title="Create Entity">
@@ -46,25 +70,14 @@
                         <h5 class="modal-title" id="deleteModalLabel">Delete Project</h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
+                    {% csrf_token %}
                     <div class="modal-body">
                         Are you sure you want to delete this entity? If yes, please select the associations to load to
                         delete along this entity. Note that loading might take some while.
+
                         <div class="container">
-                            <div class="form-check form-switch">
-                                <input class="form-check-input" type="checkbox" role="switch"
-                                       id="flexSwitchCheckSubscriptions">
-                                <label class="form-check-label" for="flexSwitchCheckSubscriptions">Subscriptions</label>
-                            </div>
-                            <div class="form-check form-switch">
-                                <input class="form-check-input" type="checkbox" role="switch"
-                                       id="flexSwitchCheckRelationships">
-                                <label class="form-check-label" for="flexSwitchCheckRelationships">Relationships</label>
-                            </div>
-                            <div class="form-check form-switch">
-                                <input class="form-check-input" type="checkbox" role="switch"
-                                       id="flexSwitchCheckDevices">
-                                <label class="form-check-label" for="flexSwitchCheckDevices">Devices</label>
-                            </div>
+                            {% crispy selection_form %}
+
                         </div>
                     </div>
 
@@ -78,6 +91,6 @@
                 </div>
             </div>
         </div>
-    </form>
 
+    </form>
 {% endblock %}
