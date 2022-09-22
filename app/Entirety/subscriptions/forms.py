@@ -23,13 +23,13 @@ class EntitiesForm(forms.Form):
     ]
 
     entity_selector = forms.ChoiceField(choices=_entity_choices)
-    entity = forms.CharField()
+    entity_id = forms.CharField()
 
     type_selector = forms.ChoiceField(choices=_type_choices, required=False)
     entity_type = forms.CharField(required=False)
 
 
-Entities = forms.formset_factory(EntitiesForm, extra=3)
+Entities = forms.formset_factory(EntitiesForm, extra=1)
 
 
 class SubscriptionForm(forms.ModelForm):
@@ -61,6 +61,7 @@ class SubscriptionForm(forms.ModelForm):
         widget=forms.CheckboxSelectMultiple,
     )
 
+    entities = Entities(prefix="quatsch")
     # entities = SelectTextMultiField(
     #     choices=_entity_choices,
     #     initial=["id_pattern", ".*"]

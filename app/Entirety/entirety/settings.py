@@ -138,6 +138,10 @@ class Settings(PydanticSettings):
 
     STATIC_URL = "static/"
 
+    # STATICFILES_DIRS: List[DirectoryPath] = [
+    #     os.path.join(BASE_DIR, "static"),
+    # ]
+
     STATICFILES_FINDERS: List[str] = [
         "django.contrib.staticfiles.finders.FileSystemFinder",
         "django.contrib.staticfiles.finders.AppDirectoriesFinder",
@@ -167,7 +171,7 @@ class Settings(PydanticSettings):
             "loki": {
                 "level": "DEBUG",
                 "class": "django_loki.LokiHttpHandler",
-                "host": "logging-loki-1",
+                "host": "localhost",
                 "formatter": "loki",
                 "port": 3100,
                 "timeout": 0.5,
@@ -178,7 +182,7 @@ class Settings(PydanticSettings):
             },
         },
         "loggers": {
-            "mozilla_django_oidc": {"handlers": ["console"], "level": "DEBUG"},
+            "mozilla_django_oidc": {"handlers": ["loki"], "level": "DEBUG"},
             "": {
                 "handlers": ["loki"],
                 "level": "INFO",

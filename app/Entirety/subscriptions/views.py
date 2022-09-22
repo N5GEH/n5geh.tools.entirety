@@ -72,7 +72,6 @@ class Create(ProjectContextMixin, CreateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["entities"] = Entities()
         return context
 
     def form_valid(self, form):

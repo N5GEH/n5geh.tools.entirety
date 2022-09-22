@@ -59,18 +59,18 @@
                 <div id="acc_c_subject" class="accordion-collapse collapse show"
                      aria-labelledby="acc_h_subject">
                     <div class="accordion-body">
-                        <div class="d-flex">
-                            {% for entity in entities %}
-                                <div class="d-flex flex-column col-6 col-xl-3 ms-2">
-                                    {% crispy entity %}
-                                </div>
-                            {% endfor %}
-                        </div>
-
-                        <button type="button" class="add-form btn btn-success rounded-pill btn-sm"><i class="bi bi-plus"></i>
+                        <button type="button" class="add-entity btn btn-success rounded-pill btn-sm"><i
+                                class="bi bi-plus"></i>
                         </button>
+                        <div class="d-flex empty_form d-none">
+{#                            {% for entity in form.entities %}#}
+{#                                <div class="d-flex flex-column col-6 col-xl-3 ms-2">#}
+{#                                    {% crispy entity %}#}
+{#                                </div>#}
+{#                            {% endfor %}#}
+                            {% crispy form.entities.empty_form %}
+                        </div>
                         {{ form.attributes|as_crispy_field }}
-                        {#                        {{ form.type_select|as_crispy_field }}#}
                     </div>
                 </div>
             </div>
