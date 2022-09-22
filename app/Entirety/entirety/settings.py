@@ -174,7 +174,7 @@ class Settings(PydanticSettings):
             "loki": {
                 "level": "DEBUG",
                 "class": "django_loki.LokiHttpHandler",
-                "host": "logging-loki-1",
+                "host": "localhost",
                 "formatter": "loki",
                 "port": 3100,
                 "timeout": 0.5,
