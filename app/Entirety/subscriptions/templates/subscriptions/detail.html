@@ -59,8 +59,16 @@
                 <div id="acc_c_subject" class="accordion-collapse collapse show"
                      aria-labelledby="acc_h_subject">
                     <div class="accordion-body">
-{#                        {{ form.entities|as_crispy_field }}#}
-                        {% crispy form.entities %}
+                        <div class="d-flex">
+                            {% for entity in entities %}
+                                <div class="d-flex flex-column col-6 col-xl-3 ms-2">
+                                    {% crispy entity %}
+                                </div>
+                            {% endfor %}
+                        </div>
+
+                        <button type="button" class="add-form btn btn-success rounded-pill btn-sm"><i class="bi bi-plus"></i>
+                        </button>
                         {{ form.attributes|as_crispy_field }}
                         {#                        {{ form.type_select|as_crispy_field }}#}
                     </div>

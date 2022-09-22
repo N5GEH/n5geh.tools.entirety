@@ -9,7 +9,7 @@ from filip.models import FiwareHeader
 from filip.models.ngsi_v2.subscriptions import Subscription as CBSubscription
 
 from subscriptions.models import Subscription
-from subscriptions.forms import SubscriptionForm
+from subscriptions.forms import SubscriptionForm, Entities
 from projects.mixins import ProjectContextMixin
 
 
@@ -40,6 +40,9 @@ class Update(ProjectContextMixin, UpdateView):
     template_name = "subscriptions/detail.html"
     form_class = SubscriptionForm
 
+    def get(self, request, *args, **kwargs):
+        return super().get(request, *args, **kwargs)
+
     def form_valid(self, form, *args, **kwargs):
         instance = form.save(commit=False)
 
@@ -66,6 +69,11 @@ class Create(ProjectContextMixin, CreateView):
     model = Subscription
     template_name = "subscriptions/detail.html"
     form_class = SubscriptionForm
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["entities"] = Entities()
+        return context
 
     def form_valid(self, form):
         instance = form.save(commit=False)
