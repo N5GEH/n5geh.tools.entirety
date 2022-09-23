@@ -1,8 +1,15 @@
 from django_tables2 import tables
 
 
+class CheckBoxColumnWithName(tables.columns.CheckBoxColumn):
+    """"Allow custom header for the first column"""
+    @property
+    def header(self):
+        return self.verbose_name
+
+
 class DevicesTable(tables.Table):
-    selection = tables.columns.CheckBoxColumn(
+    selection = CheckBoxColumnWithName(
         verbose_name="Select",
         accessor="device_id",
         attrs={
