@@ -127,12 +127,12 @@ class DeviceEditView(ProjectContextMixin, TemplateView):
                 initial=device_dict["attributes"], prefix=prefix_attributes
             )
         else:
-            attributes = Attributes()
+            attributes = Attributes(prefix=prefix_attributes)
 
         if device_dict.get("commands"):
             commands = Commands(initial=device_dict["commands"], prefix=prefix_commands)
         else:
-            commands = Commands()
+            commands = Commands(prefix=prefix_commands)
 
         context = {
             "basic_info": basic_info,
