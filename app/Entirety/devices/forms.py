@@ -99,5 +99,5 @@ class DeviceCommands(forms.Form):
         )
 
 
-Attributes = formset_factory(DeviceAttributes, extra=1)
-Commands = formset_factory(DeviceCommands, extra=1)
+Attributes = formset_factory(DeviceAttributes, extra=0)
+Commands = formset_factory(DeviceCommands, extra=0)
