@@ -39,6 +39,21 @@ class Databases(DatabaseSettings):
         env_file_encoding = "utf-8"
 
 
+class LokiSettings(BaseSettings):
+    LOKI_LEVEL: str = Field(default="INFO", env="LOKI_LEVEL")
+    LOKI_PORT: int = Field(default=3100, env="LOKI_PORT")
+    LOKI_TIMEOUT: float = Field(default=0.5, env="LOKI_TIMEOUT")
+    LOKI_PROTOCOL: str = Field(default="http", env="LOKI_PROTOCOL")
+    LOKI_SRC_HOST: str = Field(default="entirety", env="LOKI_SRC_HOST")
+    LOKI_TIMEZONE: str = Field(default="Europe/Berlin", env="LOKI_TIMEZONE")
+    LOKI_HOST: str = Field(default="localhost", env="LOKI_HOST")
+
+    class Config:
+        case_sensitive = False
+        env_file = ".env"
+        env_file_encoding = "utf-8"
+
+
 class Settings(PydanticSettings):
     add_type("text/css", ".css", True)
     # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -169,16 +184,16 @@ class Settings(PydanticSettings):
         "handlers": {
             "console": {"class": "logging.StreamHandler", "level": "DEBUG"},
             "loki": {
-                "level": "DEBUG",
+                "level": LokiSettings().dict().get("LOKI_LEVEL"),
                 "class": "django_loki.LokiHttpHandler",
-                "host": "logging-loki-1",
+                "host": LokiSettings().dict().get("LOKI_HOST"),
                 "formatter": "loki",
-                "port": 3100,
-                "timeout": 0.5,
-                "protocol": "http",
+                "port": LokiSettings().dict().get("LOKI_PORT"),
+                "timeout": LokiSettings().dict().get("LOKI_TIMEOUT"),
+                "protocol": LokiSettings().dict().get("LOKI_PROTOCOL"),
                 "source": "Loki",
-                "src_host": "entirety",
-                "tz": "Europe/Berlin",
+                "src_host": LokiSettings().dict().get("LOKI_SRC_HOST"),
+                "tz": LokiSettings().dict().get("LOKI_TIMEZONEs"),
             },
         },
         "loggers": {
