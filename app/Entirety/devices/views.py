@@ -1,17 +1,14 @@
 from django_tables2 import SingleTableMixin
-from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib import messages
-from django.shortcuts import render, redirect, reverse
+from django.shortcuts import render, redirect
 from django.views.generic import View, TemplateView
 from django.http import HttpRequest
-from projects.models import Project
 from projects.mixins import ProjectContextMixin
 from devices.forms import DeviceBasic, Attributes, Commands
-from devices.utils import get_project, get_devices, post_device, \
+from devices.utils import get_devices, post_device, \
     update_device, prefix_attributes, prefix_commands, parse_request_data, \
     build_device, get_device_by_id, delete_device
 from devices.tables import DevicesTable
-# from django_filters.views import FilterView
 
 
 # Devices list
@@ -93,7 +90,6 @@ class DeviceCreateSubmitView(ProjectContextMixin, TemplateView):
                 post_device(device, project=self.project)  # TODO need to capture and display the request error
                 return redirect("projects:devices:list", project_id=self.project.uuid)
             except Exception as e:
-                print(f"validation errors: {e}", flush=True)
                 # TODO parse the error message
                 messages.error(request, e.args[0])
 
@@ -116,7 +112,7 @@ class DeviceEditView(ProjectContextMixin, TemplateView):
         context = super(DeviceEditView, self).get_context_data()
 
         # get the selected devices from session
-        device_id = request.session.get("devices")  # TODO may have error
+        device_id = request.session.get("devices")
         # device_id = request.GET["device_id"]
         device = get_device_by_id(project=self.project, device_id=device_id)
         device_dict = device.dict()
@@ -161,12 +157,12 @@ class DeviceEditSubmitView(ProjectContextMixin, TemplateView):
 
         # check whether it's valid:
         # Note that the validation is made directly during the instantiation
-        print(
-            f"Edit submit get called and the validation is : "
-            f"basic: {basic_info.is_valid()} error: {basic_info.errors} \n"
-            f"attribute: {attributes.is_valid()} error: {attributes.errors} data {attributes.data}\n"
-            f"command: {commands.is_valid()} error: {commands.errors} \n"
-        )
+        # print(
+        #     f"Edit submit get called and the validation is : "
+        #     f"basic: {basic_info.is_valid()} error: {basic_info.errors} \n"
+        #     f"attribute: {attributes.is_valid()} error: {attributes.errors} data {attributes.data}\n"
+        #     f"command: {commands.is_valid()} error: {commands.errors} \n"
+        # )
         if basic_info.is_valid() and attributes.is_valid() and commands.is_valid():
             try:
                 device = build_device(
@@ -190,11 +186,11 @@ class DeviceEditSubmitView(ProjectContextMixin, TemplateView):
         return render(request, "devices/detail.html", context)
 
 
+# Delete Device
 class DeviceDeleteView(ProjectContextMixin, View):
     def get(self, request: HttpRequest, *args, **kwargs):
         # get the selected devices from session
-        device_id = request.session.get("devices")  # TODO may have error
-        print(f"request Data: {request.POST}", flush=True)
+        device_id = request.session.get("devices")
 
         # delete the device and entity?
         try:

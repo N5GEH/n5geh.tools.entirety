@@ -97,11 +97,16 @@ def delete_device(project: Project, device_id):
         iota_client.delete_device(device_id=device_id)
 
 
-def get_project(uuid):
-    return Project.objects.get(uuid=uuid)
+# no use right now
+# def get_project(uuid):
+#     return Project.objects.get(uuid=uuid)
 
 
 def get_attribute_list(data_attributes: dict):
+    """
+    Extract attributes from the request data, and
+    form a list of attributes.
+    """
     attributes = []
     for key in data_attributes:
         if key.endswith("name"):
@@ -121,6 +126,10 @@ def get_attribute_list(data_attributes: dict):
 
 
 def get_commands_list(data_commands: dict):
+    """
+    Extract commands from the request data, and
+    form a list of commands.
+    """
     commands = []
     for key in data_commands:
         if key.endswith("name"):
