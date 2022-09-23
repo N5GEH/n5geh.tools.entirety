@@ -117,7 +117,7 @@ def get_attribute_list(data_attributes: dict):
             attribute_dict = {
                 "name": data_attributes[f"{prefix}name"],
                 "type": data_attributes[f"{prefix}type"],
-                "object_id": data_attributes[f"{prefix}object_id"],
+                "object_id": data_attributes[f"{prefix}object_id"] if data_attributes[f"{prefix}object_id"] else None,
             }
 
             attribute = DeviceAttribute(**attribute_dict)
