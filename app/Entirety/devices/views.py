@@ -9,6 +9,7 @@ from devices.utils import get_devices, post_device, \
     update_device, prefix_attributes, prefix_commands, parse_request_data, \
     build_device, get_device_by_id, delete_device
 from devices.tables import DevicesTable
+from requests.exceptions import RequestException
 
 
 # Devices list
@@ -87,11 +88,11 @@ class DeviceCreateSubmitView(ProjectContextMixin, TemplateView):
                     data_attributes=data_attributes,
                     data_commands=data_commands,
                 )
-                post_device(device, project=self.project)  # TODO need to capture and display the request error
+                post_device(device, project=self.project)
                 return redirect("projects:devices:list", project_id=self.project.uuid)
-            except Exception as e:
-                # TODO parse the error message
-                messages.error(request, e.args[0])
+            # handel the error from server
+            except RequestException as e:
+                messages.error(request, e.response.content.decode("utf-8"))
 
         # get the project context data
         context: dict = super(DeviceCreateSubmitView, self).get_context_data(**kwargs)
@@ -117,7 +118,8 @@ class DeviceEditView(ProjectContextMixin, TemplateView):
         device = get_device_by_id(project=self.project, device_id=device_id)
         device_dict = device.dict()
 
-        basic_info = DeviceBasic(initial=device_dict)  # TODO disable editing the basic information
+        # disable editing the basic information
+        basic_info = DeviceBasic(initial=device_dict)
         basic_info.fields["device_id"].widget.attrs["readonly"] = True
         basic_info.fields["entity_name"].widget.attrs["readonly"] = True
         basic_info.fields["entity_type"].widget.attrs["readonly"] = True
@@ -146,6 +148,8 @@ class DeviceEditView(ProjectContextMixin, TemplateView):
 
 class DeviceEditSubmitView(ProjectContextMixin, TemplateView):
     def post(self, request: HttpRequest, **kwargs):
+        print("edit submit request")
+        print(request.POST)
         context = super(DeviceEditSubmitView, self).get_context_data()
 
         # preprocess the POST request data
@@ -153,6 +157,8 @@ class DeviceEditSubmitView(ProjectContextMixin, TemplateView):
 
         basic_info = DeviceBasic(request.POST)
         attributes = Attributes(data=data_attributes, prefix=prefix_attributes)
+        print("attributes")
+        print(attributes)
         commands = Commands(data=data_commands, prefix=prefix_commands)
 
         # check whether it's valid:
@@ -170,11 +176,11 @@ class DeviceEditSubmitView(ProjectContextMixin, TemplateView):
                     data_attributes=data_attributes,
                     data_commands=data_commands,
                 )
-                update_device(device, project=self.project)  # TODO need to capture and display the request error
-
+                update_device(device, project=self.project)
                 return redirect("projects:devices:list", project_id=self.project.uuid)
-            except Exception as e:
-                messages.error(request, e.args[0])
+            except RequestException as e:
+                # TODO how  to get the filip message? try in a separate script
+                messages.error(request, e.response.content.decode("utf-8"))
 
         context = {
             "basic_info": basic_info,
@@ -195,8 +201,8 @@ class DeviceDeleteView(ProjectContextMixin, View):
         # delete the device and entity?
         try:
             delete_device(project=self.project, device_id=device_id)
-        except Exception as e:
-            messages.error(request, e.args[0])
+        except RequestException as e:
+            messages.error(request, e.response.content.decode("utf-8"))
         # if delete entity, redirect to Entities App?
         ...
 
