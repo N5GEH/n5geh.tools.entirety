@@ -24,8 +24,7 @@
 
 {% block content %}
 
-    <form id="f_subscription" method="post" enctype="multipart/form-data"
-          {% if form_submitted %}class="was-validated" {% endif %}>
+    <form id="f_subscription" method="post" enctype="multipart/form-data">
         {% csrf_token %}
         <div class="accordion mt-3">
             <div class="accordion-item">
@@ -76,10 +75,10 @@
                                                 class="bi bi-plus"></i>
                                         </button>
                                         <div class="d-flex empty-form d-none">
-                                            {% crispy form.entities.empty_form %}
+                                            {% crispy entities.empty_form %}
                                         </div>
                                         <div class="d-flex flex-wrap form-container  mb-3">
-                                            {% crispy form.entities form.entities.form.helper %}
+                                            {% crispy entities entities.form.helper %}
                                         </div>
                                     </div>
                                 </div>
@@ -103,7 +102,6 @@
                                 </div>
                             </div>
                         </div>
-
                     </div>
                 </div>
             </div>
@@ -123,9 +121,9 @@
                         {{ form.mqtt|as_crispy_field }}
                         {{ form.attributes_format|as_crispy_field }}
                         {{ form.only_changed_attributes|as_crispy_field }}
-                        {#                        {{ form.times_sent|as_crispy_field }}#}
-                        {#                        {{ form.last_notification|as_crispy_field }}#}
-                        {#                        {{ form.last_failure|as_crispy_field }}#}
+                        {#{{ form.times_sent|as_crispy_field }}#}
+                        {#{{ form.last_notification|as_crispy_field }}#}
+                        {#{{ form.last_failure|as_crispy_field }}#}
                     </div>
                 </div>
             </div>

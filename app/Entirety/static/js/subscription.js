@@ -4,8 +4,8 @@
     addButton.forEach(function (elem) {
         elem.addEventListener("click", function (event) {
             event.preventDefault();
-            emptyForm = document.querySelector('.empty-form')
-            mainForm = document.querySelector('.form-container')
+            let emptyForm = document.querySelector('.empty-form')
+            let mainForm = document.querySelector('.form-container')
 
             const newEntityForm = emptyForm.cloneNode(true);
 
@@ -35,11 +35,12 @@ function updateRemoveListeners() {
 
 function removeEntity(event) {
     event.preventDefault();
-    elem = event.currentTarget;
+    let elem = event.currentTarget;
     if (elem.parentElement.classList.contains("entity-form")) {
-        // let prefix = emptyForm.querySelector('fieldset').querySelector('div').getAttribute("id").split("-")[0].split("_").pop();
-        // let totalForms = document.getElementById('id_' + prefix + '-TOTAL_FORMS');
-        // let formCount = parseInt(totalForms.value);
+        let emptyForm = document.querySelector('.empty-form')
+        let prefix = emptyForm.querySelector('fieldset').querySelector('div').getAttribute("id").split("-")[0].split("_").pop();
+        let totalForms = document.getElementById('id_' + prefix + '-TOTAL_FORMS');
+        let formCount = parseInt(totalForms.value);
         //
         // let delElement = elem.parentElement;
         // alert(delElement.querySelectorAll('[id^=div_id_'+prefix+']')
@@ -48,6 +49,6 @@ function removeEntity(event) {
         //     }))
 
         elem.parentElement.remove();
-        totalForms.value = formCount-1;
+        totalForms.value = formCount - 1;
     }
 }

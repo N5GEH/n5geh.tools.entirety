@@ -1,14 +1,16 @@
+import re
+
 from django.conf import settings
 from django.urls import reverse
 from django.views.generic import ListView, UpdateView, CreateView
-import json
-from django.shortcuts import HttpResponse
 
 from filip.clients.ngsi_v2.cb import ContextBrokerClient
 from filip.models import FiwareHeader
 from filip.models.ngsi_v2.subscriptions import (
     Subscription as CBSubscription,
     Notification,
+    EntityPattern,
+    Subject,
     Http,
     Mqtt,
 )
@@ -47,12 +49,6 @@ class Update(ProjectContextMixin, UpdateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["entities"] = Entities(prefix="entity")
-        return context
-
-    def form_valid(self, form, *args, **kwargs):
-        instance = form.save(commit=False)
-
         with ContextBrokerClient(
             url=settings.CB_URL,
             fiware_header=FiwareHeader(
@@ -60,23 +56,109 @@ class Update(ProjectContextMixin, UpdateView):
                 service_path=self.project.fiware_service_path,
             ),
         ) as cb_client:
-            cb_sub = cb_client.get_subscription(instance.pk)
-            cb_sub.description = form.cleaned_data["description"]
-            cb_sub.notification = Notification(
-                http=Http(url=form.cleaned_data["http"])
-                if form.cleaned_data["http"]
-                else None,
-                mqtt=Mqtt(
-                    url=form.cleaned_data["mqtt"],
-                    topic=f"{settings.MQTT_BASE_TOPIC}/{self.project.uuid}",
-                )
-                if form.cleaned_data["mqtt"]
-                else None,
-                attrsFormat=form.cleaned_data["attributes_format"],
-            )
-            cb_client.update_subscription(cb_sub)
+            form = context["form"]
+            cb_sub = cb_client.get_subscription(form.instance.uuid)
 
-        return super(Update, self).form_valid(form, *args, **kwargs)
+            form.initial["description"] = cb_sub.description
+            form.initial["throttling"] = cb_sub.throttling
+            form.initial["expires"] = cb_sub.expires
+            form.initial["http"] = (
+                str(cb_sub.notification.http.url) if cb_sub.notification.http else None
+            )
+            form.initial["mqtt"] = (
+                str(cb_sub.notification.mqtt.url) if cb_sub.notification.mqtt else None
+            )
+            form.initial["attributes_format"] = cb_sub.notification.attrsFormat.value
+            form.initial[
+                "only_changed_attributes"
+            ] = cb_sub.notification.onlyChangedAttrs
+            context["form"] = form
+
+            entities_initial = []
+            for entity in cb_sub.subject.entities:
+                entities_initial.append(
+                    {
+                        "entity_selector": "id_pattern" if entity.idPattern else "id",
+                        "entity_id": entity.idPattern.pattern
+                        if entity.idPattern
+                        else entity.id,
+                        "type_selector": "type_pattern"
+                        if entity.typePattern
+                        else "type",
+                        "entity_type": entity.typePattern.pattern
+                        if entity.typePattern
+                        else entity.type,
+                    }
+                )
+            context["entities"] = Entities(prefix="entity", initial=entities_initial)
+
+        return context
+
+    def post(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        form = self.get_form(SubscriptionForm)
+        if form.is_valid():
+            form.save(commit=False)
+
+            entities = []
+            entity_keys = [
+                k for k, v in self.request.POST.items() if re.search(r"entity-\d+", k)
+            ]
+            i = 0
+
+            while i < (len(entity_keys) / 4):
+                new_keys = [
+                    k
+                    for k, v in self.request.POST.items()
+                    if k in entity_keys and re.search(i.__str__(), k)
+                ]
+                entity_selector = self.request.POST.get(new_keys[0])
+                type_selector = self.request.POST.get(new_keys[2])
+
+                pattern = EntityPattern(
+                    id=self.request.POST.get(new_keys[1])
+                    if entity_selector == "id"
+                    else None,
+                    idPattern=re.compile(self.request.POST.get(new_keys[1]))
+                    if entity_selector == "id_pattern"
+                    else None,
+                    type=self.request.POST.get(new_keys[3])
+                    if self.request.POST.get(new_keys[3]) and type_selector == "type"
+                    else None,
+                    typePattern=re.compile(self.request.POST.get(new_keys[3]))
+                    if type_selector == "type_pattern"
+                    else None,
+                )
+                entities.append(pattern)
+                i = i + 1
+
+            with ContextBrokerClient(
+                url=settings.CB_URL,
+                fiware_header=FiwareHeader(
+                    service=self.project.fiware_service,
+                    service_path=self.project.fiware_service_path,
+                ),
+            ) as cb_client:
+                cb_sub = cb_client.get_subscription(kwargs["pk"])
+                cb_sub.description = form.cleaned_data["description"]
+                cb_sub.subject = Subject(entities=entities)
+                cb_sub.notification = Notification(
+                    http=Http(url=form.cleaned_data["http"])
+                    if form.cleaned_data["http"]
+                    else None,
+                    mqtt=Mqtt(
+                        url=form.cleaned_data["mqtt"],
+                        topic=f"{settings.MQTT_BASE_TOPIC}/{self.project.uuid}",
+                    )
+                    if form.cleaned_data["mqtt"]
+                    else None,
+                    attrsFormat=form.cleaned_data["attributes_format"],
+                    onlyChangedAttrs=form.cleaned_data["only_changed_attributes"],
+                )
+                cb_client.update_subscription(cb_sub)
+            return self.form_valid(form)
+        else:
+            return self.form_invalid(form)
 
     def get_success_url(self):
         return reverse(
@@ -89,10 +171,10 @@ class Create(ProjectContextMixin, CreateView):
     template_name = "subscriptions/detail.html"
     form_class = SubscriptionForm
 
-    # def get_context_data(self, **kwargs):
-    #     context = super().get_context_data(**kwargs)
-    #     context["entities"] = Entities(prefix="entity")
-    #     return context
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["entities"] = Entities(prefix="entity")
+        return context
 
     def form_valid(self, form):
         instance = form.save(commit=False)

@@ -85,7 +85,7 @@ class SubscriptionForm(forms.ModelForm):
         widget=forms.CheckboxSelectMultiple,
     )
 
-    entities = Entities(prefix="entity")
+    # entities = Entities(prefix="entity")
 
     # Notification
 
@@ -108,36 +108,6 @@ class SubscriptionForm(forms.ModelForm):
     # times_sent = forms.IntegerField(disabled=True, required=False)
     # last_notification = forms.DateField(disabled=True, required=False)
     # last_failure = forms.DateField(disabled=True, required=False)
-
-    def __init__(self, *args, **kwargs):
-        self._newly_created = (
-            kwargs.get("instance") is None
-        )  # instance won't be None after super init
-        super().__init__(*args, **kwargs)
-        self.__populate()
-
-    def __populate(self):
-        if not self._newly_created:
-            with ContextBrokerClient(
-                url=settings.CB_URL,
-                fiware_header=FiwareHeader(
-                    service=self.instance.project.fiware_service,
-                    service_path=self.instance.project.fiware_service_path,
-                ),
-            ) as cb_client:
-                cb_sub = cb_client.get_subscription(self.instance.uuid)
-                self.initial["description"] = cb_sub.description
-                self.initial["http"] = (
-                    str(cb_sub.notification.http.url)
-                    if cb_sub.notification.http
-                    else None
-                )
-                self.initial["mqtt"] = (
-                    str(cb_sub.notification.mqtt.url)
-                    if cb_sub.notification.mqtt
-                    else None
-                )
-                # self.initial["id_select"] = "id_pattern" if cb_sub else "id"
 
     def clean(self):
         cleaned_data = super().clean()
