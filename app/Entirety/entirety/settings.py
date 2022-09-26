@@ -213,6 +213,8 @@ class Settings(PydanticSettings):
     ALLOWED_HOSTS: List = Field(default=["*"], env="ALLOWED_HOSTS")
 
     CB_URL: AnyUrl = Field(default="http://localhost:1026", env="CB_URL")
+    MQTT_BASE_TOPIC: str = Field(default="/Entirety", env="MQTT_BASE_TOPIC")
+
     # Database
     # https://docs.djangoproject.com/en/4.0/ref/settings/#databases
     DATABASES: Databases = Field({})

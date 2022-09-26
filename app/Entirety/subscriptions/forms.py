@@ -1,6 +1,8 @@
 from django import forms
 from django.conf import settings
 from django.core.exceptions import ValidationError
+from crispy_forms.helper import FormHelper
+from crispy_forms.layout import Layout, Fieldset, Div, Button, HTML
 
 from filip.clients.ngsi_v2.cb import ContextBrokerClient
 from filip.models import FiwareHeader
@@ -28,8 +30,30 @@ class EntitiesForm(forms.Form):
     type_selector = forms.ChoiceField(choices=_type_choices, required=False)
     entity_type = forms.CharField(required=False)
 
+    def __init__(self, *args, **kwargs):
+        super(EntitiesForm, self).__init__(*args, **kwargs)
 
-Entities = forms.formset_factory(EntitiesForm, extra=1)
+        self.helper = FormHelper(self)
+        self.helper.form_tag = False
+        self.helper.layout = Layout(
+            Div(
+                Fieldset(
+                    "Select entities",
+                    "entity_selector",
+                    "entity_id",
+                    "type_selector",
+                    "entity_type",
+                ),
+                HTML(
+                    "<button class='remove-entity btn btn-danger rounded-pill btn-sm'><i class='bi "
+                    "bi-trash'></i></button>"
+                ),
+                css_class="d-flex flex-column col-6 col-xl-3 pe-2 entity-form",
+            )
+        )
+
+
+Entities = forms.formset_factory(EntitiesForm, extra=0, min_num=1)
 
 
 class SubscriptionForm(forms.ModelForm):
@@ -61,11 +85,7 @@ class SubscriptionForm(forms.ModelForm):
         widget=forms.CheckboxSelectMultiple,
     )
 
-    entities = Entities(prefix="quatsch")
-    # entities = SelectTextMultiField(
-    #     choices=_entity_choices,
-    #     initial=["id_pattern", ".*"]
-    # )
+    entities = Entities(prefix="entity")
 
     # Notification
 
@@ -80,6 +100,7 @@ class SubscriptionForm(forms.ModelForm):
         help_text="specifies how the entities are represented in notifications.",
         initial="normalized",
     )
+    only_changed_attributes = forms.BooleanField(required=False, initial=False)
 
     # TODO: metadata
 

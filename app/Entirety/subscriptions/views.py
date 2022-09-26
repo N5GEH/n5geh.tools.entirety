@@ -6,7 +6,12 @@ from django.shortcuts import HttpResponse
 
 from filip.clients.ngsi_v2.cb import ContextBrokerClient
 from filip.models import FiwareHeader
-from filip.models.ngsi_v2.subscriptions import Subscription as CBSubscription
+from filip.models.ngsi_v2.subscriptions import (
+    Subscription as CBSubscription,
+    Notification,
+    Http,
+    Mqtt,
+)
 
 from subscriptions.models import Subscription
 from subscriptions.forms import SubscriptionForm, Entities
@@ -40,8 +45,10 @@ class Update(ProjectContextMixin, UpdateView):
     template_name = "subscriptions/detail.html"
     form_class = SubscriptionForm
 
-    def get(self, request, *args, **kwargs):
-        return super().get(request, *args, **kwargs)
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["entities"] = Entities(prefix="entity")
+        return context
 
     def form_valid(self, form, *args, **kwargs):
         instance = form.save(commit=False)
@@ -55,6 +62,18 @@ class Update(ProjectContextMixin, UpdateView):
         ) as cb_client:
             cb_sub = cb_client.get_subscription(instance.pk)
             cb_sub.description = form.cleaned_data["description"]
+            cb_sub.notification = Notification(
+                http=Http(url=form.cleaned_data["http"])
+                if form.cleaned_data["http"]
+                else None,
+                mqtt=Mqtt(
+                    url=form.cleaned_data["mqtt"],
+                    topic=f"{settings.MQTT_BASE_TOPIC}/{self.project.uuid}",
+                )
+                if form.cleaned_data["mqtt"]
+                else None,
+                attrsFormat=form.cleaned_data["attributes_format"],
+            )
             cb_client.update_subscription(cb_sub)
 
         return super(Update, self).form_valid(form, *args, **kwargs)
@@ -70,9 +89,10 @@ class Create(ProjectContextMixin, CreateView):
     template_name = "subscriptions/detail.html"
     form_class = SubscriptionForm
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        return context
+    # def get_context_data(self, **kwargs):
+    #     context = super().get_context_data(**kwargs)
+    #     context["entities"] = Entities(prefix="entity")
+    #     return context
 
     def form_valid(self, form):
         instance = form.save(commit=False)
