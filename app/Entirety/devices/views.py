@@ -39,9 +39,11 @@ class DeviceListSubmitView(ProjectContextMixin, View):
             if not request.GET.get("selection"):
                 messages.error(request, "Please select one device")
                 return redirect("projects:devices:list", project_id=self.project.uuid)
-            # use session to cache the selected devices
-            request.session["devices"] = request.GET.get("selection")
-            return redirect("projects:devices:delete", project_id=self.project.uuid)
+            else:
+                # use session to cache the selected devices
+                request.session["devices"] = request.GET.get("selection")
+                request.session["delete_entity"] = True if request.GET.get("delete_entity") else False
+                return redirect("projects:devices:delete", project_id=self.project.uuid)
         # press create button
         elif request.GET.get("Create"):
             return redirect("projects:devices:create", project_id=self.project.uuid)
@@ -148,8 +150,6 @@ class DeviceEditView(ProjectContextMixin, TemplateView):
 
 class DeviceEditSubmitView(ProjectContextMixin, TemplateView):
     def post(self, request: HttpRequest, **kwargs):
-        print("edit submit request")
-        print(request.POST)
         context = super(DeviceEditSubmitView, self).get_context_data()
 
         # preprocess the POST request data
@@ -157,8 +157,7 @@ class DeviceEditSubmitView(ProjectContextMixin, TemplateView):
 
         basic_info = DeviceBasic(request.POST)
         attributes = Attributes(data=data_attributes, prefix=prefix_attributes)
-        print("attributes")
-        print(attributes)
+
         commands = Commands(data=data_commands, prefix=prefix_commands)
 
         # check whether it's valid:
@@ -197,10 +196,11 @@ class DeviceDeleteView(ProjectContextMixin, View):
     def get(self, request: HttpRequest, *args, **kwargs):
         # get the selected devices from session
         device_id = request.session.get("devices")
+        delete_entity = bool(request.session.get("delete_entity"))
 
         # delete the device and entity?
         try:
-            delete_device(project=self.project, device_id=device_id)
+            delete_device(project=self.project, device_id=device_id, delete_entity=delete_entity)
         except RequestException as e:
             messages.error(request, e.response.content.decode("utf-8"))
         # if delete entity, redirect to Entities App?

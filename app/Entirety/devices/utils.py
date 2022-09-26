@@ -83,7 +83,7 @@ def update_device(device: Device, project: Project):
         iota_client.update_device(device=device)
 
 
-def delete_device(project: Project, device_id):
+def delete_device(project: Project, device_id, **kwargs):
     """
     Delete a devices by id
     """
@@ -94,7 +94,7 @@ def delete_device(project: Project, device_id):
                 service_path=project.fiware_service_path,
             ),
     ) as iota_client:
-        iota_client.delete_device(device_id=device_id)
+        iota_client.delete_device(device_id=device_id, **kwargs)
 
 
 # no use right now
