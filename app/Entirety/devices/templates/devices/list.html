@@ -39,25 +39,26 @@
 
         {% render_table table %}
 
-
     <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="deleteModalLabel">Delete Project</h5>
+                    <h5 class="modal-title" id="deleteModalLabel">Delete Device</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
                     Are you sure you want to delete this device?
                     <div class="container">
-                        <div class="form-check form-switch">
-                          <input class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckSubscriptions"
-                                 name="delete_entity">
-                          <label class="form-check-label" for="flexSwitchCheckSubscriptions">Delete the related entity</label>
+                        <div class="form-check">
+                          <input class="form-check-input" type="checkbox" id="ifDeleteEntity" name="delete_entity">
+                          <label class="form-check-label" for="ifDeleteEntity">Delete the related entity</label>
                         </div>
                     </div>
                 </div>
                 <div class="modal-footer">
+                    <button type="button" class="btn btn-warning mb-1 text-end" data-toggle="tooltip" data-placement="bottom"
+                            data-bs-toggle="modal" data-bs-target="#deleteModalAdv">Advanced
+                    </button>
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                     <button type="submit" class="btn btn-danger" name="Delete" value="True">
                         Delete
@@ -66,5 +67,27 @@
             </div>
         </div>
     </div>
+
+    <div class="modal fade" id="deleteModalAdv" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="deleteModalLabel">Delete Device</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    More advanced deletion functionalities (e.g. delete the subscriptions and relationships)
+                    are available in Entities App
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-warning mr-auto">Redirect</button>
+                    <button type="button" class="btn btn-secondary mb-1" data-toggle="tooltip" data-placement="bottom"
+                            data-bs-toggle="modal" data-bs-target="#deleteModal">Back
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
 </form>
 {% endblock %}
