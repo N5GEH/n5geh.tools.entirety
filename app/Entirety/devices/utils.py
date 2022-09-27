@@ -178,15 +178,17 @@ def parse_request_data(data):
     data_attributes = {
         key: data[key] for key in data if key.startswith(prefix_attributes)
     }
-    data_attributes[
-        f"{prefix_attributes}-TOTAL_FORMS"
-    ] = f"{len(data_attributes.keys())}"
+    data_attributes[f"{prefix_attributes}-TOTAL_FORMS"] = str(
+        len([key for key in data_attributes if "__prefix__" not in key and key.endswith("name")])
+    )
     data_attributes[
         f"{prefix_attributes}-INITIAL_FORMS"
     ] = f"0"  # TODO can this always be 0?
 
     data_commands = {key: data[key] for key in data if key.startswith(prefix_commands)}
-    data_commands[f"{prefix_commands}-TOTAL_FORMS"] = f"{len(data_commands.keys())}"
+    data_commands[f"{prefix_commands}-TOTAL_FORMS"] = str(
+        len([key for key in data_commands if "__prefix__" not in key and key.endswith("name")])
+    )
     data_commands[
         f"{prefix_commands}-INITIAL_FORMS"
     ] = f"0"  # TODO can this always be 0?
