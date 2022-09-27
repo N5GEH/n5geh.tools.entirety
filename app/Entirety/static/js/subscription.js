@@ -49,6 +49,6 @@ function removeEntity(event) {
         //     }))
 
         elem.parentElement.remove();
-        totalForms.value = formCount - 1;
+        // totalForms.value = formCount - 1;
     }
 }

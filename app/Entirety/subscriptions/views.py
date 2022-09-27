@@ -104,34 +104,37 @@ class Update(ProjectContextMixin, UpdateView):
             entity_keys = [
                 k for k, v in self.request.POST.items() if re.search(r"entity-\d+", k)
             ]
-            i = 0
+            i = j = 0
 
             while i < (len(entity_keys) / 4):
                 new_keys = [
                     k
                     for k, v in self.request.POST.items()
-                    if k in entity_keys and re.search(i.__str__(), k)
+                    if k in entity_keys and re.search(j.__str__(), k)
                 ]
-                entity_selector = self.request.POST.get(new_keys[0])
-                type_selector = self.request.POST.get(new_keys[2])
 
-                pattern = EntityPattern(
-                    id=self.request.POST.get(new_keys[1])
-                    if entity_selector == "id"
-                    else None,
-                    idPattern=re.compile(self.request.POST.get(new_keys[1]))
-                    if entity_selector == "id_pattern"
-                    else None,
-                    type=self.request.POST.get(new_keys[3])
-                    if self.request.POST.get(new_keys[3]) and type_selector == "type"
-                    else None,
-                    typePattern=re.compile(self.request.POST.get(new_keys[3]))
-                    if type_selector == "type_pattern"
-                    else None,
-                )
-                entities.append(pattern)
-                i = i + 1
+                if any(new_keys):
+                    entity_selector = self.request.POST.get(new_keys[0])
+                    type_selector = self.request.POST.get(new_keys[2])
 
+                    pattern = EntityPattern(
+                        id=self.request.POST.get(new_keys[1])
+                        if entity_selector == "id"
+                        else None,
+                        idPattern=re.compile(self.request.POST.get(new_keys[1]))
+                        if entity_selector == "id_pattern"
+                        else None,
+                        type=self.request.POST.get(new_keys[3])
+                        if self.request.POST.get(new_keys[3])
+                        and type_selector == "type"
+                        else None,
+                        typePattern=re.compile(self.request.POST.get(new_keys[3]))
+                        if type_selector == "type_pattern"
+                        else None,
+                    )
+                    entities.append(pattern)
+                    i += 1
+                j += 1
             with ContextBrokerClient(
                 url=settings.CB_URL,
                 fiware_header=FiwareHeader(
