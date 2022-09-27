@@ -10,6 +10,7 @@ from devices.utils import get_devices, post_device, \
     build_device, get_device_by_id, delete_device
 from devices.tables import DevicesTable
 from requests.exceptions import RequestException
+from pydantic import ValidationError
 
 
 # Devices list
@@ -95,6 +96,8 @@ class DeviceCreateSubmitView(ProjectContextMixin, TemplateView):
             # handel the error from server
             except RequestException as e:
                 messages.error(request, e.response.content.decode("utf-8"))
+            except ValidationError as e:
+                messages.error(request, e.raw_errors[0].exc.__str__())
 
         # get the project context data
         context: dict = super(DeviceCreateSubmitView, self).get_context_data(**kwargs)
@@ -180,6 +183,8 @@ class DeviceEditSubmitView(ProjectContextMixin, TemplateView):
             except RequestException as e:
                 # TODO how  to get the filip message? try in a separate script
                 messages.error(request, e.response.content.decode("utf-8"))
+            except ValidationError as e:
+                messages.error(request, e.raw_errors[0].exc.__str__())
 
         context = {
             "basic_info": basic_info,
