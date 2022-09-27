@@ -104,8 +104,7 @@ def delete_subscription(sub_ids, project):
         ),
     ) as cb_client:
         for sub_id in sub_ids:
-            pass
-            # cb_client.delete_subscription(sub_id)
+            cb_client.delete_subscription(sub_id)
 
 
 def delete_relationship(entity_id, attribute_name, entity_type, project):
@@ -115,8 +114,7 @@ def delete_relationship(entity_id, attribute_name, entity_type, project):
             service=project.fiware_service, service_path=project.fiware_service_path
         ),
     ) as cb_client:
-        pass
-        # cb_client.delete_entity_attribute(entity_id, attribute_name, entity_type)
+        cb_client.delete_entity_attribute(entity_id, attribute_name, entity_type)
 
 
 def get_subscriptions(entity_id, entity_type, project):
