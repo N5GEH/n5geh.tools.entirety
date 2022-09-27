@@ -94,20 +94,23 @@ class Create(ProjectContextMixin, TemplateView):
             id=self.request.POST.get("id"),
             type=self.request.POST.get("type"),
         )
-        keys = [k for k, v in self.request.POST.items() if re.search(r"attr-\d+", k)]
-        i = 0
-        # TODO: change logic to include all indexes present for attributes
-        while i < (len(keys) / 3):
+        entity_keys = [
+            k for k, v in self.request.POST.items() if re.search(r"attr-\d+", k)
+        ]
+        i = j = 0
+        while i < (len(entity_keys) / 3):
             keys = [
                 k
                 for k, v in self.request.POST.items()
-                if k in keys and re.search(i.__str__(), k)
+                if k in entity_keys and re.search(j.__str__(), k)
             ]
-            attr = ContextAttribute()
-            attr.value = self.request.POST.get(keys[2])
-            attr.type = self.request.POST.get(keys[1])
-            entity.add_attributes({self.request.POST.get(keys[0]): attr})
-            i = i + 1
+            if any(keys):
+                attr = ContextAttribute()
+                attr.value = self.request.POST.get(keys[2])
+                attr.type = self.request.POST.get(keys[1])
+                entity.add_attributes({self.request.POST.get(keys[0]): attr})
+                i = i + 1
+            j = j + 1
         res = post_entity(self, entity, False, self.project)
         basic_info = EntityForm(initial=request.POST, project=self.project)
         attributes_form_set = formset_factory(AttributeForm, max_num=0)
@@ -155,20 +158,23 @@ class Update(ProjectContextMixin, TemplateView):
             id=self.request.POST.get("id"),
             type=self.request.POST.get("type"),
         )
-        keys = [k for k, v in self.request.POST.items() if re.search(r"attr-\d+", k)]
-        i = 0
-        # TODO: change logic to include all indexes present for attributes
-        while i < (len(keys) / 3):
+        entity_keys = [
+            k for k, v in self.request.POST.items() if re.search(r"attr-\d+", k)
+        ]
+        i = j = 0
+        while i < (len(entity_keys) / 3):
             new_keys = [
                 k
                 for k, v in self.request.POST.items()
-                if k in keys and re.search(i.__str__(), k)
+                if k in entity_keys and re.search(i.__str__(), k)
             ]
-            attr = ContextAttribute()
-            attr.value = self.request.POST.get(new_keys[2])
-            attr.type = self.request.POST.get(new_keys[1])
-            entity.add_attributes({self.request.POST.get(new_keys[0]): attr})
-            i = i + 1
+            if any(new_keys):
+                attr = ContextAttribute()
+                attr.value = self.request.POST.get(new_keys[2])
+                attr.type = self.request.POST.get(new_keys[1])
+                entity.add_attributes({self.request.POST.get(new_keys[0]): attr})
+                i = i + 1
+            j = j + 1
 
         # res = update_entity(self, entity)
         res = post_entity(self, entity, True, self.project)
