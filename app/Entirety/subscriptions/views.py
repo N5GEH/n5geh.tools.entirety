@@ -2,10 +2,12 @@ import re
 
 from django.conf import settings
 from django.urls import reverse
-from django.views.generic import ListView, UpdateView, CreateView
+from django.views.generic import ListView, UpdateView, CreateView, View
+from django.shortcuts import render
 
 from filip.clients.ngsi_v2.cb import ContextBrokerClient
 from filip.models import FiwareHeader
+from filip.models.ngsi_v2.base import Status as CBStatus
 from filip.models.ngsi_v2.subscriptions import (
     Subscription as CBSubscription,
     Notification,
@@ -199,4 +201,33 @@ class Create(ProjectContextMixin, CreateView):
     def get_success_url(self):
         return reverse(
             "projects:subscriptions:list", kwargs={"project_id": self.project.uuid}
+        )
+
+
+class Status(ProjectContextMixin, View):
+    def post(self, request, *args, **kwargs):
+        uuid = kwargs.get("pk", None)
+        sub = Subscription.objects.get(pk=uuid)
+        with ContextBrokerClient(
+            url=settings.CB_URL,
+            fiware_header=FiwareHeader(
+                service=self.project.fiware_service,
+                service_path=self.project.fiware_service_path,
+            ),
+        ) as cb_client:
+            cb_sub = cb_client.get_subscription(uuid)
+            cb_sub.status = (
+                CBStatus.INACTIVE
+                if cb_sub.status is CBStatus.ACTIVE
+                else CBStatus.ACTIVE
+            )
+            cb_client.update_subscription(cb_sub)
+
+            sub.description = cb_sub.description
+            sub.status = cb_sub.status
+
+        return render(
+            request,
+            "subscriptions/panel.html",
+            {"project": self.project, "subscription": sub},
         )

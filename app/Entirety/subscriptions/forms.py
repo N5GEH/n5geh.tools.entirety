@@ -80,10 +80,17 @@ class SubscriptionForm(forms.ModelForm):
 
     # Subject
 
-    attributes = forms.MultipleChoiceField(
-        choices=[("id", "id")],
-        widget=forms.CheckboxSelectMultiple,
+    attributes = forms.CharField(
+        required=False, help_text="Comma separated list of attribute names"
     )
+    expression = forms.CharField(
+        required=False,
+        help_text="An expression composed of q, mq, georel, geometry and coords",
+    )
+    # attributes = forms.MultipleChoiceField(
+    #     choices=[("id", "id")],
+    #     widget=forms.CheckboxSelectMultiple,
+    # )
 
     # entities = Entities(prefix="entity")
 
@@ -95,9 +102,20 @@ class SubscriptionForm(forms.ModelForm):
     # TODO: mqttCustom
     mqtt = MQTTURLField(required=False)
 
+    n_attributes = forms.CharField(
+        required=False,
+        label="Attributes",
+        help_text="Comma separated list of attribute names to include in notification",
+    )
+    n_except_attributes = forms.CharField(
+        required=False,
+        label="Except Attributes",
+        help_text="Comma separated list of attribute names to exclude in notification",
+    )
+
     attributes_format = forms.ChoiceField(
         choices=[(format.value, format.value) for format in AttrsFormat],
-        help_text="specifies how the entities are represented in notifications.",
+        help_text="Specifies how the entities are represented in notifications.",
         initial="normalized",
     )
     only_changed_attributes = forms.BooleanField(required=False, initial=False)

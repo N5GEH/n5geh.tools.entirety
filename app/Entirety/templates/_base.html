@@ -61,6 +61,11 @@
 <script src="{% static 'htmx/js/htmx.min.js' %}" type="text/javascript"></script>
 
 {% compress js %}
+    <script>
+      document.body.addEventListener('htmx:configRequest', (event) => {
+        event.detail.headers['X-CSRFToken'] = '{{ csrf_token }}';
+      })
+    </script>
     <script src="{% static 'js/main.js' %}"></script>
     <script src="{% static 'js/dialog.js' %}"></script>
     <script src="{% static 'js/toast.js' %}"></script>

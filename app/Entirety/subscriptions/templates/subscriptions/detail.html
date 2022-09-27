@@ -98,6 +98,7 @@
                                      aria-labelledby="acc_h_condition">
                                     <div class="accordion-body">
                                         {{ form.attributes|as_crispy_field }}
+                                        {{ form.expression|as_crispy_field }}
                                     </div>
                                 </div>
                             </div>
@@ -119,6 +120,8 @@
                     <div class="accordion-body">
                         {{ form.http|as_crispy_field }}
                         {{ form.mqtt|as_crispy_field }}
+                        {{ form.n_attributes|as_crispy_field }}
+                        {{ form.n_except_attributes|as_crispy_field }}
                         {{ form.attributes_format|as_crispy_field }}
                         {{ form.only_changed_attributes|as_crispy_field }}
                         {#{{ form.times_sent|as_crispy_field }}#}

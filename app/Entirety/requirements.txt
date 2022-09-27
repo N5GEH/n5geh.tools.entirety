@@ -31,7 +31,7 @@ djantic==0.7.0
 dnspython==2.2.1
 email-validator==1.2.1
 filelock==3.7.1
-filip==0.2.2
+filip==0.2.3
 genson==1.2.2
 h11==0.12.0
 httpcore==0.15.0

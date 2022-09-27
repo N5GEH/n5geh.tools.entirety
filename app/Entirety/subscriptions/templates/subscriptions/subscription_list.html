@@ -1,5 +1,7 @@
 {% extends '_base.html' %}
 
+{% load static %}
+
 {% block title %}Subscriptions{% endblock %}
 
 {% block page_title %}Subscriptions{% endblock %}
@@ -14,28 +16,11 @@
 {% block content %}
     <div class="d-flex">
         {% for subscription in object_list %}
-            <div class="col-6 col-xl-3">
-                <div class="card">
-                    <div class="card-header d-flex justify-content-center align-items-center">
-                        <i class="bi bi-power h3 mb-0 {% if subscription.status == 'active' %}active{% endif %}"
-                           data-bs-toggle="tooltip" data-bs-placement="bottom" title="{{ subscription.status.value }}">
-
-                        </i>
-                    </div>
-                    <div class="card-body d-flex flex-column">
-                        <span class="h5"> {{ subscription.name }} </span>
-                        <span>{{ subscription.description }}</span>
-                    </div>
-                    <div class="card-footer d-flex justify-content-end align-items-center">
-                        <a href="{% url "projects:subscriptions:update" project_id=project.uuid pk=subscription.uuid %}"
-                           data-bs-toggle="tooltip" data-bs-placement="bottom" title="Edit {{ subscription.name }}">
-                            <i class="bi bi-gear"></i>
-                        </a>
-                    </div>
-                </div>
-            </div>
+            {% include "subscriptions/panel.html" %}
         {% endfor %}
-
     </div>
+{% endblock %}
 
+{% block scripts %}
+    <script src="{% static 'js/subscription_list.js' %}"></script>
 {% endblock %}
