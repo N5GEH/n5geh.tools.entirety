@@ -38,7 +38,7 @@ class EntityList(ProjectContextMixin, SingleTableMixin, TemplateView):
     def get_table_data(self):
         search_id = self.request.GET.get("search-id", default="")
         search_type = self.request.GET.get("search-type", default="")
-        return EntityTable.get_query_set(self, search_id, search_type)
+        return EntityTable.get_query_set(self, search_id, search_type, self.project)
 
     def get_context_data(self, **kwargs):
         context = super(EntityList, self).get_context_data(**kwargs)
@@ -49,6 +49,12 @@ class EntityList(ProjectContextMixin, SingleTableMixin, TemplateView):
 
     def post(self, request, *args, **kwargs):
         selected = self.request.POST.getlist("selection")
+        if not selected:
+            messages.warning(
+                self.request,
+                "Please select an entity from the table to edit or delete.",
+            )
+            return redirect("projects:entities:list", project_id=self.project.uuid)
         if self.request.POST.get("Edit"):
             return redirect(
                 "projects:entities:update",
@@ -75,7 +81,7 @@ class Create(ProjectContextMixin, TemplateView):
     form_class = EntityForm
 
     def get_context_data(self, **kwargs):
-        basic_info = EntityForm()
+        basic_info = EntityForm(self.project)
         attributes_form_set = formset_factory(AttributeForm, max_num=0)
         attributes = attributes_form_set(prefix="attr")
         context = super(Create, self).get_context_data(**kwargs)
@@ -102,8 +108,8 @@ class Create(ProjectContextMixin, TemplateView):
             attr.type = self.request.POST.get(keys[1])
             entity.add_attributes({self.request.POST.get(keys[0]): attr})
             i = i + 1
-        res = post_entity(self, entity, False)
-        basic_info = EntityForm(request.POST)
+        res = post_entity(self, entity, False, self.project)
+        basic_info = EntityForm(initial=request.POST, project=self.project)
         attributes_form_set = formset_factory(AttributeForm, max_num=0)
         attributes = attributes_form_set(request.POST, prefix="attr")
         context = super(Create, self).get_context_data(**kwargs)
@@ -127,8 +133,10 @@ class Update(ProjectContextMixin, TemplateView):
     def get_context_data(self, **kwargs):
         id = kwargs.get("entity_id")
         type = kwargs.get("entity_type")
-        entity = get_entity(self, id, type)
-        basic_info = EntityForm(initial={"id": entity.id, "type": entity.type})
+        entity = get_entity(self, id, type, self.project)
+        basic_info = EntityForm(
+            initial={"id": entity.id, "type": entity.type}, project=self.project
+        )
         basic_info.fields["id"].widget.attrs["readonly"] = True
         basic_info.fields["type"].widget.attrs["readonly"] = True
         initial = []
@@ -163,14 +171,16 @@ class Update(ProjectContextMixin, TemplateView):
             i = i + 1
 
         # res = update_entity(self, entity)
-        res = post_entity(self, entity, True)
-        basic_info = EntityForm(request.POST)
+        res = post_entity(self, entity, True, self.project)
+        basic_info = EntityForm(initial=request.POST, project=self.project)
+        basic_info.fields["id"].widget.attrs["readonly"] = True
+        basic_info.fields["type"].widget.attrs["readonly"] = True
         attributes_form_set = formset_factory(AttributeForm, max_num=0)
         attributes = attributes_form_set(request.POST, prefix="attr")
         context = super(Update, self).get_context_data(**kwargs)
-        context["basic_info":] = basic_info
-        context["attributes":] = attributes
-        context["update_entity":] = entity.id
+        context["basic_info"] = basic_info
+        context["attributes"] = attributes
+        context["update_entity"] = entity.id
         if res:
             # messages.error(self.request, "Entity not updated. Reason: " + str(res))
             messages.error(
@@ -190,11 +200,11 @@ class Delete(ProjectContextMixin, TemplateView):
     def get_context_data(self, **kwargs):
         id = kwargs.get("entity_id")
         type = kwargs.get("entity_type")
-        entity = get_entity(self, id, type)
+        entity = get_entity(self, id, type, self.project)
         # subscriptions
         subscriptions = None
         if self.request.session.get("subscriptions"):
-            subscriptions_list = get_subscriptions(id, type)
+            subscriptions_list = get_subscriptions(id, type, self.project)
             initial_subscriptions = []
             for subs in subscriptions_list:
                 initial_subscriptions.append(
@@ -218,11 +228,13 @@ class Delete(ProjectContextMixin, TemplateView):
                 )  # + " and subject "
         # devices
         if self.request.session.get("devices"):
-            devices = get_devices(entity_id=entity.id)
+            devices = get_devices(entity_id=entity.id, project=self.project)
         # relationships
         relationships = None
         if self.request.session.get("relationships"):
-            relationships_list = get_relationships(entity_id=entity.id)
+            relationships_list = get_relationships(
+                entity_id=entity.id, project=self.project
+            )
             initial_relationships = []
             for rel in relationships_list:
                 initial_relationships.append(
@@ -258,7 +270,7 @@ class Delete(ProjectContextMixin, TemplateView):
         subs = [v for k, v in self.request.POST.items() if re.search(r"subs-\d+", k)]
         rels = [k for k, v in self.request.POST.items() if re.search(r"rel-\d+", k)]
 
-        delete_subscription(subs)
+        delete_subscription(subs, self.project)
 
         i = 0
         while i < (len(rels) / 3):
@@ -270,6 +282,6 @@ class Delete(ProjectContextMixin, TemplateView):
             id = self.request.POST.get(new_keys[0])
             type = self.request.POST.get(new_keys[1])
             attr_name = self.request.POST.get(new_keys[2])
-            delete_relationship(id, type, attr_name)
+            delete_relationship(id, type, attr_name, self.project)
             i = i + 1
         return redirect("projects:entities:list", project_id=self.project.uuid)

@@ -23,6 +23,23 @@ class ListTextWidget(forms.TextInput):
 
 
 class EntityForm(forms.Form):
+    def __init__(self, project, *args, **kwargs):
+        super(EntityForm, self).__init__(*args, **kwargs)
+        self.fields["type"] = forms.CharField(
+            required=True,
+            max_length=256,
+            label="Entity Type",
+            widget=ListTextWidget(
+                data_list=get_entities_types(project),
+                name="entity-type-list",
+                attrs={
+                    "data-bs-toggle": "tooltip",
+                    "data-bs-placement": "top",
+                    "title": "Entity Type",
+                },
+            ),
+        )
+
     id = forms.CharField(
         label="Entity ID",
         max_length=256,
@@ -33,20 +50,6 @@ class EntityForm(forms.Form):
                 "data-bs-placement": "top",
                 "title": "Entity id",
             }
-        ),
-    )
-    type = forms.CharField(
-        required=True,
-        max_length=256,
-        label="Entity Type",
-        widget=ListTextWidget(
-            data_list=get_entities_types(),
-            name="entity-type-list",
-            attrs={
-                "data-bs-toggle": "tooltip",
-                "data-bs-placement": "top",
-                "title": "Entity Type",
-            },
         ),
     )
 
