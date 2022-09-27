@@ -109,7 +109,7 @@ class Create(ProjectContextMixin, TemplateView):
             entity.add_attributes({self.request.POST.get(keys[0]): attr})
             i = i + 1
         res = post_entity(self, entity, False, self.project)
-        basic_info = EntityForm(request.POST)
+        basic_info = EntityForm(initial=request.POST, project=self.project)
         attributes_form_set = formset_factory(AttributeForm, max_num=0)
         attributes = attributes_form_set(request.POST, prefix="attr")
         context = super(Create, self).get_context_data(**kwargs)
@@ -172,13 +172,15 @@ class Update(ProjectContextMixin, TemplateView):
 
         # res = update_entity(self, entity)
         res = post_entity(self, entity, True, self.project)
-        basic_info = EntityForm(request.POST)
+        basic_info = EntityForm(initial=request.POST, project=self.project)
+        basic_info.fields["id"].widget.attrs["readonly"] = True
+        basic_info.fields["type"].widget.attrs["readonly"] = True
         attributes_form_set = formset_factory(AttributeForm, max_num=0)
         attributes = attributes_form_set(request.POST, prefix="attr")
         context = super(Update, self).get_context_data(**kwargs)
-        context["basic_info":] = basic_info
-        context["attributes":] = attributes
-        context["update_entity":] = entity.id
+        context["basic_info"] = basic_info
+        context["attributes"] = attributes
+        context["update_entity"] = entity.id
         if res:
             # messages.error(self.request, "Entity not updated. Reason: " + str(res))
             messages.error(
