@@ -45,9 +45,35 @@ class DeviceListSubmitView(ProjectContextMixin, View):
                 request.session["devices"] = request.GET.get("selection")
                 request.session["delete_entity"] = True if request.GET.get("delete_entity") else False
                 return redirect("projects:devices:delete", project_id=self.project.uuid)
+
+        # press advanced delete button
+        elif request.GET.get("AdvancedDelete"):
+            # get the selected devices from session
+            device_id = request.GET.get("selection")
+            subscriptions = True if request.GET.get("subscriptions") else False
+            relationships = True if request.GET.get("relationships") else False
+
+            # get the entity id and type
+            device = get_device_by_id(project=self.project, device_id=device_id)
+            entity_id = device.entity_name
+            entity_type = device.entity_type
+
+            request.session["subscriptions"] = subscriptions
+            request.session["relationships"] = relationships
+            request.session["devices"] = True
+
+            # redirect to entity app
+            return redirect(
+                "projects:entities:delete",
+                project_id=self.project.uuid,
+                entity_id=entity_id,
+                entity_type=entity_type
+            )
+
         # press create button
         elif request.GET.get("Create"):
             return redirect("projects:devices:create", project_id=self.project.uuid)
+
         # press edit button
         elif request.GET.get("Edit"):
             request.session["devices"] = request.GET.get("selection")
@@ -208,20 +234,6 @@ class DeviceDeleteView(ProjectContextMixin, View):
             delete_device(project=self.project, device_id=device_id, delete_entity=delete_entity)
         except RequestException as e:
             messages.error(request, e.response.content.decode("utf-8"))
-        # if delete entity, redirect to Entities App?
-        ...
 
         # if success, redirect to devices list view
         return redirect("projects:devices:list", project_id=self.project.uuid)
-
-
-# Redirect deletion
-class DeviceDeleteRedirectView(ProjectContextMixin, View):
-    def get(self, request: HttpRequest, *args, **kwargs):
-        # get the selected devices from session
-        device_id = request.session.get("devices")
-        delete_entity = bool(request.session.get("delete_entity"))
-
-        # TODO get the entity id
-
-        # TODO redirect to entity app

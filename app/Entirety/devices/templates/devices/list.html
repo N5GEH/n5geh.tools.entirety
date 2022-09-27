@@ -76,11 +76,23 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    More advanced deletion functionalities (e.g. delete the subscriptions and relationships)
-                    are available in Entities App
+                    If you want to delete the corresponding entity and the associated relationships or subscriptions,
+                    please select them in the checkbox. Note that loading might take some while.
+                    <div class="container">
+                        <div class="form-check">
+                          <input class="form-check-input" type="checkbox" id="ifDeleteEntitySubscription" name="subscriptions">
+                          <label class="form-check-label" for="ifDeleteEntitySubscription">Subscriptions</label>
+                        </div>
+                        <div class="form-check">
+                          <input class="form-check-input" type="checkbox" id="ifDeleteEntityRelationship" name="relationships">
+                          <label class="form-check-label" for="ifDeleteEntityRelationship">Relationships</label>
+                        </div>
+                    </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-warning mr-auto">Redirect</button>
+                    <button type="submit" class="btn btn-danger" name="AdvancedDelete" value="True">
+                        Delete
+                    </button>
                     <button type="button" class="btn btn-secondary mb-1" data-toggle="tooltip" data-placement="bottom"
                             data-bs-toggle="modal" data-bs-target="#deleteModal">Back
                     </button>
