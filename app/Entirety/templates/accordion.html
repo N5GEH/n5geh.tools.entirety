@@ -1,7 +1,6 @@
 {% load static %}
+{% load compress %}
 {% load crispy_forms_tags %}
-
-<script src="{% static 'js/accordion.js' %}"></script>
 
 <div class="accordion mt-3" id="accordionPanelsStayOpenExample">
     {% if basic_info is not None %}
@@ -147,3 +146,8 @@
     </div>
     {%  endif %}
 </div>
+
+
+{% compress js %}
+    <script src="{% static 'js/accordion.js' %}"></script>
+{% endcompress %}
