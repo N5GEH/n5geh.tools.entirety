@@ -99,6 +99,9 @@
                                     <div class="accordion-body">
                                         {{ form.attributes|as_crispy_field }}
                                         {{ form.expression|as_crispy_field }}
+                                        <a href="#" class="btn btn-primary">
+                                            <i class="bi bi-arrow-clockwise"></i>
+                                        </a>
                                     </div>
                                 </div>
                             </div>
@@ -143,25 +146,3 @@
 {% block scripts %}
     <script src="{% static 'js/subscription.js' %}"></script>
 {% endblock %}
-
-{#        <label for="{{ form.entities.id_for_label }}"#}
-{#               class="{% if 'form-horizontal' in form_class %}col-form-label#}
-{#                        {% else %}form-label{% endif %}{{ label_class }}{% if form.entities.field.required %}#}
-{#                        requiredField{% endif %}">#}
-{#            {{ form.entities.label }}{% if form.entities.field.required %}#}
-{#                <span class="asteriskField">*</span>{% endif %}#}
-{#        </label>#}
-{#        <div class="input-group">#}
-{#            <span class="input-group-text p-0">#}
-{#                {% if form.entity_select %}#}
-{#                    {% crispy_field form.entity_select 'class' 'form-select is-invalid' %}#}
-{#                {% else %}#}
-{#                    {% crispy_field form.entity_select 'class' 'form-select' %}#}
-{#                {% endif %}#}
-{#            </span>#}
-{#            {% if form.entities.errors %}#}
-{#                {% crispy_field form.entities 'class' 'form-control is-invalid' %}#}
-{#            {% else %}#}
-{#                {% crispy_field form.entities 'class' 'form-control' %}#}
-{#            {% endif %}#}
-{#        </div>#}
