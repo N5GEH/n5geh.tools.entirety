@@ -100,6 +100,38 @@ def delete_device(project: Project, device_id, **kwargs):
 # def get_project(uuid):
 #     return Project.objects.get(uuid=uuid)
 
+def devices_filter(devices: list[Device],
+                   id_patern: str = None,
+                   name_patern: str = None,
+                   type_patern: str = None):
+    """
+    Filter devices with specified patern of device_id, device_name or device_type
+    Return the intersection set
+    """
+    if id_patern:
+        id_patern = id_patern.lower()
+        devices = [device for device in devices if id_patern in device.device_id.lower()]
+    if name_patern:
+        name_patern = name_patern.lower()
+        devices = [device for device in devices if name_patern in device.entity_name.lower()]
+    if type_patern:
+        type_patern = type_patern.lower()
+        devices = [device for device in devices if type_patern in device.entity_type.lower()]
+    return devices
+
+
+def patern_devices_filter(devices: list[Device], patern: str = None):
+    """
+    Filter devices with specified patern to device_id, device_name, device_type
+    """
+    patern = patern.lower()
+    if patern:
+        devices = [device for device in devices
+                   if patern in device.device_id.lower()
+                   or patern in device.entity_name.lower()
+                   or patern in device.entity_type.lower()]
+    return devices
+
 
 def get_attribute_list(data_attributes: dict):
     """

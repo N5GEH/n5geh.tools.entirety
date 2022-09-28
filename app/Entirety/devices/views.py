@@ -7,7 +7,7 @@ from projects.mixins import ProjectContextMixin
 from devices.forms import DeviceBasic, Attributes, Commands
 from devices.utils import get_devices, post_device, \
     update_device, prefix_attributes, prefix_commands, parse_request_data, \
-    build_device, get_device_by_id, delete_device
+    build_device, get_device_by_id, delete_device, devices_filter, patern_devices_filter
 from devices.tables import DevicesTable
 from requests.exceptions import RequestException
 from pydantic import ValidationError
@@ -21,7 +21,15 @@ class DeviceListView(ProjectContextMixin, SingleTableMixin, TemplateView):
     table_pagination = {"per_page": 15}
 
     def get_table_data(self):
-        return get_devices(self.project)
+        # device_id_patern = self.request.GET.get("search-id", default="")
+        patern = self.request.GET.get("search-patern", default="")
+        devices = get_devices(self.project)
+        # filter devices with patern
+        # devices_id = devices_filter(devices=devices, id_patern=patern)
+        # devices_name = devices_filter(devices=devices, name_patern=patern)
+        # devices_type = devices_filter(devices=devices, type_patern=patern)
+        # devices_all = devices_id + devices_name + devices_type
+        return patern_devices_filter(devices, patern)
 
     # add context to html
     def get_context_data(self, **kwargs):
@@ -33,24 +41,24 @@ class DeviceListView(ProjectContextMixin, SingleTableMixin, TemplateView):
 
 class DeviceListSubmitView(ProjectContextMixin, View):
     # Redirect the request to corresponding view
-    def get(self, request, *args, **kwargs):
+    def post(self, request, *args, **kwargs):
         # press delete button
-        if request.GET.get("Delete"):
-            if not request.GET.get("selection"):
+        if request.POST.get("Delete"):
+            if not request.POST.get("selection"):
                 messages.error(request, "Please select one device")
                 return redirect("projects:devices:list", project_id=self.project.uuid)
             else:
                 # use session to cache the selected devices
-                request.session["devices"] = request.GET.get("selection")
-                request.session["delete_entity"] = True if request.GET.get("delete_entity") else False
+                request.session["devices"] = request.POST.get("selection")
+                request.session["delete_entity"] = True if request.POST.get("delete_entity") else False
                 return redirect("projects:devices:delete", project_id=self.project.uuid)
 
         # press advanced delete button
-        elif request.GET.get("AdvancedDelete"):
+        elif request.POST.get("AdvancedDelete"):
             # get the selected devices from session
-            device_id = request.GET.get("selection")
-            subscriptions = True if request.GET.get("subscriptions") else False
-            relationships = True if request.GET.get("relationships") else False
+            device_id = request.POST.get("selection")
+            subscriptions = True if request.POST.get("subscriptions") else False
+            relationships = True if request.POST.get("relationships") else False
 
             # get the entity id and type
             device = get_device_by_id(project=self.project, device_id=device_id)
@@ -70,13 +78,13 @@ class DeviceListSubmitView(ProjectContextMixin, View):
             )
 
         # press create button
-        elif request.GET.get("Create"):
+        elif request.POST.get("Create"):
             return redirect("projects:devices:create", project_id=self.project.uuid)
 
         # press edit button
-        elif request.GET.get("Edit"):
-            request.session["devices"] = request.GET.get("selection")
-            if not request.GET.get("selection"):
+        elif request.POST.get("Edit"):
+            request.session["devices"] = request.POST.get("selection")
+            if not request.POST.get("selection"):
                 messages.error(request, "Please select one device")
                 return redirect("projects:devices:list", project_id=self.project.uuid)
             return redirect("projects:devices:edit", project_id=self.project.uuid)

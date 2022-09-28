@@ -6,31 +6,69 @@
 
 {% block content %}
 
-<form action="{% url 'projects:devices:list_submit' project.uuid %}" method="GET" >
+<div class="d-flex">
+    <span class="h3">Devices </span>
+</div>
+
+<form action="" method="GET" >
         {% csrf_token %}
-
-     <div class="d-flex">
-{#         <span class="h3">Devices </span>#}
-        <span class="d-flex border-bottom flex-grow-1 mb-2">
-            <span class="h3">Devices </span>
-        </span>
+     <div class="row justify-content-center">
+         <div class="col-8">
+            <div class="p-3 border border-light rounded-pill bg-light">
+                    <div class="input-group border-0 shadow-none">
+                        <input name="search-patern" type="text" class="form-control border-light rounded-pill"
+                               placeholder="Filter devices ..."/>
+                        <span class="input-group-btn">
+                            <button class="btn btn-info btn-lg bg-light border-light" type="submit"
+                                    value="search">
+                                <i class="bi-search"></i>
+                            </button>
+                        </span>
+                    </div>
+            </div>
+         </div>
+{#         <div class="col-4">#}
+{#            <div class="p-3 border border-light rounded-pill bg-light">#}
+{#                    <div class="input-group border-0 shadow-none">#}
+{#                        <input name="search-name" type="text" class="form-control border-light rounded-pill"#}
+{#                               placeholder="Search devices by entity name"/>#}
+{#                        <span class="input-group-btn">#}
+{#                            <button class="btn btn-info btn-lg bg-light border-light" type="submit"#}
+{#                                    value="search">#}
+{#                                <i class="bi-search"></i>#}
+{#                            </button>#}
+{#                        </span>#}
+{#                    </div>#}
+{#            </div>#}
+{#         </div>#}
+{#         <div class="col-4">#}
+{#            <div class="p-3 border border-light rounded-pill bg-light">#}
+{#                    <div class="input-group border-0 shadow-none">#}
+{#                        <input name="search-type" type="text" class="form-control border-light rounded-pill"#}
+{#                               placeholder="Search devices by entity type"/>#}
+{#                        <span class="input-group-btn">#}
+{#                            <button class="btn btn-info btn-lg bg-light border-light" type="submit"#}
+{#                                    value="search">#}
+{#                                <i class="bi-search"></i>#}
+{#                            </button>#}
+{#                        </span>#}
+{#                    </div>#}
+{#            </div>#}
+{#         </div>#}
      </div>
+</form>
 
+<form action="{% url 'projects:devices:list_submit' project.uuid %}" method="POST" >
+    {% csrf_token %}
     <div>
         <button type="submit" class="btn btn-primary mb-1 ms-auto" data-toggle="tooltip" data-placement="bottom"
                 title="Create Device" value="True" name="Create">
                     <i class="bi bi-plus"></i>
         </button>
-
-{#            <button type="submit" class="btn btn-danger mb-1"  data-toggle="tooltip" data-placement="bottom"#}
-{#                    title="Delete Device" value="True" name="Delete">#}
-{#                        <i class="bi bi-trash"></i>#}
-{#            </button>#}
         <button type="button" class="btn btn-danger mb-1" data-toggle="tooltip" data-placement="bottom"
                 title="Delete Entity" data-bs-toggle="modal" data-bs-target="#deleteModal">
                     <i class="bi bi-trash"></i>
         </button>
-
         <button type="submit" class="btn btn-secondary mb-1" data-toggle="tooltip" data-placement="bottom"
                 title="Edit Device" value="True" name="Edit">
                     <i class="bi bi-pen"></i>
@@ -68,11 +106,11 @@
         </div>
     </div>
 
-    <div class="modal fade" id="deleteModalAdv" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+    <div class="modal fade" id="deleteModalAdv" tabindex="-1" aria-labelledby="deleteModalAdvLabel" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="deleteModalLabel">Delete Device</h5>
+                    <h5 class="modal-title" id="deleteModalAdvLabel">Delete Device</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
@@ -100,6 +138,5 @@
             </div>
         </div>
     </div>
-
 </form>
 {% endblock %}
