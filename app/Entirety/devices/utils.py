@@ -1,6 +1,5 @@
 from django.conf import settings
 from projects.models import Project
-from requests import HTTPError
 from filip.clients.ngsi_v2 import IoTAClient
 from filip.models import FiwareHeader
 from filip.models.ngsi_v2.iot import Device, DeviceAttribute, DeviceCommand

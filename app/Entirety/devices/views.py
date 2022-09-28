@@ -19,7 +19,6 @@ class DeviceListView(ProjectContextMixin, SingleTableMixin, TemplateView):
     template_name = "devices/list.html"
     table_class = DevicesTable
     table_pagination = {"per_page": 15}
-    # filterset_class =
 
     def get_table_data(self):
         return get_devices(self.project)
@@ -189,14 +188,6 @@ class DeviceEditSubmitView(ProjectContextMixin, TemplateView):
 
         commands = Commands(data=data_commands, prefix=prefix_commands)
 
-        # check whether it's valid:
-        # Note that the validation is made directly during the instantiation
-        # print(
-        #     f"Edit submit get called and the validation is : "
-        #     f"basic: {basic_info.is_valid()} error: {basic_info.errors} \n"
-        #     f"attribute: {attributes.is_valid()} error: {attributes.errors} data {attributes.data}\n"
-        #     f"command: {commands.is_valid()} error: {commands.errors} \n"
-        # )
         if basic_info.is_valid() and attributes.is_valid() and commands.is_valid():
             try:
                 device = build_device(
@@ -207,7 +198,6 @@ class DeviceEditSubmitView(ProjectContextMixin, TemplateView):
                 update_device(device, project=self.project)
                 return redirect("projects:devices:list", project_id=self.project.uuid)
             except RequestException as e:
-                # TODO how  to get the filip message? try in a separate script
                 messages.error(request, e.response.content.decode("utf-8"))
             except ValidationError as e:
                 messages.error(request, e.raw_errors[0].exc.__str__())
