@@ -97,11 +97,17 @@
                                 <div id="acc_c_condition" class="accordion-collapse collapse show"
                                      aria-labelledby="acc_h_condition">
                                     <div class="accordion-body">
-                                        {{ form.attributes|as_crispy_field }}
+                                        <div id="div_attributes">
+                                            {{ form.attributes|as_crispy_field }}
+                                        </div>
                                         {{ form.expression|as_crispy_field }}
-                                        <a href="#" class="btn btn-primary">
+
+                                        <a type="button"
+                                           hx-post="{% url "projects:subscriptions:attributes" project_id=project.uuid %}"
+                                           hx-target="#div_attributes" class="btn btn-primary">
                                             <i class="bi bi-arrow-clockwise"></i>
                                         </a>
+
                                     </div>
                                 </div>
                             </div>

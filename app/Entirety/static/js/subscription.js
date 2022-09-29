@@ -37,18 +37,6 @@ function removeEntity(event) {
     event.preventDefault();
     let elem = event.currentTarget;
     if (elem.parentElement.classList.contains("entity-form")) {
-        let emptyForm = document.querySelector('.empty-form')
-        let prefix = emptyForm.querySelector('fieldset').querySelector('div').getAttribute("id").split("-")[0].split("_").pop();
-        let totalForms = document.getElementById('id_' + prefix + '-TOTAL_FORMS');
-        let formCount = parseInt(totalForms.value);
-        //
-        // let delElement = elem.parentElement;
-        // alert(delElement.querySelectorAll('[id^=div_id_'+prefix+']')
-        //     .forEach(function (elem){
-        //         alert(elem.id)
-        //     }))
-
         elem.parentElement.remove();
-        // totalForms.value = formCount - 1;
     }
 }

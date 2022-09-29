@@ -1,17 +1,51 @@
 from django import forms
-from django.conf import settings
-from django.core.exceptions import ValidationError
+from django.forms.utils import ErrorList
 from crispy_forms.helper import FormHelper
-from crispy_forms.layout import Layout, Fieldset, Div, Button, HTML
-
-from filip.clients.ngsi_v2.cb import ContextBrokerClient
-from filip.models import FiwareHeader
-from filip.models.ngsi_v2.subscriptions import Notification, Subscription
+from crispy_forms.layout import Layout, Fieldset, Div, HTML
+from crispy_forms.bootstrap import InlineCheckboxes
 from filip.models.ngsi_v2.base import AttrsFormat
 
 from subscriptions.models import Subscription
-from entirety.fields import SelectTextMultiField, MQTTURLField, HTTPURLField
-from entirety.validators import CustomURLValidator
+from entirety.fields import MQTTURLField, HTTPURLField
+
+
+class AttributesForm(forms.Form):
+    attributes = forms.MultipleChoiceField(
+        choices=[], widget=forms.CheckboxSelectMultiple, required=False
+    )
+
+    def __init__(
+        self,
+        data=None,
+        files=None,
+        auto_id="id_%s",
+        prefix=None,
+        initial=None,
+        error_class=ErrorList,
+        label_suffix=None,
+        empty_permitted=False,
+        field_order=None,
+        use_required_attribute=None,
+        renderer=None,
+    ):
+        super(AttributesForm, self).__init__(
+            data,
+            files,
+            auto_id,
+            prefix,
+            initial,
+            error_class,
+            label_suffix,
+            empty_permitted,
+            field_order,
+            use_required_attribute,
+            renderer,
+        )
+        self.helper = FormHelper(self)
+        self.helper.form_tag = False
+        self.helper.layout = Layout(
+            InlineCheckboxes("attributes"),
+        )
 
 
 class EntitiesForm(forms.Form):
@@ -63,9 +97,9 @@ class SubscriptionForm(forms.ModelForm):
     description = forms.CharField(
         help_text="A free text used by the client to describe the subscription."
     )
-    expires = forms.DateField(
+    expires = forms.DateTimeField(
         widget=forms.TextInput(
-            attrs={"type": "date"},
+            attrs={"type": "datetime-local"},
         ),
         required=False,
         help_text="Subscription expiration date format. "
@@ -80,17 +114,16 @@ class SubscriptionForm(forms.ModelForm):
 
     # Subject
 
-    attributes = forms.CharField(
-        required=False, help_text="Comma separated list of attribute names"
+    # attributes = AttributesForm()
+    attributes = forms.MultipleChoiceField(
+        choices=[], widget=forms.CheckboxSelectMultiple, required=False
     )
+    # attributes = forms.CharField(required=False)
+
     expression = forms.CharField(
         required=False,
         help_text="An expression composed of q, mq, georel, geometry and coords",
     )
-    # attributes = forms.MultipleChoiceField(
-    #     choices=[("id", "id")],
-    #     widget=forms.CheckboxSelectMultiple,
-    # )
 
     # entities = Entities(prefix="entity")
 
