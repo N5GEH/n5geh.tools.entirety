@@ -2,7 +2,7 @@ from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Div, HTML
 from django import forms
 
-from entities.requests import ATTRIBUTES_TYPE, get_entities_types
+from entities.requests import AttributeTypes, get_entities_types
 
 
 class ListTextWidget(forms.TextInput):
@@ -67,8 +67,9 @@ class AttributeForm(forms.Form):
             }
         ),
     )
-    type_choices = tuple([(f"{i}", t) for i, t in enumerate(ATTRIBUTES_TYPE)])
-    type = forms.ChoiceField(label="Attribute Type", choices=type_choices)
+    type = forms.ChoiceField(
+        label="Attribute Type", choices=[(x.value, x.name) for x in AttributeTypes]
+    )
     value = forms.CharField(
         required=False,
         label="Attribute Value",
