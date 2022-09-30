@@ -2,7 +2,7 @@ from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Div, HTML
 from django import forms
 
-from entities.requests import AttributeTypes, get_entities_types
+from entities.requests import ATTRIBUTES_TYPE, get_entities_types
 
 
 class ListTextWidget(forms.TextInput):
@@ -67,9 +67,10 @@ class AttributeForm(forms.Form):
             }
         ),
     )
-    type = forms.ChoiceField(choices=[(x.value, x.name) for x in AttributeTypes])
+    type_choices = tuple([(f"{i}", t) for i, t in enumerate(ATTRIBUTES_TYPE)])
+    type = forms.ChoiceField(label="Attribute Type", choices=type_choices)
     value = forms.CharField(
-        required=True,
+        required=False,
         label="Attribute Value",
         widget=forms.TextInput(
             attrs={
@@ -113,7 +114,14 @@ class SubscriptionForm(forms.Form):
 
 
 class DeviceForm(forms.Form):
-    name = forms.CharField(required=False)
+    name = forms.BooleanField(label="name", required=False)
+    entity_type = forms.CharField(widget=forms.HiddenInput(), required=False)
+
+    def __init__(self, *args, **kwargs):
+        super(DeviceForm, self).__init__(*args, **kwargs)
+
+        self.helper = FormHelper(self)
+        self.helper.form_tag = False
 
 
 class RelationshipForm(forms.Form):

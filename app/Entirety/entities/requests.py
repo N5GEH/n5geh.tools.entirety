@@ -5,19 +5,19 @@ from django.conf import settings
 from django.core.exceptions import ValidationError
 from filip.clients.ngsi_v2 import ContextBrokerClient, IoTAClient
 from filip.models import FiwareHeader
+from filip.models.base import DataType
 from filip.utils.filter import filter_subscriptions_by_entity
 
-
-class AttributeTypes(Enum):
-    RELATIONSHIP = "Relationship"
-    DATETIME = "DateTime"
-    STRING = "Text"
-    FLOAT = "Float"
-    INTEGER = "Integer"
-    BOOL = "Boolean"
-    ARRAY = "Array"
-    GEOJSON = "Geojson"
-    NUMBER = "Number"
+ATTRIBUTES_TYPE = [
+    DataType.NUMBER.value,
+    DataType.FLOAT.value,
+    DataType.INTEGER.value,
+    DataType.BOOLEAN.value,
+    DataType.TEXT.value,
+    DataType.DATETIME.value,
+    DataType.ARRAY.value,
+    DataType.RELATIONSHIP.value,
+]
 
 
 def get_entities_list(self, id_pattern, type_pattern, project):
@@ -115,6 +115,18 @@ def delete_relationship(entity_id, attribute_name, entity_type, project):
         ),
     ) as cb_client:
         cb_client.delete_entity_attribute(entity_id, attribute_name, entity_type)
+
+
+def delete_device(device_ids, project):
+    with IoTAClient(
+        url=settings.IOTA_URL,
+        fiware_header=FiwareHeader(
+            service=project.fiware_service,
+            service_path=project.fiware_service_path,
+        ),
+    ) as iota_client:
+        for device_id in device_ids:
+            iota_client.delete_device(device_id=device_id)
 
 
 def get_subscriptions(entity_id, entity_type, project):
