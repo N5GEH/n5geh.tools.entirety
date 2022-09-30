@@ -26,6 +26,7 @@ from entities.requests import (
     delete_subscription,
     delete_relationship,
     delete_device,
+    delete_entity,
 )
 from entities.tables import EntityTable
 from projects.mixins import ProjectContextMixin
@@ -295,6 +296,7 @@ class Delete(ProjectContextMixin, TemplateView):
             k for k, v in self.request.POST.items() if re.search(r"device-\d+", k)
         ]
 
+        delete_entity(kwargs.get("entity_id"), kwargs.get("entity_type"), self.project)
         delete_subscription(subs, self.project)
         delete_device(devices, self.project)
 
