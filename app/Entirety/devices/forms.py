@@ -57,7 +57,7 @@ class DeviceBasic(forms.Form):
 
 class DeviceAttributes(forms.Form):
     name = forms.CharField(label="Name", required=True)
-    type_choices = tuple([(f"{i}", t) for i, t in enumerate(ATTRIBUTES_TYPE)])
+    type_choices = tuple([(f"{t}", t) for i, t in enumerate(ATTRIBUTES_TYPE)])
     type = forms.ChoiceField(label="Type", required=True, choices=type_choices)
     object_id = forms.CharField(label="Object ID", required=False)
 
