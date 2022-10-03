@@ -3,6 +3,7 @@ from django.forms.utils import ErrorList
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Fieldset, Div, HTML
 from crispy_forms.bootstrap import InlineCheckboxes
+
 from filip.models.ngsi_v2.base import AttrsFormat
 
 from subscriptions.models import Subscription
@@ -41,11 +42,22 @@ class AttributesForm(forms.Form):
             use_required_attribute,
             renderer,
         )
+
+        # self.fields["attributes"] = forms.MultipleChoiceField(
+        #             choices=choices,
+        #             widget=forms.CheckboxSelectMultiple,
+        #             required=False
+        #         )
+
         self.helper = FormHelper(self)
         self.helper.form_tag = False
+        self.helper.disable_csrf = True
         self.helper.layout = Layout(
             InlineCheckboxes("attributes"),
         )
+
+
+Attributes = forms.formset_factory(AttributesForm)
 
 
 class EntitiesForm(forms.Form):
@@ -69,6 +81,7 @@ class EntitiesForm(forms.Form):
 
         self.helper = FormHelper(self)
         self.helper.form_tag = False
+        self.helper.disable_csrf = True
         self.helper.layout = Layout(
             Div(
                 Fieldset(
@@ -115,10 +128,12 @@ class SubscriptionForm(forms.ModelForm):
     # Subject
 
     # attributes = AttributesForm()
-    attributes = forms.MultipleChoiceField(
-        choices=[], widget=forms.CheckboxSelectMultiple, required=False
-    )
-    # attributes = forms.CharField(required=False)
+    # attributes = forms.MultipleChoiceField(
+    #     choices=[], widget=forms.CheckboxSelectMultiple, required=False
+    # )
+    # attributes = forms.CharField(
+    #     required=False
+    # )
 
     expression = forms.CharField(
         required=False,
@@ -134,6 +149,8 @@ class SubscriptionForm(forms.ModelForm):
     http = HTTPURLField(required=False)
     # TODO: mqttCustom
     mqtt = MQTTURLField(required=False)
+
+    metadata = forms.JSONField(required=True, initial={"test": "test"})
 
     n_attributes = forms.CharField(
         required=False,
@@ -152,8 +169,6 @@ class SubscriptionForm(forms.ModelForm):
         initial="normalized",
     )
     only_changed_attributes = forms.BooleanField(required=False, initial=False)
-
-    # TODO: metadata
 
     # Not implemented in Filip
     # times_sent = forms.IntegerField(disabled=True, required=False)

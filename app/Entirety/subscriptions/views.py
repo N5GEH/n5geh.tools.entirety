@@ -55,111 +55,117 @@ class Update(ProjectContextMixin, UpdateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        with ContextBrokerClient(
-            url=settings.CB_URL,
-            fiware_header=FiwareHeader(
-                service=self.project.fiware_service,
-                service_path=self.project.fiware_service_path,
-            ),
-        ) as cb_client:
-            form = context["form"]
-            cb_sub = cb_client.get_subscription(form.instance.uuid)
+        if self.request.POST:
+            context["attributes"] = forms.Attributes(self.request.POST, prefix="attrs")
+            context["entities"] = forms.Entities(self.request.POST, prefix="entity")
+        else:
+            with ContextBrokerClient(
+                url=settings.CB_URL,
+                fiware_header=FiwareHeader(
+                    service=self.project.fiware_service,
+                    service_path=self.project.fiware_service_path,
+                ),
+            ) as cb_client:
+                form = context["form"]
+                cb_sub = cb_client.get_subscription(form.instance.uuid)
 
-            form.initial["description"] = cb_sub.description
-            form.initial["throttling"] = cb_sub.throttling
-            form.initial["expires"] = cb_sub.expires
+                form.initial["description"] = cb_sub.description
+                form.initial["throttling"] = cb_sub.throttling
+                form.initial["expires"] = cb_sub.expires
 
-            # form.initial["attributes"] = ','.join(
-            #     cb_sub.subject.condition.attrs) if cb_sub.subject.condition.attrs else None
-            form.initial["attributes"] = (
-                cb_sub.subject.condition.attrs if cb_sub.subject.condition.attrs else []
-            )
-            form.initial["http"] = (
-                str(cb_sub.notification.http.url) if cb_sub.notification.http else None
-            )
-            form.initial["mqtt"] = (
-                str(cb_sub.notification.mqtt.url) if cb_sub.notification.mqtt else None
-            )
-            form.initial["n_attributes"] = (
-                ",".join(cb_sub.notification.attrs)
-                if cb_sub.notification.attrs
-                else None
-            )
-            form.initial["n_except_attributes"] = (
-                ",".join(cb_sub.notification.exceptAttrs)
-                if cb_sub.notification.exceptAttrs
-                else None
-            )
-            form.initial["attributes_format"] = cb_sub.notification.attrsFormat.value
-            form.initial[
-                "only_changed_attributes"
-            ] = cb_sub.notification.onlyChangedAttrs
-            context["form"] = form
-
-            entities_initial = []
-            for entity in cb_sub.subject.entities:
-                entities_initial.append(
-                    {
-                        "entity_selector": "id_pattern" if entity.idPattern else "id",
-                        "entity_id": entity.idPattern.pattern
-                        if entity.idPattern
-                        else entity.id,
-                        "type_selector": "type_pattern"
-                        if entity.typePattern
-                        else "type",
-                        "entity_type": entity.typePattern.pattern
-                        if entity.typePattern
-                        else entity.type,
-                    }
+                # form.initial["attributes"] = ','.join(
+                #     cb_sub.subject.condition.attrs) if cb_sub.subject.condition.attrs else None
+                # form.initial["attributes"].choices = [("name","name"), ("height","height")]
+                form.initial["attributes"] = (
+                    cb_sub.subject.condition.attrs
+                    if cb_sub.subject.condition.attrs
+                    else []
                 )
-            context["entities"] = forms.Entities(
-                prefix="entity", initial=entities_initial
-            )
+                form.initial["http"] = (
+                    str(cb_sub.notification.http.url)
+                    if cb_sub.notification.http
+                    else None
+                )
+                form.initial["mqtt"] = (
+                    str(cb_sub.notification.mqtt.url)
+                    if cb_sub.notification.mqtt
+                    else None
+                )
+                form.initial["n_attributes"] = (
+                    ",".join(cb_sub.notification.attrs)
+                    if cb_sub.notification.attrs
+                    else None
+                )
+                form.initial["n_except_attributes"] = (
+                    ",".join(cb_sub.notification.exceptAttrs)
+                    if cb_sub.notification.exceptAttrs
+                    else None
+                )
+                form.initial[
+                    "attributes_format"
+                ] = cb_sub.notification.attrsFormat.value
+                form.initial[
+                    "only_changed_attributes"
+                ] = cb_sub.notification.onlyChangedAttrs
+                context["form"] = form
+
+                entities_initial = []
+                for entity in cb_sub.subject.entities:
+                    entities_initial.append(
+                        {
+                            "entity_selector": "id_pattern"
+                            if entity.idPattern
+                            else "id",
+                            "entity_id": entity.idPattern.pattern
+                            if entity.idPattern
+                            else entity.id,
+                            "type_selector": "type_pattern"
+                            if entity.typePattern
+                            else "type",
+                            "entity_type": entity.typePattern.pattern
+                            if entity.typePattern
+                            else entity.type,
+                        }
+                    )
+                context["entities"] = forms.Entities(
+                    prefix="entity", initial=entities_initial
+                )
+                context["attributes"] = forms.Attributes(prefix="attrs")
 
         return context
 
     def post(self, request, *args, **kwargs):
         self.object = self.get_object()
         form = self.get_form(forms.SubscriptionForm)
+        context = self.get_context_data()
+        entities_set = context["entities"]
         # form = forms.SubscriptionForm(request.POST)
-        if form.is_valid():
+        if form.is_valid() and entities_set.is_valid():
             form.save(commit=False)
 
             entities = []
-            entity_keys = [
-                k for k, v in self.request.POST.items() if re.search(r"entity-\d+", k)
-            ]
-            i = j = 0
 
-            while i < (len(entity_keys) / 4):
-                new_keys = [
-                    k
-                    for k, v in self.request.POST.items()
-                    if k in entity_keys and re.search(j.__str__(), k)
-                ]
-
-                if any(new_keys):
-                    entity_selector = self.request.POST.get(new_keys[0])
-                    type_selector = self.request.POST.get(new_keys[2])
-
+            for entity_form in entities_set:
+                if entity_form.cleaned_data:
+                    entity_selector = entity_form.cleaned_data["entity_selector"]
+                    type_selector = entity_form.cleaned_data["type_selector"]
                     pattern = EntityPattern(
-                        id=self.request.POST.get(new_keys[1])
+                        id=entity_form.cleaned_data["entity_id"]
                         if entity_selector == "id"
                         else None,
-                        idPattern=re.compile(self.request.POST.get(new_keys[1]))
+                        idPattern=re.compile(entity_form.cleaned_data["entity_id"])
                         if entity_selector == "id_pattern"
                         else None,
-                        type=self.request.POST.get(new_keys[3])
-                        if self.request.POST.get(new_keys[3])
+                        type=entity_form.cleaned_data["entity_type"]
+                        if entity_form.cleaned_data["entity_type"]
                         and type_selector == "type"
                         else None,
-                        typePattern=re.compile(self.request.POST.get(new_keys[3]))
+                        typePattern=re.compile(entity_form.cleaned_data["entity_type"])
                         if type_selector == "type_pattern"
                         else None,
                     )
                     entities.append(pattern)
-                    i += 1
-                j += 1
+
             with ContextBrokerClient(
                 url=settings.CB_URL,
                 fiware_header=FiwareHeader(
@@ -171,14 +177,15 @@ class Update(ProjectContextMixin, UpdateView):
                 cb_sub.description = form.cleaned_data["description"]
                 cb_sub.throttling = form.cleaned_data["throttling"]
                 cb_sub.expires = form.cleaned_data["expires"]
-                test = form.cleaned_data["attributes"]
+                test = context["attributes"]
                 cb_sub.subject = Subject(
                     entities=entities,
-                    condition=Condition(
-                        attrs=form.cleaned_data["attributes"].split(",")
-                        if form.cleaned_data["attributes"]
-                        else []
-                    ),
+                    # condition=Condition(
+                    #     attrs=form.cleaned_data["attributes"].split(",")
+                    #     if form.cleaned_data["attributes"]
+                    #     else []
+                    # ),
+                    condition=Condition(attrs=[]),
                 )
                 cb_sub.notification = Notification(
                     http=Http(url=form.cleaned_data["http"])
@@ -347,7 +354,7 @@ class Attributes(ProjectContextMixin, View):
     http_method_names = "post"
 
     def post(self, request, *args, **kwargs):
-        form = forms.AttributesForm(request.POST)
+
         attributes = []
 
         with ContextBrokerClient(
@@ -396,6 +403,33 @@ class Attributes(ProjectContextMixin, View):
 
         # hacky unique list
         attributes = list(set(attributes))
+        # form.initial["attributes"]=forms.forms.MultipleChoiceField(
+        #     choices=[(attr, attr) for attr in attributes],
+        #     widget=forms.forms.CheckboxSelectMultiple,
+        #     required=False
+        # )
+        form = forms.AttributesForm(request.POST)
         form.fields["attributes"].choices = [(attr, attr) for attr in attributes]
+        return render(request, "subscriptions/attributes.html", {"attributes": form})
 
-        return render(request, "subscriptions/attributes.html", {"form": form})
+
+class Entities(ProjectContextMixin, View):
+    http_method_names = "post, delete"
+
+    # def get_context_data(self, **kwargs):
+    #     context = super().get_context_data(**kwargs)
+    #     return context
+
+    def post(self, request, *args, **kwargs):
+        post = request.POST.copy()
+
+        total = int(post["entity-TOTAL_FORMS"])
+        post["entity-TOTAL_FORMS"] = total + 1
+        request.POST = post
+
+        entities = forms.Entities(request.POST, prefix="entity")
+
+        # response = render(request, "subscriptions/entities.html", {"entities": entities})
+        # response["HX-Trigger"] = "entityCreated"
+
+        return render(request, "subscriptions/entities.html", {"entities": entities})
