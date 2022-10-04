@@ -14,6 +14,41 @@ class ProjectForm(forms.ModelForm):
 
     class Meta:
         model = Project
-        fields = ['name', 'description', 'fiware_service', 'webpage_url','logo']
-
-
+        fields = ["name", "description", "fiware_service", "webpage_url", "logo"]
+        widgets = {
+            "name": forms.TextInput(
+                attrs={
+                    "data-bs-toggle": "tooltip",
+                    "data-bs-placement": "top",
+                    "title": "Project name",
+                }
+            ),
+            "description": forms.TextInput(
+                attrs={
+                    "data-bs-toggle": "tooltip",
+                    "data-bs-placement": "top",
+                    "title": "Project description",
+                }
+            ),
+            "fiware_service": forms.TextInput(
+                attrs={
+                    "data-bs-toggle": "tooltip",
+                    "data-bs-placement": "top",
+                    "title": "Fiware service",
+                }
+            ),
+            "webpage_url": forms.URLInput(
+                attrs={
+                    "data-bs-toggle": "tooltip",
+                    "data-bs-placement": "top",
+                    "title": "Project webpage url",
+                }
+            ),
+            "logo": forms.ClearableFileInput(
+                attrs={
+                    "data-bs-toggle": "tooltip",
+                    "data-bs-placement": "top",
+                    "title": "Project logo",
+                }
+            ),
+        }

@@ -1,0 +1,12 @@
+{% extends '_base.html' %}
+
+{% block title %}Delete Entity{% endblock %}
+
+{% block content %}
+    <form method="post" action="">
+        <div>
+            {% include 'accordion.html' %}
+            <button class="btn btn-danger rounded-pill" type="submit">Delete</button>
+        </div>
+    </form>
+{% endblock %}

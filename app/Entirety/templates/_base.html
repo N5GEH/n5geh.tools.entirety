@@ -60,6 +60,10 @@
     <script src="{% static 'js/toast.js' %}"></script>
     <script src="{% static 'js/modal.js' %}"></script>
 
+{% endcompress %}
+
+{% compress js %}
     {% block scripts %}{% endblock %}
 {% endcompress %}
+
 </body>
