@@ -354,33 +354,26 @@ class Attributes(ProjectContextMixin, View):
     http_method_names = "post"
 
     def post(self, request, *args, **kwargs):
+        entities_set = forms.Entities(self.request.POST, prefix="entity")
+        form = forms.AttributesForm(request.POST)
 
         attributes = []
 
-        with ContextBrokerClient(
-            url=settings.CB_URL,
-            fiware_header=FiwareHeader(
-                service=self.project.fiware_service,
-                service_path=self.project.fiware_service_path,
-            ),
-        ) as cb_client:
-            types = cb_client.get_entity_types()
-            entity_keys = [
-                k for k, v in self.request.POST.items() if re.search(r"entity-\d+", k)
-            ]
-            i = j = 0
-            while i < (len(entity_keys) / 4):
-                new_keys = [
-                    k
-                    for k, v in self.request.POST.items()
-                    if k in entity_keys and re.search(j.__str__(), k)
-                ]
-                if any(new_keys):
-                    type_selector = self.request.POST.get(new_keys[2])
-                    type = self.request.POST.get(new_keys[3])
-                    if type:
+        if entities_set.is_valid():
+            with ContextBrokerClient(
+                url=settings.CB_URL,
+                fiware_header=FiwareHeader(
+                    service=self.project.fiware_service,
+                    service_path=self.project.fiware_service_path,
+                ),
+            ) as cb_client:
+                types = cb_client.get_entity_types()
+                for entity_form in entities_set:
+                    type_selector = entity_form.cleaned_data["type_selector"]
+                    entity_type = entity_form.cleaned_data["entity_type"]
+                    if entity_type:
                         if type_selector == "type_pattern":
-                            pattern = re.compile(type)
+                            pattern = re.compile(entity_type)
                             tmp_attrs = itertools.chain.from_iterable(
                                 [
                                     list(t["attrs"].keys())
@@ -396,29 +389,16 @@ class Attributes(ProjectContextMixin, View):
                                     if t["type"] == type
                                 ]
                             )
+                    attributes.extend(tmp_attrs)
+            # hacky unique list
+            attributes = list(set(attributes))
 
-                        attributes.extend(tmp_attrs)
-                    i += 1
-                j += 1
-
-        # hacky unique list
-        attributes = list(set(attributes))
-        # form.initial["attributes"]=forms.forms.MultipleChoiceField(
-        #     choices=[(attr, attr) for attr in attributes],
-        #     widget=forms.forms.CheckboxSelectMultiple,
-        #     required=False
-        # )
-        form = forms.AttributesForm(request.POST)
         form.fields["attributes"].choices = [(attr, attr) for attr in attributes]
         return render(request, "subscriptions/attributes.html", {"attributes": form})
 
 
 class Entities(ProjectContextMixin, View):
-    http_method_names = "post, delete"
-
-    # def get_context_data(self, **kwargs):
-    #     context = super().get_context_data(**kwargs)
-    #     return context
+    http_method_names = "post"
 
     def post(self, request, *args, **kwargs):
         post = request.POST.copy()
@@ -428,8 +408,5 @@ class Entities(ProjectContextMixin, View):
         request.POST = post
 
         entities = forms.Entities(request.POST, prefix="entity")
-
-        # response = render(request, "subscriptions/entities.html", {"entities": entities})
-        # response["HX-Trigger"] = "entityCreated"
 
         return render(request, "subscriptions/entities.html", {"entities": entities})
