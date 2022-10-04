@@ -29,10 +29,12 @@ from entities.requests import (
     delete_entity,
 )
 from entities.tables import EntityTable
-from projects.mixins import ProjectContextMixin
+from projects.mixins import ProjectContextMixin, ApplicationLoadMixin
 
 
-class EntityList(ProjectContextMixin, SingleTableMixin, TemplateView):
+class EntityList(
+    ProjectContextMixin, ApplicationLoadMixin, SingleTableMixin, TemplateView
+):
     template_name = "entities/entity_list.html"
     table_class = EntityTable
     table_pagination = {"per_page": 15}
@@ -79,7 +81,7 @@ class EntityList(ProjectContextMixin, SingleTableMixin, TemplateView):
         )
 
 
-class Create(ProjectContextMixin, TemplateView):
+class Create(ProjectContextMixin, ApplicationLoadMixin, TemplateView):
     template_name = "entities/update.html"
     form_class = EntityForm
 
@@ -132,7 +134,7 @@ class Create(ProjectContextMixin, TemplateView):
             return redirect("projects:entities:list", project_id=self.project.uuid)
 
 
-class Update(ProjectContextMixin, TemplateView):
+class Update(ProjectContextMixin, ApplicationLoadMixin, TemplateView):
     template_name = "entities/update.html"
     form_class = EntityForm
 
@@ -202,7 +204,7 @@ class Update(ProjectContextMixin, TemplateView):
             return redirect("projects:entities:list", project_id=self.project.uuid)
 
 
-class Delete(ProjectContextMixin, TemplateView):
+class Delete(ProjectContextMixin, ApplicationLoadMixin, TemplateView):
     template_name = "entities/delete.html"
     form_class = EntityForm
 

@@ -11,6 +11,7 @@
                                 <span class="d-none d-md-inline-flex">{{ project }}</span>
                             </a>
                         </li>
+                        {% if entities_load %}
                         <li class="nav-item border-bottom d-inline-flex">
                             <a href="{% url "projects:entities:list" project_id=project.uuid %}" class="nav-link btn-sidebar py-md-2"
                                data-bs-toggle="tooltip" data-bs-placement="right" data-bs-custom-class="d-md-none"
@@ -19,6 +20,8 @@
                                 <span class="d-none d-md-inline-flex">Entities</span>
                             </a>
                         </li>
+                        {% endif %}
+                        {% if devices_load %}
                         <li class="nav-item border-bottom d-inline-flex">
                             <a href="#" class="nav-link btn-sidebar py-md-2"
                                data-bs-toggle="tooltip" data-bs-placement="right" data-bs-custom-class="d-md-none"
@@ -27,6 +30,8 @@
                                 <span class="d-none d-md-inline-flex">Devices</span>
                             </a>
                         </li>
+                        {% endif %}
+                        {% if notifications_load %}
                         <li class="nav-item border-bottom d-inline-flex">
                             <a href="{% url "projects:alarming:subscriptions" project_id=project.uuid %}"
                                class="nav-link btn-sidebar py-md-2"
@@ -36,6 +41,7 @@
                                 <span class="d-none d-md-inline-flex">Alarming</span>
                             </a>
                         </li>
+                        {% endif %}
                     {% endif %}
                     <li class="nav-item  d-inline-flex {% if project %}mt-auto border-top{% else %} border-bottom {% endif %}">
                         <a href="{% url "projects:index" %}" class="nav-link btn-sidebar py-md-2"
