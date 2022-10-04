@@ -67,9 +67,11 @@ class AttributeForm(forms.Form):
             }
         ),
     )
-    type = forms.ChoiceField(choices=[(x.value, x.name) for x in AttributeTypes])
+    type = forms.ChoiceField(
+        label="Attribute Type", choices=[(x.value, x.name) for x in AttributeTypes]
+    )
     value = forms.CharField(
-        required=True,
+        required=False,
         label="Attribute Value",
         widget=forms.TextInput(
             attrs={
@@ -113,7 +115,14 @@ class SubscriptionForm(forms.Form):
 
 
 class DeviceForm(forms.Form):
-    name = forms.CharField(required=False)
+    name = forms.BooleanField(label="name", required=False)
+    entity_type = forms.CharField(widget=forms.HiddenInput(), required=False)
+
+    def __init__(self, *args, **kwargs):
+        super(DeviceForm, self).__init__(*args, **kwargs)
+
+        self.helper = FormHelper(self)
+        self.helper.form_tag = False
 
 
 class RelationshipForm(forms.Form):

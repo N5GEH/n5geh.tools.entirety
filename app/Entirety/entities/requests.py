@@ -117,6 +117,18 @@ def delete_relationship(entity_id, attribute_name, entity_type, project):
         cb_client.delete_entity_attribute(entity_id, attribute_name, entity_type)
 
 
+def delete_device(device_ids, project):
+    with IoTAClient(
+        url=settings.IOTA_URL,
+        fiware_header=FiwareHeader(
+            service=project.fiware_service,
+            service_path=project.fiware_service_path,
+        ),
+    ) as iota_client:
+        for device_id in device_ids:
+            iota_client.delete_device(device_id=device_id)
+
+
 def get_subscriptions(entity_id, entity_type, project):
     return filter_subscriptions_by_entity(
         entity_id=entity_id,

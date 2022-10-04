@@ -5,6 +5,7 @@ from django.views.generic import View
 from examples.forms import ExampleForm, Attributes, Commands, BasicInfoForm
 from django.contrib import messages
 
+
 logger = logging.getLogger(__name__)
 
 
@@ -42,13 +43,6 @@ class DialogForm(View):
 
 class Dialog(View):
     def get(self, request):
-        # add messages
-        messages.debug(request, 'DEBUG: send POST request to orion')  # debug level msg will not be displayed
-        messages.info(request, 'INFO: please do something')
-        messages.success(request, 'SUCCESS: devices successfully created')
-        messages.warning(request, 'WARNING: service group not matched, errors may occur')
-        messages.error(request, 'ERROR: entity name is illegal')
-
         basic_info = BasicInfoForm()
         attributes = Attributes(prefix="attr")
         commands = Commands(prefix="cmd")
@@ -57,6 +51,12 @@ class Dialog(View):
             "attributes": attributes,
             "commands": commands,
         }
+        # add messages
+        messages.debug(request, 'DEBUG: send POST request to orion')  # debug level msg will not be displayed
+        messages.info(request, 'INFO: please do something')
+        messages.success(request, 'SUCCESS: devices successfully created')
+        messages.warning(request, 'WARNING: service group not matched, errors may occur')
+        messages.error(request, 'ERROR: entity name is illegal')
         return render(request, "examples/dialog.html", context)
 
     def post(self, request):

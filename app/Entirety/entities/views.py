@@ -14,6 +14,7 @@ from entities.forms import (
     SubscriptionForm,
     RelationshipForm,
     SelectionForm,
+    DeviceForm,
 )
 from entities.requests import (
     get_entity,
@@ -24,6 +25,8 @@ from entities.requests import (
     get_subscriptions,
     delete_subscription,
     delete_relationship,
+    delete_device,
+    delete_entity,
 )
 from entities.tables import EntityTable
 from projects.mixins import ProjectContextMixin
@@ -229,13 +232,28 @@ class Delete(ProjectContextMixin, TemplateView):
                 initial_form.fields.get("name").label = (
                     "Found " + initial_form.initial.get("status") + " subscription "
                     "with \
-                                                                            description "
+                                                                                                                                description "
                     + initial_form.initial.get("description")
                 )  # + " and subject "
         # devices
+        devices = None
         if self.request.session.get("devices"):
-            devices = get_devices(entity_id=entity.id, project=self.project)
-        # relationships
+            devices_list = get_devices(entity_id=entity.id, project=self.project)
+            initial_devices = []
+            for device in devices_list:
+                initial_devices.append(
+                    {"name": device.device_id, "entity_type": device.entity_type}
+                )
+            devices_form_set = formset_factory(DeviceForm, max_num=0)
+            devices = devices_form_set(prefix="device", initial=initial_devices)
+            for initial_form in devices.initial_forms:
+                initial_form.fields.get("name").label = (
+                    "Found device "
+                    + initial_form.initial.get("name")
+                    + " of type "
+                    + initial_form.initial.get("entity_type")
+                )
+            # relationships
         relationships = None
         if self.request.session.get("relationships"):
             relationships_list = get_relationships(
@@ -265,18 +283,22 @@ class Delete(ProjectContextMixin, TemplateView):
                     "type"
                 )
 
-        # devices
         context = super(Delete, self).get_context_data(**kwargs)
         context["subscriptions"] = subscriptions
         context["relationships"] = relationships
-        context["devices"] = None
+        context["devices"] = devices
         return context
 
     def post(self, request, *args, **kwargs):
         subs = [v for k, v in self.request.POST.items() if re.search(r"subs-\d+", k)]
         rels = [k for k, v in self.request.POST.items() if re.search(r"rel-\d+", k)]
+        devices = [
+            k for k, v in self.request.POST.items() if re.search(r"device-\d+", k)
+        ]
 
+        delete_entity(kwargs.get("entity_id"), kwargs.get("entity_type"), self.project)
         delete_subscription(subs, self.project)
+        delete_device(devices, self.project)
 
         i = 0
         while i < (len(rels) / 3):
