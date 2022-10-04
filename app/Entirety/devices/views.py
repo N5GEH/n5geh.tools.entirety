@@ -21,14 +21,9 @@ class DeviceListView(ProjectContextMixin, SingleTableMixin, TemplateView):
     table_pagination = {"per_page": 15}
 
     def get_table_data(self):
-        # device_id_patern = self.request.GET.get("search-id", default="")
         patern = self.request.GET.get("search-patern", default="")
         devices = get_devices(self.project)
-        # filter devices with patern
-        # devices_id = devices_filter(devices=devices, id_patern=patern)
-        # devices_name = devices_filter(devices=devices, name_patern=patern)
-        # devices_type = devices_filter(devices=devices, type_patern=patern)
-        # devices_all = devices_id + devices_name + devices_type
+        # The filtering is now based on a general patern
         return patern_devices_filter(devices, patern)
 
     # add context to html
@@ -192,6 +187,10 @@ class DeviceEditSubmitView(ProjectContextMixin, TemplateView):
         data_basic, data_attributes, data_commands = parse_request_data(request.POST)
 
         basic_info = DeviceBasic(request.POST)
+        basic_info.fields["device_id"].widget.attrs["readonly"] = True
+        basic_info.fields["entity_name"].widget.attrs["readonly"] = True
+        basic_info.fields["entity_type"].widget.attrs["readonly"] = True
+
         attributes = Attributes(data=data_attributes, prefix=prefix_attributes)
 
         commands = Commands(data=data_commands, prefix=prefix_commands)

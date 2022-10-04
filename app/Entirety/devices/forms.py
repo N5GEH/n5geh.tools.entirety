@@ -21,7 +21,7 @@ COMMANDS_TYPE = [
 
 
 class DeviceBasic(forms.Form):
-    device_id = forms.CharField(label="Device ID", max_length=100, required=True,
+    device_id = forms.CharField(label="Device ID", required=True,
                                 widget=forms.TextInput(
                                     attrs={
                                         "data-bs-toggle": "tooltip",
@@ -30,7 +30,7 @@ class DeviceBasic(forms.Form):
                                     }
                                 ),
                                 )
-    entity_name = forms.CharField(label="Entity Name", max_length=100, required=True,
+    entity_name = forms.CharField(label="Entity Name", max_length=256, required=True,
                                   widget=forms.TextInput(
                                       attrs={
                                           "data-bs-toggle": "tooltip",
@@ -39,7 +39,7 @@ class DeviceBasic(forms.Form):
                                       }
                                   ),
                                   )
-    entity_type = forms.CharField(label="Entity Type", max_length=100,
+    entity_type = forms.CharField(label="Entity Type", max_length=256,
                                   widget=forms.TextInput(
                                       attrs={
                                           "data-bs-toggle": "tooltip",
@@ -80,7 +80,7 @@ class DeviceAttributes(forms.Form):
 
 class DeviceCommands(forms.Form):
     name = forms.CharField(label="Name", required=True)
-    type_choices = tuple([(f"{i}", t) for i, t in enumerate(COMMANDS_TYPE)])
+    type_choices = tuple([(f"{t}", t) for i, t in enumerate(COMMANDS_TYPE)])
     type = forms.ChoiceField(label="Type", required=True, choices=type_choices)
 
     def __init__(self, *args, **kwargs):
