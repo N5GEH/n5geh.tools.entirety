@@ -1,7 +1,7 @@
 from django import forms
 from django.forms.utils import ErrorList
 from crispy_forms.helper import FormHelper
-from crispy_forms.layout import Layout, Fieldset, Div, HTML
+from crispy_forms.layout import Layout, Fieldset, Div, HTML, Button
 from crispy_forms.bootstrap import InlineCheckboxes
 
 from filip.models.ngsi_v2.base import AttrsFormat
@@ -81,6 +81,7 @@ class EntitiesForm(forms.Form):
 
         self.helper = FormHelper(self)
         self.helper.form_tag = False
+        # disabled because htmx is configured to always send csrf token
         self.helper.disable_csrf = True
         self.helper.layout = Layout(
             Div(

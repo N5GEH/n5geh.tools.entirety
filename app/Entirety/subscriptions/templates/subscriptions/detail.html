@@ -98,7 +98,6 @@
                                     <div class="accordion-body">
                                         <div id="div_attributes">
                                             {% include "subscriptions/attributes.html" %}
-                                            {#                                            {{ form.attributes|as_crispy_field }}#}
                                         </div>
                                         {{ form.expression|as_crispy_field }}
 
@@ -141,10 +140,6 @@
                 </div>
             </div>
         </div>
-        <button type="submit" class="btn btn-primary btn-submit mb-1 ms-auto" data-bs-toggle="tooltip"
-                data-bs-placement="bottom" title="Save">
-            <i class="bi bi-save"></i>
-        </button>
     </form>
 
 {% endblock %}
