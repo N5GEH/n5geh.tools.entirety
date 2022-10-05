@@ -20,6 +20,7 @@ from filip.models.ngsi_v2.subscriptions import (
 )
 
 from subscriptions.models import Subscription
+from subscriptions import utils
 from subscriptions import forms
 
 # from subscriptions.forms import SubscriptionForm, Entities, Attributes
@@ -56,7 +57,7 @@ class Update(ProjectContextMixin, UpdateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         if self.request.POST:
-            context["attributes"] = forms.Attributes(self.request.POST, prefix="attrs")
+            context["attributes"] = forms.AttributesForm(self.request.POST)
             context["entities"] = forms.Entities(self.request.POST, prefix="entity")
         else:
             with ContextBrokerClient(
@@ -73,14 +74,6 @@ class Update(ProjectContextMixin, UpdateView):
                 form.initial["throttling"] = cb_sub.throttling
                 form.initial["expires"] = cb_sub.expires
 
-                # form.initial["attributes"] = ','.join(
-                #     cb_sub.subject.condition.attrs) if cb_sub.subject.condition.attrs else None
-                # form.initial["attributes"].choices = [("name","name"), ("height","height")]
-                form.initial["attributes"] = (
-                    cb_sub.subject.condition.attrs
-                    if cb_sub.subject.condition.attrs
-                    else []
-                )
                 form.initial["http"] = (
                     str(cb_sub.notification.http.url)
                     if cb_sub.notification.http
@@ -130,7 +123,12 @@ class Update(ProjectContextMixin, UpdateView):
                 context["entities"] = forms.Entities(
                     prefix="entity", initial=entities_initial
                 )
-                context["attributes"] = forms.Attributes(prefix="attrs")
+                attr_choices = utils.load_attributes(self.project, entities_initial)
+                context["attributes"] = forms.AttributesForm(
+                    choices=attr_choices, initial=cb_sub.subject.condition.attrs
+                )
+                # context["attributes"].fields["attributes"].choices = utils.load_attributes(self.project,
+                #                                                                            entities_initial)
 
         return context
 
@@ -139,8 +137,9 @@ class Update(ProjectContextMixin, UpdateView):
         form = self.get_form(forms.SubscriptionForm)
         context = self.get_context_data()
         entities_set = context["entities"]
+        attributes = context["attributes"]
         # form = forms.SubscriptionForm(request.POST)
-        if form.is_valid() and entities_set.is_valid():
+        if form.is_valid() and entities_set.is_valid() and attributes.is_valid():
             form.save(commit=False)
 
             entities = []
@@ -177,7 +176,6 @@ class Update(ProjectContextMixin, UpdateView):
                 cb_sub.description = form.cleaned_data["description"]
                 cb_sub.throttling = form.cleaned_data["throttling"]
                 cb_sub.expires = form.cleaned_data["expires"]
-                test = context["attributes"]
                 cb_sub.subject = Subject(
                     entities=entities,
                     # condition=Condition(
@@ -360,40 +358,10 @@ class Attributes(ProjectContextMixin, View):
         attributes = []
 
         if entities_set.is_valid():
-            with ContextBrokerClient(
-                url=settings.CB_URL,
-                fiware_header=FiwareHeader(
-                    service=self.project.fiware_service,
-                    service_path=self.project.fiware_service_path,
-                ),
-            ) as cb_client:
-                types = cb_client.get_entity_types()
-                for entity_form in entities_set:
-                    type_selector = entity_form.cleaned_data["type_selector"]
-                    entity_type = entity_form.cleaned_data["entity_type"]
-                    if entity_type:
-                        if type_selector == "type_pattern":
-                            pattern = re.compile(entity_type)
-                            tmp_attrs = itertools.chain.from_iterable(
-                                [
-                                    list(t["attrs"].keys())
-                                    for t in types
-                                    if pattern.match(t["type"])
-                                ]
-                            )
-                        else:
-                            tmp_attrs = itertools.chain.from_iterable(
-                                [
-                                    list(t["attrs"].keys())
-                                    for t in types
-                                    if t["type"] == type
-                                ]
-                            )
-                    attributes.extend(tmp_attrs)
-            # hacky unique list
-            attributes = list(set(attributes))
+            data_set = [entity_form.cleaned_data for entity_form in entities_set]
+            attributes = utils.load_attributes(self.project, data_set)
 
-        form.fields["attributes"].choices = [(attr, attr) for attr in attributes]
+        form.fields["attributes"].choices = attributes
         return render(request, "subscriptions/attributes.html", {"attributes": form})
 
 
