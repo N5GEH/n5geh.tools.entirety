@@ -72,12 +72,16 @@
                                      aria-labelledby="acc_h_entities">
                                     <div class="accordion-body">
                                         <a type="button" class="add-entity btn btn-success rounded-pill btn-sm"
-                                                hx-post="{% url "projects:subscriptions:entities" project_id=project.uuid %}"
-                                                hx-target="#div_entities">
+                                           hx-post="{% url "projects:subscriptions:entities" project_id=project.uuid %}"
+                                           hx-target="#div_entities">
                                             <i class="bi bi-plus"></i>
                                         </a>
-                                        <div id="div_entities" class="d-flex flex-wrap form-container mb-3">
+                                        <div id="div_entities" class="d-flex flex-wrap form-container mb-3"
+                                             hx-post="{% url "projects:subscriptions:attributes" project_id=project.uuid %}"
+                                             hx-target="#div_attributes"
+                                             hx-trigger="every 5s">
                                             {% include "subscriptions/entities.html" %}
+
                                         </div>
                                     </div>
                                 </div>

@@ -13,8 +13,8 @@ from entirety.fields import MQTTURLField, HTTPURLField
 class AttributesForm(forms.Form):
     def __init__(
         self,
-        choices=[],
         data=None,
+        choices=[],
         files=None,
         auto_id="id_%s",
         prefix=None,
@@ -41,7 +41,9 @@ class AttributesForm(forms.Form):
         )
 
         self.fields["attributes"] = forms.MultipleChoiceField(
-            choices=choices, widget=forms.CheckboxSelectMultiple, required=False
+            choices=choices if choices else [],
+            widget=forms.CheckboxSelectMultiple,
+            required=False,
         )
 
         self.helper = FormHelper(self)

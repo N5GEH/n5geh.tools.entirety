@@ -32,10 +32,15 @@ def load_attributes(project, data_set):
                     )
                 else:
                     tmp_attrs = itertools.chain.from_iterable(
-                        [list(t["attrs"].keys()) for t in types if t["type"] == type]
+                        [
+                            list(t["attrs"].keys())
+                            for t in types
+                            if t["type"] == entity_type
+                        ]
                     )
             attributes.extend(tmp_attrs)
     # hacky unique list
     attributes = list(set(attributes))
+    attributes.sort()
 
     return [(attr, attr) for attr in attributes]
