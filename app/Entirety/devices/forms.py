@@ -25,8 +25,8 @@ class DeviceBasic(forms.Form):
                                 widget=forms.TextInput(
                                     attrs={
                                         "data-bs-toggle": "tooltip",
-                                        "data-bs-placement": "top ",
-                                        "title": "Deice id",
+                                        # "data-bs-placement": "top ",
+                                        "title": "Deice ID",
                                     }
                                 ),
                                 )
@@ -34,8 +34,8 @@ class DeviceBasic(forms.Form):
                                   widget=forms.TextInput(
                                       attrs={
                                           "data-bs-toggle": "tooltip",
-                                          "data-bs-placement": "top ",
-                                          "title": "Entity id",
+                                          # "data-bs-placement": "top ",
+                                          "title": "Entity ID",
                                       }
                                   ),
                                   )
@@ -43,8 +43,8 @@ class DeviceBasic(forms.Form):
                                   widget=forms.TextInput(
                                       attrs={
                                           "data-bs-toggle": "tooltip",
-                                          "data-bs-placement": "top ",
-                                          "title": "Entity type",
+                                          # "data-bs-placement": "top ",
+                                          "title": "Entity Type",
                                       }
                                   ),
                                   )
