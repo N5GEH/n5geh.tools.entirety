@@ -4,7 +4,7 @@ from django.views.generic import ListView, DetailView
 from django.views.generic.edit import UpdateView, CreateView, DeleteView
 
 from .forms import ProjectForm
-from .mixins import ProjectCreateMixin, ProjectSelfMixin
+from .mixins import ProjectCreateMixin, ProjectSelfMixin, ApplicationLoadMixin
 from .models import Project
 
 
@@ -25,12 +25,12 @@ class Index(LoginRequiredMixin, ListView):
         return context
 
 
-class Detail(LoginRequiredMixin, DetailView):
+class Detail(LoginRequiredMixin, ApplicationLoadMixin, DetailView):
     model = Project
     template_name = "projects/detail.html"
 
 
-class Update(LoginRequiredMixin, ProjectSelfMixin, UpdateView):
+class Update(LoginRequiredMixin, ProjectSelfMixin, ApplicationLoadMixin, UpdateView):
     model = Project
     template_name = "projects/update.html"
     form_class = ProjectForm

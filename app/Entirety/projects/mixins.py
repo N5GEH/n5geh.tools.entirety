@@ -1,3 +1,4 @@
+from django.apps import apps
 from django.contrib.auth.mixins import UserPassesTestMixin
 from django.core.exceptions import PermissionDenied
 from django.shortcuts import get_object_or_404
@@ -25,6 +26,17 @@ class ProjectContextMixin:
             raise PermissionDenied()
 
         return super().dispatch(request, *args, **kwargs)
+
+
+class ApplicationLoadMixin:
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        context["entities_load"] = apps.is_installed("entities")
+        context["devices_load"] = apps.is_installed("devices")
+        context["notifications_load"] = apps.is_installed("alarming")
+
+        return context
 
 
 class ProjectSelfMixin(UserPassesTestMixin):

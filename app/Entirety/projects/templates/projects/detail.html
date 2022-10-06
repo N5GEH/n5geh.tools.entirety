@@ -4,7 +4,29 @@
 {% block content %}
 
     <div class="container">
-        <h2 class="my-4">{{ project.name }}</h2>
+        <div class="d-flex">
+            <span class="h3 border-bottom flex-fill">{{ project.name }}</span>
+        </div>
+        <div class="row">
+            <div class="col mb-3">
+                <strong>Project Name:</strong> {{ project.name }}
+            </div>
+        </div>
+        <div class="row">
+            <div class="col mb-3">
+                <strong>Project Description:</strong> {{ project.description }}
+            </div>
+        </div>
+        <div class="row">
+            <div class="col mb-3">
+                <strong>Fiware Service:</strong> {{ project.fiware_service }}
+            </div>
+        </div>
+        <div class="row">
+            <div class="col mb-3">
+                <strong>Webpage Url:</strong> {{ project.webpage_url }}
+            </div>
+        </div>
     </div>
 
 {% endblock %}
