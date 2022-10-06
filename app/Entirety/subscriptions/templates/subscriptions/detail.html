@@ -79,9 +79,8 @@
                                         <div id="div_entities" class="d-flex flex-wrap form-container mb-3"
                                              hx-post="{% url "projects:subscriptions:attributes" project_id=project.uuid %}"
                                              hx-target="#div_attributes"
-                                             hx-trigger="every 5s">
+                                             hx-trigger="change">
                                             {% include "subscriptions/entities.html" %}
-
                                         </div>
                                     </div>
                                 </div>
