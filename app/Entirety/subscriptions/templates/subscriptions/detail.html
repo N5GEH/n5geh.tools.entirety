@@ -102,7 +102,10 @@
                                         <div id="div_attributes">
                                             {% include "subscriptions/attributes.html" %}
                                         </div>
-                                        {{ form.expression|as_crispy_field }}
+                                        <div id="div_expressions">
+                                            {% include "subscriptions/expressions.html" %}
+                                        </div>
+
 
                                         <a type="button"
                                            hx-post="{% url "projects:subscriptions:attributes" project_id=project.uuid %}"
@@ -132,8 +135,8 @@
                         {{ form.http|as_crispy_field }}
                         {{ form.mqtt|as_crispy_field }}
                         {{ form.metadata|as_crispy_field }}
-                        {{ form.n_attributes|as_crispy_field }}
-                        {{ form.n_except_attributes|as_crispy_field }}
+{#                        {{ form.n_attributes|as_crispy_field }}#}
+{#                        {{ form.n_except_attributes|as_crispy_field }}#}
                         {{ form.attributes_format|as_crispy_field }}
                         {{ form.only_changed_attributes|as_crispy_field }}
                         {#{{ form.times_sent|as_crispy_field }}#}

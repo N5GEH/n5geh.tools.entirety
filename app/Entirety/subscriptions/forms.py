@@ -5,6 +5,7 @@ from crispy_forms.layout import Layout, Fieldset, Div, HTML, Button
 from crispy_forms.bootstrap import InlineCheckboxes
 
 from filip.models.ngsi_v2.base import AttrsFormat
+from filip.utils.simple_ql import Operator
 
 from subscriptions.models import Subscription
 from entirety.fields import MQTTURLField, HTTPURLField
@@ -101,6 +102,16 @@ class EntitiesForm(forms.Form):
 Entities = forms.formset_factory(EntitiesForm, extra=0, min_num=1)
 
 
+class ExpressionForm(forms.Form):
+    operators = forms.ChoiceField(
+        choices=[(op.value, op.value) for op in Operator],
+        initial=Operator.EQUAL.value,
+    )
+
+
+Expressions = forms.formset_factory(ExpressionForm, extra=1)
+
+
 class SubscriptionForm(forms.ModelForm):
     _newly_created: bool
 
@@ -150,16 +161,16 @@ class SubscriptionForm(forms.ModelForm):
 
     metadata = forms.JSONField(required=True, initial={"test": "test"})
 
-    n_attributes = forms.CharField(
-        required=False,
-        label="Attributes",
-        help_text="Comma separated list of attribute names to include in notification",
-    )
-    n_except_attributes = forms.CharField(
-        required=False,
-        label="Except Attributes",
-        help_text="Comma separated list of attribute names to exclude in notification",
-    )
+    # n_attributes = forms.CharField(
+    #     required=False,
+    #     label="Attributes",
+    #     help_text="Comma separated list of attribute names to include in notification",
+    # )
+    # n_except_attributes = forms.CharField(
+    #     required=False,
+    #     label="Except Attributes",
+    #     help_text="Comma separated list of attribute names to exclude in notification",
+    # )
 
     attributes_format = forms.ChoiceField(
         choices=[(format.value, format.value) for format in AttrsFormat],
