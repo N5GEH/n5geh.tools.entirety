@@ -1,7 +1,8 @@
 from django.conf import settings
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.http import HttpResponse
+from django.shortcuts import render
 from django.urls import reverse
+from django.views import View
 from django.views.generic import ListView, DetailView
 from django.views.generic.edit import UpdateView, CreateView, DeleteView
 from filip.clients.ngsi_v2 import ContextBrokerClient, QuantumLeapClient, IoTAClient
@@ -65,58 +66,43 @@ class Delete(LoginRequiredMixin, ProjectSelfMixin, DeleteView):
         return reverse("projects:index")
 
 
-def broker(request):
-    with ContextBrokerClient(
-        url=settings.CB_URL,
-        fiware_header=FiwareHeader(service="", service_path=""),
-    ) as cb_client:
-        try:
-            version = cb_client.get_version()
-            if version:
-                return HttpResponse(
-                    "<i class='bi bi-lightbulb-fill icon-green'></i>"
-                    "<small class='d-none d-md-inline-flex text-sm-end'>Orion Broker</small>"
-                )
-        except:
-            return HttpResponse(
-                "<i class='bi bi-lightbulb-fill icon-red'></i>"
-                "<small class='d-none d-md-inline-flex text-sm-end'>Orion Broker</small>"
-            )
+class BrokerHealth(View):
+    def get(self, request, *args, **kwargs):
+        with ContextBrokerClient(
+            url=settings.CB_URL,
+            fiware_header=FiwareHeader(service="", service_path=""),
+        ) as cb_client:
+            try:
+                version = cb_client.get_version()
+                if version:
+                    return render(request, "good_health.html")
+            except:
+                return render(request, "bad_health.html")
 
 
-def ql(request):
-    with QuantumLeapClient(
-        url=settings.QL_URL,
-        fiware_header=FiwareHeader(service="", service_path=""),
-    ) as ql_client:
-        try:
-            version = ql_client.get_version()
-            if version:
-                return HttpResponse(
-                    "<i class='bi bi-lightbulb-fill icon-green'></i>"
-                    "<small class='d-none d-md-inline-flex'>Quantum Leap</small>"
-                )
-        except:
-            return HttpResponse(
-                "<i class='bi bi-lightbulb-fill icon-red'></i>"
-                "<small class='d-none d-md-inline-flex'>Quantum Leap</small>"
-            )
+class QLHealth(View):
+    def get(self, request, *args, **kwargs):
+        with QuantumLeapClient(
+            url=settings.QL_URL,
+            fiware_header=FiwareHeader(service="", service_path=""),
+        ) as ql_client:
+            try:
+                version = ql_client.get_version()
+                if version:
+                    return render(request, "good_health.html")
+            except:
+                return render(request, "bad_health.html")
 
 
-def iota(request):
-    with IoTAClient(
-        url=settings.IOTA_URL,
-        fiware_header=FiwareHeader(service="", service_path=""),
-    ) as iota_client:
-        try:
-            version = iota_client.get_version()
-            if version:
-                return HttpResponse(
-                    "<i class='bi bi-lightbulb-fill icon-green'></i>"
-                    "<small class='d-none d-md-inline-flex text-sm-end'>IOT Agent</small>"
-                )
-        except:
-            return HttpResponse(
-                "<i class='bi bi-lightbulb-fill icon-red'></i>"
-                "<small class='d-none d-md-inline-flex text-sm-end'>IOT Agent</small>"
-            )
+class IOTAHealth(View):
+    def get(self, request, *args, **kwargs):
+        with IoTAClient(
+            url=settings.IOTA_URL,
+            fiware_header=FiwareHeader(service="", service_path=""),
+        ) as iota_client:
+            try:
+                version = iota_client.get_version()
+                if version:
+                    return render(request, "good_health.html")
+            except:
+                return render(request, "bad_health.html")
