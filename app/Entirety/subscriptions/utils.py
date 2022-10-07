@@ -39,6 +39,19 @@ def load_attributes(project, data_set):
                         ]
                     )
                 attributes.extend(tmp_attrs)
+            else:
+                entity_selector = data["entity_selector"]
+                entity_id = data["entity_id"]
+                if entity_id:
+                    entities = cb_client.get_entity_list(
+                        entity_ids=entity_id if entity_selector == "id" else None,
+                        id_pattern=entity_id
+                        if entity_selector == "id_pattern"
+                        else None,
+                    )
+                    for entity in entities:
+                        attributes.extend(cb_client.get_entity_attributes(entity.id))
+
     # hacky unique list
     attributes = list(set(attributes))
     attributes.sort()
