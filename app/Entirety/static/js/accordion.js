@@ -29,6 +29,8 @@ addButton.forEach(function (elem) {
         innerAttrButton.innerHTML = "<i class='bi bi-trash'></i>";
         newAttrFormToInsert.append(...newAttrForm.childNodes, innerAttrButton);
 
+        addTooltipEvent(newAttrFormToInsert);
+
         mainForm.append(newAttrFormToInsert);
         totalForms.setAttribute('value', (formCount + 1).toString())
 
@@ -41,6 +43,13 @@ addButton.forEach(function (elem) {
     })
 });
 
+function addTooltipEvent(elems) {
+    var tooltipTriggerList = elems.querySelectorAll('[data-bs-toggle="tooltip"]');
+    tooltipTriggerList.forEach(function (elem) {
+        bootstrap.Tooltip.getOrCreateInstance(elem, {title:elem.getAttribute('aria-label')})
+    })
+
+}
 
 let removeButton = document.querySelectorAll(".remove-form");
 removeButton.forEach(function (elem) {
