@@ -54,6 +54,17 @@ class LokiSettings(BaseSettings):
         env_file_encoding = "utf-8"
 
 
+class AppLoadSettings(BaseSettings):
+    ENTITIES_LOAD: bool = Field(default=False, env="ENTITIES_LOAD")
+    DEVICES_LOAD: bool = Field(default=False, env="DEVICES_LOAD")
+    NOTIFICATIONS_LOAD: bool = Field(default=False, env="NOTIFICATIONS_LOAD")
+
+    class Config:
+        case_sensitive = False
+        env_file = ".env"
+        env_file_encoding = "utf-8"
+
+
 class Settings(PydanticSettings):
     add_type("text/css", ".css", True)
     # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -78,9 +89,6 @@ class Settings(PydanticSettings):
         "projects",
         "examples",
         "users",
-        "alarming",
-        "entities",
-        "devices"
     ]
 
     CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
@@ -278,8 +286,15 @@ class Settings(PydanticSettings):
     TIME_ZONE: str = Field(default="Europe/Berlin", env="TIME_ZONE")
 
     COMPRESS_ENABLED: bool = Field(default=not DEBUG, env="COMPRESS_ENABLED")
-    
+
     DJANGO_TABLES2_TEMPLATE = "django_tables2/bootstrap4.html"
+
+    if AppLoadSettings().dict().get("ENTITIES_LOAD") is True:
+        INSTALLED_APPS.append("entities")
+    if AppLoadSettings().dict().get("DEVICES_LOAD") is True:
+        INSTALLED_APPS.append("devices")
+    if AppLoadSettings().dict().get("NOTIFICATIONS_LOAD") is True:
+        INSTALLED_APPS.append("alarming")
 
     class Config:
         case_sensitive = False
