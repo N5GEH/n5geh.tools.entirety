@@ -239,6 +239,9 @@ class Settings(PydanticSettings):
     ALLOWED_HOSTS: List = Field(default=["*"], env="ALLOWED_HOSTS")
 
     CB_URL: AnyUrl = Field(default="http://localhost:1026", env="CB_URL")
+
+    IOTA_URL: AnyUrl = Field(default="http://localhost:4041", env="IOTA_URL")
+
     # Database
     # https://docs.djangoproject.com/en/4.0/ref/settings/#databases
     DATABASES: Databases = Field({})
