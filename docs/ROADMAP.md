@@ -30,7 +30,7 @@ _New features will be planed in the future as needed._
 ### Devices App
 | Short Name           | Descriptions                                                                                                                                                      | Short-Term | Long-Term |
 |----------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------|------------|-----------|
-| Batch Create         | User can create multiple devices with the same attributes/commands                                                                                                | &check;    |           |
+| Batch Create         | User can create multiple devices with similar configuration (the same attributes/commands name)                                                                                                | &check;    |           |
 | Batch Delete         | User can delete the devices that match the filter, or delete multiple selected devices                                                                            | &check;    |           |
 | Multi-Entity Support | User can use the Multi-Entity feature as described [here](https://iotagent-node-lib.readthedocs.io/en/latest/advanced-topics.html#multientity-plugin-multientity) |            | &check;   |
 
