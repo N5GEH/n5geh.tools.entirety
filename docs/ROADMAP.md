@@ -13,17 +13,21 @@ Depending on the necessity, difficulty, and our internal capacity, the features 
 ## General Features
 
 ### Design Style
-_New features will be planed in the future as needed._
+_New features will be planned in the future as needed._
 
 ### User Management
-_New features will be planed in the future as needed._
+_New features will be planned in the future as needed._
 
 ## Specific Features
 
 ### Projects App
-_New features will be planed in the future as needed._
+_New features will be planned in the future as needed._
 
 ### Entities App
+| Short Name           | Descriptions                                                                             | Short-Term | Long-Term |
+|----------------------|------------------------------------------------------------------------------------------|------------|-----------|
+| Batch Create         | User can create multiple entities with similar entity attributes.                        | &check;    |           |
+| Batch Delete         | User can delete multiple selected entities with a special view for all the associations. | &check;    |           |
 
 ### Notifications App
 
