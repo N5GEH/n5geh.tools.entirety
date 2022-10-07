@@ -1,0 +1,18 @@
+{% extends '_base.html' %}
+
+{#{% block title %}Edit Device{% endblock %}#}
+
+{% block content %}
+    <h3 class="mt-5">{{ action }} Device</h3>
+
+    {% if action == "Create" %}
+        <form action="{% url 'projects:devices:create_submit' project.uuid %}" method="post" novalidate>
+    {% elif action == "Edit" %}
+        <form action="{% url 'projects:devices:edit-submit' project.uuid %}" method="post" novalidate>
+    {% endif %}
+        {% csrf_token %}
+            {% include 'accordion.html' %}
+            <button class="btn btn-primary rounded-pill" type="submit">Save</button>
+        </form>
+
+{% endblock %}
