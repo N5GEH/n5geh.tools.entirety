@@ -102,9 +102,7 @@
                                         <div id="div_attributes">
                                             {% include "subscriptions/attributes.html" %}
                                         </div>
-                                        <div id="div_expressions">
-                                            {% include "subscriptions/expressions.html" %}
-                                        </div>
+                                        {{ form.expression|as_crispy_field }}
 
 
                                         <a type="button"

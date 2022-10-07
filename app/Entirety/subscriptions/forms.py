@@ -136,20 +136,10 @@ class SubscriptionForm(forms.ModelForm):
 
     # Subject
 
-    # attributes = AttributesForm()
-    # attributes = forms.MultipleChoiceField(
-    #     choices=[], widget=forms.CheckboxSelectMultiple, required=False
-    # )
-    # attributes = forms.CharField(
-    #     required=False
-    # )
-
     expression = forms.CharField(
         required=False,
-        help_text="An expression composed of q, mq, georel, geometry and coords",
+        help_text="An expression composed of q",
     )
-
-    # entities = Entities(prefix="entity")
 
     # Notification
 
@@ -179,7 +169,6 @@ class SubscriptionForm(forms.ModelForm):
     )
     only_changed_attributes = forms.BooleanField(required=False, initial=False)
 
-    # Not implemented in Filip
     # times_sent = forms.IntegerField(disabled=True, required=False)
     # last_notification = forms.DateField(disabled=True, required=False)
     # last_failure = forms.DateField(disabled=True, required=False)

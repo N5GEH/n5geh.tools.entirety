@@ -15,8 +15,12 @@
             <span class="h5"> {{ subscription.name }} </span>
             <span>{{ subscription.description }}</span>
         </div>
-        <div class="card-footer d-flex justify-content-end align-items-center">
+        <div class="card-footer d-flex justify-content-between align-items-center">
             <a href="{% url "projects:subscriptions:update" project_id=project.uuid pk=subscription.uuid %}"
+               data-bs-toggle="tooltip" data-bs-placement="bottom" title="Delete {{ subscription.name }}">
+                <i class="bi bi-trash"></i>
+            </a>
+             <a href="{% url "projects:subscriptions:update" project_id=project.uuid pk=subscription.uuid %}"
                data-bs-toggle="tooltip" data-bs-placement="bottom" title="Edit {{ subscription.name }}">
                 <i class="bi bi-gear"></i>
             </a>
