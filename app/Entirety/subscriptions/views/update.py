@@ -111,7 +111,6 @@ class Update(ProjectContextMixin, UpdateView):
                     choices=attr_choices,
                     initial={"attributes": cb_sub.subject.condition.attrs},
                 )
-                context["expressions"] = forms.Expressions(prefix="expr")
 
         return context
 

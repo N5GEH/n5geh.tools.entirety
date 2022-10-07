@@ -131,10 +131,7 @@ class SubscriptionForm(forms.ModelForm):
 
     # Subject
 
-    expression = forms.CharField(
-        required=False,
-        help_text="An expression composed of q",
-    )
+    # TODO: expression
 
     # Notification
 

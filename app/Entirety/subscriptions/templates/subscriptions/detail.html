@@ -103,7 +103,7 @@
                                         <div id="div_attributes">
                                             {% include "subscriptions/attributes.html" %}
                                         </div>
-                                        {{ form.expression|as_crispy_field }}
+{#                                        {{ form.expression|as_crispy_field }}#}
 
                                         <a type="button"
                                            hx-post="{% url "projects:subscriptions:attributes" project_id=project.uuid %}"
