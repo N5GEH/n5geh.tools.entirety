@@ -31,7 +31,14 @@ _New features will be planned in the future as needed._
 
 ### Notifications App
 
+| Short Name              | Descriptions                                                | Short-Term | Long-Term |
+|-------------------------|-------------------------------------------------------------|------------|-----------|
+| Expression builder      | Expressions can be created from a graphical interface       | &check;    |           |
+| Notification attributes | Attributes choices in notification are loaded as in subject | &check;    |           |
+| Load Subscriptions      | User can load existing subscriptions from context broker    |            | &check;   |
+
 ### Devices App
+
 | Short Name           | Descriptions                                                                                                                                                      | Short-Term | Long-Term |
 |----------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------|------------|-----------|
 | Batch Create         | User can create multiple devices with similar configuration (the same attributes/commands name)                                                                                                | &check;    |           |
