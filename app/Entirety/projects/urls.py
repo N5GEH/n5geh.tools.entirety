@@ -10,6 +10,9 @@ urlpatterns = [
     path("<str:pk>/detail", views.Detail.as_view(), name="detail"),
     path("<str:pk>/update", views.Update.as_view(), name="update"),
     path("<str:pk>/delete", views.Delete.as_view(), name="delete"),
+    path("broker", views.broker, name="broker"),
+    path("ql", views.ql, name="ql"),
+    path("iota", views.iota, name="iota"),
 ]
 
 if apps.is_installed("entities"):

@@ -60,6 +60,30 @@
                         <span class="d-none d-md-inline-flex">Examples</span>
                     </a>
                 </li>
+                <li class="nav-item border-bottom d-inline-flex">
+                    <a hx-get="{% url "projects:broker" %}" class="nav-link btn-sidebar py-md-2"
+                       data-bs-toggle="tooltip" data-bs-placement="right" data-bs-custom-class="d-md-none"
+                       title="Orion Broker" hx-trigger="every 10s">
+                        <i class={{ broker_health_class }}></i>
+                        <small class="d-none d-md-inline-flex text-sm-end">Orion Broker</small>
+                    </a>
+                </li>
+                <li class="nav-item border-bottom d-inline-flex">
+                    <a hx-get="{% url "projects:ql" %}" class="nav-link btn-sidebar py-md-2"
+                       data-bs-toggle="tooltip" data-bs-placement="right" data-bs-custom-class="d-md-none"
+                       title="Quantum Leap" hx-trigger="every 10s">
+                        <i class={{ broker_health_class }}></i>
+                        <small class="d-none d-md-inline-flex text-sm-end">Quantum Leap</small>
+                    </a>
+                </li>
+                <li class="nav-item border-bottom d-inline-flex">
+                    <a hx-get="{% url "projects:iota" %}" class="nav-link btn-sidebar py-md-2"
+                       data-bs-toggle="tooltip" data-bs-placement="right" data-bs-custom-class="d-md-none"
+                       title="IOT Agent" hx-trigger="every 10s">
+                        <i class={{ broker_health_class }}></i>
+                        <small class="d-none d-md-inline-flex" >IOT Agent</small>
+                    </a>
+                </li>
 
                 <li class="nav-item border-top d-inline-flex {% if not project %} mt-auto {% endif %}d-sm-none dropend">
                     {% include "auth.html" %}
