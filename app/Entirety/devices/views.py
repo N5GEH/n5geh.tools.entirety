@@ -3,7 +3,7 @@ from django.contrib import messages
 from django.shortcuts import render, redirect
 from django.views.generic import View, TemplateView
 from django.http import HttpRequest
-from projects.mixins import ProjectContextMixin
+from projects.mixins import ProjectContextMixin, ApplicationLoadMixin
 from devices.forms import DeviceBasic, Attributes, Commands
 from devices.utils import get_devices, post_device, \
     update_device, prefix_attributes, prefix_commands, parse_request_data, \
@@ -14,7 +14,7 @@ from pydantic import ValidationError
 
 
 # Devices list
-class DeviceListView(ProjectContextMixin, SingleTableMixin, TemplateView):
+class DeviceListView(ProjectContextMixin, ApplicationLoadMixin, SingleTableMixin, TemplateView):
     # TemplateView.as_view() will render the template. Do not need to invoke render function
     template_name = "devices/list.html"
     table_class = DevicesTable
@@ -34,7 +34,7 @@ class DeviceListView(ProjectContextMixin, SingleTableMixin, TemplateView):
         return context
 
 
-class DeviceListSubmitView(ProjectContextMixin, View):
+class DeviceListSubmitView(ProjectContextMixin, ApplicationLoadMixin, View):
     # Redirect the request to corresponding view
     def post(self, request, *args, **kwargs):
         # press delete button
@@ -86,7 +86,7 @@ class DeviceListSubmitView(ProjectContextMixin, View):
 
 
 # Create devices
-class DeviceCreateView(ProjectContextMixin, TemplateView):
+class DeviceCreateView(ProjectContextMixin, ApplicationLoadMixin, TemplateView):
     def get(self, request, *args, **kwargs):
         basic_info = DeviceBasic()
         attributes = Attributes(prefix=prefix_attributes)
@@ -102,7 +102,7 @@ class DeviceCreateView(ProjectContextMixin, TemplateView):
         return render(request, "devices/detail.html", context)
 
 
-class DeviceCreateSubmitView(ProjectContextMixin, TemplateView):
+class DeviceCreateSubmitView(ProjectContextMixin, ApplicationLoadMixin, TemplateView):
     def post(self, request: HttpRequest, **kwargs):
         # preprocess the request query data
         data_basic, data_attributes, data_commands = parse_request_data(request.POST)
@@ -141,7 +141,7 @@ class DeviceCreateSubmitView(ProjectContextMixin, TemplateView):
 
 
 # Edit devices
-class DeviceEditView(ProjectContextMixin, TemplateView):
+class DeviceEditView(ProjectContextMixin, ApplicationLoadMixin, TemplateView):
     def get(self, request: HttpRequest, *args, **kwargs):
         context = super(DeviceEditView, self).get_context_data()
 
@@ -179,7 +179,7 @@ class DeviceEditView(ProjectContextMixin, TemplateView):
         return render(request, "devices/detail.html", context)
 
 
-class DeviceEditSubmitView(ProjectContextMixin, TemplateView):
+class DeviceEditSubmitView(ProjectContextMixin, ApplicationLoadMixin, TemplateView):
     def post(self, request: HttpRequest, **kwargs):
         context = super(DeviceEditSubmitView, self).get_context_data()
 
@@ -220,7 +220,7 @@ class DeviceEditSubmitView(ProjectContextMixin, TemplateView):
 
 
 # Delete Device
-class DeviceDeleteView(ProjectContextMixin, View):
+class DeviceDeleteView(ProjectContextMixin, ApplicationLoadMixin, View):
     def get(self, request: HttpRequest, *args, **kwargs):
         # get the selected devices from session
         device_id = request.session.get("devices")
