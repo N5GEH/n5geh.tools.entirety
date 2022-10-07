@@ -13,16 +13,22 @@ from subscriptions.models import Subscription
 
 
 class Delete(ProjectContextMixin, DeleteView):
+    """
+    View class used to delete a subscription
+    """
+
     model = Subscription
     template_name = "subscriptions/confirm_delete.html"
 
     def form_valid(self, form):
         success_url = self.get_success_url()
 
+        # UUID will be lost after delete
         uuid = self.object.uuid
 
         self.object.delete()
 
+        # delete in context broker
         with ContextBrokerClient(
             url=settings.CB_URL,
             fiware_header=FiwareHeader(

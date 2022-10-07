@@ -6,9 +6,15 @@ from subscriptions import forms
 
 
 class Entities(ProjectContextMixin, View):
+    """
+    View class used to dynamically add entity filters.
+    Delete is done via JavaScript
+    """
+
     http_method_names = "post"
 
     def post(self, request, *args, **kwargs):
+        # Make post mutuable
         post = request.POST.copy()
 
         total = int(post["entity-TOTAL_FORMS"])

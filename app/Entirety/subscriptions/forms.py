@@ -55,9 +55,6 @@ class AttributesForm(forms.Form):
         )
 
 
-Attributes = forms.formset_factory(AttributesForm)
-
-
 class EntitiesForm(forms.Form):
     _entity_choices = [
         ("id", "id"),
@@ -113,8 +110,6 @@ Expressions = forms.formset_factory(ExpressionForm, extra=1)
 
 
 class SubscriptionForm(forms.ModelForm):
-    _newly_created: bool
-
     # Base info
     description = forms.CharField(
         help_text="A free text used by the client to describe the subscription."
@@ -143,7 +138,6 @@ class SubscriptionForm(forms.ModelForm):
 
     # Notification
 
-    # TODO: attrs or exceptAttrs
     # TODO: httpCustom
     http = HTTPURLField(required=False)
     # TODO: mqttCustom
@@ -154,6 +148,8 @@ class SubscriptionForm(forms.ModelForm):
         help_text="List of metadata to be included in notification messages.",
     )
     # metadata = forms.
+
+    # TODO: attrs or exceptAttrs
 
     # n_attributes = forms.CharField(
     #     required=False,

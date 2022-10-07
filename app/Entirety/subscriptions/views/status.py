@@ -11,6 +11,10 @@ from subscriptions.models import Subscription
 
 
 class Status(ProjectContextMixin, View):
+    """
+    View class used to dynamically update subscription status
+    """
+
     def post(self, request, *args, **kwargs):
         uuid = kwargs.get("pk", None)
         sub = Subscription.objects.get(pk=uuid)

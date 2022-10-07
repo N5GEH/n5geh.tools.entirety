@@ -23,6 +23,10 @@ from subscriptions import forms
 
 
 class Create(ProjectContextMixin, CreateView):
+    """
+    View class used to create a new subscription
+    """
+
     model = Subscription
     template_name = "subscriptions/detail.html"
     form_class = forms.SubscriptionForm
@@ -30,6 +34,7 @@ class Create(ProjectContextMixin, CreateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         if self.request.POST:
+            # Fill attributes and entities from post request
             context["attributes"] = forms.AttributesForm(self.request.POST)
             context["entities"] = forms.Entities(self.request.POST, prefix="entity")
         else:
@@ -46,6 +51,7 @@ class Create(ProjectContextMixin, CreateView):
 
         if form.is_valid() and entities_set.is_valid():
             data_set = [entity_form.cleaned_data for entity_form in entities_set]
+            # Otherwise choices are empty
             attributes.fields["attributes"].choices = utils.load_attributes(
                 self.project, data_set
             )

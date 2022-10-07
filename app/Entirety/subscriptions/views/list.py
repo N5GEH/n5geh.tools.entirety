@@ -9,10 +9,15 @@ from subscriptions.models import Subscription
 
 
 class List(ProjectContextMixin, ListView):
+    """
+    View class used to list subscriptions linked to project
+    """
+
     model = Subscription
     template_name = "subscriptions/subscription_list.html"
 
     def get_queryset(self):
+        # Use queryset not in the way it's intended
         data = []
         qs = super().get_queryset().filter(project_id=self.project.uuid)
         with ContextBrokerClient(
