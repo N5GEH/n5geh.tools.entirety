@@ -149,7 +149,11 @@ class SubscriptionForm(forms.ModelForm):
     # TODO: mqttCustom
     mqtt = MQTTURLField(required=False)
 
-    metadata = forms.JSONField(required=True, initial={"test": "test"})
+    metadata = forms.CharField(
+        required=False,
+        help_text="List of metadata to be included in notification messages.",
+    )
+    # metadata = forms.
 
     # n_attributes = forms.CharField(
     #     required=False,

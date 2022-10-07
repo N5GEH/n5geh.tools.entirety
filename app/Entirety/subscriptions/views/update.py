@@ -16,7 +16,6 @@ from filip.models.ngsi_v2.subscriptions import (
     Mqtt,
 )
 
-
 from projects.mixins import ProjectContextMixin
 from subscriptions.models import Subscription
 from subscriptions import utils
@@ -56,6 +55,11 @@ class Update(ProjectContextMixin, UpdateView):
                 form.initial["mqtt"] = (
                     str(cb_sub.notification.mqtt.url)
                     if cb_sub.notification.mqtt
+                    else None
+                )
+                form.initial["metadata"] = (
+                    ",".join(cb_sub.notification.metadata)
+                    if cb_sub.notification.metadata
                     else None
                 )
                 # form.initial["n_attributes"] = (
@@ -160,11 +164,6 @@ class Update(ProjectContextMixin, UpdateView):
                     cb_sub.expires = form.cleaned_data["expires"]
                     cb_sub.subject = Subject(
                         entities=entities,
-                        # condition=Condition(
-                        #     attrs=form.cleaned_data["attributes"].split(",")
-                        #     if form.cleaned_data["attributes"]
-                        #     else []
-                        # ),
                         condition=Condition(
                             attrs=attributes.cleaned_data["attributes"]
                         ),
@@ -178,6 +177,9 @@ class Update(ProjectContextMixin, UpdateView):
                             topic=f"{settings.MQTT_BASE_TOPIC}/{self.project.uuid}",
                         )
                         if form.cleaned_data["mqtt"]
+                        else None,
+                        metadata=form.cleaned_data["metadata"].split(",")
+                        if form.cleaned_data["metadata"].split(",")
                         else None,
                         # attrs=form.cleaned_data["n_attributes"].split(",")
                         # if form.cleaned_data["n_attributes"]
