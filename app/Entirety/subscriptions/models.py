@@ -7,9 +7,7 @@ from projects.models import Project
 
 
 class Subscription(models.Model):
-    uuid = models.CharField(
-        unique=True, max_length=64, primary_key=True
-    )  # later uuid from cb
+    uuid = models.CharField(unique=True, max_length=64, primary_key=True)
     name = models.CharField(max_length=64)
     date_created = models.DateTimeField(auto_now_add=True)
     date_modified = models.DateTimeField(auto_now=True)

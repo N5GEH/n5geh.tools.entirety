@@ -16,8 +16,9 @@
             <span>{{ subscription.description }}</span>
         </div>
         <div class="card-footer d-flex justify-content-between align-items-center">
-            <a href="{% url "projects:subscriptions:update" project_id=project.uuid pk=subscription.uuid %}"
-               data-bs-toggle="tooltip" data-bs-placement="bottom" title="Delete {{ subscription.name }}">
+            <a href="#" hx-get="{% url "projects:subscriptions:delete" project_id=project.uuid pk=subscription.uuid %}"
+               data-bs-toggle="tooltip" data-bs-placement="bottom" title="Delete {{ subscription.name }}"
+                hx-target="#dg_general">
                 <i class="bi bi-trash"></i>
             </a>
              <a href="{% url "projects:subscriptions:update" project_id=project.uuid pk=subscription.uuid %}"

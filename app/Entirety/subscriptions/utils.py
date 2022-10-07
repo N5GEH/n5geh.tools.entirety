@@ -38,7 +38,7 @@ def load_attributes(project, data_set):
                             if t["type"] == entity_type
                         ]
                     )
-            attributes.extend(tmp_attrs)
+                attributes.extend(tmp_attrs)
     # hacky unique list
     attributes = list(set(attributes))
     attributes.sort()
