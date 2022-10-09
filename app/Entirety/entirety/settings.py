@@ -240,6 +240,8 @@ class Settings(PydanticSettings):
 
     CB_URL: AnyUrl = Field(default="http://localhost:1026", env="CB_URL")
 
+    QL_URL: AnyUrl = Field(default="http://localhost:8668", env="QL_URL")
+
     IOTA_URL: AnyUrl = Field(default="http://localhost:4041", env="IOTA_URL")
 
     # Database
