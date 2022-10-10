@@ -38,7 +38,7 @@ if settings.DEBUG:
     urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 
 if settings.LOCAL_AUTH:
-    urlpatterns += path("admin/", admin.site.urls)
+    urlpatterns += [path("admin/", admin.site.urls)]
 else:
     urlpatterns += [
         path("admin/login/", views.CustomLogin.as_view()),
