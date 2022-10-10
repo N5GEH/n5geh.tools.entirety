@@ -5,5 +5,43 @@
 {% block page_title %}Entirety{% endblock %}
 
 {% block content %}
-    Home Page
+    <div class="container page-item">
+        <div class="col-md-8">
+            <h1 class="color-inherit"> The Entirety Tool</h1>
+            <p>
+                Entirety is web-based tool developed for the easy work with dedicated FIWARE APIs. Entirety is
+                structured in
+                different apps and projects; apps are developed according to the interaction with other applications, e.
+                g.
+                FIWARE Generic Enablers (GEs), and projects are used to determine which data in the database can be
+                accessed. Entirety is based on the python-based Django framework and uses the FIWARE Library for Python
+                (FiLiP). At the moment, FiLiP only supports NGSI-v2, therefore Entirety also only supports NGSI-v2. Once
+                NGSI-LD is supported, we plan to integrate these features in Entirety as well.
+
+            </p>
+
+            <p>Find more details on Github Entirety <a href="https://github.com/N5GEH/n5geh.tools.entirety2#readme">Readme</a>
+                and look at the <a
+                        href="https://github.com/N5GEH/n5geh.tools.entirety2/tree/development/docs/ROADMAP.md">Roadmap</a>.
+            </p>
+
+            <p></p>
+
+            <h3>Applications</h3>
+            <p>
+                Currently, Entirety supports interaction with the following Generic Enablers: Orion, IoT Agents (only
+                json?)
+                and QuantumLeap. Accordingly, the apps "Entities", "Devices", and "Notifications" are developed to
+                communicate with these GEs.
+                Which app shall be loaded can be configured in the .env file at startup of Entirety.
+            </p>
+
+            <h3>Projects</h3>
+            <p>According to FIWARE's way of separating data for multi-tenancy applications using the http header
+                "fiware-service", Entirety uses projects that are bound to specific "fiware-service" headers. This way,
+                projects can only access data that they are created and authorized for.
+            </p>
+        </div>
+    </div>
+
 {% endblock %}
