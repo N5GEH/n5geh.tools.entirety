@@ -1,4 +1,5 @@
 from django.conf import settings
+from typing import List
 from projects.models import Project
 from filip.clients.ngsi_v2 import IoTAClient
 from filip.models import FiwareHeader
@@ -100,7 +101,7 @@ def delete_device(project: Project, device_id, **kwargs):
 # def get_project(uuid):
 #     return Project.objects.get(uuid=uuid)
 
-def devices_filter(devices: list[Device],
+def devices_filter(devices: List[Device],
                    id_patern: str = None,
                    name_patern: str = None,
                    type_patern: str = None):
@@ -120,7 +121,7 @@ def devices_filter(devices: list[Device],
     return devices
 
 
-def patern_devices_filter(devices: list[Device], patern: str = None):
+def patern_devices_filter(devices: List[Device], patern: str = None):
     """
     Filter devices with specified patern to device_id, device_name, device_type
     """
