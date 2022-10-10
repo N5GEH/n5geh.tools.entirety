@@ -12,43 +12,50 @@ ATTRIBUTES_TYPE = [
     DataType.BOOLEAN.value,
     DataType.TEXT.value,
     DataType.DATETIME.value,
-    DataType.ARRAY.value
+    DataType.ARRAY.value,
 ]
 
-COMMANDS_TYPE = [
-    DataType.COMMAND.value
-]
+COMMANDS_TYPE = [DataType.COMMAND.value]
 
 
 class DeviceBasic(forms.Form):
-    device_id = forms.CharField(label="Device ID", required=True,
-                                widget=forms.TextInput(
-                                    attrs={
-                                        "data-bs-toggle": "tooltip",
-                                        # "data-bs-placement": "top ",
-                                        "title": "Unique ID that will be used to identify the device",
-                                    }
-                                ),
-                                )
-    entity_name = forms.CharField(label="Entity Name", max_length=256, required=True,
-                                  widget=forms.TextInput(
-                                      attrs={
-                                          "data-bs-toggle": "tooltip",
-                                          # "data-bs-placement": "top ",
-                                          "title": "ID of the entity representing the device in the Context Broker, "
-                                                   "e.g. urn:ngsi-ld:TemperatureSensor:001",
-                                      }
-                                  ),
-                                  )
-    entity_type = forms.CharField(label="Entity Type", max_length=256,
-                                  widget=forms.TextInput(
-                                      attrs={
-                                          "data-bs-toggle": "tooltip",
-                                          # "data-bs-placement": "top ",
-                                          "title": "Type of the entity in the Context Broker",
-                                      }
-                                  ),
-                                  )
+    device_id = forms.CharField(
+        label="Device ID",
+        required=True,
+        widget=forms.TextInput(
+            attrs={
+                "data-bs-toggle": "tooltip",
+                # "data-bs-placement": "top ",
+                "title": "Unique ID that will be used to identify the device in the IoT Agent",
+            }
+        ),
+    )
+    entity_name = forms.CharField(
+        label="Entity Name",
+        max_length=256,
+        required=True,
+        widget=forms.TextInput(
+            attrs={
+                "data-bs-toggle": "tooltip",
+                # "data-bs-placement": "top ",
+                "title": "ID of the entity representing the device in the Context Broker, "
+                "e.g. urn:ngsi-ld:TemperatureSensor:001. Combination of ID and "
+                "Type must be unique.",
+            }
+        ),
+    )
+    entity_type = forms.CharField(
+        label="Entity Type",
+        max_length=256,
+        widget=forms.TextInput(
+            attrs={
+                "data-bs-toggle": "tooltip",
+                # "data-bs-placement": "top ",
+                "title": "Type of the entity in the Context Broker. Combination of ID and "
+                "Type must be unique.",
+            }
+        ),
+    )
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -57,26 +64,32 @@ class DeviceBasic(forms.Form):
 
 
 class DeviceAttributes(forms.Form):
-    name = forms.CharField(label="Name", required=True,
-                           widget=forms.TextInput(
-                               attrs={
-                                   "data-bs-toggle": "tooltip",
-                                   # "data-bs-placement": "top ",
-                                   "title": "ID of the attribute in the target entity in the Context Broker",
-                               }
-                           ),
-                           )
+    name = forms.CharField(
+        label="Name",
+        required=True,
+        widget=forms.TextInput(
+            attrs={
+                "data-bs-toggle": "tooltip",
+                # "data-bs-placement": "top ",
+                "title": "Unique name to identify this attribute within the context entity in the "
+                "Context Broker",
+            }
+        ),
+    )
     type_choices = tuple([(f"{t}", t) for i, t in enumerate(ATTRIBUTES_TYPE)])
     type = forms.ChoiceField(label="Type", required=True, choices=type_choices)
-    object_id = forms.CharField(label="Object ID", required=False,
-                                widget=forms.TextInput(
-                                    attrs={
-                                        "data-bs-toggle": "tooltip",
-                                        # "data-bs-placement": "top ",
-                                        "title": "(optional) name of the attribute as coming from the device",
-                                    }
-                                ),
-                                )
+    object_id = forms.CharField(
+        label="Object ID",
+        required=False,
+        widget=forms.TextInput(
+            attrs={
+                "data-bs-toggle": "tooltip",
+                # "data-bs-placement": "top ",
+                "title": " (optional) Name of the attribute as coming from the device ("
+                "incoming southbound traffic).",
+            }
+        ),
+    )
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -96,15 +109,17 @@ class DeviceAttributes(forms.Form):
 
 
 class DeviceCommands(forms.Form):
-    name = forms.CharField(label="Name", required=True,
-                           widget=forms.TextInput(
-                               attrs={
-                                   "data-bs-toggle": "tooltip",
-                                   # "data-bs-placement": "top ",
-                                   "title": "ID of the attribute in the target entity in the Context Broker",
-                               }
-                           ),
-                           )
+    name = forms.CharField(
+        label="Name",
+        required=True,
+        widget=forms.TextInput(
+            attrs={
+                "data-bs-toggle": "tooltip",
+                # "data-bs-placement": "top ",
+                "title": "Unique name of the attribute in the target entity in the Context Broker",
+            }
+        ),
+    )
     type_choices = tuple([(f"{t}", t) for i, t in enumerate(COMMANDS_TYPE)])
     type = forms.ChoiceField(label="Type", required=True, choices=type_choices)
 
