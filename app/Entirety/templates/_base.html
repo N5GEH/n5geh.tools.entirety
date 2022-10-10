@@ -43,12 +43,6 @@
 <div class="container-fluid ps-0 d-flex">
     {% include 'sidebar.html' %}
     <main class="d-flex flex-column flex-fill ps-4 pe-3 py-3">
-        <div class="d-flex">
-            <span class="d-flex border-bottom flex-grow-1 mb-2">
-                <span class="h3">{% block page_title %}{% endblock %}</span>
-                {% block page_buttons %}{% endblock %}
-            </span>
-        </div>
         {% include 'messages.html' %}
         {% block content %}(no content - should not be here) {% endblock %}
     </main>
