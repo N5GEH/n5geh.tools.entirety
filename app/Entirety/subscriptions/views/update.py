@@ -184,7 +184,7 @@ class Update(ProjectContextMixin, UpdateView):
                         if form.cleaned_data["mqtt"]
                         else None,
                         metadata=form.cleaned_data["metadata"].split(",")
-                        if form.cleaned_data["metadata"].split(",")
+                        if form.cleaned_data["metadata"]
                         else None,
                         # attrs=form.cleaned_data["n_attributes"].split(",")
                         # if form.cleaned_data["n_attributes"]
