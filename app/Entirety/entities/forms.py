@@ -35,7 +35,7 @@ class EntityForm(forms.Form):
                 attrs={
                     "data-bs-toggle": "tooltip",
                     "data-bs-placement": "top",
-                    "title": "Entity Type",
+                    "title": "Type of the context entity",
                 },
             ),
         )
@@ -48,7 +48,7 @@ class EntityForm(forms.Form):
             attrs={
                 "data-bs-toggle": "tooltip",
                 "data-bs-placement": "top",
-                "title": "Entity id",
+                "title": "ID of the context entity, e.g. urn:ngsi-ld:Room:001",
             }
         ),
     )
@@ -63,7 +63,7 @@ class AttributeForm(forms.Form):
             attrs={
                 "data-bs-toggle": "tooltip",
                 "data-bs-placement": "top",
-                "title": "Attribute Name",
+                "title": "Unique name to identify this attribute in the context entity",
             }
         ),
     )
@@ -77,7 +77,7 @@ class AttributeForm(forms.Form):
             attrs={
                 "data-bs-toggle": "tooltip",
                 "data-bs-placement": "top",
-                "title": "Attribute Value",
+                "title": "(optional) Value of the attribute",
             }
         ),
     )
