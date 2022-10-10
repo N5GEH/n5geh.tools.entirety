@@ -27,8 +27,6 @@ handler400 = "entirety.views.custom_bad_request_view"
 
 
 urlpatterns = [
-    path("admin/login/", views.CustomLogin.as_view()),
-    path("admin/", admin.site.urls),
     path("", views.home, name="home"),
     path("projects/", include("projects.urls")),
     path("accounts/", include("users.urls")),
@@ -39,5 +37,11 @@ if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
     urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 
-if not settings.LOCAL_AUTH:
-    urlpatterns += [path("oidc/", include("mozilla_django_oidc.urls"))]
+if settings.LOCAL_AUTH:
+    urlpatterns += path("admin/", admin.site.urls)
+else:
+    urlpatterns += [
+        path("admin/login/", views.CustomLogin.as_view()),
+        path("admin/", admin.site.urls),
+        path("oidc/", include("mozilla_django_oidc.urls")),
+    ]
