@@ -54,6 +54,15 @@ class LokiSettings(BaseSettings):
         env_file_encoding = "utf-8"
 
 
+class AuthenticationSettings(BaseSettings):
+    LOCAL_AUTH = Field(default=True, env="LOCAL_AUTH")
+
+    class Config:
+        case_sensitive = False
+        env_file = ".env"
+        env_file_encoding = "utf-8"
+
+
 class AppLoadSettings(BaseSettings):
     ENTITIES_LOAD: bool = Field(default=False, env="ENTITIES_LOAD")
     DEVICES_LOAD: bool = Field(default=False, env="DEVICES_LOAD")
@@ -67,6 +76,9 @@ class AppLoadSettings(BaseSettings):
 
 class Settings(PydanticSettings):
     add_type("text/css", ".css", True)
+    __auth = AuthenticationSettings()
+    LOCAL_AUTH = __auth.LOCAL_AUTH
+
     # Build paths inside the project like this: BASE_DIR / 'subdir'.
     BASE_DIR: DirectoryPath = Path(__file__).resolve().parent.parent
 
@@ -82,7 +94,6 @@ class Settings(PydanticSettings):
         "django.contrib.staticfiles",
         "django.forms",
         "django_tables2",
-        "mozilla_django_oidc",
         "compressor",
         "crispy_forms",
         "crispy_bootstrap5",
@@ -103,7 +114,6 @@ class Settings(PydanticSettings):
         "django.contrib.auth.middleware.AuthenticationMiddleware",
         "django.contrib.messages.middleware.MessageMiddleware",
         "django.middleware.clickjacking.XFrameOptionsMiddleware",
-        "mozilla_django_oidc.middleware.SessionRefresh",
     ]
 
     MESSAGE_TAGS = {
@@ -152,7 +162,6 @@ class Settings(PydanticSettings):
         },
     ]
 
-    AUTHENTICATION_BACKENDS: Sequence[str] = ("entirety.oidc.CustomOIDCAB",)
     AUTH_USER_MODEL = "users.User"
 
     USE_I18N = True
@@ -208,7 +217,6 @@ class Settings(PydanticSettings):
             },
         },
         "loggers": {
-            "mozilla_django_oidc": {"handlers": ["loki"], "level": "DEBUG"},
             "": {
                 "handlers": ["loki"],
                 "level": "INFO",
@@ -248,31 +256,44 @@ class Settings(PydanticSettings):
     # Database
     # https://docs.djangoproject.com/en/4.0/ref/settings/#databases
     DATABASES: Databases = Field({})
-    LOGIN_URL: str = Field(default="/oidc/authenticate", env="LOGIN_URL")
 
-    LOGIN_REDIRECT_URL: str = Field(default="/oidc/callback/", env="LOGIN_REDIRECT_URL")
     LOGOUT_REDIRECT_URL: str = Field(default="/", env="LOGOUT_REDIRECT_URL")
 
-    OIDC_RP_SIGN_ALGO: str = Field(default="RS256", env="OIDC_RP_SIGN_ALGO")
-    OIDC_OP_JWKS_ENDPOINT: str = Field(env="OIDC_OP_JWKS_ENDPOINT")
+    if __auth.LOCAL_AUTH:
+        LOGIN_REDIRECT_URL: str = Field(default="/", env="LOGIN_REDIRECT_URL")
+    else:
+        INSTALLED_APPS.append("mozilla_django_oidc")
+        MIDDLEWARE.append("mozilla_django_oidc.middleware.SessionRefresh")
+        AUTHENTICATION_BACKENDS: Sequence[str] = ("entirety.oidc.CustomOIDCAB",)
 
-    OIDC_RP_CLIENT_ID: str = Field(env="OIDC_RP_CLIENT_ID")
-    OIDC_RP_CLIENT_SECRET: str = Field(env="OIDC_RP_CLIENT_SECRET")
-    OIDC_OP_AUTHORIZATION_ENDPOINT: str = Field(env="OIDC_OP_AUTHORIZATION_ENDPOINT")
-    OIDC_OP_TOKEN_ENDPOINT: str = Field(env="OIDC_OP_TOKEN_ENDPOINT")
-    OIDC_OP_USER_ENDPOINT: str = Field(env="OIDC_OP_USER_ENDPOINT")
+        LOGIN_URL: str = Field(default="/oidc/authenticate", env="LOGIN_URL")
 
-    OIDC_SUPER_ADMIN_ROLE: str = Field(
-        default="super_admin", env="OIDC_SUPER_ADMIN_ROLE"
-    )
-    OIDC_SERVER_ADMIN_ROLE: str = Field(
-        default="server_admin", env="OIDC_SERVER_ADMIN_ROLE"
-    )
-    OIDC_PROJECT_ADMIN_ROLE: str = Field(
-        default="project_admin", env="OIDC_PROJECT_ADMIN_ROLE"
-    )
-    OIDC_USER_ROLE: str = Field(default="user", env="OIDC_USER_ROLE")
-    OIDC_TOKEN_ROLE_FIELD: str = Field(default="roles", env="OIDC_TOKEN_ROLE_FIELD")
+        LOGIN_REDIRECT_URL: str = Field(
+            default="/oidc/callback/", env="LOGIN_REDIRECT_URL"
+        )
+
+        OIDC_RP_SIGN_ALGO: str = Field(default="RS256", env="OIDC_RP_SIGN_ALGO")
+        OIDC_OP_JWKS_ENDPOINT: str = Field(env="OIDC_OP_JWKS_ENDPOINT")
+
+        OIDC_RP_CLIENT_ID: str = Field(env="OIDC_RP_CLIENT_ID")
+        OIDC_RP_CLIENT_SECRET: str = Field(env="OIDC_RP_CLIENT_SECRET")
+        OIDC_OP_AUTHORIZATION_ENDPOINT: str = Field(
+            env="OIDC_OP_AUTHORIZATION_ENDPOINT"
+        )
+        OIDC_OP_TOKEN_ENDPOINT: str = Field(env="OIDC_OP_TOKEN_ENDPOINT")
+        OIDC_OP_USER_ENDPOINT: str = Field(env="OIDC_OP_USER_ENDPOINT")
+
+        OIDC_SUPER_ADMIN_ROLE: str = Field(
+            default="super_admin", env="OIDC_SUPER_ADMIN_ROLE"
+        )
+        OIDC_SERVER_ADMIN_ROLE: str = Field(
+            default="server_admin", env="OIDC_SERVER_ADMIN_ROLE"
+        )
+        OIDC_PROJECT_ADMIN_ROLE: str = Field(
+            default="project_admin", env="OIDC_PROJECT_ADMIN_ROLE"
+        )
+        OIDC_USER_ROLE: str = Field(default="user", env="OIDC_USER_ROLE")
+        OIDC_TOKEN_ROLE_FIELD: str = Field(default="roles", env="OIDC_TOKEN_ROLE_FIELD")
 
     # Internationalization
     # https://docs.djangoproject.com/en/4.0/topics/i18n/

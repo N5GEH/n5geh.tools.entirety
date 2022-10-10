@@ -16,7 +16,7 @@
                 <hr class="dropdown-divider">
             </li>
             <li>
-                <form action="{% url 'oidc_logout' %}" method="post">
+                <form action="{% url 'logout' %}" method="post">
                     {% csrf_token %}
                     <input class="dropdown-item" type="submit" value="Logout">
                 </form>
@@ -25,12 +25,12 @@
     </div>
 
 {% else %}
-    <a href="{% url 'oidc_authentication_init' %}"
+    <a href="{% url 'login' %}"
        class="d-none d-sm-flex nav-link d-flex justify-content-center align-items-center justify-content-center text-white text-decoration-none">
         <i class="bi bi-person me-md-1" style="font-size: 1.5em"></i>
         <span class="d-none d-md-inline mx-1">Login</span>
     </a>
-    <a href="{% url "oidc_authentication_init" %}" class="d-sm-none nav-link py-md-2"
+    <a href="{% url "login" %}" class="d-sm-none nav-link py-md-2"
        data-bs-toggle="tooltip" data-bs-placement="right" data-bs-custom-class="d-md-none"
        title="Login">
         <i class="bi bi-person"></i>
