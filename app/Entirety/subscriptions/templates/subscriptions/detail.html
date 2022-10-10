@@ -9,22 +9,19 @@
     {% endif %}
 {% endblock %}
 
-{% block page_title %}
-    {% if subscription.name %} Edit {{ subscription.name }}
-    {% else %} Create New Subscription
-    {% endif %}
-{% endblock %}
-
-{% block page_buttons %}
-    <button type="submit" form="f_subscription"
-            class="btn btn-primary btn-submit mb-1 ms-auto" data-bs-toggle="tooltip" data-bs-placement="bottom"
-            title="Save">
-        <i class="bi bi-save"></i>
-    </button>
-{% endblock %}
-
 {% block content %}
-
+    <div class="d-flex">
+        <span class="d-flex flex-grow-1 mb-2">
+            <span class="h3">{% if subscription.name %} Edit {{ subscription.name }}
+            {% else %} Create New Subscription{% endif %}
+            </span>
+            <button type="submit" form="f_subscription"
+                    class="btn btn-primary btn-submit mb-1 ms-auto" data-bs-toggle="tooltip" data-bs-placement="bottom"
+                    title="Save">
+                <i class="bi bi-save"></i>
+            </button>
+        </span>
+    </div>
     <form id="f_subscription" method="post" enctype="multipart/form-data">
         {% csrf_token %}
         <div class="accordion mt-3">
@@ -103,7 +100,7 @@
                                         <div id="div_attributes">
                                             {% include "subscriptions/attributes.html" %}
                                         </div>
-{#                                        {{ form.expression|as_crispy_field }}#}
+                                        {#                                        {{ form.expression|as_crispy_field }}#}
 
                                         <a type="button"
                                            hx-post="{% url "projects:subscriptions:attributes" project_id=project.uuid %}"
@@ -133,8 +130,8 @@
                         {{ form.http|as_crispy_field }}
                         {{ form.mqtt|as_crispy_field }}
                         {{ form.metadata|as_crispy_field }}
-{#                        {{ form.n_attributes|as_crispy_field }}#}
-{#                        {{ form.n_except_attributes|as_crispy_field }}#}
+                        {#                        {{ form.n_attributes|as_crispy_field }}#}
+                        {#                        {{ form.n_except_attributes|as_crispy_field }}#}
                         {{ form.attributes_format|as_crispy_field }}
                         {{ form.only_changed_attributes|as_crispy_field }}
                         {#{{ form.times_sent|as_crispy_field }}#}
