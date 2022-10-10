@@ -196,8 +196,7 @@ class Update(ProjectContextMixin, ApplicationLoadMixin, TemplateView):
             # messages.error(self.request, "Entity not updated. Reason: " + str(res))
             messages.error(
                 self.request,
-                "Entity not updated. Reason: "
-                + json.loads(res.response.text).get("description"),
+                "Entity not updated. Reason: " + res,
             )
             return render(request, self.template_name, context)
         else:
