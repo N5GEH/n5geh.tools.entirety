@@ -173,9 +173,9 @@ class Settings(PydanticSettings):
 
     STATIC_URL = "static/"
 
-    # STATICFILES_DIRS: List[DirectoryPath] = [
-    #     os.path.join(BASE_DIR, "static"),
-    # ]
+    STATICFILES_DIRS: List[DirectoryPath] = [
+        os.path.join(BASE_DIR, "static"),
+    ]
 
     STATICFILES_FINDERS: List[str] = [
         "django.contrib.staticfiles.finders.FileSystemFinder",
