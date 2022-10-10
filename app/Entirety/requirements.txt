@@ -32,10 +32,6 @@ dnspython==2.2.1
 email-validator==1.2.1
 filelock==3.7.1
 filip==0.2.3
-genson==1.2.2
-h11==0.12.0
-httpcore==0.15.0
-httpx==0.23.0
 identify==2.5.1
 idna==3.3
 igraph==0.9.8

@@ -1,10 +1,15 @@
+from django.conf import settings
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.shortcuts import render
 from django.urls import reverse
-from django.views.generic import ListView
+from django.views import View
+from django.views.generic import ListView, DetailView
 from django.views.generic.edit import UpdateView, CreateView, DeleteView
+from filip.clients.ngsi_v2 import ContextBrokerClient, QuantumLeapClient, IoTAClient
+from filip.models import FiwareHeader
 
 from .forms import ProjectForm
-from .mixins import ProjectCreateMixin, ProjectSelfMixin
+from .mixins import ProjectCreateMixin, ProjectSelfMixin, ApplicationLoadMixin
 from .models import Project
 
 
@@ -25,9 +30,14 @@ class Index(ListView):
         return context
 
 
-class Update(ProjectSelfMixin, UpdateView):
+class Detail(LoginRequiredMixin, ApplicationLoadMixin, DetailView):
     model = Project
     template_name = "projects/detail.html"
+
+
+class Update(LoginRequiredMixin, ProjectSelfMixin, ApplicationLoadMixin, UpdateView):
+    model = Project
+    template_name = "projects/update.html"
     form_class = ProjectForm
 
     def get_success_url(self):
@@ -36,7 +46,7 @@ class Update(ProjectSelfMixin, UpdateView):
 
 class Create(ProjectCreateMixin, CreateView):
     model = Project
-    template_name = "projects/detail.html"
+    template_name = "projects/update.html"
     form_class = ProjectForm
 
     def form_valid(self, form):
@@ -54,3 +64,45 @@ class Delete(ProjectSelfMixin, DeleteView):
 
     def get_success_url(self):
         return reverse("projects:index")
+
+
+class BrokerHealth(View):
+    def get(self, request, *args, **kwargs):
+        with ContextBrokerClient(
+            url=settings.CB_URL,
+            fiware_header=FiwareHeader(service="", service_path=""),
+        ) as cb_client:
+            try:
+                version = cb_client.get_version()
+                if version:
+                    return render(request, "good_health.html")
+            except:
+                return render(request, "bad_health.html")
+
+
+class QLHealth(View):
+    def get(self, request, *args, **kwargs):
+        with QuantumLeapClient(
+            url=settings.QL_URL,
+            fiware_header=FiwareHeader(service="", service_path=""),
+        ) as ql_client:
+            try:
+                version = ql_client.get_version()
+                if version:
+                    return render(request, "good_health.html")
+            except:
+                return render(request, "bad_health.html")
+
+
+class IOTAHealth(View):
+    def get(self, request, *args, **kwargs):
+        with IoTAClient(
+            url=settings.IOTA_URL,
+            fiware_header=FiwareHeader(service="", service_path=""),
+        ) as iota_client:
+            try:
+                version = iota_client.get_version()
+                if version:
+                    return render(request, "good_health.html")
+            except:
+                return render(request, "bad_health.html")

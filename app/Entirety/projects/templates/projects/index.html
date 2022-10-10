@@ -45,25 +45,29 @@
             {% for project in project_list %}
                 <div class="col mt-5">
                     <div class="card h-100">
-                        <div class="card-header">
+                        <div class="card-header d-flex justify-content-center align-items-center">
                             <h5>{{ project.name }}
                                 <i class="bi bi-kanban"></i>
                             </h5>
                         </div>
 
-                        {% if project.logo.url|length > 0 %}
-                            <img src="{{ project.logo.url }}" class="card-img-top w-100" alt="{{ project.name }}">
-                        {% else %}
-                            <img src="{% static "/img/n5geh.png" %}" class="card-img-top" alt="{{ project.name }}">
-                        {% endif %}
+                        <a href="{% url 'projects:detail' project.uuid %}">
+                            {% if project.logo.url|length > 0 %}
+                                <img src="{{ project.logo.url }}" class="card-img-top w-100" alt="{{ project.name }}">
+                            {% else %}
+                                <img src="{% static "/img/n5geh.png" %}" class="card-img-top" alt="{{ project.name }}">
+                            {% endif %}
+                        </a>
 
                         <div class="card-body">
-                            <p class="card-text text-truncate">{{ project.description }}</p>
+                            <p class="d-inline-block text-truncate" data-bs-toggle="tooltip" data-bs-placement="bottom"
+                               title="{{ project.description }}" style="max-width: 150px;">{{ project.description }}</p>
                         </div>
                         {% if view_permissions %}
                             <div class="ms-3 mb-3">
-                                <a href="{% url 'projects:update' project.uuid %}" class="btn btn-primary">Edit</a>
-                                <button type="button" class="btn btn-primary" data-bs-toggle="modal"
+                                <a href="{% url 'projects:update' project.uuid %}"
+                                   class="btn btn-primary rounded-pill btn-sm">Edit</a>
+                                <button type="button" class="btn btn-danger rounded-pill btn-sm" data-bs-toggle="modal"
                                         data-bs-target="#deleteModal"
                                         data-bs-url={% url 'projects:delete' project.uuid %}>
                                     Delete

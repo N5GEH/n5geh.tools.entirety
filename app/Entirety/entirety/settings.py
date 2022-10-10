@@ -39,6 +39,32 @@ class Databases(DatabaseSettings):
         env_file_encoding = "utf-8"
 
 
+class LokiSettings(BaseSettings):
+    LOKI_LEVEL: str = Field(default="INFO", env="LOKI_LEVEL")
+    LOKI_PORT: int = Field(default=3100, env="LOKI_PORT")
+    LOKI_TIMEOUT: float = Field(default=0.5, env="LOKI_TIMEOUT")
+    LOKI_PROTOCOL: str = Field(default="http", env="LOKI_PROTOCOL")
+    LOKI_SRC_HOST: str = Field(default="entirety", env="LOKI_SRC_HOST")
+    LOKI_TIMEZONE: str = Field(default="Europe/Berlin", env="LOKI_TIMEZONE")
+    LOKI_HOST: str = Field(default="localhost", env="LOKI_HOST")
+
+    class Config:
+        case_sensitive = False
+        env_file = ".env"
+        env_file_encoding = "utf-8"
+
+
+class AppLoadSettings(BaseSettings):
+    ENTITIES_LOAD: bool = Field(default=False, env="ENTITIES_LOAD")
+    DEVICES_LOAD: bool = Field(default=False, env="DEVICES_LOAD")
+    NOTIFICATIONS_LOAD: bool = Field(default=False, env="NOTIFICATIONS_LOAD")
+
+    class Config:
+        case_sensitive = False
+        env_file = ".env"
+        env_file_encoding = "utf-8"
+
+
 class Settings(PydanticSettings):
     add_type("text/css", ".css", True)
     # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -55,6 +81,7 @@ class Settings(PydanticSettings):
         "django.contrib.messages",
         "django.contrib.staticfiles",
         "django.forms",
+        "django_tables2",
         "mozilla_django_oidc",
         "compressor",
         "crispy_forms",
@@ -62,7 +89,6 @@ class Settings(PydanticSettings):
         "projects",
         "examples",
         "users",
-        "subscriptions",
     ]
 
     CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
@@ -169,16 +195,16 @@ class Settings(PydanticSettings):
         "handlers": {
             "console": {"class": "logging.StreamHandler", "level": "DEBUG"},
             "loki": {
-                "level": "DEBUG",
+                "level": LokiSettings().dict().get("LOKI_LEVEL"),
                 "class": "django_loki.LokiHttpHandler",
-                "host": "localhost",
+                "host": LokiSettings().dict().get("LOKI_HOST"),
                 "formatter": "loki",
-                "port": 3100,
-                "timeout": 0.5,
-                "protocol": "http",
+                "port": LokiSettings().dict().get("LOKI_PORT"),
+                "timeout": LokiSettings().dict().get("LOKI_TIMEOUT"),
+                "protocol": LokiSettings().dict().get("LOKI_PROTOCOL"),
                 "source": "Loki",
-                "src_host": "entirety",
-                "tz": "Europe/Berlin",
+                "src_host": LokiSettings().dict().get("LOKI_SRC_HOST"),
+                "tz": LokiSettings().dict().get("LOKI_TIMEZONEs"),
             },
         },
         "loggers": {
@@ -214,6 +240,10 @@ class Settings(PydanticSettings):
 
     CB_URL: AnyUrl = Field(default="http://localhost:1026", env="CB_URL")
     MQTT_BASE_TOPIC: str = Field(default="/Entirety", env="MQTT_BASE_TOPIC")
+
+    QL_URL: AnyUrl = Field(default="http://localhost:8668", env="QL_URL")
+
+    IOTA_URL: AnyUrl = Field(default="http://localhost:4041", env="IOTA_URL")
 
     # Database
     # https://docs.djangoproject.com/en/4.0/ref/settings/#databases
@@ -259,6 +289,15 @@ class Settings(PydanticSettings):
     TIME_ZONE: str = Field(default="Europe/Berlin", env="TIME_ZONE")
 
     COMPRESS_ENABLED: bool = Field(default=not DEBUG, env="COMPRESS_ENABLED")
+
+    DJANGO_TABLES2_TEMPLATE = "django_tables2/bootstrap4.html"
+
+    if AppLoadSettings().dict().get("ENTITIES_LOAD") is True:
+        INSTALLED_APPS.append("entities")
+    if AppLoadSettings().dict().get("DEVICES_LOAD") is True:
+        INSTALLED_APPS.append("devices")
+    if AppLoadSettings().dict().get("NOTIFICATIONS_LOAD") is True:
+        INSTALLED_APPS.append("subscriptions")
 
     class Config:
         case_sensitive = False
