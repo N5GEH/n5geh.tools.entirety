@@ -3,18 +3,28 @@ from django.contrib import messages
 from django.shortcuts import render, redirect
 from django.views.generic import View, TemplateView
 from django.http import HttpRequest
-from projects.mixins import ProjectContextMixin, ApplicationLoadMixin
+from projects.mixins import ProjectContextMixin
 from devices.forms import DeviceBasic, Attributes, Commands
-from devices.utils import get_devices, post_device, \
-    update_device, prefix_attributes, prefix_commands, parse_request_data, \
-    build_device, get_device_by_id, delete_device, devices_filter, patern_devices_filter
+from devices.utils import (
+    get_devices,
+    post_device,
+    update_device,
+    prefix_attributes,
+    prefix_commands,
+    parse_request_data,
+    build_device,
+    get_device_by_id,
+    delete_device,
+    devices_filter,
+    patern_devices_filter,
+)
 from devices.tables import DevicesTable
 from requests.exceptions import RequestException
 from pydantic import ValidationError
 
 
 # Devices list
-class DeviceListView(ProjectContextMixin, ApplicationLoadMixin, SingleTableMixin, TemplateView):
+class DeviceListView(ProjectContextMixin, SingleTableMixin, TemplateView):
     # TemplateView.as_view() will render the template. Do not need to invoke render function
     template_name = "devices/list.html"
     table_class = DevicesTable
@@ -34,7 +44,7 @@ class DeviceListView(ProjectContextMixin, ApplicationLoadMixin, SingleTableMixin
         return context
 
 
-class DeviceListSubmitView(ProjectContextMixin, ApplicationLoadMixin, View):
+class DeviceListSubmitView(ProjectContextMixin, View):
     # Redirect the request to corresponding view
     def post(self, request, *args, **kwargs):
         # press delete button
@@ -45,7 +55,9 @@ class DeviceListSubmitView(ProjectContextMixin, ApplicationLoadMixin, View):
             else:
                 # use session to cache the selected devices
                 request.session["devices"] = request.POST.get("selection")
-                request.session["delete_entity"] = True if request.POST.get("delete_entity") else False
+                request.session["delete_entity"] = (
+                    True if request.POST.get("delete_entity") else False
+                )
                 return redirect("projects:devices:delete", project_id=self.project.uuid)
 
         # press advanced delete button
@@ -69,7 +81,7 @@ class DeviceListSubmitView(ProjectContextMixin, ApplicationLoadMixin, View):
                 "projects:entities:delete",
                 project_id=self.project.uuid,
                 entity_id=entity_id,
-                entity_type=entity_type
+                entity_type=entity_type,
             )
 
         # press create button
@@ -86,7 +98,7 @@ class DeviceListSubmitView(ProjectContextMixin, ApplicationLoadMixin, View):
 
 
 # Create devices
-class DeviceCreateView(ProjectContextMixin, ApplicationLoadMixin, TemplateView):
+class DeviceCreateView(ProjectContextMixin, TemplateView):
     def get(self, request, *args, **kwargs):
         basic_info = DeviceBasic()
         attributes = Attributes(prefix=prefix_attributes)
@@ -97,12 +109,12 @@ class DeviceCreateView(ProjectContextMixin, ApplicationLoadMixin, TemplateView):
             "attributes": attributes,
             "commands": commands,
             "action": "Create",
-            **context
+            **context,
         }
         return render(request, "devices/detail.html", context)
 
 
-class DeviceCreateSubmitView(ProjectContextMixin, ApplicationLoadMixin, TemplateView):
+class DeviceCreateSubmitView(ProjectContextMixin, TemplateView):
     def post(self, request: HttpRequest, **kwargs):
         # preprocess the request query data
         data_basic, data_attributes, data_commands = parse_request_data(request.POST)
@@ -135,13 +147,13 @@ class DeviceCreateSubmitView(ProjectContextMixin, ApplicationLoadMixin, Template
             "attributes": attributes,
             "commands": commands,
             "action": "Create",
-            **context
+            **context,
         }
         return render(request, "devices/detail.html", context)
 
 
 # Edit devices
-class DeviceEditView(ProjectContextMixin, ApplicationLoadMixin, TemplateView):
+class DeviceEditView(ProjectContextMixin, TemplateView):
     def get(self, request: HttpRequest, *args, **kwargs):
         context = super(DeviceEditView, self).get_context_data()
 
@@ -174,12 +186,12 @@ class DeviceEditView(ProjectContextMixin, ApplicationLoadMixin, TemplateView):
             "attributes": attributes,
             "commands": commands,
             "action": "Edit",
-            **context
+            **context,
         }
         return render(request, "devices/detail.html", context)
 
 
-class DeviceEditSubmitView(ProjectContextMixin, ApplicationLoadMixin, TemplateView):
+class DeviceEditSubmitView(ProjectContextMixin, TemplateView):
     def post(self, request: HttpRequest, **kwargs):
         context = super(DeviceEditSubmitView, self).get_context_data()
 
@@ -214,13 +226,13 @@ class DeviceEditSubmitView(ProjectContextMixin, ApplicationLoadMixin, TemplateVi
             "attributes": attributes,
             "commands": commands,
             "action": "Edit",
-            **context
+            **context,
         }
         return render(request, "devices/detail.html", context)
 
 
 # Delete Device
-class DeviceDeleteView(ProjectContextMixin, ApplicationLoadMixin, View):
+class DeviceDeleteView(ProjectContextMixin, View):
     def get(self, request: HttpRequest, *args, **kwargs):
         # get the selected devices from session
         device_id = request.session.get("devices")
@@ -228,7 +240,9 @@ class DeviceDeleteView(ProjectContextMixin, ApplicationLoadMixin, View):
 
         # delete the device and entity?
         try:
-            delete_device(project=self.project, device_id=device_id, delete_entity=delete_entity)
+            delete_device(
+                project=self.project, device_id=device_id, delete_entity=delete_entity
+            )
         except RequestException as e:
             messages.error(request, e.response.content.decode("utf-8"))
 

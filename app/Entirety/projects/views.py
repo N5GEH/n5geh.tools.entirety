@@ -13,7 +13,7 @@ from .mixins import ProjectCreateMixin, ProjectSelfMixin, ApplicationLoadMixin
 from .models import Project
 
 
-class Index(ListView):
+class Index(LoginRequiredMixin, ListView):
     model = Project
     template_name = "projects/index.html"
 
@@ -35,7 +35,7 @@ class Detail(LoginRequiredMixin, ApplicationLoadMixin, DetailView):
     template_name = "projects/detail.html"
 
 
-class Update(LoginRequiredMixin, ProjectSelfMixin, ApplicationLoadMixin, UpdateView):
+class Update(ProjectSelfMixin, UpdateView):
     model = Project
     template_name = "projects/update.html"
     form_class = ProjectForm

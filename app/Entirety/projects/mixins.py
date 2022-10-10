@@ -1,13 +1,26 @@
 from abc import ABC
 
-from projects.models import Project
+from django.apps import apps
 from django.shortcuts import get_object_or_404
 from django.contrib.auth.mixins import UserPassesTestMixin, LoginRequiredMixin
 
 from projects.models import Project
 
 
-class ProjectBaseMixin(LoginRequiredMixin, UserPassesTestMixin, ABC):
+class ApplicationLoadMixin:
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        context["entities_load"] = apps.is_installed("entities")
+        context["devices_load"] = apps.is_installed("devices")
+        context["notifications_load"] = apps.is_installed("subscriptions")
+
+        return context
+
+
+class ProjectBaseMixin(
+    LoginRequiredMixin, UserPassesTestMixin, ApplicationLoadMixin, ABC
+):
     pass
 
 
