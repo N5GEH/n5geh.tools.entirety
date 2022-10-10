@@ -35,7 +35,7 @@ class Detail(LoginRequiredMixin, ApplicationLoadMixin, DetailView):
     template_name = "projects/detail.html"
 
 
-class Update(LoginRequiredMixin, ProjectSelfMixin, ApplicationLoadMixin, UpdateView):
+class Update(ProjectSelfMixin, UpdateView):
     model = Project
     template_name = "projects/update.html"
     form_class = ProjectForm
@@ -44,7 +44,7 @@ class Update(LoginRequiredMixin, ProjectSelfMixin, ApplicationLoadMixin, UpdateV
         return reverse("projects:index")
 
 
-class Create(LoginRequiredMixin, ProjectCreateMixin, CreateView):
+class Create(ProjectCreateMixin, CreateView):
     model = Project
     template_name = "projects/update.html"
     form_class = ProjectForm
@@ -58,7 +58,7 @@ class Create(LoginRequiredMixin, ProjectCreateMixin, CreateView):
         return reverse("projects:index")
 
 
-class Delete(LoginRequiredMixin, ProjectSelfMixin, DeleteView):
+class Delete(ProjectSelfMixin, DeleteView):
     model = Project
     template_name = "projects/index.html"
 

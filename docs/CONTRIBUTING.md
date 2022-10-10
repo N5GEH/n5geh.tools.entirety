@@ -25,6 +25,8 @@ Following commit types will affect the version of the next release:
 
 ### HTML
 
+* **accordion-collapse:** _acc\_c\_\<name\>_
+* **accordion-header:** _acc\_h\_\<name\>_
 * **dialog:** _dg\_\<name\>_
 * **div:** _d\_\<name\>_
 * **dropdown:** _dd\_\<name\>_

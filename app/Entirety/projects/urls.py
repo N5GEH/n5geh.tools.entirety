@@ -17,7 +17,9 @@ urlpatterns = [
 
 if apps.is_installed("entities"):
     urlpatterns.append(path("<str:project_id>/entities/", include("entities.urls")))
-if apps.is_installed("alarming"):
-    urlpatterns.append(path("<str:project_id>/alarming/", include("alarming.urls")))
+if apps.is_installed("subscriptions"):
+    urlpatterns.append(
+        path("<str:project_id>/subscriptions/", include("subscriptions.urls"))
+    )
 if apps.is_installed("devices"):
     urlpatterns.append(path("<str:project_id>/devices/", include("devices.urls")))

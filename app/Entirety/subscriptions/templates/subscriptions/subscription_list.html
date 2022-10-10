@@ -1,0 +1,25 @@
+{% extends '_base.html' %}
+
+{% load static %}
+
+{% block title %}Subscriptions{% endblock %}
+
+{% block page_title %}Subscriptions{% endblock %}
+{% block page_buttons %}
+    <a href="{% url "projects:subscriptions:create" project_id=project.uuid %}"
+       class="btn btn-primary mb-1 ms-auto" data-bs-toggle="tooltip" data-bs-placement="bottom"
+       title="Create new subscription">
+        <i class="bi bi-plus"></i>
+    </a>
+{% endblock %}
+
+{% block content %}
+    <div class="d-flex">
+        {% for subscription in object_list %}
+            {% include "subscriptions/panel.html" %}
+        {% endfor %}
+    </div>
+{% endblock %}
+
+{% block scripts %}
+{% endblock %}

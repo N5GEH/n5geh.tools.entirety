@@ -1,13 +1,31 @@
+from abc import ABC
+
 from django.apps import apps
-from django.contrib.auth.mixins import UserPassesTestMixin
-from django.core.exceptions import PermissionDenied
 from django.shortcuts import get_object_or_404
+from django.contrib.auth.mixins import UserPassesTestMixin, LoginRequiredMixin
 
 from projects.models import Project
 
 
-class ProjectContextMixin:
-    project = None
+class ApplicationLoadMixin:
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        context["entities_load"] = apps.is_installed("entities")
+        context["devices_load"] = apps.is_installed("devices")
+        context["notifications_load"] = apps.is_installed("subscriptions")
+
+        return context
+
+
+class ProjectBaseMixin(
+    LoginRequiredMixin, UserPassesTestMixin, ApplicationLoadMixin, ABC
+):
+    pass
+
+
+class ProjectContextMixin(ProjectBaseMixin):
+    project: Project
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -19,27 +37,15 @@ class ProjectContextMixin:
     def dispatch(self, request, *args, **kwargs):
         self.project = get_object_or_404(Project, pk=kwargs.get("project_id", None))
 
-        if not (
-            self.project.is_owner(user=request.user)
-            or self.project.is_user(user=request.user)
-        ):
-            raise PermissionDenied()
-
         return super().dispatch(request, *args, **kwargs)
 
-
-class ApplicationLoadMixin:
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-
-        context["entities_load"] = apps.is_installed("entities")
-        context["devices_load"] = apps.is_installed("devices")
-        context["notifications_load"] = apps.is_installed("alarming")
-
-        return context
+    def test_func(self):
+        return self.project.is_owner(user=self.request.user) or self.project.is_user(
+            user=self.request.user
+        )
 
 
-class ProjectSelfMixin(UserPassesTestMixin):
+class ProjectSelfMixin(ProjectBaseMixin):
     def test_func(self):
         obj = self.get_object()
         return (
@@ -47,6 +53,6 @@ class ProjectSelfMixin(UserPassesTestMixin):
         ) or self.request.user.is_server_admin
 
 
-class ProjectCreateMixin(UserPassesTestMixin):
+class ProjectCreateMixin(ProjectBaseMixin):
     def test_func(self):
         return self.request.user.is_project_admin or self.request.user.is_server_admin
