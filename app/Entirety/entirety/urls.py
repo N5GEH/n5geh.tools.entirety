@@ -31,11 +31,13 @@ urlpatterns = [
     path("admin/", admin.site.urls),
     path("", views.home, name="home"),
     path("projects/", include("projects.urls")),
-    path("user/", include("users.urls")),
+    path("accounts/", include("users.urls")),
     path("examples/", include("examples.urls")),
-    path("oidc/", include("mozilla_django_oidc.urls"))
 ]
 
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
     urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+
+if not settings.LOCAL_AUTH:
+    urlpatterns += [path("oidc/", include("mozilla_django_oidc.urls"))]
