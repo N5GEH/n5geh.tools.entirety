@@ -1,0 +1,151 @@
+{% extends '_base.html' %}
+
+{% load crispy_forms_tags %}
+{% load static %}
+
+{% block title %}
+    {% if subscription.name %} {{ subscription.name }}
+    {% else %} New Subscription
+    {% endif %}
+{% endblock %}
+
+{% block content %}
+    <div class="d-flex">
+        <span class="d-flex flex-grow-1 mb-2">
+            <span class="h3">{% if subscription.name %} Edit {{ subscription.name }}
+            {% else %} Create New Subscription{% endif %}
+            </span>
+            <button type="submit" form="f_subscription"
+                    class="btn btn-primary btn-submit mb-1 ms-auto" data-bs-toggle="tooltip" data-bs-placement="bottom"
+                    title="Save">
+                <i class="bi bi-save"></i>
+            </button>
+        </span>
+    </div>
+    <form id="f_subscription" method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <div class="accordion mt-3">
+            <div class="accordion-item">
+                <h2 class="accordion-header" id="acc_h_basic">
+                    <button class="accordion-button" type="button" data-bs-toggle="collapse"
+                            data-bs-target="#acc_c_basic" aria-expanded="true"
+                            aria-controls="acc_c_basic">
+                        <i class="bi bi-info-circle me-2"></i>
+                        Basic Information
+                    </button>
+                </h2>
+                <div id="acc_c_basic" class="accordion-collapse collapse show"
+                     aria-labelledby="acc_h_basic">
+                    <div class="accordion-body">
+                        {{ form.name|as_crispy_field }}
+                        {{ form.description|as_crispy_field }}
+                        {{ form.throttling|as_crispy_field }}
+                        {{ form.expires|as_crispy_field }}
+                    </div>
+                </div>
+            </div>
+            <div class="accordion-item">
+                <h2 class="accordion-header" id="acc_h_subject">
+                    <button class="accordion-button" type="button" data-bs-toggle="collapse"
+                            data-bs-target="#acc_c_subject" aria-expanded="true"
+                            aria-controls="acc_c_subject">
+                        <i class="bi bi-info-circle me-2"></i>
+                        Subject
+                    </button>
+                </h2>
+                <div id="acc_c_subject" class="accordion-collapse collapse show"
+                     aria-labelledby="acc_h_subject">
+                    <div class="accordion-body">
+                        <div class="accordion">
+                            <div class="accordion-item">
+                                <h2 class="accordion-header" id="acc_h_entities">
+                                    <button class="accordion-button" type="button" data-bs-toggle="collapse"
+                                            data-bs-target="#acc_c_entities" aria-expanded="true"
+                                            aria-controls="acc_c_entities">
+                                        <i class="bi bi-info-circle me-2"></i>
+                                        Entities
+                                    </button>
+                                </h2>
+                                <div id="acc_c_entities" class="accordion-collapse collapse show"
+                                     aria-labelledby="acc_h_entities">
+                                    <div class="accordion-body">
+                                        <a type="button" class="add-entity btn btn-success rounded-pill btn-sm"
+                                           hx-post="{% url "projects:subscriptions:entities" project_id=project.uuid %}"
+                                           hx-target="#div_entities">
+                                            <i class="bi bi-plus"></i>
+                                        </a>
+                                        <div id="div_entities" class="d-flex flex-wrap form-container mb-3"
+                                             hx-post="{% url "projects:subscriptions:attributes" project_id=project.uuid %}"
+                                             hx-target="#div_attributes"
+                                             hx-trigger="change">
+                                            {% include "subscriptions/entities.html" %}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="accordion mt-3">
+                            <div class="accordion-item">
+                                <h2 class="accordion-header" id="acc_h_condition">
+                                    <button class="accordion-button" type="button" data-bs-toggle="collapse"
+                                            data-bs-target="#acc_c_condition" aria-expanded="true"
+                                            aria-controls="acc_c_condition">
+                                        <i class="bi bi-info-circle me-2"></i>
+                                        Condition
+                                    </button>
+                                </h2>
+                                <div id="acc_c_condition" class="accordion-collapse collapse show"
+                                     aria-labelledby="acc_h_condition">
+                                    <div class="accordion-body">
+                                        <div id="div_attributes">
+                                            {% include "subscriptions/attributes.html" %}
+                                        </div>
+                                        {#                                        {{ form.expression|as_crispy_field }}#}
+
+                                        <a type="button"
+                                           hx-post="{% url "projects:subscriptions:attributes" project_id=project.uuid %}"
+                                           hx-target="#div_attributes" class="btn btn-primary">
+                                            <i class="bi bi-arrow-clockwise"></i>
+                                        </a>
+
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="accordion-item">
+                <h2 class="accordion-header" id="acc_h_notification">
+                    <button class="accordion-button" type="button" data-bs-toggle="collapse"
+                            data-bs-target="#acc_c_notification" aria-expanded="true"
+                            aria-controls="acc_c_notification">
+                        <i class="bi bi-info-circle me-2"></i>
+                        Notification
+                    </button>
+                </h2>
+                <div id="acc_c_notification" class="accordion-collapse collapse show"
+                     aria-labelledby="acc_h_notification">
+                    <div class="accordion-body">
+                        {{ form.http|as_crispy_field }}
+                        {{ form.mqtt|as_crispy_field }}
+                        {{ form.metadata|as_crispy_field }}
+                        {#                        {{ form.n_attributes|as_crispy_field }}#}
+                        {#                        {{ form.n_except_attributes|as_crispy_field }}#}
+                        {{ form.attributes_format|as_crispy_field }}
+                        {{ form.only_changed_attributes|as_crispy_field }}
+                        {#{{ form.times_sent|as_crispy_field }}#}
+                        {#{{ form.last_notification|as_crispy_field }}#}
+                        {#{{ form.last_failure|as_crispy_field }}#}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+
+{% endblock %}
+
+
+{% block scripts %}
+    <script src="{% static 'js/subscription.js' %}"></script>
+{% endblock %}

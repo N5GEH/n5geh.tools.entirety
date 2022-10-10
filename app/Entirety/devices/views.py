@@ -5,9 +5,19 @@ from django.views.generic import View, TemplateView
 from django.http import HttpRequest
 from projects.mixins import ProjectContextMixin
 from devices.forms import DeviceBasic, Attributes, Commands
-from devices.utils import get_devices, post_device, \
-    update_device, prefix_attributes, prefix_commands, parse_request_data, \
-    build_device, get_device_by_id, delete_device, devices_filter, patern_devices_filter
+from devices.utils import (
+    get_devices,
+    post_device,
+    update_device,
+    prefix_attributes,
+    prefix_commands,
+    parse_request_data,
+    build_device,
+    get_device_by_id,
+    delete_device,
+    devices_filter,
+    patern_devices_filter,
+)
 from devices.tables import DevicesTable
 from requests.exceptions import RequestException
 from pydantic import ValidationError
@@ -45,7 +55,9 @@ class DeviceListSubmitView(ProjectContextMixin, View):
             else:
                 # use session to cache the selected devices
                 request.session["devices"] = request.POST.get("selection")
-                request.session["delete_entity"] = True if request.POST.get("delete_entity") else False
+                request.session["delete_entity"] = (
+                    True if request.POST.get("delete_entity") else False
+                )
                 return redirect("projects:devices:delete", project_id=self.project.uuid)
 
         # press advanced delete button
@@ -69,7 +81,7 @@ class DeviceListSubmitView(ProjectContextMixin, View):
                 "projects:entities:delete",
                 project_id=self.project.uuid,
                 entity_id=entity_id,
-                entity_type=entity_type
+                entity_type=entity_type,
             )
 
         # press create button
@@ -97,7 +109,7 @@ class DeviceCreateView(ProjectContextMixin, TemplateView):
             "attributes": attributes,
             "commands": commands,
             "action": "Create",
-            **context
+            **context,
         }
         return render(request, "devices/detail.html", context)
 
@@ -135,7 +147,7 @@ class DeviceCreateSubmitView(ProjectContextMixin, TemplateView):
             "attributes": attributes,
             "commands": commands,
             "action": "Create",
-            **context
+            **context,
         }
         return render(request, "devices/detail.html", context)
 
@@ -174,7 +186,7 @@ class DeviceEditView(ProjectContextMixin, TemplateView):
             "attributes": attributes,
             "commands": commands,
             "action": "Edit",
-            **context
+            **context,
         }
         return render(request, "devices/detail.html", context)
 
@@ -214,7 +226,7 @@ class DeviceEditSubmitView(ProjectContextMixin, TemplateView):
             "attributes": attributes,
             "commands": commands,
             "action": "Edit",
-            **context
+            **context,
         }
         return render(request, "devices/detail.html", context)
 
@@ -228,7 +240,9 @@ class DeviceDeleteView(ProjectContextMixin, View):
 
         # delete the device and entity?
         try:
-            delete_device(project=self.project, device_id=device_id, delete_entity=delete_entity)
+            delete_device(
+                project=self.project, device_id=device_id, delete_entity=delete_entity
+            )
         except RequestException as e:
             messages.error(request, e.response.content.decode("utf-8"))
 

@@ -1,0 +1,9 @@
+{% extends 'modal_form.html' %}
+
+{% block modal_title %}
+    Delete {{ object }}
+{% endblock %}
+
+{% block modal_body %}
+    <p>Are you sure you want to delete "{{ object }}"?</p>
+{% endblock %}

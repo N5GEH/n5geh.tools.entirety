@@ -3,11 +3,11 @@ $sidebar-height: calc(100vh - #{ $sidebar-offset});
 
 .sidebar {
   position: sticky;
-  top:#{ $sidebar-offset};
+  top: $sidebar-offset;
 }
 
 .sidebar, .sidebar-nav {
-  height: #{ $sidebar-height};
+  height: $sidebar-height;
 }
 
 .sidebar-nav {
@@ -29,7 +29,7 @@ $sidebar-height: calc(100vh - #{ $sidebar-offset});
       border-top-color: black !important;
 
       .nav-link, .dropdown {
-        color: #72767b;
+        color: $color-sidebar;
         width: 100%;
       }
 
@@ -41,8 +41,16 @@ $sidebar-height: calc(100vh - #{ $sidebar-offset});
     }
 
     &.nav {
-      height: #{ $sidebar-height};
+      height: $sidebar-height;
     }
   }
 
+}
+
+.icon-red {
+  color: #bb2d3b;
+}
+
+.icon-green {
+  color: green;
 }

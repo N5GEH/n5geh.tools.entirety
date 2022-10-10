@@ -164,9 +164,9 @@ class Settings(PydanticSettings):
 
     STATIC_URL = "static/"
 
-    STATICFILES_DIRS: List[DirectoryPath] = [
-        os.path.join(BASE_DIR, "static"),
-    ]
+    # STATICFILES_DIRS: List[DirectoryPath] = [
+    #     os.path.join(BASE_DIR, "static"),
+    # ]
 
     STATICFILES_FINDERS: List[str] = [
         "django.contrib.staticfiles.finders.FileSystemFinder",
@@ -208,7 +208,7 @@ class Settings(PydanticSettings):
             },
         },
         "loggers": {
-            "mozilla_django_oidc": {"handlers": ["console"], "level": "DEBUG"},
+            "mozilla_django_oidc": {"handlers": ["loki"], "level": "DEBUG"},
             "": {
                 "handlers": ["loki"],
                 "level": "INFO",
@@ -239,6 +239,9 @@ class Settings(PydanticSettings):
     ALLOWED_HOSTS: List = Field(default=["*"], env="ALLOWED_HOSTS")
 
     CB_URL: AnyUrl = Field(default="http://localhost:1026", env="CB_URL")
+    MQTT_BASE_TOPIC: str = Field(default="/Entirety", env="MQTT_BASE_TOPIC")
+
+    QL_URL: AnyUrl = Field(default="http://localhost:8668", env="QL_URL")
 
     IOTA_URL: AnyUrl = Field(default="http://localhost:4041", env="IOTA_URL")
 
@@ -294,7 +297,7 @@ class Settings(PydanticSettings):
     if AppLoadSettings().dict().get("DEVICES_LOAD") is True:
         INSTALLED_APPS.append("devices")
     if AppLoadSettings().dict().get("NOTIFICATIONS_LOAD") is True:
-        INSTALLED_APPS.append("alarming")
+        INSTALLED_APPS.append("subscriptions")
 
     class Config:
         case_sensitive = False

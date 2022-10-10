@@ -1,8 +1,12 @@
 {% extends '_base.html' %}
 {% load crispy_forms_tags %}
 
+{% block title %}
+    {% if project.name %} {{ project.name }}
+    {% else %} New Project
+    {% endif %}
+{% endblock %}
 {% block content %}
-
     <div class="container">
         <div class="d-flex">
             <span class="h3 border-bottom flex-fill">{{ project.name }}</span>
@@ -28,5 +32,4 @@
             </div>
         </div>
     </div>
-
 {% endblock %}

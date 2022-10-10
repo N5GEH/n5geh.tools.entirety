@@ -29,12 +29,10 @@ from entities.requests import (
     delete_entity,
 )
 from entities.tables import EntityTable
-from projects.mixins import ProjectContextMixin, ApplicationLoadMixin
+from projects.mixins import ProjectContextMixin
 
 
-class EntityList(
-    ProjectContextMixin, ApplicationLoadMixin, SingleTableMixin, TemplateView
-):
+class EntityList(ProjectContextMixin, SingleTableMixin, TemplateView):
     template_name = "entities/entity_list.html"
     table_class = EntityTable
     table_pagination = {"per_page": 15}
@@ -81,7 +79,7 @@ class EntityList(
         )
 
 
-class Create(ProjectContextMixin, ApplicationLoadMixin, TemplateView):
+class Create(ProjectContextMixin, TemplateView):
     template_name = "entities/update.html"
     form_class = EntityForm
 
@@ -134,7 +132,7 @@ class Create(ProjectContextMixin, ApplicationLoadMixin, TemplateView):
             return redirect("projects:entities:list", project_id=self.project.uuid)
 
 
-class Update(ProjectContextMixin, ApplicationLoadMixin, TemplateView):
+class Update(ProjectContextMixin, TemplateView):
     template_name = "entities/update.html"
     form_class = EntityForm
 
@@ -204,7 +202,7 @@ class Update(ProjectContextMixin, ApplicationLoadMixin, TemplateView):
             return redirect("projects:entities:list", project_id=self.project.uuid)
 
 
-class Delete(ProjectContextMixin, ApplicationLoadMixin, TemplateView):
+class Delete(ProjectContextMixin, TemplateView):
     template_name = "entities/delete.html"
     form_class = EntityForm
 
@@ -234,7 +232,7 @@ class Delete(ProjectContextMixin, ApplicationLoadMixin, TemplateView):
                 initial_form.fields.get("name").label = (
                     "Found " + initial_form.initial.get("status") + " subscription "
                     "with \
-                                                                                                                                description "
+                                                                        description "
                     + initial_form.initial.get("description")
                 )  # + " and subject "
         # devices
