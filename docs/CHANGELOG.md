@@ -2,6 +2,13 @@
 
 <!--next-version-placeholder-->
 
+## v0.3.2 (2022-10-10)
+### Fix
+* Corrected timezone ([`1b4c1ca`](https://github.com/N5GEH/n5geh.tools.entirety2/commit/1b4c1ca6cb218f056b1a247b366fa84717bc7d1a))
+
+### Documentation
+* Update requirements.txt ([`746bc0a`](https://github.com/N5GEH/n5geh.tools.entirety2/commit/746bc0acc5d5580b8bf3b065be1c20fc93cf91e1))
+
 ## v0.3.1 (2022-07-21)
 ### Fix
 * Fixed card grid to auto ([`72e2c71`](https://github.com/N5GEH/n5geh.tools.entirety2/commit/72e2c714a5a4022ab002d1216e0b32245a7bd602))
