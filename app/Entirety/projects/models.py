@@ -15,7 +15,7 @@ class Project(models.Model):
     fiware_service = models.CharField(max_length=64, null=True)
     fiware_service_path = models.CharField(max_length=1, default="/", null=True)
     webpage_url = models.URLField(max_length=200, null=True)
-    logo = ResizedImageField(size=[160, 150], crop=['middle', 'center'], upload_to='images/')
+    logo = ResizedImageField(size=[160, 150], crop=['middle', 'center'], upload_to='images/', null=True)
 
     owner = models.ForeignKey(User, on_delete=models.CASCADE)
     users = models.ManyToManyField(User, related_name="users", blank=True)
