@@ -101,36 +101,36 @@ def delete_device(project: Project, device_id, **kwargs):
 # def get_project(uuid):
 #     return Project.objects.get(uuid=uuid)
 
-def devices_filter(devices: List[Device],
-                   id_patern: str = None,
-                   name_patern: str = None,
-                   type_patern: str = None):
+def devices_filter(devices: list,
+                   id_pattern: str = None,
+                   name_pattern: str = None,
+                   type_pattern: str = None):
     """
-    Filter devices with specified patern of device_id, device_name or device_type
+    Filter devices with specified pattern of device_id, device_name or device_type
     Return the intersection set
     """
-    if id_patern:
-        id_patern = id_patern.lower()
-        devices = [device for device in devices if id_patern in device.device_id.lower()]
-    if name_patern:
-        name_patern = name_patern.lower()
-        devices = [device for device in devices if name_patern in device.entity_name.lower()]
-    if type_patern:
-        type_patern = type_patern.lower()
-        devices = [device for device in devices if type_patern in device.entity_type.lower()]
+    if id_pattern:
+        id_pattern = id_pattern.lower()
+        devices = [device for device in devices if id_pattern in device.device_id.lower()]
+    if name_pattern:
+        name_pattern = name_pattern.lower()
+        devices = [device for device in devices if name_pattern in device.entity_name.lower()]
+    if type_pattern:
+        type_pattern = type_pattern.lower()
+        devices = [device for device in devices if type_pattern in device.entity_type.lower()]
     return devices
 
 
-def patern_devices_filter(devices: List[Device], patern: str = None):
+def pattern_devices_filter(devices: list, pattern: str = None):
     """
-    Filter devices with specified patern to device_id, device_name, device_type
+    Filter devices with specified pattern to device_id, device_name, device_type
     """
-    patern = patern.lower()
-    if patern:
+    pattern = pattern.lower()
+    if pattern:
         devices = [device for device in devices
-                   if patern in device.device_id.lower()
-                   or patern in device.entity_name.lower()
-                   or patern in device.entity_type.lower()]
+                   if pattern in device.device_id.lower()
+                   or pattern in device.entity_name.lower()
+                   or pattern in device.entity_type.lower()]
     return devices
 
 
