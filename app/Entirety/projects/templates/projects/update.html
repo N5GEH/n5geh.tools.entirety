@@ -1,6 +1,11 @@
 {% extends '_base.html' %}
 {% load crispy_forms_tags %}
 
+{% block title %}
+    {% if project.name %} {{ project.name }}
+    {% else %} New Project
+    {% endif %}
+{% endblock %}
 {% block content %}
 
     <div class="container">
