@@ -66,10 +66,27 @@ class EntitiesForm(forms.Form):
     ]
 
     entity_selector = forms.ChoiceField(choices=_entity_choices)
-    entity_id = forms.CharField()
+    entity_id = forms.CharField(
+        widget=forms.TextInput(
+            attrs={
+                "data-bs-toggle": "tooltip",
+                "data-bs-placement": "top",
+                "title": "Entity id or id pattern. "
+                         "Notification will be triggered "
+                         "by changes in the matched entities.",
+            },
+        ),)
 
     type_selector = forms.ChoiceField(choices=_type_choices, required=False)
-    entity_type = forms.CharField(required=False)
+    entity_type = forms.CharField(required=False,
+                                  widget=forms.TextInput(
+                                      attrs={
+                                          "data-bs-toggle": "tooltip",
+                                          "data-bs-placement": "top",
+                                          "title": "Entity type or type pattern.",
+                                      },
+                                  )
+                                  )
 
     def __init__(self, *args, **kwargs):
         super(EntitiesForm, self).__init__(*args, **kwargs)
@@ -158,9 +175,25 @@ class SubscriptionForm(forms.ModelForm):
     # Notification
 
     # TODO: httpCustom
-    http = HTTPURLField(required=False)
+    http = HTTPURLField(required=False,
+                        widget=forms.TextInput(
+                            attrs={
+                                "data-bs-toggle": "tooltip",
+                                "data-bs-placement": "top",
+                                "title": "HTTP endpoint to receive the notification.",
+                            }
+                        )
+                        )
     # TODO: mqttCustom
-    mqtt = MQTTURLField(required=False)
+    mqtt = MQTTURLField(required=False,
+                        widget=forms.TextInput(
+                            attrs={
+                                "data-bs-toggle": "tooltip",
+                                "data-bs-placement": "top",
+                                "title": "MQTT endpoint to receive the notification.",
+                            }
+                        )
+                        )
 
     metadata = forms.CharField(
         required=False,
@@ -210,3 +243,12 @@ class SubscriptionForm(forms.ModelForm):
         model = Subscription
         exclude = ["uuid", "project"]
         # fields = "__all__"
+        widgets = {
+            "name": forms.TextInput(
+                attrs={
+                    "data-bs-toggle": "tooltip",
+                    "data-bs-placement": "top",
+                    "title": "A short name to identify the notification.",
+                }
+            ),
+        }
