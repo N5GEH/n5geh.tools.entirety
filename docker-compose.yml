@@ -5,25 +5,16 @@ services:
     hostname: entirety-db
     restart: unless-stopped
     environment:
-      - POSTGRES_DB=postgres
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=postgrespw
+      - POSTGRES_DB=entirety
+      - POSTGRES_USER=entirety
+      - POSTGRES_PASSWORD=<PASSWORD>
     volumes:
       - pgdata:/var/lib/postgresql
-
-  adminer:
-    image: adminer:4.8.1
-    restart: unless-stopped
-    ports:
-      - "8080:8080"
-    depends_on:
-      - postgres
+    networks:
+      - entirety
 
   entirety:
-    image: ghcr.io/n5geh/n5geh.tools.entirety2:development
-    #    build:
-    #      context: .
-    #      dockerfile: ./docker/Dockerfile
+    image: ghcr.io/n5geh/n5geh.tools.entirety2:latest
     restart: unless-stopped
     expose:
       - 8000
@@ -32,21 +23,19 @@ services:
       DATABASE_URL: ${DATABASE_URL}
       STATIC_ROOT: ${STATIC_ROOT:-/var/entirety/static/}
       MEDIA_ROOT: ${MEDIA_ROOT:-/var/entirety/media/}
-      OIDC_OP_AUTHORIZATION_ENDPOINT: ${OIDC_OP_AUTHORIZATION_ENDPOINT}
-      OIDC_OP_JWKS_ENDPOINT: ${OIDC_OP_JWKS_ENDPOINT}
-      OIDC_OP_TOKEN_ENDPOINT: ${OIDC_OP_TOKEN_ENDPOINT}
-      OIDC_OP_USER_ENDPOINT: ${OIDC_OP_USER_ENDPOINT}
-      OIDC_RP_CLIENT_ID: ${OIDC_RP_CLIENT_ID}
-      OIDC_RP_CLIENT_SECRET: ${OIDC_RP_CLIENT_SECRET}
       CB_URL: ${CB_URL}
+      QL_URL: ${QL_URL}
+      IOTA_URL: ${IOTA_URL}
 #    For development purposes mostly
 #    env_file:
-#      - ./app/Entirety/.env
+#      - .env
     volumes:
       - static:${STATIC_ROOT:-/var/entirety/static/}
       - media:${MEDIA_ROOT:-/var/entirety/media/}
     depends_on:
       - postgres
+    networks:
+      - entirety
 
   nginx:
     image: nginx:1.23.1
@@ -62,8 +51,13 @@ services:
       WEB_URL: ${WEB_URL:-localhost}
     depends_on:
       - entirety
+    networks:
+      - entirety
 
 volumes:
   static:
   pgdata:
   media:
+
+networks:
+  entirety:
