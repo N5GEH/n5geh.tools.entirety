@@ -19,6 +19,12 @@
 >
 > *default:* not DJANGO_DEBUG
 
+### DATABASE_URL
+
+> *description:* Database connection url
+>
+> *default:* postgres://username:password@host:port/db
+>
 ### DEVICES_LOAD
 
 > *description:* Toggle this boolean if you want to switch Devices application on or off
@@ -55,6 +61,12 @@
 >
 > *default:* en-us
 
+### LOCAL_AUTH
+
+> *description:* Use local authentication
+>
+> *default:* True
+>
 ### LOGIN_REDIRECT_URL
 
 > *description:* Application successful login redirect url.
