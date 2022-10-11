@@ -1,6 +1,12 @@
 {% extends '_base.html' %}
 
-{#{% block title %}Edit Device{% endblock %}#}
+{% block title %}
+    {% if action == "Create" %}
+        Create Device
+    {% elif action == "Edit" %}
+        Edit Device
+    {% endif %}
+{% endblock %}
 
 {% block content %}
     <h3 class="mt-5">{{ action }} Device</h3>
