@@ -17,7 +17,7 @@ from pydantic_settings.settings import (
 from utils.generators import generate_secret_key
 from django.contrib.messages import constants as messages
 
-__version__ = "0.3.2"
+__version__ = "0.4.0"
 
 
 class Databases(DatabaseSettings):
