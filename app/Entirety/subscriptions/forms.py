@@ -112,21 +112,43 @@ Expressions = forms.formset_factory(ExpressionForm, extra=1)
 class SubscriptionForm(forms.ModelForm):
     # Base info
     description = forms.CharField(
-        help_text="A free text used by the client to describe the subscription."
+        widget=forms.TextInput(
+            attrs={
+                "data-bs-toggle": "tooltip",
+                "data-bs-placement": "top",
+                "title": "A free text used by the client to describe the subscription.",
+            }
+        )
+        # help_text="A free text used by the client to describe the subscription."
     )
     expires = forms.DateTimeField(
         widget=forms.TextInput(
-            attrs={"type": "datetime-local"},
+            attrs={
+                "type": "datetime-local",
+                "data-bs-toggle": "tooltip",
+                "data-bs-placement": "top",
+                "title": "Subscription expiration date format."
+                "Permanent subscriptions must omit this field.",
+            },
         ),
         required=False,
-        help_text="Subscription expiration date format. "
-        "Permanent subscriptions must omit this field.",
+        # help_text="Subscription expiration date format. "
+        # "Permanent subscriptions must omit this field.",
     )
     throttling = forms.IntegerField(
         required=False,
-        help_text="Minimal period of time in seconds which must elapse "
-        "between two consecutive notifications. "
-        "It is optional.",
+        widget=forms.NumberInput(
+            attrs={
+                "data-bs-toggle": "tooltip",
+                "data-bs-placement": "top",
+                "title": "Minimal period of time in seconds which must elapse "
+                "between two consecutive notifications. "
+                "It is optional.",
+            }
+        )
+        # help_text="Minimal period of time in seconds which must elapse "
+        # "between two consecutive notifications. "
+        # "It is optional.",
     )
 
     # Subject
@@ -142,7 +164,14 @@ class SubscriptionForm(forms.ModelForm):
 
     metadata = forms.CharField(
         required=False,
-        help_text="List of metadata to be included in notification messages.",
+        widget=forms.TextInput(
+            attrs={
+                "data-bs-toggle": "tooltip",
+                "data-bs-placement": "top",
+                "title": "List of metadata to be included in notification messages.",
+            }
+        )
+        # help_text="List of metadata to be included in notification messages.",
     )
     # metadata = forms.
 
@@ -161,7 +190,7 @@ class SubscriptionForm(forms.ModelForm):
 
     attributes_format = forms.ChoiceField(
         choices=[(format.value, format.value) for format in AttrsFormat],
-        help_text="Specifies how the entities are represented in notifications.",
+        # help_text="Specifies how the entities are represented in notifications.",
         initial="normalized",
     )
     only_changed_attributes = forms.BooleanField(required=False, initial=False)

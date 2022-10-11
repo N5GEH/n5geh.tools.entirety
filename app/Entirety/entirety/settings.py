@@ -204,7 +204,7 @@ class Settings(PydanticSettings):
                 "protocol": LokiSettings().dict().get("LOKI_PROTOCOL"),
                 "source": "Loki",
                 "src_host": LokiSettings().dict().get("LOKI_SRC_HOST"),
-                "tz": LokiSettings().dict().get("LOKI_TIMEZONEs"),
+                "tz": LokiSettings().dict().get("LOKI_TIMEZONE"),
             },
         },
         "loggers": {
