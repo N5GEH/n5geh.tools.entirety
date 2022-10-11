@@ -9,19 +9,18 @@
         <div class="col-md-8">
             <span class="h1 color-inherit">The Entirety Tool</span>
             <p>
-                Entirety is web-based tool developed for the easy work with dedicated FIWARE APIs. Entirety is
+                <br>
+                Entirety is web-based tool developed to facilitate the work with dedicated FIWARE APIs. Entirety is
                 structured in
-                different apps and projects; apps are developed according to the interaction with other applications, e.
-                g.
-                FIWARE Generic Enablers (GEs), and projects are used to determine which data in the database can be
-                accessed. Entirety is based on the python-based Django framework and uses the FIWARE Library for Python
-                (FiLiP). At the moment, FiLiP only supports NGSI-v2, therefore Entirety also only supports NGSI-v2. Once
-                NGSI-LD is supported, we plan to integrate these features in Entirety as well.
-
+                different applications (Apps) and projects; Apps are developed to interact with
+                FIWARE Generic Enablers (GEs), and projects are used to separate the database into independent data spaces.
+                Entirety is based on Python and the Django framework. For the interaction with FIWARE GEs,
+                the FIWARE Library for Python (<a href="https://pypi.org/project/filip/">FiLiP</a>) is used. At the moment, FiLiP only supports NGSI-v2, therefore Entirety also only supports NGSI-v2.
+                Once NGSI-LD is supported by FiLiP, we plan to integrate these features in Entirety as well.
             </p>
 
             <p>Find more details on Github Entirety <a href="https://github.com/N5GEH/n5geh.tools.entirety2#readme">Readme</a>
-                and look at the <a
+                and more upcoming features on the <a
                         href="https://github.com/N5GEH/n5geh.tools.entirety2/tree/development/docs/ROADMAP.md">Roadmap</a>.
             </p>
 
@@ -29,17 +28,18 @@
 
             <h3>Applications</h3>
             <p>
-                Currently, Entirety supports interaction with the following Generic Enablers: Orion, IoT Agents (only
-                json?)
-                and QuantumLeap. Accordingly, the apps "Entities", "Devices", and "Notifications" are developed to
-                communicate with these GEs.
-                Which app shall be loaded can be configured in the .env file at startup of Entirety.
+                Currently, Entirety supports interaction with the following Generic Enablers:
+                <a href="https://fiware-orion.readthedocs.io/en/master//">Orion</a>,
+                <a href="https://fiware-iotagent-json.readthedocs.io/en/latest/">IoT Agent-JSON</a>,
+                and <a href="https://quantumleap.readthedocs.io/en/latest/">QuantumLeap</a>.
+                Accordingly, the Apps "Entities", "Devices", and "Notifications" are developed to
+                communicate with these GEs. Which App shall be loaded can be configured in the .env file at startup of Entirety.
             </p>
 
             <h3>Projects</h3>
-            <p>According to FIWARE's way of separating data for multi-tenancy applications using the http header
+            <p>According to FIWARE's way of separating data for multi-tenancy applications using the HTTP header
                 "fiware-service", Entirety uses projects that are bound to specific "fiware-service" headers. This way,
-                projects can only access data that they are created and authorized for.
+                projects can only access data that they created and are authorized for.
             </p>
         </div>
     </div>
