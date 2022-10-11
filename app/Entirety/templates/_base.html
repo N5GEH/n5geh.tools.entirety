@@ -12,10 +12,10 @@
 
 
     {% compress css %}
-        <link type="text/x-scss" href="{% static 'bootstrap/scss/bootstrap.scss' %}" rel="stylesheet" media="screen">
+        {#        <link type="text/x-scss" href="{% static 'bootstrap/scss/bootstrap.scss' %}" rel="stylesheet" media="screen">#}
+        <link type="text/x-scss" href="{% static 'scss/style.scss' %}" rel="stylesheet" media="screen">
         <link type="text/x-scss" href="{% static 'bootstrap/scss/bootstrap-icons.scss' %}" rel="stylesheet"
               media="screen">
-        <link type="text/x-scss" href="{% static 'scss/style.scss' %}" rel="stylesheet" media="screen">
     {% endcompress %}
 </head>
 <body>
@@ -43,6 +43,7 @@
 <div class="container-fluid ps-0 d-flex">
     {% include 'sidebar.html' %}
     <main class="d-flex flex-column flex-fill ps-4 pe-3 py-3">
+        {% include 'messages.html' %}
         {% block content %}(no content - should not be here) {% endblock %}
     </main>
     {% include 'modal.html' %}
@@ -54,11 +55,21 @@
 <script src="{% static 'htmx/js/htmx.min.js' %}" type="text/javascript"></script>
 
 {% compress js %}
+    <script>
+        document.body.addEventListener('htmx:configRequest', (event) => {
+            event.detail.headers['X-CSRFToken'] = '{{ csrf_token }}';
+        })
+    </script>
     <script src="{% static 'js/main.js' %}"></script>
     <script src="{% static 'js/dialog.js' %}"></script>
     <script src="{% static 'js/toast.js' %}"></script>
     <script src="{% static 'js/modal.js' %}"></script>
-
-    {% block scripts %}{% endblock %}
 {% endcompress %}
+
+{% compress js %}
+    {% block scripts %}
+
+    {% endblock %}
+{% endcompress %}
+
 </body>

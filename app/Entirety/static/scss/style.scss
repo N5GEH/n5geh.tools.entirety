@@ -1,14 +1,29 @@
-// Required
-@import "../bootstrap/scss/functions";
-@import "../bootstrap/scss/variables";
-@import "../bootstrap/scss/mixins";
+@import "colors";
+
+@import "../bootstrap/scss/bootstrap";
 
 // components
 @import "sidebar";
 @import "scrollbar";
 
-.bg-grey {
-  background-color: #292e34;
+
+
+.card-header {
+  .bi-power {
+    color: red;
+    &.active {
+      color: lawngreen;
+    }
+  }
+}
+
+.card-footer {
+  .bi-gear {
+    color: $color-sidebar;
+  }
+  .bi-trash {
+    color: red;
+  }
 }
 
 // card on hover
@@ -20,4 +35,8 @@
 .card-img-top{
    height: 200px;
    object-fit: fill;
+}
+
+h1{
+  color: $primary
 }

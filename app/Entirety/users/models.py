@@ -1,5 +1,8 @@
+from django.conf import settings
 from django.contrib.auth.models import AbstractUser
 from django.db import models
+
+from users.managers import UserManager
 
 
 class User(AbstractUser):
@@ -13,3 +16,5 @@ class User(AbstractUser):
         help_text="User can create projects and update self created.",
         verbose_name="project admin status",
     )
+    if settings.LOCAL_AUTH:
+        objects = UserManager()

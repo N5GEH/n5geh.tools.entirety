@@ -7,11 +7,23 @@
 >
 > *default:* []
 
+### CB_URL
+
+> *description:* Orion context broker url.
+>
+> *default:* http://localhost:1026
+
 ### COMPRESS_ENABLED
 
 > *description:* Compress js/css files
 >
 > *default:* not DJANGO_DEBUG
+
+### DEVICES_LOAD
+
+> *description:* Toggle this boolean if you want to switch Devices application on or off
+>
+> *default:* False
 
 ### DJANGO_DEBUG
 
@@ -24,6 +36,18 @@
 > *description:* Django secret (min. 32 characters)
 >
 > *default:* Auto generated key
+
+### ENTITIES_LOAD
+
+> *description:* Toggle this boolean if you want to switch Entities application on or off
+>
+> *default:* False
+
+### IOTA_URL
+
+> *description:* IOT agent url.
+>
+> *default:* http://localhost:4041
 
 ### LANGUAGE_CODE
 
@@ -48,6 +72,54 @@
 > *description:* Application successful logout redirect url.
 >
 > *default:* /
+
+### LOKI_HOST
+
+> *description:* Host name of loki logging server
+>
+> *default:* 3100
+
+### LOKI_LEVEL
+
+> *description:* Logging level for loki logging server
+>
+> *default:* INFO
+
+### LOKI_PORT
+
+> *description:* Port of loki logging server
+>
+> *default:* localhost
+
+### LOKI_PROTOCOL
+
+> *description:* Protocol http or https of loki logging server
+>
+> *default:* http
+
+### LOKI_SRC_HOST
+
+> *description:* Label name of source host sending logs to loki logging server
+>
+> *default:* entirety
+
+### LOKI_TIMEOUT
+
+> *description:* Request to loki server by http or https time out
+>
+> *default:* 0.5
+
+### LOKI_TIMEZONE
+
+> *description:* Timezone for formatting timestamp for loki logs
+>
+> *default:* Europe/Berlin
+
+### NOTIFICATIONS_LOAD
+
+> *description:* Toggle this boolean if you want to switch Notifications application on or off
+>
+> *default:* False
 
 ### OIDC_OP_AUTHORIZATION_ENDPOINT
 
@@ -116,6 +188,12 @@ Server admins can create/update projects for any project admin.
 > *description:* User role configured in OIDC provider.
 >
 > *default:* user
+
+### QL_URL
+
+> *description:* Quantum Leap url.
+>
+> *default:* http://localhost:8668
 
 ### TIME_ZONE
 

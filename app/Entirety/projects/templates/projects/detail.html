@@ -1,15 +1,35 @@
 {% extends '_base.html' %}
 {% load crispy_forms_tags %}
 
+{% block title %}
+    {% if project.name %} {{ project.name }}
+    {% else %} New Project
+    {% endif %}
+{% endblock %}
 {% block content %}
-
     <div class="container">
-        <h2 class="my-4">{% if project.name %} Edit {{ project.name }} {% else %} Create New Project {% endif %}</h2>
-        <form action="" method="post" enctype="multipart/form-data"
-              {% if form_submitted %}class="was-validated" {% endif %}>
-            {% csrf_token %}
-            {% crispy form %}
-        </form>
+        <div class="d-flex">
+            <span class="h3 border-bottom flex-fill">{{ project.name }}</span>
+        </div>
+        <div class="row">
+            <div class="col mb-3">
+                <strong>Project Name:</strong> {{ project.name }}
+            </div>
+        </div>
+        <div class="row">
+            <div class="col mb-3">
+                <strong>Project Description:</strong> {{ project.description }}
+            </div>
+        </div>
+        <div class="row">
+            <div class="col mb-3">
+                <strong>Fiware Service:</strong> {{ project.fiware_service }}
+            </div>
+        </div>
+        <div class="row">
+            <div class="col mb-3">
+                <strong>Webpage Url:</strong> {{ project.webpage_url }}
+            </div>
+        </div>
     </div>
-
 {% endblock %}
