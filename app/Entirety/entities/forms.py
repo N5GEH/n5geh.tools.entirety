@@ -35,7 +35,7 @@ class EntityForm(forms.Form):
                 attrs={
                     "data-bs-toggle": "tooltip",
                     "data-bs-placement": "top",
-                    "title": "Type of the context entity",
+                    "title": "Type of the context entity. Combination of ID and Type must be unique.",
                 },
             ),
         )
@@ -48,7 +48,8 @@ class EntityForm(forms.Form):
             attrs={
                 "data-bs-toggle": "tooltip",
                 "data-bs-placement": "top",
-                "title": "ID of the context entity, e.g. urn:ngsi-ld:Room:001",
+                "title": "ID of the context entity, e. g. urn:ngsi-ld:Room:001. Combination of ID and Type must be "
+                "unique.",
             }
         ),
     )

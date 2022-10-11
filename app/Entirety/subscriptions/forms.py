@@ -66,10 +66,27 @@ class EntitiesForm(forms.Form):
     ]
 
     entity_selector = forms.ChoiceField(choices=_entity_choices)
-    entity_id = forms.CharField()
+    entity_id = forms.CharField(
+        widget=forms.TextInput(
+            attrs={
+                "data-bs-toggle": "tooltip",
+                "data-bs-placement": "top",
+                "title": "Entity id or id pattern. "
+                         "Notification will be triggered "
+                         "by changes in the matched entities.",
+            },
+        ),)
 
     type_selector = forms.ChoiceField(choices=_type_choices, required=False)
-    entity_type = forms.CharField(required=False)
+    entity_type = forms.CharField(required=False,
+                                  widget=forms.TextInput(
+                                      attrs={
+                                          "data-bs-toggle": "tooltip",
+                                          "data-bs-placement": "top",
+                                          "title": "Entity type or type pattern.",
+                                      },
+                                  )
+                                  )
 
     def __init__(self, *args, **kwargs):
         super(EntitiesForm, self).__init__(*args, **kwargs)
@@ -112,21 +129,43 @@ Expressions = forms.formset_factory(ExpressionForm, extra=1)
 class SubscriptionForm(forms.ModelForm):
     # Base info
     description = forms.CharField(
-        help_text="A free text used by the client to describe the subscription."
+        widget=forms.TextInput(
+            attrs={
+                "data-bs-toggle": "tooltip",
+                "data-bs-placement": "top",
+                "title": "A free text used by the client to describe the subscription.",
+            }
+        )
+        # help_text="A free text used by the client to describe the subscription."
     )
     expires = forms.DateTimeField(
         widget=forms.TextInput(
-            attrs={"type": "datetime-local"},
+            attrs={
+                "type": "datetime-local",
+                "data-bs-toggle": "tooltip",
+                "data-bs-placement": "top",
+                "title": "Subscription expiration date format."
+                "Permanent subscriptions must omit this field.",
+            },
         ),
         required=False,
-        help_text="Subscription expiration date format. "
-        "Permanent subscriptions must omit this field.",
+        # help_text="Subscription expiration date format. "
+        # "Permanent subscriptions must omit this field.",
     )
     throttling = forms.IntegerField(
         required=False,
-        help_text="Minimal period of time in seconds which must elapse "
-        "between two consecutive notifications. "
-        "It is optional.",
+        widget=forms.NumberInput(
+            attrs={
+                "data-bs-toggle": "tooltip",
+                "data-bs-placement": "top",
+                "title": "Minimal period of time in seconds which must elapse "
+                "between two consecutive notifications. "
+                "It is optional.",
+            }
+        )
+        # help_text="Minimal period of time in seconds which must elapse "
+        # "between two consecutive notifications. "
+        # "It is optional.",
     )
 
     # Subject
@@ -136,13 +175,36 @@ class SubscriptionForm(forms.ModelForm):
     # Notification
 
     # TODO: httpCustom
-    http = HTTPURLField(required=False)
+    http = HTTPURLField(required=False,
+                        widget=forms.TextInput(
+                            attrs={
+                                "data-bs-toggle": "tooltip",
+                                "data-bs-placement": "top",
+                                "title": "HTTP endpoint to receive the notification.",
+                            }
+                        )
+                        )
     # TODO: mqttCustom
-    mqtt = MQTTURLField(required=False)
+    mqtt = MQTTURLField(required=False,
+                        widget=forms.TextInput(
+                            attrs={
+                                "data-bs-toggle": "tooltip",
+                                "data-bs-placement": "top",
+                                "title": "MQTT endpoint to receive the notification.",
+                            }
+                        )
+                        )
 
     metadata = forms.CharField(
         required=False,
-        help_text="List of metadata to be included in notification messages.",
+        widget=forms.TextInput(
+            attrs={
+                "data-bs-toggle": "tooltip",
+                "data-bs-placement": "top",
+                "title": "List of metadata to be included in notification messages.",
+            }
+        )
+        # help_text="List of metadata to be included in notification messages.",
     )
     # metadata = forms.
 
@@ -161,7 +223,7 @@ class SubscriptionForm(forms.ModelForm):
 
     attributes_format = forms.ChoiceField(
         choices=[(format.value, format.value) for format in AttrsFormat],
-        help_text="Specifies how the entities are represented in notifications.",
+        # help_text="Specifies how the entities are represented in notifications.",
         initial="normalized",
     )
     only_changed_attributes = forms.BooleanField(required=False, initial=False)
@@ -181,3 +243,12 @@ class SubscriptionForm(forms.ModelForm):
         model = Subscription
         exclude = ["uuid", "project"]
         # fields = "__all__"
+        widgets = {
+            "name": forms.TextInput(
+                attrs={
+                    "data-bs-toggle": "tooltip",
+                    "data-bs-placement": "top",
+                    "title": "A short name to identify the notification.",
+                }
+            ),
+        }
