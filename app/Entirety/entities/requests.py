@@ -1,3 +1,4 @@
+import json
 from enum import Enum
 
 import requests
@@ -47,7 +48,9 @@ def post_entity(self, entity, update, project):
         try:
             cb_client.post_entity(entity, update)
         except requests.RequestException as err:
-            return err
+            return json.loads(err.response.text).get("description")
+        except Exception as err:
+            return err.args[0][0].exc.args[0]
 
 
 def update_entity(self, entity, project):
