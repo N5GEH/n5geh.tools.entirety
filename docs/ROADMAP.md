@@ -21,7 +21,9 @@ _New features will be planned in the future as needed._
 ## Specific Features
 
 ### Projects App
-_New features will be planned in the future as needed._
+| Short Name        | Descriptions                                                                                                        | Short-Term | Long-Term |
+|-------------------|---------------------------------------------------------------------------------------------------------------------|------------|-----------|
+| Add project users | Allow normal users access to the project. For now, only server admin and project owner can access to the project.   | &check;    |           |
 
 ### Entities App
 | Short Name           | Descriptions                                                                             | Short-Term | Long-Term |
