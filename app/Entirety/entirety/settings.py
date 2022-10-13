@@ -301,7 +301,7 @@ class Settings(PydanticSettings):
     LANGUAGE_CODE: str = Field(default="en-us", env="LANGUAGE_CODE")
 
     STATIC_ROOT: DirectoryPath = Field(
-        default=os.path.join(BASE_DIR, "static/"), env="STATIC_ROOT"
+        default=os.path.join(BASE_DIR, "assets/"), env="STATIC_ROOT"
     )
     MEDIA_ROOT: DirectoryPath = Field(
         default=os.path.join(BASE_DIR, "media/"), env="MEDIA_ROOT"
