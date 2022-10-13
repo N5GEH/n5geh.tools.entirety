@@ -14,7 +14,7 @@ services:
       - entirety
 
   entirety:
-    image: ghcr.io/n5geh/n5geh.tools.entirety2:latest
+    image: ghcr.io/n5geh/n5geh.tools.entirety:latest
     restart: unless-stopped
     expose:
       - 8000
