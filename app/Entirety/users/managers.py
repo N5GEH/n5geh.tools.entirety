@@ -20,7 +20,7 @@ class UserManager(BaseUserManager):
             username=username,
             password=password,
         )
-        user.is_admin = True
+        user.is_superuser = True
         user.is_staff = True
         user.is_server_admin = True
         user.is_project_admin = True
