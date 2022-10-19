@@ -67,9 +67,6 @@ provide following settings in your env file.
 ### Required
 
 * [DJANGO_SECRET_KEY](./docs/SETTINGS.md#django_secret_key)
-* [ENTITIES_LOAD](./docs/SETTINGS.md#entities_load)
-* [DEVICES_LOAD](./docs/SETTINGS.md#devices_load)
-* [NOTIFICATIONS_LOAD](./docs/SETTINGS.md#django_secret_key)
 * [CB_URL](./docs/SETTINGS.md#cb_url)
 * [IOTA_URL](./docs/SETTINGS.md#iota_url)
 * [QL_URL](./docs/SETTINGS.md#ql_url)
@@ -78,6 +75,9 @@ provide following settings in your env file.
 
 * [DJANGO_DEBUG](./docs/SETTINGS.md#django_debug)
 * [COMPRESS_ENABLED](./docs/SETTINGS.md#compress_enabled)
+* [ENTITIES_LOAD](./docs/SETTINGS.md#entities_load)
+* [DEVICES_LOAD](./docs/SETTINGS.md#devices_load)
+* [NOTIFICATIONS_LOAD](./docs/SETTINGS.md#django_secret_key)
 
 ### OIDC
 

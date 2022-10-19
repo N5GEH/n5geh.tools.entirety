@@ -65,9 +65,9 @@ class AuthenticationSettings(BaseSettings):
 
 
 class AppLoadSettings(BaseSettings):
-    ENTITIES_LOAD: bool = Field(default=False, env="ENTITIES_LOAD")
-    DEVICES_LOAD: bool = Field(default=False, env="DEVICES_LOAD")
-    NOTIFICATIONS_LOAD: bool = Field(default=False, env="NOTIFICATIONS_LOAD")
+    ENTITIES_LOAD: bool = Field(default=True, env="ENTITIES_LOAD")
+    DEVICES_LOAD: bool = Field(default=True, env="DEVICES_LOAD")
+    NOTIFICATIONS_LOAD: bool = Field(default=True, env="NOTIFICATIONS_LOAD")
 
     class Config:
         case_sensitive = False
