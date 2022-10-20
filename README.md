@@ -8,8 +8,8 @@
 ## Built With
 
 - Django 4.1
-- Bootstrap 5.2.0-beta1
-- htmx 1.7.0
+- Bootstrap 5.2
+- htmx 1.8.2
 
 ## Deployment
 
