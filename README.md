@@ -13,7 +13,7 @@
 
 ## Deployment
 
-To deploy the application please referre to
+To deploy the application please refer to
 our [deployment guide](https://github.com/N5GEH/n5geh.tutorials.entirety_step_by_step)
 
 ## Contributing
