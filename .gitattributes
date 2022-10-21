@@ -1,5 +1,6 @@
 # Ignore in language detection
 app/Entirety/static/bootstrap/** linguist-vendored
+app/Entirety/static/bootstrap-icons/** linguist-vendored
 app/Entirety/static/htmx/** linguist-vendored
 
 
