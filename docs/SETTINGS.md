@@ -218,3 +218,9 @@ Server admins can create/update projects for any project admin.
 > *description:* Application timezone
 >
 > *default:* Europe/Berlin
+
+### WEB_HOST
+
+> *description:* Hostname under which the application will be accessible
+>
+> *default:* localhost
