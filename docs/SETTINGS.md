@@ -29,7 +29,7 @@
 
 > *description:* Toggle this boolean if you want to switch Devices application on or off
 >
-> *default:* False
+> *default:* True
 
 ### DJANGO_DEBUG
 
@@ -47,7 +47,7 @@
 
 > *description:* Toggle this boolean if you want to switch Entities application on or off
 >
-> *default:* False
+> *default:* True
 
 ### IOTA_URL
 
@@ -84,6 +84,12 @@
 > *description:* Application successful logout redirect url.
 >
 > *default:* /
+
+### LOKI_ENABLE
+
+> *description:* Toggle to enable/disable loki logging
+>
+> *default:* False
 
 ### LOKI_HOST
 
@@ -131,7 +137,7 @@
 
 > *description:* Toggle this boolean if you want to switch Notifications application on or off
 >
-> *default:* False
+> *default:* True
 
 ### OIDC_OP_AUTHORIZATION_ENDPOINT
 
