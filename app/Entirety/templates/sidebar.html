@@ -4,6 +4,7 @@
             <ul class="nav nav-flush flex-column flex-nowrap text-center text-md-start">
                 {% if user.is_authenticated %}
                     {% if project %}
+                        {% if project_permissions %}
                         <li class="nav-item border-bottom d-inline-flex">
                             <a href="{% url 'projects:update' project.uuid %}" class="nav-link btn-sidebar py-md-2"
                                data-bs-toggle="tooltip" data-bs-placement="right" data-bs-custom-class="d-md-none"
@@ -12,6 +13,7 @@
                                 <span class="d-none d-md-inline-flex">{{ project }}</span>
                             </a>
                         </li>
+                        {%  endif %}
                         {% if entities_load %}
                         <li class="nav-item border-bottom d-inline-flex">
                             <a href="{% url "projects:entities:list" project_id=project.uuid %}" class="nav-link btn-sidebar py-md-2"

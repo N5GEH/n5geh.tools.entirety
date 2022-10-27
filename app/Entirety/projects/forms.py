@@ -6,16 +6,20 @@ from .models import Project
 
 
 class ProjectForm(forms.ModelForm):
-    def __init__(self, *args, **kwargs):
+    def __init__(self, user, *args, **kwargs):
         super(ProjectForm, self).__init__(*args, **kwargs)
 
         self.helper = FormHelper(self)
 
+        if not user.is_server_admin:
+            self.fields["owner"].disabled = True
+        self.fields["owner"].queryset = User.objects.filter(
+            is_server_admin=True, is_project_admin=True
+        )
         self.fields["owner"].widget.attrs = {
             "data-bs-toggle": "tooltip",
             "data-bs-placement": "left",
-            "title": "Owner can not be edited. It is assigned automatically on project creation.",
-            "disabled": True,
+            "title": "Owner is assigned automatically on project creation. It can only be updated by admin.",
         }
 
         self.fields["users"].widget = forms.CheckboxSelectMultiple(
