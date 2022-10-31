@@ -18,9 +18,14 @@ class Index(LoginRequiredMixin, ListView):
     template_name = "projects/index.html"
 
     def get_queryset(self):
-        if self.request.user.is_server_admin or self.request.user.is_project_admin:
+        if self.request.user.is_server_admin:
             return Project.objects.order_by("date_modified").filter(
                 name__icontains=self.request.GET.get("search", default="")
+            )
+        elif self.request.user.is_project_admin:
+            return Project.objects.order_by("date_modified").filter(
+                name__icontains=self.request.GET.get("search", default=""),
+                owner=self.request.user,
             )
         else:
             return Project.objects.order_by("date_modified").filter(
