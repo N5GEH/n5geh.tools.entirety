@@ -26,6 +26,9 @@ class Index(LoginRequiredMixin, ListView):
             return Project.objects.order_by("date_modified").filter(
                 name__icontains=self.request.GET.get("search", default=""),
                 owner=self.request.user,
+            ) | Project.objects.order_by("date_modified").filter(
+                name__icontains=self.request.GET.get("search", default=""),
+                users=self.request.user,
             )
         else:
             return Project.objects.order_by("date_modified").filter(

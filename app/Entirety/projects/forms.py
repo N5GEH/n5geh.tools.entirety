@@ -13,14 +13,17 @@ class ProjectForm(forms.ModelForm):
 
         if not user.is_server_admin:
             self.fields["owner"].disabled = True
-        self.fields["owner"].queryset = User.objects.filter(
-            is_server_admin=True, is_project_admin=True
-        )
-        self.fields["owner"].widget.attrs = {
-            "data-bs-toggle": "tooltip",
-            "data-bs-placement": "left",
-            "title": "Owner is assigned automatically on project creation. It can only be updated by admin.",
-        }
+            self.fields["owner"].required = False
+
+        else:
+            self.fields["owner"].queryset = User.objects.filter(
+                is_server_admin=True, is_project_admin=True
+            )
+        self.fields["owner"].widget.attrs["data-bs-toggle"] = "tooltip"
+        self.fields["owner"].widget.attrs["data-bs-placement"] = "left"
+        self.fields["owner"].widget.attrs[
+            "title"
+        ] = "Owner is assigned automatically on project creation. It can only be updated by admin."
 
         self.fields["users"].widget = forms.CheckboxSelectMultiple(
             attrs={
@@ -29,8 +32,9 @@ class ProjectForm(forms.ModelForm):
                 "title": "Include or exclude users into project",
             }
         )
-        self.fields["users"].queryset = User.objects.exclude(
-            id=self.instance.owner_id
+        self.fields["users"].queryset = (
+            User.objects.exclude(id=self.instance.owner_id)
+            & User.objects.exclude(id=user.id)
         ).filter(is_server_admin=False)
 
         self.helper.layout.append(Submit(name="save", value="Save"))
