@@ -36,13 +36,6 @@ class Index(LoginRequiredMixin, ListView):
                 users=self.request.user,
             )
 
-    def get_context_data(self, **kwargs):
-        context = super(Index, self).get_context_data(**kwargs)
-        context["project_permissions"] = (
-            self.request.user.is_project_admin or self.request.user.is_server_admin
-        )
-        return context
-
 
 class Detail(ProjectBaseMixin, DetailView):
     model = Project
