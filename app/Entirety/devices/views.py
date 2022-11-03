@@ -16,7 +16,7 @@ from devices.utils import (
     get_device_by_id,
     delete_device,
     devices_filter,
-    patern_devices_filter,
+    pattern_devices_filter,
 )
 from devices.tables import DevicesTable
 from requests.exceptions import RequestException
@@ -31,10 +31,10 @@ class DeviceListView(ProjectContextMixin, SingleTableMixin, TemplateView):
     table_pagination = {"per_page": 15}
 
     def get_table_data(self):
-        patern = self.request.GET.get("search-patern", default="")
+        pattern = self.request.GET.get("search-pattern", default="")
         devices = get_devices(self.project)
-        # The filtering is now based on a general patern
-        return patern_devices_filter(devices, patern)
+        # The filtering is now based on a general pattern
+        return pattern_devices_filter(devices, pattern)
 
     # add context to html
     def get_context_data(self, **kwargs):

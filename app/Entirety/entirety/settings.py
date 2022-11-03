@@ -17,7 +17,7 @@ from pydantic_settings.settings import (
 from utils.generators import generate_secret_key
 from django.contrib.messages import constants as messages
 
-__version__ = "0.3.1"
+__version__ = "0.4.0"
 
 
 class Databases(DatabaseSettings):
@@ -40,6 +40,7 @@ class Databases(DatabaseSettings):
 
 
 class LokiSettings(BaseSettings):
+    LOKI_ENABLE: str = Field(default=False, env="LOKI_ENABLE")
     LOKI_LEVEL: str = Field(default="INFO", env="LOKI_LEVEL")
     LOKI_PORT: int = Field(default=3100, env="LOKI_PORT")
     LOKI_TIMEOUT: float = Field(default=0.5, env="LOKI_TIMEOUT")
@@ -64,9 +65,9 @@ class AuthenticationSettings(BaseSettings):
 
 
 class AppLoadSettings(BaseSettings):
-    ENTITIES_LOAD: bool = Field(default=False, env="ENTITIES_LOAD")
-    DEVICES_LOAD: bool = Field(default=False, env="DEVICES_LOAD")
-    NOTIFICATIONS_LOAD: bool = Field(default=False, env="NOTIFICATIONS_LOAD")
+    ENTITIES_LOAD: bool = Field(default=True, env="ENTITIES_LOAD")
+    DEVICES_LOAD: bool = Field(default=True, env="DEVICES_LOAD")
+    NOTIFICATIONS_LOAD: bool = Field(default=True, env="NOTIFICATIONS_LOAD")
 
     class Config:
         case_sensitive = False
@@ -78,6 +79,8 @@ class Settings(PydanticSettings):
     add_type("text/css", ".css", True)
     __auth = AuthenticationSettings()
     LOCAL_AUTH = __auth.LOCAL_AUTH
+    LOKI = LokiSettings()
+    APP_LOAD = AppLoadSettings()
 
     # Build paths inside the project like this: BASE_DIR / 'subdir'.
     BASE_DIR: DirectoryPath = Path(__file__).resolve().parent.parent
@@ -190,39 +193,40 @@ class Settings(PydanticSettings):
 
     DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
-    LOGGING = {
-        "version": 1,
-        "disable_existing_loggers": False,
-        "formatters": {
-            "loki": {
-                "class": "django_loki.LokiFormatter",
-                "format": "[%(asctime)s] %(levelname)s [%(name)s:%(lineno)s] "
-                "[%(funcName)s] %(message)s",
-                "datefmt": "%Y-%m-%d %H:%M:%S",
+    if LOKI.LOKI_ENABLE:
+        LOGGING = {
+            "version": 1,
+            "disable_existing_loggers": False,
+            "formatters": {
+                "loki": {
+                    "class": "django_loki.LokiFormatter",
+                    "format": "[%(asctime)s] %(levelname)s [%(name)s:%(lineno)s] "
+                    "[%(funcName)s] %(message)s",
+                    "datefmt": "%Y-%m-%d %H:%M:%S",
+                },
             },
-        },
-        "handlers": {
-            "console": {"class": "logging.StreamHandler", "level": "DEBUG"},
-            "loki": {
-                "level": LokiSettings().dict().get("LOKI_LEVEL"),
-                "class": "django_loki.LokiHttpHandler",
-                "host": LokiSettings().dict().get("LOKI_HOST"),
-                "formatter": "loki",
-                "port": LokiSettings().dict().get("LOKI_PORT"),
-                "timeout": LokiSettings().dict().get("LOKI_TIMEOUT"),
-                "protocol": LokiSettings().dict().get("LOKI_PROTOCOL"),
-                "source": "Loki",
-                "src_host": LokiSettings().dict().get("LOKI_SRC_HOST"),
-                "tz": LokiSettings().dict().get("LOKI_TIMEZONEs"),
+            "handlers": {
+                "console": {"class": "logging.StreamHandler", "level": "DEBUG"},
+                "loki": {
+                    "level": LOKI.LOKI_LEVEL,
+                    "class": "django_loki.LokiHttpHandler",
+                    "host": LOKI.LOKI_HOST,
+                    "formatter": "loki",
+                    "port": LOKI.LOKI_PORT,
+                    "timeout": LOKI.LOKI_TIMEOUT,
+                    "protocol": LOKI.LOKI_PROTOCOL,
+                    "source": "Loki",
+                    "src_host": LOKI.LOKI_SRC_HOST,
+                    "tz": LOKI.LOKI_TIMEZONE,
+                },
             },
-        },
-        "loggers": {
-            "": {
-                "handlers": ["loki"],
-                "level": "INFO",
+            "loggers": {
+                "": {
+                    "handlers": ["loki"],
+                    "level": "INFO",
+                },
             },
-        },
-    }
+        }
 
     # Media location
     # https://docs.djangoproject.com/en/4.0/howto/static-files/#serving-files
@@ -301,7 +305,7 @@ class Settings(PydanticSettings):
     LANGUAGE_CODE: str = Field(default="en-us", env="LANGUAGE_CODE")
 
     STATIC_ROOT: DirectoryPath = Field(
-        default=os.path.join(BASE_DIR, "assets/"), env="STATIC_ROOT"
+        default=os.path.join(BASE_DIR, "cache/"), env="STATIC_ROOT"
     )
     MEDIA_ROOT: DirectoryPath = Field(
         default=os.path.join(BASE_DIR, "media/"), env="MEDIA_ROOT"
@@ -313,11 +317,11 @@ class Settings(PydanticSettings):
 
     DJANGO_TABLES2_TEMPLATE = "django_tables2/bootstrap4.html"
 
-    if AppLoadSettings().dict().get("ENTITIES_LOAD") is True:
+    if APP_LOAD.ENTITIES_LOAD is True:
         INSTALLED_APPS.append("entities")
-    if AppLoadSettings().dict().get("DEVICES_LOAD") is True:
+    if APP_LOAD.DEVICES_LOAD is True:
         INSTALLED_APPS.append("devices")
-    if AppLoadSettings().dict().get("NOTIFICATIONS_LOAD") is True:
+    if APP_LOAD.NOTIFICATIONS_LOAD is True:
         INSTALLED_APPS.append("subscriptions")
 
     class Config:

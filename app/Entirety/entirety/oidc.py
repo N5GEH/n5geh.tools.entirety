@@ -22,6 +22,10 @@ class CustomOIDCAB(OIDCAuthenticationBackend):
         user.is_server_admin = settings.OIDC_SERVER_ADMIN_ROLE in roles
         user.is_project_admin = settings.OIDC_PROJECT_ADMIN_ROLE in roles
 
+        # Overwriting password field in model also possible (allow None),
+        # but then additional testing for local authentication is needed (None not allowed for local users)
+        user.password = "This is not a real password!"
+
         user.save()
 
         return user

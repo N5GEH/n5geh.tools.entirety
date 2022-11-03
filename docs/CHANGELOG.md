@@ -2,6 +2,37 @@
 
 <!--next-version-placeholder-->
 
+## v0.4.0 (2022-10-11)
+### Feature
+* Configurable auth backend ([#46](https://github.com/N5GEH/n5geh.tools.entirety/issues/46)) ([`44335e2`](https://github.com/N5GEH/n5geh.tools.entirety/commit/44335e2eb5d455c586b1f06de65aec034efebcca))
+* Implement subscriptions app ([#49](https://github.com/N5GEH/n5geh.tools.entirety/issues/49)) ([`55e5bf8`](https://github.com/N5GEH/n5geh.tools.entirety/commit/55e5bf8a98ba5a63f54573ff48d0f7cb6e034bde))
+
+### Fix
+* Added title ([`e004f3d`](https://github.com/N5GEH/n5geh.tools.entirety/commit/e004f3d04f14d1099d86c0f450da80de5b2fe959))
+* Correction ([`ff26e1c`](https://github.com/N5GEH/n5geh.tools.entirety/commit/ff26e1ccf6fac58067fbeed616a5b250e377e4c7))
+* Add missing title for devices ([`40e9098`](https://github.com/N5GEH/n5geh.tools.entirety/commit/40e909896581d0f9e249237c4256a33d0e81b188))
+* Typo ([`feefe2f`](https://github.com/N5GEH/n5geh.tools.entirety/commit/feefe2f0b2accc53903c28abab0be491ecb1d489))
+* Typo and type hint ([`d719086`](https://github.com/N5GEH/n5geh.tools.entirety/commit/d719086df7c1b49ab9c32113e0f4b26acc8088d4))
+* Status above back button ([`4e8c7e0`](https://github.com/N5GEH/n5geh.tools.entirety/commit/4e8c7e0f46fa0f5b436286e2cd8eae2a98fd5b9d))
+* App selection class change ([`0013abc`](https://github.com/N5GEH/n5geh.tools.entirety/commit/0013abcb9075e6ab6a57131b277222b4e816a891))
+* Fix empty metadata field ([`b237d68`](https://github.com/N5GEH/n5geh.tools.entirety/commit/b237d683782b0e42b99f955749e76afd0a7f6de7))
+* Remove page header ([`30d8e82`](https://github.com/N5GEH/n5geh.tools.entirety/commit/30d8e8290239520e8a685bf500834964c9fdb070))
+
+### Documentation
+* Fixed text ([`0eb716a`](https://github.com/N5GEH/n5geh.tools.entirety/commit/0eb716a543d4fdc6eab448dd5c969a176bdcfbc7))
+* Name fix ([`7bc621d`](https://github.com/N5GEH/n5geh.tools.entirety/commit/7bc621dea2439d2eef5de7ecf3d0e2bde8dcfb56))
+* Added subscription tooltip ([`b2ae90b`](https://github.com/N5GEH/n5geh.tools.entirety/commit/b2ae90b3f5efeb840b9bef140858712ee377c678))
+* Fixed class h1 ([`d881ed2`](https://github.com/N5GEH/n5geh.tools.entirety/commit/d881ed2353a5ca8bb96b97002665755231ee07be))
+* Update home page text ([`e8edda8`](https://github.com/N5GEH/n5geh.tools.entirety/commit/e8edda8b56b774c07503978c21757fc677aba137))
+* Include missing settings ([`c500e12`](https://github.com/N5GEH/n5geh.tools.entirety/commit/c500e12109a6e64e5c569bdc709ad7bb64410114))
+
+## v0.3.2 (2022-10-10)
+### Fix
+* Corrected timezone ([`1b4c1ca`](https://github.com/N5GEH/n5geh.tools.entirety2/commit/1b4c1ca6cb218f056b1a247b366fa84717bc7d1a))
+
+### Documentation
+* Update requirements.txt ([`746bc0a`](https://github.com/N5GEH/n5geh.tools.entirety2/commit/746bc0acc5d5580b8bf3b065be1c20fc93cf91e1))
+
 ## v0.3.1 (2022-07-21)
 ### Fix
 * Fixed card grid to auto ([`72e2c71`](https://github.com/N5GEH/n5geh.tools.entirety2/commit/72e2c714a5a4022ab002d1216e0b32245a7bd602))

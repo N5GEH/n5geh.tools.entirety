@@ -19,6 +19,18 @@
 >
 > *default:* not DJANGO_DEBUG
 
+### DATABASE_URL
+
+> *description:* Database connection url
+>
+> *default:* postgres://username:password@host:port/db
+>
+### DEVICES_LOAD
+
+> *description:* Toggle this boolean if you want to switch Devices application on or off
+>
+> *default:* True
+
 ### DJANGO_DEBUG
 
 > *description:* Run Django with debug options. Not for production use!
@@ -31,12 +43,30 @@
 >
 > *default:* Auto generated key
 
+### ENTITIES_LOAD
+
+> *description:* Toggle this boolean if you want to switch Entities application on or off
+>
+> *default:* True
+
+### IOTA_URL
+
+> *description:* IOT agent url.
+>
+> *default:* http://localhost:4041
+
 ### LANGUAGE_CODE
 
 > *description:* Application default language
 >
 > *default:* en-us
 
+### LOCAL_AUTH
+
+> *description:* Use local authentication
+>
+> *default:* True
+>
 ### LOGIN_REDIRECT_URL
 
 > *description:* Application successful login redirect url.
@@ -54,6 +84,60 @@
 > *description:* Application successful logout redirect url.
 >
 > *default:* /
+
+### LOKI_ENABLE
+
+> *description:* Toggle to enable/disable loki logging
+>
+> *default:* False
+
+### LOKI_HOST
+
+> *description:* Host name of loki logging server
+>
+> *default:* 3100
+
+### LOKI_LEVEL
+
+> *description:* Logging level for loki logging server
+>
+> *default:* INFO
+
+### LOKI_PORT
+
+> *description:* Port of loki logging server
+>
+> *default:* localhost
+
+### LOKI_PROTOCOL
+
+> *description:* Protocol http or https of loki logging server
+>
+> *default:* http
+
+### LOKI_SRC_HOST
+
+> *description:* Label name of source host sending logs to loki logging server
+>
+> *default:* entirety
+
+### LOKI_TIMEOUT
+
+> *description:* Request to loki server by http or https time out
+>
+> *default:* 0.5
+
+### LOKI_TIMEZONE
+
+> *description:* Timezone for formatting timestamp for loki logs
+>
+> *default:* Europe/Berlin
+
+### NOTIFICATIONS_LOAD
+
+> *description:* Toggle this boolean if you want to switch Notifications application on or off
+>
+> *default:* True
 
 ### OIDC_OP_AUTHORIZATION_ENDPOINT
 
@@ -123,8 +207,20 @@ Server admins can create/update projects for any project admin.
 >
 > *default:* user
 
+### QL_URL
+
+> *description:* Quantum Leap url.
+>
+> *default:* http://localhost:8668
+
 ### TIME_ZONE
 
 > *description:* Application timezone
 >
 > *default:* Europe/Berlin
+
+### WEB_HOST
+
+> *description:* Hostname under which the application will be accessible
+>
+> *default:* localhost
