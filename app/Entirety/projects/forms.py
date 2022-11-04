@@ -1,6 +1,9 @@
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Submit
 from django import forms
+from django.core.exceptions import ValidationError
+from filip.models import FiwareHeader
+
 from users.models import User
 from .models import Project
 
@@ -38,6 +41,14 @@ class ProjectForm(forms.ModelForm):
         ).filter(is_server_admin=False)
 
         self.helper.layout.append(Submit(name="save", value="Save"))
+
+    def clean(self):
+        cleaned_data = super().clean()
+        service = cleaned_data.get("fiware_service")
+        try:
+            FiwareHeader(service=service)
+        except Exception as e:
+            raise ValidationError(e)
 
     class Meta:
         model = Project
