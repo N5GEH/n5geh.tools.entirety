@@ -226,3 +226,30 @@ def parse_request_data(data):
     ] = f"0"  # TODO can this always be 0?
 
     return data_basic, data_attributes, data_commands
+
+
+# service groups
+
+def get_service_groups(project: Project):
+    """
+    Get devices for current project
+    Args:
+        project: dict
+
+    Returns:
+        list of devices
+    """
+    try:
+        with IoTAClient(
+            url=settings.IOTA_URL,
+            fiware_header=FiwareHeader(
+                service=project.fiware_service,
+                service_path=project.fiware_service_path,
+            ),
+        ) as iota_client:
+            service_groups = iota_client.get_group_list()
+        return service_groups
+
+    except RuntimeError:
+        return [{}]
+

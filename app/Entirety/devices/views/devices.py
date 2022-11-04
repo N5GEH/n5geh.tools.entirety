@@ -1,4 +1,4 @@
-from django_tables2 import SingleTableMixin
+from django_tables2 import SingleTableMixin, MultiTableMixin
 from django.contrib import messages
 from django.shortcuts import render, redirect
 from django.views.generic import View, TemplateView
@@ -7,6 +7,7 @@ from projects.mixins import ProjectContextMixin
 from devices.forms import DeviceBasic, Attributes, Commands
 from devices.utils import (
     get_devices,
+    get_service_groups,
     post_device,
     update_device,
     prefix_attributes,
@@ -18,29 +19,37 @@ from devices.utils import (
     devices_filter,
     pattern_devices_filter,
 )
-from devices.tables import DevicesTable
+from devices.tables import DevicesTable, GroupsTable
 from requests.exceptions import RequestException
 from pydantic import ValidationError
 
 
 # Devices list
-class DeviceListView(ProjectContextMixin, SingleTableMixin, TemplateView):
+class DeviceListView(ProjectContextMixin, MultiTableMixin, TemplateView):
     # TemplateView.as_view() will render the template. Do not need to invoke render function
     template_name = "devices/list.html"
-    table_class = DevicesTable
+    # table_class = DevicesTable
     table_pagination = {"per_page": 15}
 
-    def get_table_data(self):
+    def get_devices_data(self):
         pattern = self.request.GET.get("search-pattern", default="")
         devices = get_devices(self.project)
         # The filtering is now based on a general pattern
         return pattern_devices_filter(devices, pattern)
 
+    def get_groups_data(self):
+        groups = get_service_groups(self.project)
+        return groups
+
+    def get_tables(self):
+        return [DevicesTable(self.get_devices_data()), GroupsTable(self.get_groups_data())]
+
     # add context to html
     def get_context_data(self, **kwargs):
         context = super(DeviceListView, self).get_context_data(**kwargs)
         context["project"] = self.project
-        context["table"] = DeviceListView.get_table(self)
+        context["table_devices"] = DeviceListView.get_tables(self)[0]
+        context["table_groups"] = DeviceListView.get_tables(self)[1]
         return context
 
 
