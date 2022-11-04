@@ -5,6 +5,7 @@ from django.views.generic import View, TemplateView
 from django.http import HttpRequest
 from projects.mixins import ProjectContextMixin
 from devices.forms import DeviceBasic, Attributes, Commands
+from devices.models import _ServiceGroup
 from devices.utils import (
     get_devices,
     get_service_groups,
@@ -38,7 +39,13 @@ class DeviceListView(ProjectContextMixin, MultiTableMixin, TemplateView):
         return pattern_devices_filter(devices, pattern)
 
     def get_groups_data(self):
-        groups = get_service_groups(self.project)
+        groups_temp = get_service_groups(self.project)
+        # add dummy id
+        groups = []
+        for i, group_temp in enumerate(groups_temp):
+            group = _ServiceGroup(group_temp)
+            group.id = i+1
+            groups.append(group)
         return groups
 
     def get_tables(self):
@@ -126,7 +133,7 @@ class DeviceCreateView(ProjectContextMixin, TemplateView):
 class DeviceCreateSubmitView(ProjectContextMixin, TemplateView):
     def post(self, request: HttpRequest, **kwargs):
         # preprocess the request query data
-        data_basic, data_attributes, data_commands = parse_request_data(request.POST)
+        data_basic, data_attributes, data_commands = parse_request_data(request.POST, BasicForm=DeviceBasic)
 
         # create forms from query data
         basic_info = DeviceBasic(data=data_basic)
@@ -205,7 +212,7 @@ class DeviceEditSubmitView(ProjectContextMixin, TemplateView):
         context = super(DeviceEditSubmitView, self).get_context_data()
 
         # preprocess the POST request data
-        data_basic, data_attributes, data_commands = parse_request_data(request.POST)
+        data_basic, data_attributes, data_commands = parse_request_data(request.POST, BasicForm=DeviceBasic)
 
         basic_info = DeviceBasic(request.POST)
         basic_info.fields["device_id"].widget.attrs["readonly"] = True

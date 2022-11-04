@@ -1,9 +1,10 @@
 from django.conf import settings
-from typing import List
+from django.forms import Form
+from typing import Type
 from projects.models import Project
 from filip.clients.ngsi_v2 import IoTAClient
 from filip.models import FiwareHeader
-from filip.models.ngsi_v2.iot import Device, DeviceAttribute, DeviceCommand
+from filip.models.ngsi_v2.iot import Device, DeviceAttribute, DeviceCommand, ServiceGroup
 
 
 # global settings
@@ -195,16 +196,14 @@ def build_device(data_basic, data_attributes, data_commands):
     return device
 
 
-def parse_request_data(data):
+def parse_request_data(data, BasicForm: Type[Form]):
     """
     Parse the query dict, and separat the data to
     basic information, attributes, and commands
     """
-
+    fields_basic = BasicForm.base_fields.keys()
     data_basic = {
-        "device_id": data["device_id"],
-        "entity_name": data["entity_name"],
-        "entity_type": data["entity_type"],
+        field: data[field] for field in fields_basic if data.get(field)
     }
 
     data_attributes = {
@@ -232,12 +231,12 @@ def parse_request_data(data):
 
 def get_service_groups(project: Project):
     """
-    Get devices for current project
+    Get all service groups for current project
     Args:
         project: dict
 
     Returns:
-        list of devices
+        list of service groups
     """
     try:
         with IoTAClient(
@@ -253,3 +252,78 @@ def get_service_groups(project: Project):
     except RuntimeError:
         return [{}]
 
+
+def get_service_group_by_apikey(project: Project, **kwargs):
+    """
+    Get service groups by apikey in current project
+    Args:
+        project: dict
+        apikey: str
+
+    Returns:
+        filip.models.ngsi_v2.iot.ServiceGroup
+    """
+    with IoTAClient(
+        url=settings.IOTA_URL,
+        fiware_header=FiwareHeader(
+            service=project.fiware_service,
+            service_path=project.fiware_service_path,
+        ),
+    ) as iota_client:
+        return iota_client.get_group(**kwargs)
+
+
+def build_service_group(data_basic, data_attributes):
+    """Build service group object base on the query data"""
+    attributes = get_attribute_list(data_attributes)
+    service_group = ServiceGroup(
+        resource=data_basic["resource"],
+        apikey=data_basic["apikey"],
+        entity_type=data_basic.get("entity_type"),
+        explicitAttrs=data_basic.get("explicitAttrs"),
+        autoprovision=data_basic.get("autoprovision"),
+        attributes=attributes
+    )
+    return service_group
+
+
+def post_service_group(service_group: ServiceGroup, project: Project):
+    """
+    Post the service group to IoTAgent
+    """
+    with IoTAClient(
+        url=settings.IOTA_URL,
+        fiware_header=FiwareHeader(
+            service=project.fiware_service,
+            service_path=project.fiware_service_path,
+        ),
+    ) as iota_client:
+        iota_client.post_group(service_group=service_group)
+
+
+def update_service_group(service_group: ServiceGroup, project: Project):
+    """
+    Update a service group
+    """
+    with IoTAClient(
+        url=settings.IOTA_URL,
+        fiware_header=FiwareHeader(
+            service=project.fiware_service,
+            service_path=project.fiware_service_path,
+        ),
+    ) as iota_client:
+        iota_client.update_group(service_group=service_group)
+
+
+def delete_service_group(project: Project, **kwargs):
+    """
+    Delete a service group
+    """
+    with IoTAClient(
+            url=settings.IOTA_URL,
+            fiware_header=FiwareHeader(
+                service=project.fiware_service,
+                service_path=project.fiware_service_path,
+            ),
+    ) as iota_client:
+        iota_client.delete_group(**kwargs)

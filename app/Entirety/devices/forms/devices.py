@@ -2,7 +2,7 @@ from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Div, HTML
 from django import forms
 from django.forms import formset_factory
-from filip.models.ngsi_v2.iot import DataType
+from filip.models.ngsi_v2.iot import DataType, ServiceGroup
 
 
 ATTRIBUTES_TYPE = [
@@ -16,6 +16,53 @@ ATTRIBUTES_TYPE = [
 ]
 
 COMMANDS_TYPE = [DataType.COMMAND.value]
+
+
+class ServiceGroupBasic(forms.Form):
+    resource = forms.CharField(
+        label="Resource",
+        required=True,
+        widget=forms.TextInput(
+            attrs={
+                "data-bs-toggle": "tooltip",
+                # "data-bs-placement": "top ",
+                "title": "Resource",
+                # "placeholder": "/iot/json"
+            }
+        ),
+    )
+    apikey = forms.CharField(
+        label="API Key",
+        required=True,
+        widget=forms.TextInput(
+            attrs={
+                "data-bs-toggle": "tooltip",
+                # "data-bs-placement": "top ",
+                "title": "APIkey",
+            }
+        ),
+    )
+    entity_type = forms.CharField(
+        label="Entity Type",
+        max_length=256,
+        required=False,
+        widget=forms.TextInput(
+            attrs={
+                "data-bs-toggle": "tooltip",
+                # "data-bs-placement": "top ",
+                "title": "Type of the entity in the Context Broker. Combination of ID and "
+                "Type must be unique.",
+            }
+        ),
+    )
+    # TODO how to get the output of Booleanfield, see subscription
+    explicitAttrs = forms.BooleanField(label="Explicit Attributes")
+    autoprovision = forms.BooleanField(label="Auto Provision")
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.helper = FormHelper(self)
+        self.helper.form_tag = False
 
 
 class DeviceBasic(forms.Form):

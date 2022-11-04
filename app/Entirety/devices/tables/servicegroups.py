@@ -11,15 +11,16 @@ class CheckBoxColumnWithName(tables.columns.CheckBoxColumn):
 class GroupsTable(tables.Table):
     selection = CheckBoxColumnWithName(
         verbose_name="Select",
-        accessor="apikey",
+        accessor="id",
         attrs={
             "td__input": {
-                "value": lambda record: record.apikey,
+                "value": lambda record: f"{record.resource};{record.apikey}",
                 "type": "radio",
             },
         },
         orderable=False,
     )
-    apikey = tables.columns.Column()
     resource = tables.columns.Column()
+    apikey = tables.columns.Column()
     entity_type = tables.columns.Column()
+    id = tables.columns.Column(visible=False)
