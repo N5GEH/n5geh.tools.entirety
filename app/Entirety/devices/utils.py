@@ -255,11 +255,11 @@ def get_service_groups(project: Project):
 
 def get_service_group_by_apikey(project: Project, **kwargs):
     """
-    Get service groups by apikey in current project
+    Get service groups by apikey in current project by apikey and resource
     Args:
         project: dict
-        apikey: str
-
+        apikey: see iota_client.get_group
+        resource: see iota_client.get_group
     Returns:
         filip.models.ngsi_v2.iot.ServiceGroup
     """
@@ -327,3 +327,11 @@ def delete_service_group(project: Project, **kwargs):
             ),
     ) as iota_client:
         iota_client.delete_group(**kwargs)
+
+
+def add_group_to_session(request):
+    """
+    Add to_servicegroup = True to session
+    """
+    request.session["to_servicegroup"] = True
+    return request

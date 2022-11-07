@@ -54,6 +54,10 @@ class DeviceListView(ProjectContextMixin, MultiTableMixin, TemplateView):
     # add context to html
     def get_context_data(self, **kwargs):
         context = super(DeviceListView, self).get_context_data(**kwargs)
+        if self.request.session.get("to_servicegroup"):
+            context["to_servicegroup"] = True
+        else:
+            context["to_servicegroup"] = False
         context["project"] = self.project
         context["table_devices"] = DeviceListView.get_tables(self)[0]
         context["table_groups"] = DeviceListView.get_tables(self)[1]
