@@ -55,9 +55,8 @@ class ServiceGroupBasic(forms.Form):
             }
         ),
     )
-    # TODO how to get the output of Booleanfield, see subscription
-    explicitAttrs = forms.BooleanField(label="Explicit Attributes")
-    autoprovision = forms.BooleanField(label="Auto Provision")
+    explicitAttrs = forms.BooleanField(label="Explicit Attributes", required=False, initial=False)
+    autoprovision = forms.BooleanField(label="Auto Provision", required=False, initial=True)
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
