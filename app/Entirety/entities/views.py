@@ -6,7 +6,12 @@ from django.forms import formset_factory
 from django.shortcuts import render, redirect
 from django.views.generic import TemplateView
 from django_tables2 import SingleTableMixin
-from filip.models.ngsi_v2.context import ContextEntity, ContextAttribute
+from filip.models.ngsi_v2.context import (
+    ContextEntity,
+    ContextAttribute,
+    Update as FilipUpdate,
+    ActionType,
+)
 
 from entities.forms import (
     EntityForm,
@@ -15,6 +20,7 @@ from entities.forms import (
     RelationshipForm,
     SelectionForm,
     DeviceForm,
+    JSONForm,
 )
 from entities.requests import (
     get_entity,
@@ -122,14 +128,53 @@ class Create(ProjectContextMixin, TemplateView):
         context["basic_info"] = basic_info
         context["attributes"] = attributes
         if res:
-            messages.error(
-                self.request,
-                "Entity not created. Reason: "
-                + json.loads(res.response.text).get("description"),
-            )
+            messages.error(self.request, "Entity not created. Reason: " + res)
             return render(request, self.template_name, context)
         else:
             return redirect("projects:entities:list", project_id=self.project.uuid)
+
+
+class CreateBatch(ProjectContextMixin, TemplateView):
+    template_name = "entities/batch.html"
+    form_class = JSONForm
+
+    def get_context_data(self, **kwargs):
+        json_form = JSONForm()
+        context = super(CreateBatch, self).get_context_data(**kwargs)
+        context["json_form"] = json_form
+        return context
+
+    def post(self, request, *args, **kwargs):
+        form = JSONForm(request.POST)
+        context = super(CreateBatch, self).get_context_data(**kwargs)
+        context["json_form"] = form
+        if form.is_valid():
+            res = None
+            entities_json = json.loads(self.request.POST.get("entity_json"))
+            try:
+                entities_to_add = FilipUpdate(**entities_json)
+                for entity in entities_to_add.entities:
+                    res = post_entity(
+                        self,
+                        entity,
+                        True
+                        if entities_to_add.action_type is ActionType.UPDATE
+                        else False,
+                        self.project,
+                    )
+            except:
+                try:
+                    entity_to_add = ContextEntity(**entities_json)
+                    res = post_entity(self, entity_to_add, False, self.project)
+                except:
+                    messages.error(self.request, "No pattern for json matched or!")
+                    return render(request, self.template_name, context)
+            if res is not None:
+                messages.error(self.request, "Entity not created. Reason: " + res)
+                return render(request, self.template_name, context)
+            return redirect("projects:entities:list", project_id=self.project.uuid)
+        else:
+            return render(request, self.template_name, context)
 
 
 class Update(ProjectContextMixin, TemplateView):

@@ -43,10 +43,18 @@
 
 
     <form action="" method="POST">
-        <a href="{% url "projects:entities:create" project_id=project.uuid %}" class="btn btn-primary mb-1 ms-auto"
-           data-toggle="tooltip" data-placement="bottom" title="Create Entity">
-            <i class="bi bi-plus"></i>
-        </a>
+        <div class="btn-group dropup">
+            <button type="button" class="btn btn-primary mb-1 ms-auto dropdown-toggle" data-bs-toggle="dropdown"
+                    data-toggle="tooltip" data-placement="bottom" aria-expanded="false" title="Create Entity">
+                <i class="bi bi-plus"></i>
+            </button>
+            <ul class="dropdown-menu dropdown-menu-dark">
+                <li><a class="dropdown-item" href="{% url "projects:entities:create" project_id=project.uuid %}">Create
+                    Entity</a></li>
+                <li><a class="dropdown-item" href="{% url "projects:entities:create_batch" project_id=project.uuid %}">Create
+                    Multiple Entities</a></li>
+            </ul>
+        </div>
 
         {% csrf_token %}
         <button type="button" class="btn btn-danger mb-1" data-toggle="tooltip" data-placement="bottom"

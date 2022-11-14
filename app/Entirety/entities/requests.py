@@ -29,12 +29,16 @@ def get_entities_list(self, id_pattern, type_pattern, project):
             service=project.fiware_service, service_path=project.fiware_service_path
         ),
     ) as cb_client:
-        for entity in cb_client.get_entity_list(
-            id_pattern=id_pattern, type_pattern=type_pattern
-        ):
-            entity_to_add = entity.copy()
-            entity_to_add.attrs = len(entity.dict()) - 2
-            data.append(entity_to_add)
+        try:
+            for entity in cb_client.get_entity_list(
+                id_pattern=id_pattern, type_pattern=type_pattern
+            ):
+                entity_to_add = entity.copy()
+                entity_to_add.attrs = len(entity.dict()) - 2
+                data.append(entity_to_add)
+        except requests.RequestException as err:
+            # TODO : handle it in view!!
+            raise err
     return data
 
 

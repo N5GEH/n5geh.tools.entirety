@@ -148,3 +148,7 @@ class SelectionForm(forms.Form):
 
         self.helper = FormHelper(self)
         self.helper.form_tag = False
+
+
+class JSONForm(forms.Form):
+    entity_json = forms.JSONField(required=True)
