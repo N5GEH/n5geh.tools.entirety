@@ -193,7 +193,7 @@ class Settings(PydanticSettings):
 
     DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
-    if LOKI.LOKI_ENABLE:
+    if LOKI.LOKI_ENABLE is True:
         LOGGING = {
             "version": 1,
             "disable_existing_loggers": False,
@@ -206,7 +206,6 @@ class Settings(PydanticSettings):
                 },
             },
             "handlers": {
-                "console": {"class": "logging.StreamHandler", "level": "DEBUG"},
                 "loki": {
                     "level": LOKI.LOKI_LEVEL,
                     "class": "django_loki.LokiHttpHandler",
@@ -223,7 +222,32 @@ class Settings(PydanticSettings):
             "loggers": {
                 "": {
                     "handlers": ["loki"],
-                    "level": "INFO",
+                    "level": LOKI.LOKI_LEVEL,
+                },
+            },
+        }
+    else:
+        LOGGING = {
+            "version": 1,
+            "disable_existing_loggers": False,
+            "formatters": {
+                "console": {
+                    "format": "[%(asctime)s] %(levelname)s [%(name)s:%(lineno)s] "
+                    "[%(funcName)s] %(message)s",
+                    "datefmt": "%d/%m/%Y %H:%M:%S",
+                },
+            },
+            "handlers": {
+                "console": {
+                    "class": "logging.StreamHandler",
+                    "level": "DEBUG",
+                    "formatter": "console",
+                },
+            },
+            "loggers": {
+                "projects.views": {
+                    "handlers": ["console"],
+                    "level": "DEBUG",
                 },
             },
         }
