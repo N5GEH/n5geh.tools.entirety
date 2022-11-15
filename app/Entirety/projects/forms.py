@@ -42,6 +42,9 @@ class ProjectForm(forms.ModelForm):
 
         self.helper.layout.append(Submit(name="save", value="Save"))
 
+        self.fields["logo"].required = False
+        self.fields["webpage_url"].required = False
+
     def clean(self):
         cleaned_data = super().clean()
         service = cleaned_data.get("fiware_service")
