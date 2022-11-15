@@ -36,10 +36,16 @@ class Create(ProjectContextMixin, CreateView):
         if self.request.POST:
             # Fill attributes and entities from post request
             context["attributes"] = forms.AttributesForm(self.request.POST)
-            context["entities"] = forms.Entities(self.request.POST, prefix="entity")
+            context["entities"] = forms.Entities(
+                self.request.POST,
+                prefix="entity",
+                form_kwargs={"project": self.project},
+            )
         else:
             context["attributes"] = forms.AttributesForm()
-            context["entities"] = forms.Entities(prefix="entity")
+            context["entities"] = forms.Entities(
+                prefix="entity", form_kwargs={"project": self.project}
+            )
         return context
 
     def post(self, request, *args, **kwargs):
