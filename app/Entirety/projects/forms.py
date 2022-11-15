@@ -12,6 +12,9 @@ class ProjectForm(forms.ModelForm):
 
         self.helper.layout.append(Submit(name="save", value="Save"))
 
+        self.fields["logo"].required = False
+        self.fields["webpage_url"].required = False
+
     class Meta:
         model = Project
         fields = ["name", "description", "fiware_service", "webpage_url", "logo"]
