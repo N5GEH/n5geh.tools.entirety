@@ -9,6 +9,7 @@ from filip.utils.simple_ql import Operator
 
 from subscriptions.models import Subscription
 from entirety.fields import MQTTURLField, HTTPURLField
+from entities.requests import get_entities_list
 
 
 class AttributesForm(forms.Form):
@@ -55,6 +56,18 @@ class AttributesForm(forms.Form):
         )
 
 
+class EntityIdList:
+    def __init__(self, project):
+        self.list = get_entities_list(self, None, None, project)
+        pass
+
+    def id_list(self):
+        id_only_list = []
+        for item in self.list:
+            id_only_list.append((item.id, item.id))
+        return id_only_list
+
+
 class EntitiesForm(forms.Form):
     _entity_choices = [
         ("id", "id"),
@@ -66,31 +79,33 @@ class EntitiesForm(forms.Form):
     ]
 
     entity_selector = forms.ChoiceField(choices=_entity_choices)
-    entity_id = forms.CharField(
+    entity_id = forms.ChoiceField(choices=[])
+    type_selector = forms.ChoiceField(choices=_type_choices, required=False)
+    entity_type = forms.CharField(
+        required=False,
         widget=forms.TextInput(
             attrs={
                 "data-bs-toggle": "tooltip",
                 "data-bs-placement": "top",
-                "title": "Entity id or id pattern. "
-                         "Notification will be triggered "
-                         "by changes in the matched entities.",
+                "title": "Entity type or type pattern.",
             },
-        ),)
-
-    type_selector = forms.ChoiceField(choices=_type_choices, required=False)
-    entity_type = forms.CharField(required=False,
-                                  widget=forms.TextInput(
-                                      attrs={
-                                          "data-bs-toggle": "tooltip",
-                                          "data-bs-placement": "top",
-                                          "title": "Entity type or type pattern.",
-                                      },
-                                  )
-                                  )
+        ),
+    )
 
     def __init__(self, *args, **kwargs):
-        super(EntitiesForm, self).__init__(*args, **kwargs)
-
+        kwargs_dict = {}
+        project = None
+        for item in kwargs:
+            if item != "project":
+                kwargs_dict[item] = kwargs[item]
+            else:
+                project = kwargs[item]
+        super(EntitiesForm, self).__init__(*args, **kwargs_dict)
+        if project != None:
+            entity_id_list = EntityIdList(project).id_list()
+        else:
+            entity_id_list = []
+        self.fields["entity_id"] = forms.ChoiceField(choices=entity_id_list)
         self.helper = FormHelper(self)
         self.helper.form_tag = False
         # disabled because htmx is configured to always send csrf token
@@ -175,25 +190,27 @@ class SubscriptionForm(forms.ModelForm):
     # Notification
 
     # TODO: httpCustom
-    http = HTTPURLField(required=False,
-                        widget=forms.TextInput(
-                            attrs={
-                                "data-bs-toggle": "tooltip",
-                                "data-bs-placement": "top",
-                                "title": "HTTP endpoint to receive the notification.",
-                            }
-                        )
-                        )
+    http = HTTPURLField(
+        required=False,
+        widget=forms.TextInput(
+            attrs={
+                "data-bs-toggle": "tooltip",
+                "data-bs-placement": "top",
+                "title": "HTTP endpoint to receive the notification.",
+            }
+        ),
+    )
     # TODO: mqttCustom
-    mqtt = MQTTURLField(required=False,
-                        widget=forms.TextInput(
-                            attrs={
-                                "data-bs-toggle": "tooltip",
-                                "data-bs-placement": "top",
-                                "title": "MQTT endpoint to receive the notification.",
-                            }
-                        )
-                        )
+    mqtt = MQTTURLField(
+        required=False,
+        widget=forms.TextInput(
+            attrs={
+                "data-bs-toggle": "tooltip",
+                "data-bs-placement": "top",
+                "title": "MQTT endpoint to receive the notification.",
+            }
+        ),
+    )
 
     metadata = forms.CharField(
         required=False,
