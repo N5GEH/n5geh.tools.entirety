@@ -149,25 +149,21 @@ class CreateBatch(ProjectContextMixin, TemplateView):
         context = super(CreateBatch, self).get_context_data(**kwargs)
         context["json_form"] = form
         if form.is_valid():
-            res = None
             entities_json = json.loads(self.request.POST.get("entity_json"))
             try:
                 entities_to_add = FilipUpdate(**entities_json)
-                for entity in entities_to_add.entities:
-                    res = post_entity(
-                        self,
-                        entity,
-                        True
-                        if entities_to_add.action_type is ActionType.UPDATE
-                        else False,
-                        self.project,
-                    )
+                res = update_entity(
+                    self,
+                    entities_to_add.entities,
+                    entities_to_add.action_type,
+                    self.project,
+                )
             except:
                 try:
                     entity_to_add = ContextEntity(**entities_json)
                     res = post_entity(self, entity_to_add, False, self.project)
                 except:
-                    messages.error(self.request, "No pattern for json matched or!")
+                    messages.error(self.request, "No pattern for json matched !")
                     return render(request, self.template_name, context)
             if res is not None:
                 messages.error(self.request, "Entity not created. Reason: " + res)

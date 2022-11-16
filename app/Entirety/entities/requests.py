@@ -57,7 +57,7 @@ def post_entity(self, entity, update, project):
             return err.args[0][0].exc.args[0]
 
 
-def update_entity(self, entity, project):
+def update_entity(self, entities, acton_type, project):
     with ContextBrokerClient(
         url=settings.CB_URL,
         fiware_header=FiwareHeader(
@@ -65,9 +65,7 @@ def update_entity(self, entity, project):
         ),
     ) as cb_client:
         try:
-            cb_client.update_or_append_entity_attributes(
-                entity.id, entity.type, entity.get_attributes(), False
-            )
+            cb_client.update(entities=entities, action_type=acton_type)
         except (requests.RequestException, ValidationError, Exception) as err:
             return err
 
