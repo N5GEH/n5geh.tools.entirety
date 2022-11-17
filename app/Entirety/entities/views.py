@@ -297,7 +297,7 @@ class Delete(ProjectContextMixin, TemplateView):
         subs = [v for k, v in self.request.POST.items() if re.search(r"subs-\d+", k)]
         rels = [k for k, v in self.request.POST.items() if re.search(r"rel-\d+", k)]
         devices = [
-            k for k, v in self.request.POST.items() if re.search(r"device-\d+", k)
+            v for k, v in self.request.POST.items() if re.search(r"device-\d-name+", k)
         ]
         try:
             delete_entity(kwargs.get("entity_id"), kwargs.get("entity_type"), self.project)
