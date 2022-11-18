@@ -229,7 +229,7 @@ class Settings(PydanticSettings):
     else:
         LOGGING = {
             "version": 1,
-            "disable_existing_loggers": False,
+            "disable_existing_loggers": True,
             "formatters": {
                 "console": {
                     "format": "[%(asctime)s] %(levelname)s [%(name)s:%(lineno)s] "
@@ -248,6 +248,14 @@ class Settings(PydanticSettings):
                 "projects.views": {
                     "handlers": ["console"],
                     "level": "DEBUG",
+                },
+                "filip": {
+                    "handlers": ["console"],
+                    "level": "INFO",
+                },
+                "entirety.oidc": {
+                    "handlers": ["console"],
+                    "level": "INFO",
                 },
             },
         }
