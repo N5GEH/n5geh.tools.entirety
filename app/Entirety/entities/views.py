@@ -7,6 +7,8 @@ from django.shortcuts import render, redirect
 from django.views.generic import TemplateView
 from django_tables2 import SingleTableMixin
 from filip.models.ngsi_v2.context import ContextEntity, ContextAttribute
+from requests.exceptions import RequestException
+from pydantic import ValidationError
 
 from entities.forms import (
     EntityForm,
@@ -93,43 +95,46 @@ class Create(ProjectContextMixin, TemplateView):
         return context
 
     def post(self, request, *args, **kwargs):
-        entity = ContextEntity(
-            id=self.request.POST.get("id"),
-            type=self.request.POST.get("type"),
-        )
-        entity_keys = [
-            k for k, v in self.request.POST.items() if re.search(r"attr-\d+", k)
-        ]
-        i = j = 0
-        while i < (len(entity_keys) / 3):
-            keys = [
-                k
-                for k, v in self.request.POST.items()
-                if k in entity_keys and re.search(j.__str__(), k)
+        try:
+            entity = ContextEntity(
+                id=self.request.POST.get("id"),
+                type=self.request.POST.get("type"),
+            )
+            entity_keys = [
+                k for k, v in self.request.POST.items() if re.search(r"attr-\d+", k)
             ]
-            if any(keys):
-                attr = ContextAttribute()
-                attr.value = self.request.POST.get(keys[2])
-                attr.type = self.request.POST.get(keys[1])
-                entity.add_attributes({self.request.POST.get(keys[0]): attr})
-                i = i + 1
-            j = j + 1
-        res = post_entity(self, entity, False, self.project)
+            i = j = 0
+            while i < (len(entity_keys) / 3):
+                keys = [
+                    k
+                    for k, v in self.request.POST.items()
+                    if k in entity_keys and re.search(j.__str__(), k)
+                ]
+                if any(keys):
+                    attr = ContextAttribute()
+                    attr.value = self.request.POST.get(keys[2])
+                    attr.type = self.request.POST.get(keys[1])
+                    entity.add_attributes({self.request.POST.get(keys[0]): attr})
+                    i = i + 1
+                j = j + 1
+            res = post_entity(self, entity, False, self.project)
+            if res:
+                messages.error(
+                    self.request,
+                    f"Entity not created. Reason: {res}",
+                )
+            else:
+                return redirect("projects:entities:list", project_id=self.project.uuid)
+        # handel the error from server
+        except ValidationError as e:
+                messages.error(request, e.raw_errors[0].exc.__str__())
         basic_info = EntityForm(initial=request.POST, project=self.project)
         attributes_form_set = formset_factory(AttributeForm, max_num=0)
         attributes = attributes_form_set(request.POST, prefix="attr")
         context = super(Create, self).get_context_data(**kwargs)
         context["basic_info"] = basic_info
         context["attributes"] = attributes
-        if res:
-            messages.error(
-                self.request,
-                "Entity not created. Reason: "
-                + json.loads(res.response.text).get("description"),
-            )
-            return render(request, self.template_name, context)
-        else:
-            return redirect("projects:entities:list", project_id=self.project.uuid)
+        return render(request, self.template_name, context)
 
 
 class Update(ProjectContextMixin, TemplateView):
@@ -292,12 +297,15 @@ class Delete(ProjectContextMixin, TemplateView):
         subs = [v for k, v in self.request.POST.items() if re.search(r"subs-\d+", k)]
         rels = [k for k, v in self.request.POST.items() if re.search(r"rel-\d+", k)]
         devices = [
-            k for k, v in self.request.POST.items() if re.search(r"device-\d+", k)
+            v for k, v in self.request.POST.items() if re.search(r"device-\d-name+", k)
         ]
-
-        delete_entity(kwargs.get("entity_id"), kwargs.get("entity_type"), self.project)
-        delete_subscription(subs, self.project)
-        delete_device(devices, self.project)
+        try:
+            delete_entity(kwargs.get("entity_id"), kwargs.get("entity_type"), self.project)
+            delete_subscription(subs, self.project)
+            delete_device(devices, self.project)
+        # handel the error from server
+        except RequestException as e:
+            messages.error(request, e.response.content.decode("utf-8"))
 
         i = 0
         while i < (len(rels) / 3):
