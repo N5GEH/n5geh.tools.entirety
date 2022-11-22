@@ -18,7 +18,7 @@ class EntityTable(tables.Table):
         attrs={
             "td__input": {
                 "value": lambda record: record.id + "&" + record.type,
-                "type": "radio",
+                "type": "checkbox",
             },
         },
         orderable=False,

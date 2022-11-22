@@ -76,75 +76,80 @@
         </div>
       </div>
     {%  endif %}
-    {% if subscriptions is not None %}
-    <div class="accordion-item">
-        <h2 class="accordion-header" id="panelsStayOpen-headingFour">
-            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
-                    data-bs-target="#panelsStayOpen-collapseFour" aria-expanded="false"
-                    aria-controls="panelsStayOpen-collapseFour">
-                <i class="bi bi-braces-asterisk me-2"></i>
-                Subscriptions
-            </button>
-        </h2>
-        <div id="panelsStayOpen-collapseFour" class="accordion-collapse collapse"
-             aria-labelledby="panelsStayOpen-headingFour">
-            <div class="accordion-body">
-                <div class="empty_form d-none">
-                    {{ subscriptions.empty_form|crispy }}
+    {% for template_set in template_form_set %}
+        <div class="container-fluid pb-5">
+            <div class="h4"><i class="bi bi-server"></i> {{ template_set.entity_id }}</div>
+            {% if template_set.subscriptions is not None %}
+                <div class="accordion-item">
+                    <h2 class="accordion-header" id="panelsStayOpen-headingFour_{{ forloop.counter }}">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                                data-bs-target="#panelsStayOpen-collapseFour_{{ forloop.counter }}" aria-expanded="false"
+                                aria-controls="panelsStayOpen-collapseFour_{{ forloop.counter }}">
+                            <i class="bi bi-braces-asterisk me-2"></i>
+                            Subscriptions
+                        </button>
+                    </h2>
+                    <div id="panelsStayOpen-collapseFour_{{ forloop.counter }}" class="accordion-collapse collapse"
+                         aria-labelledby="panelsStayOpen-headingFour_{{ forloop.counter }}">
+                        <div class="accordion-body">
+                            <div class="empty_form d-none">
+                                {{ template_set.subscriptions.empty_form|crispy }}
+                            </div>
+                            <div class="form-container container d-flex flex-wrap row g-5">
+                                {% crispy template_set.subscriptions template_set.subscriptions.form.helper %}
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                <div class="form-container container d-flex flex-wrap row g-5">
-                    {% crispy subscriptions subscriptions.form.helper %}
+                {%  endif %}
+                {% if template_set.devices is not None %}
+                <div class="accordion-item">
+                    <h2 class="accordion-header" id="panelsStayOpen-headingFive_{{ forloop.counter }}">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                                data-bs-target="#panelsStayOpen-collapseFive_{{ forloop.counter }}" aria-expanded="false"
+                                aria-controls="panelsStayOpen-collapseFive_{{ forloop.counter }}">
+                            <i class="bi bi-braces-asterisk me-2"></i>
+                            Devices
+                        </button>
+                    </h2>
+                    <div id="panelsStayOpen-collapseFive_{{ forloop.counter }}" class="accordion-collapse collapse"
+                         aria-labelledby="panelsStayOpen-headingFive_{{ forloop.counter }}">
+                        <div class="accordion-body">
+                            <div class="empty_form d-none">
+                                {{ template_set.devices.empty_form|crispy }}
+                            </div>
+                            <div class="form-container container d-flex flex-wrap row g-5">
+                                {% crispy template_set.devices template_set.devices.form.helper %}
+                            </div>
+                        </div>
+                    </div>
                 </div>
-            </div>
+                {%  endif %}
+                {% if template_set.relationships is not None %}
+                <div class="accordion-item">
+                    <h2 class="accordion-header" id="panelsStayOpen-headingSix_{{ forloop.counter }}">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                                data-bs-target="#panelsStayOpen-collapseSix_{{ forloop.counter }}" aria-expanded="false"
+                                aria-controls="panelsStayOpen-collapseSix_{{ forloop.counter }}">
+                            <i class="bi bi-braces-asterisk me-2"></i>
+                            Relationships
+                        </button>
+                    </h2>
+                    <div id="panelsStayOpen-collapseSix_{{ forloop.counter }}" class="accordion-collapse collapse"
+                         aria-labelledby="panelsStayOpen-headingSix_{{ forloop.counter }}">
+                        <div class="accordion-body">
+                            <div class="empty_form d-none">
+                                {{ template_set.relationships.empty_form|crispy }}
+                            </div>
+                            <div class="form-container container d-flex flex-wrap row g-5">
+                                {% crispy template_set.relationships template_set.relationships.form.helper %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {%  endif %}
         </div>
-    </div>
-    {%  endif %}
-    {% if devices is not None %}
-    <div class="accordion-item">
-        <h2 class="accordion-header" id="panelsStayOpen-headingFive">
-            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
-                    data-bs-target="#panelsStayOpen-collapseFive" aria-expanded="false"
-                    aria-controls="panelsStayOpen-collapseFive">
-                <i class="bi bi-braces-asterisk me-2"></i>
-                Devices
-            </button>
-        </h2>
-        <div id="panelsStayOpen-collapseFive" class="accordion-collapse collapse"
-             aria-labelledby="panelsStayOpen-headingFive">
-            <div class="accordion-body">
-                <div class="empty_form d-none">
-                    {{ devices.empty_form|crispy }}
-                </div>
-                <div class="form-container container d-flex flex-wrap row g-5">
-                    {% crispy devices devices.form.helper %}
-                </div>
-            </div>
-        </div>
-    </div>
-    {%  endif %}
-    {% if relationships is not None %}
-    <div class="accordion-item">
-        <h2 class="accordion-header" id="panelsStayOpen-headingSix">
-            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
-                    data-bs-target="#panelsStayOpen-collapseSix" aria-expanded="false"
-                    aria-controls="panelsStayOpen-collapseSix">
-                <i class="bi bi-braces-asterisk me-2"></i>
-                Relationships
-            </button>
-        </h2>
-        <div id="panelsStayOpen-collapseSix" class="accordion-collapse collapse"
-             aria-labelledby="panelsStayOpen-headingSix">
-            <div class="accordion-body">
-                <div class="empty_form d-none">
-                    {{ relationships.empty_form|crispy }}
-                </div>
-                <div class="form-container container d-flex flex-wrap row g-5">
-                    {% crispy relationships relationships.form.helper %}
-                </div>
-            </div>
-        </div>
-    </div>
-    {%  endif %}
+    {% endfor %}
 </div>
 
 

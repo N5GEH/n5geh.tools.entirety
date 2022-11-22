@@ -119,7 +119,9 @@ def delete_relationship(entity_id, attribute_name, entity_type, project):
             service=project.fiware_service, service_path=project.fiware_service_path
         ),
     ) as cb_client:
-        cb_client.delete_entity_attribute(entity_id, attribute_name, entity_type)
+        cb_client.delete_entity_attribute(
+            entity_id=entity_id, attr_name=attribute_name, entity_type=entity_type
+        )
 
 
 def delete_device(device_ids, project):
@@ -174,7 +176,8 @@ def get_relationships(entity_id, project):
             if entity.id != entity_id:
                 for attr in entity.get_attributes():
                     if attr.type == AttributeTypes.RELATIONSHIP.value:
-                        entity_to_append = entity.dict(include={"id", "type"})
-                        entity_to_append["attr_name"] = attr.name
-                        relations.append(entity_to_append)
+                        if attr.value == entity_id:
+                            entity_to_append = entity.dict(include={"id", "type"})
+                            entity_to_append["attr_name"] = attr.name
+                            relations.append(entity_to_append)
     return relations
