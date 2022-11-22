@@ -257,6 +257,10 @@ class Settings(PydanticSettings):
                     "handlers": ["console"],
                     "level": "INFO",
                 },
+                "entities.views": {
+                    "handlers": ["console"],
+                    "level": "INFO",
+                },
             },
         }
 

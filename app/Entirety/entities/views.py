@@ -1,4 +1,5 @@
 import json
+import logging
 import re
 
 from django.contrib import messages
@@ -31,6 +32,8 @@ from entities.requests import (
 from entities.tables import EntityTable
 from projects.mixins import ProjectContextMixin
 
+logger = logging.getLogger(__name__)
+
 
 class EntityList(ProjectContextMixin, SingleTableMixin, TemplateView):
     template_name = "entities/entity_list.html"
@@ -44,6 +47,7 @@ class EntityList(ProjectContextMixin, SingleTableMixin, TemplateView):
         return EntityTable.get_query_set(self, search_id, search_type, self.project)
 
     def get_context_data(self, **kwargs):
+        logger.info("Fetching entities for " + self.request.user.first_name)
         context = super(EntityList, self).get_context_data(**kwargs)
         context["project"] = self.project
         context["table"] = EntityList.get_table(self)
@@ -127,8 +131,20 @@ class Create(ProjectContextMixin, TemplateView):
                 "Entity not created. Reason: "
                 + json.loads(res.response.text).get("description"),
             )
+            logger.error(
+                self.request.user.first_name
+                + " tried creating the entity with id "
+                + entity.id
+                + " but failed with error "
+                + json.loads(res.response.text).get("description")
+            )
             return render(request, self.template_name, context)
         else:
+            logger.info(
+                self.request.user.first_name
+                + " has created the entity with id "
+                + entity.id
+            )
             return redirect("projects:entities:list", project_id=self.project.uuid)
 
 
@@ -196,8 +212,20 @@ class Update(ProjectContextMixin, TemplateView):
                 self.request,
                 "Entity not updated. Reason: " + res,
             )
+            logger.error(
+                self.request.user.first_name
+                + " tried updating the entity with id "
+                + entity.id
+                + " but failed with error "
+                + res
+            )
             return render(request, self.template_name, context)
         else:
+            logger.info(
+                self.request.user.first_name
+                + " has updated the entity with id "
+                + entity.id
+            )
             return redirect("projects:entities:list", project_id=self.project.uuid)
 
 
@@ -311,4 +339,5 @@ class Delete(ProjectContextMixin, TemplateView):
             attr_name = self.request.POST.get(new_keys[2])
             delete_relationship(id, type, attr_name, self.project)
             i = i + 1
+        # TODO: logging
         return redirect("projects:entities:list", project_id=self.project.uuid)
