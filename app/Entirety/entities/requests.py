@@ -101,6 +101,19 @@ def delete_entity(entity_id, entity_type, project):
         return cb_client.delete_entity(entity_id, entity_type)
 
 
+def delete_entities(entities, project):
+    with ContextBrokerClient(
+        url=settings.CB_URL,
+        fiware_header=FiwareHeader(
+            service=project.fiware_service, service_path=project.fiware_service_path
+        ),
+    ) as cb_client:
+        try:
+            cb_client.delete_entities(entities)
+        except Exception as err:
+            return json.loads(err.response.text).get("description")
+
+
 def delete_subscription(sub_ids, project):
     with ContextBrokerClient(
         url=settings.CB_URL,

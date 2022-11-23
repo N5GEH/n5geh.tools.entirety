@@ -44,10 +44,12 @@
 
     <form action="" method="POST">
         <div class="btn-group dropup">
-            <button type="button" class="btn btn-primary mb-1 ms-auto dropdown-toggle" data-bs-toggle="dropdown"
-                    data-toggle="tooltip" data-placement="bottom" aria-expanded="false" title="Create Entity">
-                <i class="bi bi-plus"></i>
-            </button>
+            <span data-bs-toggle="dropdown" aria-expanded="false">
+                <button type="button" class="btn btn-primary mb-1 ms-auto dropdown-toggle"
+                        data-bs-toggle="tooltip" data-bs-placement="bottom"  title="Create Entity">
+                    <i class="bi bi-plus"></i>
+                </button>
+            </span>
             <ul class="dropdown-menu dropdown-menu-dark">
                 <li><a class="dropdown-item" href="{% url "projects:entities:create" project_id=project.uuid %}">Create
                     Entity</a></li>
@@ -57,11 +59,12 @@
         </div>
 
         {% csrf_token %}
-        <button type="button" class="btn btn-danger mb-1" data-toggle="tooltip" data-placement="bottom"
-                title="Delete Entity" data-bs-toggle="modal" data-bs-target="#deleteConfirmModal">
-            <i class="bi bi-trash"></i>
-        </button>
-        <button type="submit" class="btn btn-secondary mb-1" data-toggle="tooltip" data-placement="bottom"
+        <span data-bs-toggle="modal" data-bs-target="#deleteConfirmModal">
+            <button type="button" class="btn btn-danger mb-1"  data-bs-toggle="tooltip" data-bs-placement="bottom" title="Delete Entity" >
+                <i class="bi bi-trash"></i>
+            </button>
+        </span>
+        <button type="submit" class="btn btn-secondary mb-1" data-bs-toggle="tooltip" data-bs-placement="bottom"
                 title="Edit Entity" name="Edit" value="Edit">
             <i class="bi bi-pen"></i>
         </button>
@@ -81,15 +84,18 @@
                     </div>
                     {% csrf_token %}
                     <div class="modal-body">
-                        Delete the selected entity(ies) with either by force deleting or click on Advance Selection to
+                        Delete the selected entities with either by force deleting or click on Advance Selection to
                         load all its associations before deletion.
                     </div>
 
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                        <button type="button" class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#deleteModal">Advance Selection</button>
+                        <button type="button" class="btn btn-secondary" data-bs-toggle="modal"
+                                data-bs-target="#deleteModal">Advance Selection</button>
                         {% csrf_token %}
-                        <button type="submit" class="btn btn-danger">Force Delete</button>
+                        <button type="submit" class="btn btn-danger" data-bs-toggle="tooltip" data-bs-placement="bottom"
+                                title="Force delete selected entities without deleting their associations" name="Delete"
+                                value="Delete">Force Delete</button>
 
                     </div>
                 </div>

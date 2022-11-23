@@ -32,6 +32,7 @@ from entities.requests import (
     delete_relationship,
     delete_device,
     delete_entity,
+    delete_entities,
 )
 from entities.tables import EntityTable
 from projects.mixins import ProjectContextMixin
@@ -64,11 +65,27 @@ class EntityList(ProjectContextMixin, SingleTableMixin, TemplateView):
             )
             return redirect("projects:entities:list", project_id=self.project.uuid)
         if self.request.POST.get("Edit"):
+            # TODO: error if more than one selected for edit
             return redirect(
                 "projects:entities:update",
                 project_id=self.project.uuid,
                 entity_id=selected[0].split("&")[0],
                 entity_type=selected[0].split("&")[1],
+            )
+        if self.request.POST.get("Delete"):
+            entities = []
+            for entity in selected:
+                id = entity.split("&")[0]
+                type = entity.split("&")[1]
+                entity = ContextEntity(id=id, type=type)
+                entities.append(entity)
+
+            res = delete_entities(entities=entities, project=self.project)
+            if res:
+                messages.error(self.request, res)
+            return redirect(
+                "projects:entities:list",
+                project_id=self.project.uuid,
             )
         subscriptions = self.request.POST.get("subscriptions")
         relationships = self.request.POST.get("relationships")
