@@ -31,3 +31,13 @@ Following commit types will affect the version of the next release:
 * **div:** _d\_\<name\>_
 * **dropdown:** _dd\_\<name\>_
 * **modal**: _m\_\<name\>_
+
+## GitHub Workflow for development
+
+1. Create new branch for a new feature or bug resolution.
+2. Make changes to that branch.
+3. Open a Pull Request from the new branch to development branch.
+4. Assign reviewer from the list of Reviewers.
+5. Once the Pull Request is approved by at least one reviewer, merge the branch to development, test if development
+branch is working as expected and delete the old branch.
+6. Updated development image will be automatically pushed to package registry when development branch will be updated.
