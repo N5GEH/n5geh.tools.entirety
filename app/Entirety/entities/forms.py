@@ -151,4 +151,16 @@ class SelectionForm(forms.Form):
 
 
 class JSONForm(forms.Form):
-    entity_json = forms.JSONField(required=True)
+    entity_json = forms.JSONField(
+        required=True,
+        initial={
+            "actionType": "append",
+            "entities": [
+                {
+                    "id": "urn:ngsi-ld:Example:001",
+                    "type": "Example",
+                    "attribute_example": {"type": "Number", "value": 0},
+                }
+            ],
+        },
+    )
