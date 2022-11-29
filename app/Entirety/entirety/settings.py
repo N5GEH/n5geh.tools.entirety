@@ -40,7 +40,7 @@ class Databases(DatabaseSettings):
 
 
 class LokiSettings(BaseSettings):
-    LOKI_ENABLE: str = Field(default=False, env="LOKI_ENABLE")
+    LOKI_ENABLE: bool = Field(default=False, env="LOKI_ENABLE")
     LOKI_LEVEL: str = Field(default="INFO", env="LOKI_LEVEL")
     LOKI_PORT: int = Field(default=3100, env="LOKI_PORT")
     LOKI_TIMEOUT: float = Field(default=0.5, env="LOKI_TIMEOUT")
