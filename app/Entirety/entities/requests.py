@@ -37,7 +37,6 @@ def get_entities_list(self, id_pattern, type_pattern, project):
                 entity_to_add.attrs = len(entity.dict()) - 2
                 data.append(entity_to_add)
         except requests.RequestException as err:
-            # TODO : handle it in view!!
             raise err
     return data
 

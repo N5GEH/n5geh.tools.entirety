@@ -47,7 +47,11 @@ class EntityList(ProjectContextMixin, SingleTableMixin, TemplateView):
     def get_table_data(self):
         search_id = self.request.GET.get("search-id", default="")
         search_type = self.request.GET.get("search-type", default="")
-        return EntityTable.get_query_set(self, search_id, search_type, self.project)
+        try:
+            return EntityTable.get_query_set(self, search_id, search_type, self.project)
+        except Exception as e:
+            messages.error(self.request, e)
+            return []
 
     def get_context_data(self, **kwargs):
         context = super(EntityList, self).get_context_data(**kwargs)
