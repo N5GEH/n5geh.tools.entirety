@@ -35,7 +35,11 @@ class Update(ProjectContextMixin, UpdateView):
         context = super().get_context_data(**kwargs)
         if self.request.POST:
             context["attributes"] = forms.AttributesForm(self.request.POST)
-            context["entities"] = forms.Entities(self.request.POST, prefix="entity")
+            context["entities"] = forms.Entities(
+                self.request.POST,
+                prefix="entity",
+                form_kwargs={"project": self.project},
+            )
         else:
             # Fill from context broker
             with ContextBrokerClient(
@@ -83,6 +87,7 @@ class Update(ProjectContextMixin, UpdateView):
                 form.initial[
                     "only_changed_attributes"
                 ] = cb_sub.notification.onlyChangedAttrs
+                form.initial["project"] = self.project
                 context["form"] = form
 
                 entities_initial = []
@@ -104,7 +109,9 @@ class Update(ProjectContextMixin, UpdateView):
                         }
                     )
                 context["entities"] = forms.Entities(
-                    prefix="entity", initial=entities_initial
+                    prefix="entity",
+                    initial=entities_initial,
+                    form_kwargs={"project": self.project},
                 )
                 attr_choices = utils.load_attributes(self.project, entities_initial)
                 context["attributes"] = forms.AttributesForm(
