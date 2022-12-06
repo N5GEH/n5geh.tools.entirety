@@ -17,7 +17,7 @@ from devices.utils import (
     build_device,
     get_device_by_id,
     delete_device,
-    devices_filter,
+    pattern_service_groups_filter,
     pattern_devices_filter,
 )
 from devices.tables import DevicesTable, GroupsTable
@@ -39,10 +39,12 @@ class DeviceListView(ProjectContextMixin, MultiTableMixin, TemplateView):
         return pattern_devices_filter(devices, pattern)
 
     def get_groups_data(self):
+        pattern = self.request.GET.get("search-pattern-groups", default="")
         groups_temp = get_service_groups(self.project)
+        group_filter = pattern_service_groups_filter(groups_temp, pattern)
         # add dummy id
         groups = []
-        for i, group_temp in enumerate(groups_temp):
+        for i, group_temp in enumerate(group_filter):
             group = _ServiceGroup(group_temp)
             group.id = i+1
             groups.append(group)
@@ -59,6 +61,8 @@ class DeviceListView(ProjectContextMixin, MultiTableMixin, TemplateView):
         else:
             context["to_servicegroup"] = False
         context["project"] = self.project
+        if self.request.GET.get("search-pattern-groups", default=""):
+            context["to_servicegroup"] = True
         context["table_devices"] = DeviceListView.get_tables(self)[0]
         context["table_groups"] = DeviceListView.get_tables(self)[1]
         return context

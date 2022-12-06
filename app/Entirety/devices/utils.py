@@ -107,7 +107,7 @@ def devices_filter(devices: list,
                    name_pattern: str = None,
                    type_pattern: str = None):
     """
-    Filter devices with specified pattern of device_id, device_name or device_type
+    Filter devices with specified pattern of device_id, device_name or entity_type
     Return the intersection set
     """
     if id_pattern:
@@ -251,6 +251,19 @@ def get_service_groups(project: Project):
 
     except RuntimeError:
         return [{}]
+
+
+def pattern_service_groups_filter(service_groups: list, pattern: str = None):
+    """
+    Filter service groups with specified pattern to resource, apikey, entity_type
+    """
+    pattern = pattern.lower()
+    if pattern:
+        service_groups = [service_group for service_group in service_groups
+                   if pattern in service_group.resource.lower()
+                   or pattern in service_group.apikey.lower()
+                   or pattern in service_group.entity_type.lower()]
+    return service_groups
 
 
 def get_service_group_by_apikey(project: Project, **kwargs):
