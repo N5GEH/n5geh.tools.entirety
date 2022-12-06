@@ -47,7 +47,11 @@ class EntityList(ProjectContextMixin, SingleTableMixin, TemplateView):
         return EntityTable.get_query_set(self, search_id, search_type, self.project)
 
     def get_context_data(self, **kwargs):
-        logger.info("Fetching entities for " + self.request.user.first_name)
+        logger.info("Fetching entities for " +
+                    str(self.request.user.first_name
+                        if self.request.user.first_name
+                        else self.request.user.username) +
+                    f" in project {self.project.name}")
         context = super(EntityList, self).get_context_data(**kwargs)
         context["project"] = self.project
         context["table"] = EntityList.get_table(self)
@@ -132,18 +136,25 @@ class Create(ProjectContextMixin, TemplateView):
                 + json.loads(res.response.text).get("description"),
             )
             logger.error(
-                self.request.user.first_name
+                str(self.request.user.first_name
+                    if self.request.user.first_name
+                    else self.request.user.username)
                 + " tried creating the entity with id "
                 + entity.id
                 + " but failed with error "
                 + json.loads(res.response.text).get("description")
+                +
+                f" in project {self.project.name}"
             )
             return render(request, self.template_name, context)
         else:
             logger.info(
-                self.request.user.first_name
+                str(self.request.user.first_name
+                    if self.request.user.first_name
+                    else self.request.user.username)
                 + " has created the entity with id "
                 + entity.id
+                + f" in project {self.project.name}"
             )
             return redirect("projects:entities:list", project_id=self.project.uuid)
 
@@ -213,18 +224,24 @@ class Update(ProjectContextMixin, TemplateView):
                 "Entity not updated. Reason: " + res,
             )
             logger.error(
-                self.request.user.first_name
+                str(self.request.user.first_name
+                    if self.request.user.first_name
+                    else self.request.user.username)
                 + " tried updating the entity with id "
                 + entity.id
                 + " but failed with error "
                 + res
+                + f" in project {self.project.name}"
             )
             return render(request, self.template_name, context)
         else:
             logger.info(
-                self.request.user.first_name
+                str(self.request.user.first_name
+                    if self.request.user.first_name
+                    else self.request.user.username)
                 + " has updated the entity with id "
                 + entity.id
+                + f" in project {self.project.name}"
             )
             return redirect("projects:entities:list", project_id=self.project.uuid)
 
