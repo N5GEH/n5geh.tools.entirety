@@ -11,6 +11,8 @@ from filip.models.ngsi_v2.context import (
     ContextAttribute,
     Update as FilipUpdate,
 )
+from requests.exceptions import RequestException
+from pydantic import ValidationError
 
 from entities.forms import (
     EntityForm,
@@ -118,28 +120,39 @@ class Create(ProjectContextMixin, TemplateView):
         return context
 
     def post(self, request, *args, **kwargs):
-        entity = ContextEntity(
-            id=self.request.POST.get("id"),
-            type=self.request.POST.get("type"),
-        )
-        entity_keys = [
-            k for k, v in self.request.POST.items() if re.search(r"attr-\d+", k)
-        ]
-        i = j = 0
-        while i < (len(entity_keys) / 3):
-            keys = [
-                k
-                for k, v in self.request.POST.items()
-                if k in entity_keys and re.search(j.__str__(), k)
+        try:
+            entity = ContextEntity(
+                id=self.request.POST.get("id"),
+                type=self.request.POST.get("type"),
+            )
+            entity_keys = [
+                k for k, v in self.request.POST.items() if re.search(r"attr-\d+", k)
             ]
-            if any(keys):
-                attr = ContextAttribute()
-                attr.value = self.request.POST.get(keys[2])
-                attr.type = self.request.POST.get(keys[1])
-                entity.add_attributes({self.request.POST.get(keys[0]): attr})
-                i = i + 1
-            j = j + 1
-        res = post_entity(self, entity, False, self.project)
+            i = j = 0
+            while i < (len(entity_keys) / 3):
+                keys = [
+                    k
+                    for k, v in self.request.POST.items()
+                    if k in entity_keys and re.search(j.__str__(), k)
+                ]
+                if any(keys):
+                    attr = ContextAttribute()
+                    attr.value = self.request.POST.get(keys[2])
+                    attr.type = self.request.POST.get(keys[1])
+                    entity.add_attributes({self.request.POST.get(keys[0]): attr})
+                    i = i + 1
+                j = j + 1
+            res = post_entity(self, entity, False, self.project)
+            if res:
+                messages.error(
+                    self.request,
+                    f"Entity not created. Reason: {res}",
+                )
+            else:
+                return redirect("projects:entities:list", project_id=self.project.uuid)
+        # handel the error from server
+        except ValidationError as e:
+                messages.error(request, e.raw_errors[0].exc.__str__())
         basic_info = EntityForm(initial=request.POST, project=self.project)
         attributes_form_set = formset_factory(AttributeForm, max_num=0)
         attributes = attributes_form_set(request.POST, prefix="attr")
@@ -374,12 +387,17 @@ class Delete(ProjectContextMixin, TemplateView):
             for k, v in self.request.POST.items()
             if re.search(r"device#\S+\d+-name", k)
         ]
-        for entity in self.request.session.get("entities"):
-            delete_entity(
-                entity_id=entity.id, entity_type=entity.type, project=self.project
-            )
-        delete_subscription(subs, self.project)
-        delete_device(devices, self.project)
+        try:
+            for entity in self.request.session.get("entities"):
+              delete_entity(
+                  entity_id=entity.id, entity_type=entity.type, project=self.project
+              )
+            delete_subscription(subs, self.project)
+            delete_device(devices, self.project)
+            # handel the error from server
+        except RequestException as e:
+            messages.error(request, e.response.content.decode("utf-8"))
+
 
         i = 0
         while i < (len(rels) / 3):
