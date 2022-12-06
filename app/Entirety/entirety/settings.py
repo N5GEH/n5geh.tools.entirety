@@ -261,6 +261,14 @@ class Settings(PydanticSettings):
                     "handlers": ["console"],
                     "level": "INFO",
                 },
+                "django.server": {
+                    "handlers": ["console"],
+                    "level": "WARNING",
+                },
+                "devices.views": {
+                    "handlers": ["console"],
+                    "level": "INFO",
+                }
             },
         }
 

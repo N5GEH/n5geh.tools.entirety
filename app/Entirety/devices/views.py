@@ -4,6 +4,7 @@ from django.shortcuts import render, redirect
 from django.views.generic import View, TemplateView
 from django.http import HttpRequest
 from projects.mixins import ProjectContextMixin
+import logging
 from devices.forms import DeviceBasic, Attributes, Commands
 from devices.utils import (
     get_devices,
@@ -22,6 +23,8 @@ from devices.tables import DevicesTable
 from requests.exceptions import RequestException
 from pydantic import ValidationError
 
+logger = logging.getLogger(__name__)
+
 
 # Devices list
 class DeviceListView(ProjectContextMixin, SingleTableMixin, TemplateView):
@@ -38,6 +41,11 @@ class DeviceListView(ProjectContextMixin, SingleTableMixin, TemplateView):
 
     # add context to html
     def get_context_data(self, **kwargs):
+        logger.info("Fetching devices for " +
+                    str(self.request.user.first_name
+                        if self.request.user.first_name
+                        else self.request.user.username) +
+                    f" in project {self.project.name}")
         context = super(DeviceListView, self).get_context_data(**kwargs)
         context["project"] = self.project
         context["table"] = DeviceListView.get_table(self)
@@ -132,6 +140,11 @@ class DeviceCreateSubmitView(ProjectContextMixin, TemplateView):
                     data_commands=data_commands,
                 )
                 post_device(device, project=self.project)
+                logger.info("Device created by " +
+                            str(self.request.user.first_name
+                                if self.request.user.first_name
+                                else self.request.user.username) +
+                            f" in project {self.project.name}")
                 return redirect("projects:devices:list", project_id=self.project.uuid)
             # handel the error from server
             except RequestException as e:
@@ -161,6 +174,11 @@ class DeviceEditView(ProjectContextMixin, TemplateView):
         device_id = request.session.get("devices")
         # device_id = request.GET["device_id"]
         device = get_device_by_id(project=self.project, device_id=device_id)
+        logger.info("Fetching single device for " +
+                    str(self.request.user.first_name
+                        if self.request.user.first_name
+                        else self.request.user.username) +
+                    f" in project {self.project.name}")
         device_dict = device.dict()
 
         # disable editing the basic information
@@ -215,6 +233,11 @@ class DeviceEditSubmitView(ProjectContextMixin, TemplateView):
                     data_commands=data_commands,
                 )
                 update_device(device, project=self.project)
+                logger.info("Device updated by " +
+                            str(self.request.user.first_name
+                                if self.request.user.first_name
+                                else self.request.user.username) +
+                            f" in project {self.project.name}")
                 return redirect("projects:devices:list", project_id=self.project.uuid)
             except RequestException as e:
                 messages.error(request, e.response.content.decode("utf-8"))
@@ -243,6 +266,11 @@ class DeviceDeleteView(ProjectContextMixin, View):
             delete_device(
                 project=self.project, device_id=device_id, delete_entity=delete_entity
             )
+            logger.info("Device deleted by " +
+                        str(self.request.user.first_name
+                            if self.request.user.first_name
+                            else self.request.user.username) +
+                        f" in project {self.project.name}")
         except RequestException as e:
             messages.error(request, e.response.content.decode("utf-8"))
 
