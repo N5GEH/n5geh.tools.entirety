@@ -1,7 +1,8 @@
 import os
+import logging.config as LOG
 
 from pathlib import Path
-from typing import List, Any, Optional, Sequence
+from typing import List, Any, Optional, Sequence, Union
 from mimetypes import add_type
 
 import django_loki
@@ -193,84 +194,74 @@ class Settings(PydanticSettings):
 
     DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
+    LOGGING_CONFIG: Union[str, None] = None
+
+    LOGGERS = {
+        "projects.views": {
+            "propagate": False,
+            "level": "INFO",
+        },
+        "filip": {
+            "propagate": False,
+            "level": "INFO",
+        },
+        "entirety.oidc": {
+            "propagate": False,
+            "level": "INFO",
+        },
+        "entities.views": {
+            "propagate": False,
+            "level": "INFO",
+        },
+        "django.server": {
+            "propagate": False,
+            "level": "INFO",
+        },
+        "devices.views": {
+            "propagate": False,
+            "level": "INFO",
+        },
+    }
+
     if LOKI.LOKI_ENABLE is True:
-        LOGGING = {
-            "version": 1,
-            "disable_existing_loggers": False,
-            "formatters": {
-                "loki": {
-                    "class": "django_loki.LokiFormatter",
-                    "format": "[%(asctime)s] %(levelname)s [%(name)s:%(lineno)s] "
-                    "[%(funcName)s] %(message)s",
-                    "datefmt": "%Y-%m-%d %H:%M:%S",
-                },
-            },
-            "handlers": {
-                "loki": {
-                    "level": LOKI.LOKI_LEVEL,
-                    "class": "django_loki.LokiHttpHandler",
-                    "host": LOKI.LOKI_HOST,
-                    "formatter": "loki",
-                    "port": LOKI.LOKI_PORT,
-                    "timeout": LOKI.LOKI_TIMEOUT,
-                    "protocol": LOKI.LOKI_PROTOCOL,
-                    "source": "Loki",
-                    "src_host": LOKI.LOKI_SRC_HOST,
-                    "tz": LOKI.LOKI_TIMEZONE,
-                },
-            },
-            "loggers": {
-                "": {
-                    "handlers": ["loki"],
-                    "level": LOKI.LOKI_LEVEL,
-                },
-            },
+        for LOGGER in LOGGERS:
+            LOGGERS[LOGGER]["handlers"] = ["loki"]
+        HANDLER = {
+            "loki": {
+                "level": "DEBUG",
+                "class": "logging.handlers.RotatingFileHandler",
+                "filename": os.path.join(BASE_DIR, "logs/entirety_logs.log"),
+                "maxBytes": 1 * 1024 * 1024,
+                "backupCount": 2,
+                "formatter": "default",
+            }
         }
     else:
-        LOGGING = {
-            "version": 1,
-            "disable_existing_loggers": True,
-            "formatters": {
-                "console": {
-                    "format": "[%(asctime)s] %(levelname)s [%(name)s:%(lineno)s] "
-                    "[%(funcName)s] %(message)s",
-                    "datefmt": "%d/%m/%Y %H:%M:%S",
-                },
-            },
-            "handlers": {
-                "console": {
-                    "class": "logging.StreamHandler",
-                    "level": "DEBUG",
-                    "formatter": "console",
-                },
-            },
-            "loggers": {
-                "projects.views": {
-                    "handlers": ["console"],
-                    "level": "DEBUG",
-                },
-                "filip": {
-                    "handlers": ["console"],
-                    "level": "INFO",
-                },
-                "entirety.oidc": {
-                    "handlers": ["console"],
-                    "level": "INFO",
-                },
-                "entities.views": {
-                    "handlers": ["console"],
-                    "level": "INFO",
-                },
-                "django.server": {
-                    "handlers": ["console"],
-                    "level": "WARNING",
-                },
-                "devices.views": {
-                    "handlers": ["console"],
-                    "level": "INFO",
-                }
-            },
+        for LOGGER in LOGGERS:
+            LOGGERS[LOGGER]["handlers"] = ["console"]
+        HANDLER = {
+            "console": {
+                "class": "logging.StreamHandler",
+                "level": "DEBUG",
+                "formatter": "default",
+            }
         }
+
+    LOGGING = {
+        "version": 1,
+        "disable_existing_loggers": True,
+        "formatters": {
+            "default": {
+                "format": "[%(asctime)s] %(levelname)s [%(name)s:%(lineno)s] "
+                "[%(funcName)s] %(message)s",
+                "datefmt": "%Y-%m-%d %H:%M:%S",
+            },
+        },
+        "handlers": HANDLER,
+        "loggers": LOGGERS,
+    }
+
+    LOG.dictConfig(LOGGING)
 
     # Media location
     # https://docs.djangoproject.com/en/4.0/howto/static-files/#serving-files
