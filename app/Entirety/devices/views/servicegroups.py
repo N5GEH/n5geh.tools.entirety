@@ -14,7 +14,8 @@ from devices.utils import (
     post_service_group,
     update_service_group,
     delete_service_group,
-    add_group_to_session
+    add_group_to_session,
+    get_data_from_session
 )
 from devices.tables import GroupsTable
 from requests.exceptions import RequestException
@@ -108,8 +109,8 @@ class ServiceGroupEditView(ProjectContextMixin, TemplateView):
         context = super(ServiceGroupEditView, self).get_context_data()
 
         # get the selected service group from session
-        resource = request.session.get("resource")
-        apikey = request.session.get("apikey")
+        resource = get_data_from_session(request, "resource")
+        apikey = get_data_from_session(request, "apikey")
         service_group = get_service_group_by_apikey(project=self.project, apikey=apikey, resource=resource)
         service_group_dict = service_group.dict()
 
@@ -173,8 +174,8 @@ class ServiceGroupEditSubmitView(ProjectContextMixin, TemplateView):
 class ServiceGroupDeleteView(ProjectContextMixin, View):
     def get(self, request: HttpRequest, *args, **kwargs):
         # get the selected service group from session
-        resource = request.session.get("resource")
-        apikey = request.session.get("apikey")
+        resource = get_data_from_session(request, "resource")
+        apikey = get_data_from_session(request, "apikey")
 
         # delete the servicegroup and entity?
         try:

@@ -19,6 +19,7 @@ from devices.utils import (
     delete_device,
     pattern_service_groups_filter,
     pattern_devices_filter,
+    get_data_from_session
 )
 from devices.tables import DevicesTable, GroupsTable
 from requests.exceptions import RequestException
@@ -56,7 +57,7 @@ class DeviceListView(ProjectContextMixin, MultiTableMixin, TemplateView):
     # add context to html
     def get_context_data(self, **kwargs):
         context = super(DeviceListView, self).get_context_data(**kwargs)
-        if self.request.session.get("to_servicegroup"):
+        if get_data_from_session(self.request, "to_servicegroup"):
             context["to_servicegroup"] = True
         else:
             context["to_servicegroup"] = False
@@ -182,7 +183,7 @@ class DeviceEditView(ProjectContextMixin, TemplateView):
         context = super(DeviceEditView, self).get_context_data()
 
         # get the selected devices from session
-        device_id = request.session.get("devices")
+        device_id = get_data_from_session(request, "devices")
         # device_id = request.GET["device_id"]
         device = get_device_by_id(project=self.project, device_id=device_id)
         device_dict = device.dict()
@@ -259,8 +260,8 @@ class DeviceEditSubmitView(ProjectContextMixin, TemplateView):
 class DeviceDeleteView(ProjectContextMixin, View):
     def get(self, request: HttpRequest, *args, **kwargs):
         # get the selected devices from session
-        device_id = request.session.get("devices")
-        delete_entity = bool(request.session.get("delete_entity"))
+        device_id = get_data_from_session(request, "devices")
+        delete_entity = bool(get_data_from_session(request, "delete_entity"))
 
         # delete the device and entity?
         try:

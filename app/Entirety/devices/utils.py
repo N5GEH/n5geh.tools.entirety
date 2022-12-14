@@ -348,3 +348,10 @@ def add_group_to_session(request):
     """
     request.session["to_servicegroup"] = True
     return request
+
+
+def get_data_from_session(request, key):
+    if request.session.get(key):
+        return request.session.pop(key)
+    else:
+        return None
