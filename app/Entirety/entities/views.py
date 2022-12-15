@@ -152,7 +152,7 @@ class Create(ProjectContextMixin, TemplateView):
                 return redirect("projects:entities:list", project_id=self.project.uuid)
         # handel the error from server
         except ValidationError as e:
-                messages.error(request, e.raw_errors[0].exc.__str__())
+            messages.error(request, e.raw_errors[0].exc.__str__())
         basic_info = EntityForm(initial=request.POST, project=self.project)
         attributes_form_set = formset_factory(AttributeForm, max_num=0)
         attributes = attributes_form_set(request.POST, prefix="attr")
@@ -388,16 +388,16 @@ class Delete(ProjectContextMixin, TemplateView):
             if re.search(r"device#\S+\d+-name", k)
         ]
         try:
-            for entity in self.request.session.get("entities"):
-              delete_entity(
-                  entity_id=entity.id, entity_type=entity.type, project=self.project
-              )
             delete_subscription(subs, self.project)
             delete_device(devices, self.project)
-            # handel the error from server
+            for entity in self.request.session.get("entities"):
+                delete_entity(
+                    entity_id=entity.split("&")[0],
+                    entity_type=entity.split("&")[1],
+                    project=self.project,
+                )
         except RequestException as e:
             messages.error(request, e.response.content.decode("utf-8"))
-
 
         i = 0
         while i < (len(rels) / 3):
