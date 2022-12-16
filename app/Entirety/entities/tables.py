@@ -18,7 +18,7 @@ class EntityTable(tables.Table):
         attrs={
             "td__input": {
                 "value": lambda record: record.id + "&" + record.type,
-                "type": "radio",
+                "type": "checkbox",
             },
         },
         orderable=False,
@@ -28,4 +28,7 @@ class EntityTable(tables.Table):
     attrs = tables.columns.Column(verbose_name="Attributes")
 
     def get_query_set(self, id_pattern, type_pattern, project):
-        return get_entities_list(self, id_pattern, type_pattern, project)
+        try:
+            return get_entities_list(self, id_pattern, type_pattern, project)
+        except Exception as e:
+            raise e
