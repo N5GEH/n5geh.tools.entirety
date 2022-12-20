@@ -4,7 +4,12 @@ from typing import Type
 from projects.models import Project
 from filip.clients.ngsi_v2 import IoTAClient
 from filip.models import FiwareHeader
-from filip.models.ngsi_v2.iot import Device, DeviceAttribute, DeviceCommand, ServiceGroup
+from filip.models.ngsi_v2.iot import (
+    Device,
+    DeviceAttribute,
+    DeviceCommand,
+    ServiceGroup,
+)
 
 
 # global settings
@@ -89,11 +94,11 @@ def delete_device(project: Project, device_id, **kwargs):
     Delete a devices by id
     """
     with IoTAClient(
-            url=settings.IOTA_URL,
-            fiware_header=FiwareHeader(
-                service=project.fiware_service,
-                service_path=project.fiware_service_path,
-            ),
+        url=settings.IOTA_URL,
+        fiware_header=FiwareHeader(
+            service=project.fiware_service,
+            service_path=project.fiware_service_path,
+        ),
     ) as iota_client:
         iota_client.delete_device(device_id=device_id, **kwargs)
 
@@ -102,23 +107,32 @@ def delete_device(project: Project, device_id, **kwargs):
 # def get_project(uuid):
 #     return Project.objects.get(uuid=uuid)
 
-def devices_filter(devices: list,
-                   id_pattern: str = None,
-                   name_pattern: str = None,
-                   type_pattern: str = None):
+
+def devices_filter(
+    devices: list,
+    id_pattern: str = None,
+    name_pattern: str = None,
+    type_pattern: str = None,
+):
     """
     Filter devices with specified pattern of device_id, device_name or entity_type
     Return the intersection set
     """
     if id_pattern:
         id_pattern = id_pattern.lower()
-        devices = [device for device in devices if id_pattern in device.device_id.lower()]
+        devices = [
+            device for device in devices if id_pattern in device.device_id.lower()
+        ]
     if name_pattern:
         name_pattern = name_pattern.lower()
-        devices = [device for device in devices if name_pattern in device.entity_name.lower()]
+        devices = [
+            device for device in devices if name_pattern in device.entity_name.lower()
+        ]
     if type_pattern:
         type_pattern = type_pattern.lower()
-        devices = [device for device in devices if type_pattern in device.entity_type.lower()]
+        devices = [
+            device for device in devices if type_pattern in device.entity_type.lower()
+        ]
     return devices
 
 
@@ -128,10 +142,13 @@ def pattern_devices_filter(devices: list, pattern: str = None):
     """
     pattern = pattern.lower()
     if pattern:
-        devices = [device for device in devices
-                   if pattern in device.device_id.lower()
-                   or pattern in device.entity_name.lower()
-                   or pattern in device.entity_type.lower()]
+        devices = [
+            device
+            for device in devices
+            if pattern in device.device_id.lower()
+            or pattern in device.entity_name.lower()
+            or pattern in device.entity_type.lower()
+        ]
     return devices
 
 
@@ -150,7 +167,9 @@ def get_attribute_list(data_attributes: dict):
             attribute_dict = {
                 "name": data_attributes[f"{prefix}name"],
                 "type": data_attributes[f"{prefix}type"],
-                "object_id": data_attributes[f"{prefix}object_id"] if data_attributes[f"{prefix}object_id"] else None,
+                "object_id": data_attributes[f"{prefix}object_id"]
+                if data_attributes[f"{prefix}object_id"]
+                else None,
             }
 
             attribute = DeviceAttribute(**attribute_dict)
@@ -172,7 +191,7 @@ def get_commands_list(data_commands: dict):
                 continue
             command_dict = {
                 "name": data_commands[f"{prefix}name"],
-                "type": data_commands[f"{prefix}type"]
+                "type": data_commands[f"{prefix}type"],
             }
             command = DeviceCommand(**command_dict)
             commands.append(command)
@@ -202,15 +221,19 @@ def parse_request_data(data, BasicForm: Type[Form]):
     basic information, attributes, and commands
     """
     fields_basic = BasicForm.base_fields.keys()
-    data_basic = {
-        field: data[field] for field in fields_basic if data.get(field)
-    }
+    data_basic = {field: data[field] for field in fields_basic if data.get(field)}
 
     data_attributes = {
         key: data[key] for key in data if key.startswith(prefix_attributes)
     }
     data_attributes[f"{prefix_attributes}-TOTAL_FORMS"] = str(
-        len([key for key in data_attributes if "__prefix__" not in key and key.endswith("name")])
+        len(
+            [
+                key
+                for key in data_attributes
+                if "__prefix__" not in key and key.endswith("name")
+            ]
+        )
     )
     data_attributes[
         f"{prefix_attributes}-INITIAL_FORMS"
@@ -218,7 +241,13 @@ def parse_request_data(data, BasicForm: Type[Form]):
 
     data_commands = {key: data[key] for key in data if key.startswith(prefix_commands)}
     data_commands[f"{prefix_commands}-TOTAL_FORMS"] = str(
-        len([key for key in data_commands if "__prefix__" not in key and key.endswith("name")])
+        len(
+            [
+                key
+                for key in data_commands
+                if "__prefix__" not in key and key.endswith("name")
+            ]
+        )
     )
     data_commands[
         f"{prefix_commands}-INITIAL_FORMS"
@@ -228,6 +257,7 @@ def parse_request_data(data, BasicForm: Type[Form]):
 
 
 # service groups
+
 
 def get_service_groups(project: Project):
     """
@@ -259,10 +289,13 @@ def pattern_service_groups_filter(service_groups: list, pattern: str = None):
     """
     pattern = pattern.lower()
     if pattern:
-        service_groups = [service_group for service_group in service_groups
-                   if pattern in service_group.resource.lower()
-                   or pattern in service_group.apikey.lower()
-                   or pattern in service_group.entity_type.lower()]
+        service_groups = [
+            service_group
+            for service_group in service_groups
+            if pattern in service_group.resource.lower()
+            or pattern in service_group.apikey.lower()
+            or pattern in service_group.entity_type.lower()
+        ]
     return service_groups
 
 
@@ -295,7 +328,7 @@ def build_service_group(data_basic, data_attributes):
         entity_type=data_basic.get("entity_type"),
         explicitAttrs=data_basic.get("explicitAttrs"),
         autoprovision=data_basic.get("autoprovision"),
-        attributes=attributes
+        attributes=attributes,
     )
     return service_group
 
@@ -333,25 +366,10 @@ def delete_service_group(project: Project, **kwargs):
     Delete a service group
     """
     with IoTAClient(
-            url=settings.IOTA_URL,
-            fiware_header=FiwareHeader(
-                service=project.fiware_service,
-                service_path=project.fiware_service_path,
-            ),
+        url=settings.IOTA_URL,
+        fiware_header=FiwareHeader(
+            service=project.fiware_service,
+            service_path=project.fiware_service_path,
+        ),
     ) as iota_client:
         iota_client.delete_group(**kwargs)
-
-
-def add_group_to_session(request):
-    """
-    Add to_servicegroup = True to session
-    """
-    request.session["to_servicegroup"] = True
-    return request
-
-
-def get_data_from_session(request, key):
-    if request.session.get(key):
-        return request.session.pop(key)
-    else:
-        return None

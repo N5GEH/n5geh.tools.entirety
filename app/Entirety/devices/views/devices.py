@@ -3,6 +3,8 @@ from django.contrib import messages
 from django.shortcuts import render, redirect
 from django.views.generic import View, TemplateView
 from django.http import HttpRequest
+
+from entirety.utils import pop_data_from_session
 from projects.mixins import ProjectContextMixin
 from devices.forms import DeviceBasic, Attributes, Commands
 from devices.models import _ServiceGroup
@@ -19,7 +21,6 @@ from devices.utils import (
     delete_device,
     pattern_service_groups_filter,
     pattern_devices_filter,
-    get_data_from_session
 )
 from devices.tables import DevicesTable, GroupsTable
 from requests.exceptions import RequestException
@@ -47,17 +48,20 @@ class DeviceListView(ProjectContextMixin, MultiTableMixin, TemplateView):
         groups = []
         for i, group_temp in enumerate(group_filter):
             group = _ServiceGroup(group_temp)
-            group.id = i+1
+            group.id = i + 1
             groups.append(group)
         return groups
 
     def get_tables(self):
-        return [DevicesTable(self.get_devices_data()), GroupsTable(self.get_groups_data())]
+        return [
+            DevicesTable(self.get_devices_data()),
+            GroupsTable(self.get_groups_data()),
+        ]
 
     # add context to html
     def get_context_data(self, **kwargs):
         context = super(DeviceListView, self).get_context_data(**kwargs)
-        if get_data_from_session(self.request, "to_servicegroup"):
+        if pop_data_from_session(self.request, "to_servicegroup"):
             context["to_servicegroup"] = True
         else:
             context["to_servicegroup"] = False
@@ -142,7 +146,9 @@ class DeviceCreateView(ProjectContextMixin, TemplateView):
 class DeviceCreateSubmitView(ProjectContextMixin, TemplateView):
     def post(self, request: HttpRequest, **kwargs):
         # preprocess the request query data
-        data_basic, data_attributes, data_commands = parse_request_data(request.POST, BasicForm=DeviceBasic)
+        data_basic, data_attributes, data_commands = parse_request_data(
+            request.POST, BasicForm=DeviceBasic
+        )
 
         # create forms from query data
         basic_info = DeviceBasic(data=data_basic)
@@ -183,7 +189,7 @@ class DeviceEditView(ProjectContextMixin, TemplateView):
         context = super(DeviceEditView, self).get_context_data()
 
         # get the selected devices from session
-        device_id = get_data_from_session(request, "devices")
+        device_id = pop_data_from_session(request, "devices")
         # device_id = request.GET["device_id"]
         device = get_device_by_id(project=self.project, device_id=device_id)
         device_dict = device.dict()
@@ -221,7 +227,9 @@ class DeviceEditSubmitView(ProjectContextMixin, TemplateView):
         context = super(DeviceEditSubmitView, self).get_context_data()
 
         # preprocess the POST request data
-        data_basic, data_attributes, data_commands = parse_request_data(request.POST, BasicForm=DeviceBasic)
+        data_basic, data_attributes, data_commands = parse_request_data(
+            request.POST, BasicForm=DeviceBasic
+        )
 
         basic_info = DeviceBasic(request.POST)
         basic_info.fields["device_id"].widget.attrs["readonly"] = True
@@ -260,8 +268,8 @@ class DeviceEditSubmitView(ProjectContextMixin, TemplateView):
 class DeviceDeleteView(ProjectContextMixin, View):
     def get(self, request: HttpRequest, *args, **kwargs):
         # get the selected devices from session
-        device_id = get_data_from_session(request, "devices")
-        delete_entity = bool(get_data_from_session(request, "delete_entity"))
+        device_id = pop_data_from_session(request, "devices")
+        delete_entity = bool(pop_data_from_session(request, "delete_entity"))
 
         # delete the device and entity?
         try:
