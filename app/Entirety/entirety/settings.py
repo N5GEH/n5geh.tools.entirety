@@ -221,6 +221,10 @@ class Settings(PydanticSettings):
             "propagate": False,
             "level": "INFO",
         },
+        "subscriptions.views": {
+            "propagate": False,
+            "level": "INFO",
+        },
     }
 
     if LOKI.LOKI_ENABLE is True:

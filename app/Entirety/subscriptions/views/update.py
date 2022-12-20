@@ -1,3 +1,4 @@
+import logging
 import re
 
 from django.conf import settings
@@ -20,6 +21,8 @@ from projects.mixins import ProjectContextMixin
 from subscriptions.models import Subscription
 from subscriptions import utils
 from subscriptions import forms
+
+logger = logging.getLogger("subscriptions.views")
 
 
 class Update(ProjectContextMixin, UpdateView):
@@ -196,8 +199,30 @@ class Update(ProjectContextMixin, UpdateView):
                         onlyChangedAttrs=form.cleaned_data["only_changed_attributes"],
                     )
                     cb_client.update_subscription(cb_sub)
+
+                logger.info(
+                    str(
+                        self.request.user.first_name
+                        if self.request.user.first_name
+                        else self.request.user.username
+                    )
+                    + " has updated the subscription with name "
+                    + self.object.name
+                    + f" in project {self.project.name}"
+                )
                 return self.form_valid(form)
 
+        logger.error(
+            str(
+                self.request.user.first_name
+                if self.request.user.first_name
+                else self.request.user.username
+            )
+            + " tried updating the subscription with name"
+            + self.object.name
+            + " but failed "
+            f" in project {self.project.name}"
+        )
         return self.form_invalid(form)
 
     def get_success_url(self):
