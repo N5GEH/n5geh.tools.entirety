@@ -68,6 +68,7 @@ class AppLoadSettings(BaseSettings):
     ENTITIES_LOAD: bool = Field(default=True, env="ENTITIES_LOAD")
     DEVICES_LOAD: bool = Field(default=True, env="DEVICES_LOAD")
     NOTIFICATIONS_LOAD: bool = Field(default=True, env="NOTIFICATIONS_LOAD")
+    SEMANTICS_LOAD: bool = Field(default=True, env="SEMANTICS_LOAD")
 
     class Config:
         case_sensitive = False
@@ -323,6 +324,8 @@ class Settings(PydanticSettings):
         INSTALLED_APPS.append("devices")
     if APP_LOAD.NOTIFICATIONS_LOAD is True:
         INSTALLED_APPS.append("subscriptions")
+    if APP_LOAD.SEMANTICS_LOAD is True:
+        INSTALLED_APPS.append("semantics")
 
     class Config:
         case_sensitive = False

@@ -14,6 +14,7 @@ class ApplicationLoadMixin:
         context["entities_load"] = apps.is_installed("entities")
         context["devices_load"] = apps.is_installed("devices")
         context["notifications_load"] = apps.is_installed("subscriptions")
+        context["semantics_load"] = apps.is_installed("semantics")
 
         return context
 
@@ -47,9 +48,11 @@ class ProjectContextMixin(ProjectBaseMixin):
         return super().dispatch(request, *args, **kwargs)
 
     def test_func(self):
-        return self.project.is_owner(user=self.request.user) or \
-               self.project.is_user(user=self.request.user) or \
-               self.request.user.is_server_admin
+        return (
+            self.project.is_owner(user=self.request.user)
+            or self.project.is_user(user=self.request.user)
+            or self.request.user.is_server_admin
+        )
 
 
 class ProjectSelfMixin(ProjectBaseMixin):
