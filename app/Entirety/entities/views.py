@@ -8,6 +8,7 @@ from django.views.generic import TemplateView
 from django_tables2 import SingleTableMixin
 from filip.models.ngsi_v2.context import ContextEntity, ContextAttribute
 
+from entirety.utils import add_data_to_session, pop_data_from_session
 from entities.forms import (
     EntityForm,
     AttributeForm,
@@ -68,9 +69,9 @@ class EntityList(ProjectContextMixin, SingleTableMixin, TemplateView):
         subscriptions = self.request.POST.get("subscriptions")
         relationships = self.request.POST.get("relationships")
         devices = self.request.POST.get("devices")
-        request.session["subscriptions"] = subscriptions
-        request.session["relationships"] = relationships
-        request.session["devices"] = devices
+        add_data_to_session(request, "subscriptions", subscriptions)
+        add_data_to_session(request, "relationships", relationships)
+        add_data_to_session(request, "devices", devices)
         return redirect(
             "projects:entities:delete",
             project_id=self.project.uuid,
@@ -211,7 +212,7 @@ class Delete(ProjectContextMixin, TemplateView):
         entity = get_entity(self, id, type, self.project)
         # subscriptions
         subscriptions = None
-        if self.request.session.get("subscriptions"):
+        if pop_data_from_session(self.request, "subscriptions"):
             subscriptions_list = get_subscriptions(id, type, self.project)
             initial_subscriptions = []
             for subs in subscriptions_list:
@@ -236,7 +237,7 @@ class Delete(ProjectContextMixin, TemplateView):
                 )  # + " and subject "
         # devices
         devices = None
-        if self.request.session.get("devices"):
+        if pop_data_from_session(self.request, "devices"):
             devices_list = get_devices(entity_id=entity.id, project=self.project)
             initial_devices = []
             for device in devices_list:
@@ -254,7 +255,7 @@ class Delete(ProjectContextMixin, TemplateView):
                 )
             # relationships
         relationships = None
-        if self.request.session.get("relationships"):
+        if pop_data_from_session(self.request, "relationships"):
             relationships_list = get_relationships(
                 entity_id=entity.id, project=self.project
             )

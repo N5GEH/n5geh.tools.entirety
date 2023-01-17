@@ -3,6 +3,8 @@ from django.contrib import messages
 from django.shortcuts import render, redirect
 from django.views.generic import View, TemplateView
 from django.http import HttpRequest
+
+from entirety.utils import add_data_to_session, pop_data_from_session
 from projects.mixins import ProjectContextMixin
 from devices.forms import ServiceGroupBasic, Attributes, Commands
 from devices.utils import (
@@ -14,8 +16,6 @@ from devices.utils import (
     post_service_group,
     update_service_group,
     delete_service_group,
-    add_group_to_session,
-    get_data_from_session
 )
 from devices.tables import GroupsTable
 from requests.exceptions import RequestException
@@ -29,26 +29,38 @@ class ServiceGroupListSubmitView(ProjectContextMixin, View):
         if request.POST.get("Delete_Group"):
             if not request.POST.get("selection"):
                 messages.error(request, "Please select one service group")
-                add_group_to_session(request)
+                pop_data_from_session(request)
                 return redirect("projects:devices:list", project_id=self.project.uuid)
             else:
                 # use session to cache the selected service group
-                request.session["resource"], request.session["apikey"] = request.POST.get("selection").split(";")
-                return redirect("projects:devices:delete_group", project_id=self.project.uuid)
-        
+                (
+                    request.session["resource"],
+                    request.session["apikey"],
+                ) = request.POST.get("selection").split(";")
+                return redirect(
+                    "projects:devices:delete_group", project_id=self.project.uuid
+                )
+
         # press create button
         elif request.POST.get("Create_Group"):
-            return redirect("projects:devices:create_group", project_id=self.project.uuid)
+            return redirect(
+                "projects:devices:create_group", project_id=self.project.uuid
+            )
 
         # press edit button
         elif request.POST.get("Edit_Group"):
             if not request.POST.get("selection"):
                 messages.error(request, "Please select one service group")
-                add_group_to_session(request)
+                add_data_to_session(request, "to_servicegroup", True)
                 return redirect("projects:devices:list", project_id=self.project.uuid)
             else:
-                request.session["resource"], request.session["apikey"] = request.POST.get("selection").split(";")
-                return redirect("projects:devices:edit_group", project_id=self.project.uuid)
+                (
+                    request.session["resource"],
+                    request.session["apikey"],
+                ) = request.POST.get("selection").split(";")
+                return redirect(
+                    "projects:devices:edit_group", project_id=self.project.uuid
+                )
 
 
 # Create service group
@@ -69,8 +81,9 @@ class ServiceGroupCreateView(ProjectContextMixin, TemplateView):
 class ServiceGroupCreateSubmitView(ProjectContextMixin, TemplateView):
     def post(self, request: HttpRequest, **kwargs):
         # preprocess the request query data
-        data_basic, data_attributes, _ = parse_request_data(request.POST,
-                                                            BasicForm=ServiceGroupBasic)
+        data_basic, data_attributes, _ = parse_request_data(
+            request.POST, BasicForm=ServiceGroupBasic
+        )
 
         # create forms from query data
         basic_info = ServiceGroupBasic(data=data_basic)
@@ -79,11 +92,10 @@ class ServiceGroupCreateSubmitView(ProjectContextMixin, TemplateView):
         if basic_info.is_valid() and attributes.is_valid():
             try:
                 service_group = build_service_group(
-                    data_basic=data_basic,
-                    data_attributes=data_attributes
+                    data_basic=data_basic, data_attributes=data_attributes
                 )
                 post_service_group(service_group, project=self.project)
-                add_group_to_session(request)
+                add_data_to_session(request, "to_servicegroup", True)
                 return redirect("projects:devices:list", project_id=self.project.uuid)
             # handel the error from server
             except RequestException as e:
@@ -92,7 +104,9 @@ class ServiceGroupCreateSubmitView(ProjectContextMixin, TemplateView):
                 messages.error(request, e.raw_errors[0].exc.__str__())
 
         # get the project context data
-        context: dict = super(ServiceGroupCreateSubmitView, self).get_context_data(**kwargs)
+        context: dict = super(ServiceGroupCreateSubmitView, self).get_context_data(
+            **kwargs
+        )
 
         context = {
             "basic_info": basic_info,
@@ -109,9 +123,11 @@ class ServiceGroupEditView(ProjectContextMixin, TemplateView):
         context = super(ServiceGroupEditView, self).get_context_data()
 
         # get the selected service group from session
-        resource = get_data_from_session(request, "resource")
-        apikey = get_data_from_session(request, "apikey")
-        service_group = get_service_group_by_apikey(project=self.project, apikey=apikey, resource=resource)
+        resource = pop_data_from_session(request, "resource")
+        apikey = pop_data_from_session(request, "apikey")
+        service_group = get_service_group_by_apikey(
+            project=self.project, apikey=apikey, resource=resource
+        )
         service_group_dict = service_group.dict()
 
         # disable editing the basic information
@@ -140,8 +156,9 @@ class ServiceGroupEditSubmitView(ProjectContextMixin, TemplateView):
         context = super(ServiceGroupEditSubmitView, self).get_context_data()
 
         # preprocess the POST request data
-        data_basic, data_attributes, data_commands = parse_request_data(request.POST,
-                                                                        BasicForm=ServiceGroupBasic)
+        data_basic, data_attributes, data_commands = parse_request_data(
+            request.POST, BasicForm=ServiceGroupBasic
+        )
 
         basic_info = ServiceGroupBasic(request.POST)
 
@@ -150,11 +167,10 @@ class ServiceGroupEditSubmitView(ProjectContextMixin, TemplateView):
         if basic_info.is_valid() and attributes.is_valid():
             try:
                 service_group = build_service_group(
-                    data_basic=data_basic,
-                    data_attributes=data_attributes
+                    data_basic=data_basic, data_attributes=data_attributes
                 )
                 update_service_group(service_group, project=self.project)
-                add_group_to_session(request)
+                add_data_to_session(request, "to_servicegroup", True)
                 return redirect("projects:devices:list", project_id=self.project.uuid)
             except RequestException as e:
                 messages.error(request, e.response.content.decode("utf-8"))
@@ -174,17 +190,15 @@ class ServiceGroupEditSubmitView(ProjectContextMixin, TemplateView):
 class ServiceGroupDeleteView(ProjectContextMixin, View):
     def get(self, request: HttpRequest, *args, **kwargs):
         # get the selected service group from session
-        resource = get_data_from_session(request, "resource")
-        apikey = get_data_from_session(request, "apikey")
+        resource = pop_data_from_session(request, "resource")
+        apikey = pop_data_from_session(request, "apikey")
 
         # delete the servicegroup and entity?
         try:
-            delete_service_group(
-                project=self.project, resource=resource, apikey=apikey
-            )
+            delete_service_group(project=self.project, resource=resource, apikey=apikey)
         except RequestException as e:
             messages.error(request, e.response.content.decode("utf-8"))
 
         # if success, redirect to service group list view
-        add_group_to_session(request)
+        add_data_to_session(request, "to_servicegroup", True)
         return redirect("projects:devices:list", project_id=self.project.uuid)
