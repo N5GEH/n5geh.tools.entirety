@@ -6,10 +6,6 @@
 
 {% block content %}
 
-{#<div class="d-flex">#}
-{#    <span class="h3">Devices </span>#}
-{#</div>#}
-
 <ul class="nav nav-tabs">
     {% if to_servicegroup %}
         <li class="nav-item">
@@ -30,11 +26,11 @@
 
 <div class="tab-content">
   <br>
-  {% if to_servicegroup %}
-  <div class="tab-pane container fade" id="devices">
-  {% else %}
-  <div class="tab-pane container active" id="devices">
-  {% endif %}
+
+  <div {% if to_servicegroup %} class="tab-pane container fade"
+       {% else %} class="tab-pane container active"
+       {% endif %}
+  id="devices">
     <h3>Devices</h3>
     <form action="" method="GET" >
             {% csrf_token %}
