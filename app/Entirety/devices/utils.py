@@ -291,12 +291,20 @@ def build_service_group(data_basic, data_attributes):
     attributes = get_attribute_list(data_attributes)
     service_group = ServiceGroup(
         resource=data_basic["resource"],
-        apikey=data_basic["apikey"],
-        entity_type=data_basic.get("entity_type"),
-        explicitAttrs=data_basic.get("explicitAttrs"),
-        autoprovision=data_basic.get("autoprovision"),
-        attributes=attributes
+        apikey=data_basic["apikey"]
     )
+    if data_basic.get("entity_type"):
+        service_group.entity_type = data_basic.get("entity_type")
+    if data_basic.get("explicit_attrs"):
+        service_group.explicitAttrs = True
+    else:
+        service_group.explicitAttrs = False
+    if data_basic.get("autoprovision"):
+        service_group.autoprovision = True
+    else:
+        service_group.autoprovision = False
+    if attributes:
+        service_group.attributes = attributes
     return service_group
 
 
