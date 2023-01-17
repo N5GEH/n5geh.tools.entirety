@@ -29,7 +29,6 @@ class ServiceGroupListSubmitView(ProjectContextMixin, View):
         if request.POST.get("Delete_Group"):
             if not request.POST.get("selection"):
                 messages.error(request, "Please select one service group")
-                pop_data_from_session(request)
                 return redirect("projects:devices:list", project_id=self.project.uuid)
             else:
                 # use session to cache the selected service group
