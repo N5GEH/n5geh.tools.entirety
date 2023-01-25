@@ -21,7 +21,14 @@ class ApplicationLoadMixin:
 class ProjectBaseMixin(
     LoginRequiredMixin, UserPassesTestMixin, ApplicationLoadMixin, ABC
 ):
-    pass
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        context["project_permissions"] = (
+            self.request.user.is_project_admin or self.request.user.is_server_admin
+        )
+
+        return context
 
 
 class ProjectContextMixin(ProjectBaseMixin):

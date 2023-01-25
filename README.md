@@ -1,21 +1,18 @@
 # n5geh.tools.entirety
 
-[![semantic-release](https://github.com/N5GEH/n5geh.tools.entirety/actions/workflows/semantic-release.yml/badge.svg)](https://github.com/N5GEH/n5geh.tools.entirety/actions/workflows/semantic-release.yml)
-[![issue-tracker](https://github.com/N5GEH/n5geh.tools.entirety/actions/workflows/issue-tracker.yml/badge.svg)](https://github.com/N5GEH/n5geh.tools.entirety/actions/workflows/issue-tracker.yml)
-
 [![Conventional Commits](https://img.shields.io/badge/Conventional%20Commits-1.0.0-yellow.svg)](https://conventionalcommits.org)
+[![semantic-release](https://github.com/N5GEH/n5geh.tools.entirety/actions/workflows/semantic-release.yml/badge.svg)](https://github.com/N5GEH/n5geh.tools.entirety/actions/workflows/semantic-release.yml)
 
 ## Built With
 
 - Django 4.1
-- Bootstrap 5.2.0-beta1
-- htmx 1.7.0
+- Bootstrap 5.2
+- htmx 1.8.2
 
 ## Deployment
 
-To get started we provide a [docker compose file](./docker-compose.yml).
-If you are using an OIDC provider as authentication backend, please use
-the [oidc compose file](./docker-compose.oidc.yml).
+To deploy the application please refer to
+our [deployment guide](https://github.com/N5GEH/n5geh.tutorials.entirety_step_by_step)
 
 ## Contributing
 
@@ -67,9 +64,6 @@ provide following settings in your env file.
 ### Required
 
 * [DJANGO_SECRET_KEY](./docs/SETTINGS.md#django_secret_key)
-* [ENTITIES_LOAD](./docs/SETTINGS.md#entities_load)
-* [DEVICES_LOAD](./docs/SETTINGS.md#devices_load)
-* [NOTIFICATIONS_LOAD](./docs/SETTINGS.md#django_secret_key)
 * [CB_URL](./docs/SETTINGS.md#cb_url)
 * [IOTA_URL](./docs/SETTINGS.md#iota_url)
 * [QL_URL](./docs/SETTINGS.md#ql_url)
@@ -78,6 +72,9 @@ provide following settings in your env file.
 
 * [DJANGO_DEBUG](./docs/SETTINGS.md#django_debug)
 * [COMPRESS_ENABLED](./docs/SETTINGS.md#compress_enabled)
+* [ENTITIES_LOAD](./docs/SETTINGS.md#entities_load)
+* [DEVICES_LOAD](./docs/SETTINGS.md#devices_load)
+* [NOTIFICATIONS_LOAD](./docs/SETTINGS.md#django_secret_key)
 
 ### OIDC
 

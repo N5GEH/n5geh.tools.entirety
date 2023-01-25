@@ -4,6 +4,7 @@
             <ul class="nav nav-flush flex-column flex-nowrap text-center text-md-start">
                 {% if user.is_authenticated %}
                     {% if project %}
+                        {% if user.is_server_admin or project.owner == user %}
                         <li class="nav-item border-bottom d-inline-flex">
                             <a href="{% url 'projects:update' project.uuid %}" class="nav-link btn-sidebar py-md-2"
                                data-bs-toggle="tooltip" data-bs-placement="right" data-bs-custom-class="d-md-none"
@@ -12,6 +13,7 @@
                                 <span class="d-none d-md-inline-flex">{{ project }}</span>
                             </a>
                         </li>
+                        {%  endif %}
                         {% if entities_load %}
                         <li class="nav-item border-bottom d-inline-flex">
                             <a href="{% url "projects:entities:list" project_id=project.uuid %}" class="nav-link btn-sidebar py-md-2"
@@ -58,7 +60,7 @@
                     <a hx-get="{% url "projects:broker" %}" hx-target="#broker_health"
                        class="nav-link btn-sidebar py-md-2"
                        data-bs-toggle="tooltip" data-bs-placement="right" data-bs-custom-class="d-md-none"
-                       title="Orion Broker" hx-trigger="load, every 10s">
+                       title="Orion Broker" hx-trigger="load, every 30s">
                         <span id="broker_health"><i class="small bi bi-record"></i></span>
                         <small class="d-none d-md-inline-flex">Orion Broker</small>
                     </a>
@@ -67,7 +69,7 @@
                     <a hx-get="{% url "projects:ql" %}" hx-target="#ql_health"
                        class="nav-link btn-sidebar py-md-2"
                        data-bs-toggle="tooltip" data-bs-placement="right" data-bs-custom-class="d-md-none"
-                       title="Quantum Leap" hx-trigger="load, every 10s">
+                       title="Quantum Leap" hx-trigger="load, every 30s">
                         <span id="ql_health"><i class="small bi bi-record"></i></span>
                         <small class="d-none d-md-inline-flex">Quantum Leap</small>
                     </a>
@@ -76,7 +78,7 @@
                         <a hx-get="{% url "projects:iota" %}" hx-target="#iota_health"
                             class="nav-link btn-sidebar py-md-2"
                            data-bs-toggle="tooltip" data-bs-placement="right" data-bs-custom-class="d-md-none"
-                           title="IOT Agent" hx-trigger="load, every 10s">
+                           title="IOT Agent" hx-trigger="load, every 30s">
                             <span id="iota_health"><i class="small bi bi-record"></i></span>
                             <small class="d-none d-md-inline-flex">IOT Agent</small>
                         </a>
