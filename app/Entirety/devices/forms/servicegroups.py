@@ -36,8 +36,6 @@ class ServiceGroupBasic(forms.Form):
         ),
     )
     explicit_attrs = forms.BooleanField(label="Explicit Attributes", required=False, initial=False)
-    # forms.RadioSelect(label="Explicit Attributes", required=False, initial=False)
-    # explicit_attrs = forms.ChoiceField(label="Explicit Attributes", required=True, choices=("True", "False"))
     autoprovision = forms.BooleanField(label="Auto Provision", required=False, initial=True)
 
     def __init__(self, *args, **kwargs):

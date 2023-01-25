@@ -128,7 +128,7 @@ class ServiceGroupEditView(ProjectContextMixin, TemplateView):
             project=self.project, apikey=apikey, resource=resource
         )
         service_group_dict = service_group.dict()
-
+        service_group_dict["explicit_attrs"] = service_group_dict["explicitAttrs"]
         # disable editing the basic information
         basic_info = ServiceGroupBasic(initial=service_group_dict)
         basic_info.fields["resource"].widget.attrs["readonly"] = True

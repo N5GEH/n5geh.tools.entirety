@@ -214,7 +214,7 @@ def parse_request_data(data, BasicForm: Type[Form]):
     )
     data_attributes[
         f"{prefix_attributes}-INITIAL_FORMS"
-    ] = f"0"  # TODO can this always be 0?
+    ] = f"0"
 
     data_commands = {key: data[key] for key in data if key.startswith(prefix_commands)}
     data_commands[f"{prefix_commands}-TOTAL_FORMS"] = str(
@@ -222,7 +222,7 @@ def parse_request_data(data, BasicForm: Type[Form]):
     )
     data_commands[
         f"{prefix_commands}-INITIAL_FORMS"
-    ] = f"0"  # TODO can this always be 0?
+    ] = f"0"
 
     return data_basic, data_attributes, data_commands
 
