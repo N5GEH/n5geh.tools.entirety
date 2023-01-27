@@ -2,7 +2,7 @@ from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Div, HTML
 from django import forms
 from django.forms import formset_factory
-from filip.models.ngsi_v2.iot import DataType
+from filip.models.ngsi_v2.iot import DataType, ServiceGroup
 
 
 ATTRIBUTES_TYPE = [
