@@ -64,7 +64,7 @@ class DeviceListView(ProjectContextMixin, MultiTableMixin, TemplateView):
     # add context to html
     def get_context_data(self, **kwargs):
         logger.info(
-            "Fetching devices for "
+            "Fetching devices and service groups for "
             + str(
                 self.request.user.first_name
                 if self.request.user.first_name

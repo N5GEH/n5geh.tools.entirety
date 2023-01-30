@@ -20,6 +20,9 @@ from devices.utils import (
 from devices.tables import GroupsTable
 from requests.exceptions import RequestException
 from pydantic import ValidationError
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 class ServiceGroupListSubmitView(ProjectContextMixin, View):
@@ -95,6 +98,15 @@ class ServiceGroupCreateSubmitView(ProjectContextMixin, TemplateView):
                 )
                 post_service_group(service_group, project=self.project)
                 add_data_to_session(request, "to_servicegroup", True)
+                logger.info(
+                    "Service group created by "
+                    + str(
+                        self.request.user.first_name
+                        if self.request.user.first_name
+                        else self.request.user.username
+                    )
+                    + f" in project {self.project.name}"
+                )
                 return redirect("projects:devices:list", project_id=self.project.uuid)
             # handel the error from server
             except RequestException as e:
@@ -126,6 +138,15 @@ class ServiceGroupEditView(ProjectContextMixin, TemplateView):
         apikey = pop_data_from_session(request, "apikey")
         service_group = get_service_group_by_apikey(
             project=self.project, apikey=apikey, resource=resource
+        )
+        logger.info(
+            "Fetching single service group for "
+            + str(
+                self.request.user.first_name
+                if self.request.user.first_name
+                else self.request.user.username
+            )
+            + f" in project {self.project.name}"
         )
         service_group_dict = service_group.dict()
         service_group_dict["explicit_attrs"] = service_group_dict["explicitAttrs"]
@@ -170,6 +191,15 @@ class ServiceGroupEditSubmitView(ProjectContextMixin, TemplateView):
                 )
                 update_service_group(service_group, project=self.project)
                 add_data_to_session(request, "to_servicegroup", True)
+                logger.info(
+                    "Service group updated by "
+                    + str(
+                        self.request.user.first_name
+                        if self.request.user.first_name
+                        else self.request.user.username
+                    )
+                    + f" in project {self.project.name}"
+                )
                 return redirect("projects:devices:list", project_id=self.project.uuid)
             except RequestException as e:
                 messages.error(request, e.response.content.decode("utf-8"))
@@ -195,6 +225,15 @@ class ServiceGroupDeleteView(ProjectContextMixin, View):
         # delete the servicegroup and entity?
         try:
             delete_service_group(project=self.project, resource=resource, apikey=apikey)
+            logger.info(
+                "Service group deleted by "
+                + str(
+                    self.request.user.first_name
+                    if self.request.user.first_name
+                    else self.request.user.username
+                )
+                + f" in project {self.project.name}"
+            )
         except RequestException as e:
             messages.error(request, e.response.content.decode("utf-8"))
 
