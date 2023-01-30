@@ -3,7 +3,7 @@ from django.contrib import messages
 from django.shortcuts import render, redirect
 from django.views.generic import View, TemplateView
 from django.http import HttpRequest
-
+import json
 from entirety.utils import add_data_to_session, pop_data_from_session
 from projects.mixins import ProjectContextMixin
 from devices.forms import ServiceGroupBasic, Attributes, Commands
@@ -111,6 +111,17 @@ class ServiceGroupCreateSubmitView(ProjectContextMixin, TemplateView):
             # handel the error from server
             except RequestException as e:
                 messages.error(request, e.response.content.decode("utf-8"))
+                logger.error(
+                    str(
+                        self.request.user.first_name
+                        if self.request.user.first_name
+                        else self.request.user.username
+                    )
+                    + " tried creating service group"
+                    + " but failed with error "
+                    + json.loads(e.response.content.decode("utf-8")).get("message")
+                    + f" in project {self.project.name}"
+                )
             except ValidationError as e:
                 messages.error(request, e.raw_errors[0].exc.__str__())
 
@@ -203,6 +214,18 @@ class ServiceGroupEditSubmitView(ProjectContextMixin, TemplateView):
                 return redirect("projects:devices:list", project_id=self.project.uuid)
             except RequestException as e:
                 messages.error(request, e.response.content.decode("utf-8"))
+                logger.error(
+                    str(
+                        self.request.user.first_name
+                        if self.request.user.first_name
+                        else self.request.user.username
+                    )
+                    + " tried editing service group with apikey and resource "
+                    + f"({data_basic['apikey']}, {data_basic['resource']})"
+                    + " but failed with error "
+                    + json.loads(e.response.content.decode("utf-8")).get("message")
+                    + f" in project {self.project.name}"
+                )
             except ValidationError as e:
                 messages.error(request, e.raw_errors[0].exc.__str__())
 
