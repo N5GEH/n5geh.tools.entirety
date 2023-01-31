@@ -18,7 +18,7 @@ class SelectTextInputWidget(forms.MultiWidget):
 
 
 class DropdownOrTextWidget(forms.MultiWidget):
-    def __init__(self, choices=[], **kwargs):
+    def __init__(self, choices=[], tooltip="initial tooltips", **kwargs):
         attrs = {}
         pattern = None
         if "selector" in kwargs and kwargs["selector"] != None:
@@ -40,7 +40,7 @@ class DropdownOrTextWidget(forms.MultiWidget):
                 attrs={
                     "data-bs-toggle": "tooltip",
                     "data-bs-placement": "top",
-                    "title": "Entity type or type pattern.",
+                    "title": tooltip,
                     "type": "hidden" if pattern == None else "text",
                     "value": pattern if pattern != None else "---",
                 },

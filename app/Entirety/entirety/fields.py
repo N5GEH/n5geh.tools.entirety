@@ -47,7 +47,7 @@ class SelectTextMultiField(MultiValueField):
 class DropdownOrTextField(MultiValueField):
     widget = DropdownOrTextWidget()
 
-    def __init__(self, choices, *, require_all_fields=False, **kwargs):
+    def __init__(self, choices, require_all_fields=False, **kwargs):
         self.widget = DropdownOrTextWidget(choices=choices, **kwargs)
         fields_list = [
             ChoiceField(required=False, choices=choices),

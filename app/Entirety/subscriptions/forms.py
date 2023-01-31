@@ -111,7 +111,9 @@ class EntitiesForm(forms.Form):
     entity_id_list = []
     entity_type_list = []
 
-    entity_id = DropdownOrTextField(choices=entity_id_list)
+    entity_id = DropdownOrTextField(choices=entity_id_list,
+                                    tooltip="Entity type or type pattern.")
+
     entity_type = forms.ChoiceField(choices=entity_type_list)
 
     def __init__(self, *args, **kwargs):
@@ -181,10 +183,12 @@ class EntitiesForm(forms.Form):
         }
 
         self.fields["entity_id"] = DropdownOrTextField(
-            choices=entity_id_list, **entity_kwargs
+            choices=entity_id_list, **entity_kwargs,
+            tooltip="Entity id"
         )
         self.fields["entity_type"] = DropdownOrTextField(
-            choices=entity_type_list, **type_kwargs
+            choices=entity_type_list, **type_kwargs,
+            tooltip="Entity type"
         )
 
         self.helper = FormHelper(self)
