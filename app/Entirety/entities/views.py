@@ -1,4 +1,5 @@
 import json
+import logging
 import re
 
 from django.contrib import messages
@@ -39,6 +40,8 @@ from entities.requests import (
 from entities.tables import EntityTable
 from projects.mixins import ProjectContextMixin
 
+logger = logging.getLogger(__name__)
+
 
 class EntityList(ProjectContextMixin, SingleTableMixin, TemplateView):
     template_name = "entities/entity_list.html"
@@ -56,6 +59,15 @@ class EntityList(ProjectContextMixin, SingleTableMixin, TemplateView):
             return []
 
     def get_context_data(self, **kwargs):
+        logger.info(
+            "Fetching entities for "
+            + str(
+                self.request.user.first_name
+                if self.request.user.first_name
+                else self.request.user.username
+            )
+            + f" in project {self.project.name}"
+        )
         context = super(EntityList, self).get_context_data(**kwargs)
         context["project"] = self.project
         context["table"] = EntityList.get_table(self)
@@ -160,9 +172,35 @@ class Create(ProjectContextMixin, TemplateView):
         context["basic_info"] = basic_info
         context["attributes"] = attributes
         if res:
-            messages.error(self.request, "Entity not created. Reason: " + res)
+            messages.error(
+                self.request,
+                "Entity not created. Reason: "
+                + json.loads(res.response.text).get("description"),
+            )
+            logger.error(
+                str(
+                    self.request.user.first_name
+                    if self.request.user.first_name
+                    else self.request.user.username
+                )
+                + " tried creating the entity with id "
+                + entity.id
+                + " but failed with error "
+                + json.loads(res.response.text).get("description")
+                + f" in project {self.project.name}"
+            )
             return render(request, self.template_name, context)
         else:
+            logger.info(
+                str(
+                    self.request.user.first_name
+                    if self.request.user.first_name
+                    else self.request.user.username
+                )
+                + " has created the entity with id "
+                + entity.id
+                + f" in project {self.project.name}"
+            )
             return redirect("projects:entities:list", project_id=self.project.uuid)
 
 
@@ -271,8 +309,30 @@ class Update(ProjectContextMixin, TemplateView):
                 self.request,
                 "Entity not updated. Reason: " + res,
             )
+            logger.error(
+                str(
+                    self.request.user.first_name
+                    if self.request.user.first_name
+                    else self.request.user.username
+                )
+                + " tried updating the entity with id "
+                + entity.id
+                + " but failed with error "
+                + res
+                + f" in project {self.project.name}"
+            )
             return render(request, self.template_name, context)
         else:
+            logger.info(
+                str(
+                    self.request.user.first_name
+                    if self.request.user.first_name
+                    else self.request.user.username
+                )
+                + " has updated the entity with id "
+                + entity.id
+                + f" in project {self.project.name}"
+            )
             return redirect("projects:entities:list", project_id=self.project.uuid)
 
 
@@ -420,4 +480,5 @@ class Delete(ProjectContextMixin, TemplateView):
                         project=self.project,
                     )
             i = i + 1
+        # TODO: logging
         return redirect("projects:entities:list", project_id=self.project.uuid)

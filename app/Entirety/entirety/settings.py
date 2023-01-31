@@ -1,7 +1,8 @@
 import os
+import logging.config as LOG
 
 from pathlib import Path
-from typing import List, Any, Optional, Sequence
+from typing import List, Any, Optional, Sequence, Union
 from mimetypes import add_type
 
 import django_loki
@@ -40,7 +41,7 @@ class Databases(DatabaseSettings):
 
 
 class LokiSettings(BaseSettings):
-    LOKI_ENABLE: str = Field(default=False, env="LOKI_ENABLE")
+    LOKI_ENABLE: bool = Field(default=False, env="LOKI_ENABLE")
     LOKI_LEVEL: str = Field(default="INFO", env="LOKI_LEVEL")
     LOKI_PORT: int = Field(default=3100, env="LOKI_PORT")
     LOKI_TIMEOUT: float = Field(default=0.5, env="LOKI_TIMEOUT")
@@ -193,40 +194,78 @@ class Settings(PydanticSettings):
 
     DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
-    if LOKI.LOKI_ENABLE:
-        LOGGING = {
-            "version": 1,
-            "disable_existing_loggers": False,
-            "formatters": {
-                "loki": {
-                    "class": "django_loki.LokiFormatter",
-                    "format": "[%(asctime)s] %(levelname)s [%(name)s:%(lineno)s] "
-                    "[%(funcName)s] %(message)s",
-                    "datefmt": "%Y-%m-%d %H:%M:%S",
-                },
-            },
-            "handlers": {
-                "console": {"class": "logging.StreamHandler", "level": "DEBUG"},
-                "loki": {
-                    "level": LOKI.LOKI_LEVEL,
-                    "class": "django_loki.LokiHttpHandler",
-                    "host": LOKI.LOKI_HOST,
-                    "formatter": "loki",
-                    "port": LOKI.LOKI_PORT,
-                    "timeout": LOKI.LOKI_TIMEOUT,
-                    "protocol": LOKI.LOKI_PROTOCOL,
-                    "source": "Loki",
-                    "src_host": LOKI.LOKI_SRC_HOST,
-                    "tz": LOKI.LOKI_TIMEZONE,
-                },
-            },
-            "loggers": {
-                "": {
-                    "handlers": ["loki"],
-                    "level": "INFO",
-                },
-            },
+    LOGGING_CONFIG: Union[str, None] = None
+
+    LOGGERS = {
+        "projects.views": {
+            "propagate": False,
+            "level": "INFO",
+        },
+        "filip": {
+            "propagate": False,
+            "level": "INFO",
+        },
+        "entirety.oidc": {
+            "propagate": False,
+            "level": "INFO",
+        },
+        "entities.views": {
+            "propagate": False,
+            "level": "INFO",
+        },
+        "django.server": {
+            "propagate": False,
+            "level": "INFO",
+        },
+        "devices.views": {
+            "propagate": False,
+            "level": "INFO",
+        },
+        "subscriptions.views": {
+            "propagate": False,
+            "level": "INFO",
+        },
+    }
+
+    if LOKI.LOKI_ENABLE is True:
+        for LOGGER in LOGGERS:
+            LOGGERS[LOGGER]["handlers"] = ["loki"]
+        HANDLER = {
+            "loki": {
+                "level": "DEBUG",
+                "class": "logging.handlers.RotatingFileHandler",
+                "filename": os.path.join(BASE_DIR, "logs/entirety_logs.log"),
+                "maxBytes": 1 * 1024 * 1024,
+                "backupCount": 2,
+                "formatter": "default",
+            }
         }
+    else:
+        for LOGGER in LOGGERS:
+            LOGGERS[LOGGER]["handlers"] = ["console"]
+        HANDLER = {
+            "console": {
+                "class": "logging.StreamHandler",
+                "level": "DEBUG",
+                "formatter": "default",
+            }
+        }
+
+    LOGGING = {
+        "version": 1,
+        "disable_existing_loggers": True,
+        "formatters": {
+            "default": {
+                "format": "[%(asctime)s] %(levelname)s [%(name)s:%(lineno)s] "
+                "[%(funcName)s] %(message)s",
+                "datefmt": "%Y-%m-%d %H:%M:%S",
+            },
+        },
+        "handlers": HANDLER,
+        "loggers": LOGGERS,
+    }
+
+    LOG.dictConfig(LOGGING)
 
     # Media location
     # https://docs.djangoproject.com/en/4.0/howto/static-files/#serving-files

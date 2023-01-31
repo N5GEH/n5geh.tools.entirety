@@ -1,5 +1,9 @@
+import logging
+
 from mozilla_django_oidc.auth import OIDCAuthenticationBackend
 from django.conf import settings
+
+logger = logging.getLogger(__name__)
 
 
 class CustomOIDCAB(OIDCAuthenticationBackend):
@@ -12,6 +16,11 @@ class CustomOIDCAB(OIDCAuthenticationBackend):
         return self.__set_user_values(user, claims)
 
     def __set_user_values(self, user, claims):
+        logger.info(
+            user.first_name
+            + " is accessing with roles "
+            + claims.get("roles").__str__()
+        )
         roles = claims.get("roles", [])
 
         user.first_name = claims.get("given_name", "")
@@ -31,6 +40,7 @@ class CustomOIDCAB(OIDCAuthenticationBackend):
         return user
 
     def verify_claims(self, claims):
+        logger.info(claims.get("given_name") + " is verifying claim")
         verified = super(CustomOIDCAB, self).verify_claims(claims)
         is_user = settings.OIDC_USER_ROLE in claims.get(
             settings.OIDC_TOKEN_ROLE_FIELD, []

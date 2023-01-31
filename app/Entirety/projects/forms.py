@@ -2,6 +2,7 @@ from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Submit
 from django import forms
 from django.core.exceptions import ValidationError
+from django.db.models import Q
 from filip.models import FiwareHeader
 
 from users.models import User
@@ -20,7 +21,7 @@ class ProjectForm(forms.ModelForm):
 
         else:
             self.fields["owner"].queryset = User.objects.filter(
-                is_server_admin=True, is_project_admin=True
+                Q(is_server_admin=True) | Q(is_project_admin=True)
             )
         self.fields["owner"].widget.attrs["data-bs-toggle"] = "tooltip"
         self.fields["owner"].widget.attrs["data-bs-placement"] = "left"

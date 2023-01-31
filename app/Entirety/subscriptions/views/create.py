@@ -1,3 +1,4 @@
+import logging
 import re
 
 from django.conf import settings
@@ -21,6 +22,8 @@ from subscriptions.models import Subscription
 from subscriptions import utils
 from subscriptions import forms
 
+logger = logging.getLogger("subscriptions.views")
+
 
 class Create(ProjectContextMixin, CreateView):
     """
@@ -32,6 +35,15 @@ class Create(ProjectContextMixin, CreateView):
     form_class = forms.SubscriptionForm
 
     def get_context_data(self, **kwargs):
+        logger.info(
+            "Fetching subscriptions for "
+            + str(
+                self.request.user.first_name
+                if self.request.user.first_name
+                else self.request.user.username
+            )
+            + f" in project {self.project.name}"
+        )
         context = super().get_context_data(**kwargs)
         if self.request.POST:
             # Fill attributes and entities from post request
@@ -126,8 +138,28 @@ class Create(ProjectContextMixin, CreateView):
                 instance.pk = cb_uuid
                 instance.project = self.project
 
+                logger.info(
+                    str(
+                        self.request.user.first_name
+                        if self.request.user.first_name
+                        else self.request.user.username
+                    )
+                    + " has created the subscription with name "
+                    + instance.name
+                    + f" in project {self.project.name}"
+                )
                 return self.form_valid(form)
 
+        logger.error(
+            str(
+                self.request.user.first_name
+                if self.request.user.first_name
+                else self.request.user.username
+            )
+            + " tried creating the subscription "
+            + " but failed "
+            f" in project {self.project.name}"
+        )
         return self.form_invalid(form)
 
     def get_success_url(self):
