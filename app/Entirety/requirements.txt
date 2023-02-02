@@ -2,6 +2,7 @@ backports.zoneinfo==0.2.1;python_version<"3.9"
 dj_database_url==1.0.0
 Django~=4.1.2
 django_crispy_forms==1.14.0
+django-jsonforms==1.1.2
 django_loki==0.1.4
 django_resized==1.0.2
 django_tables2==2.4.1

@@ -23,3 +23,7 @@ if apps.is_installed("subscriptions"):
     )
 if apps.is_installed("devices"):
     urlpatterns.append(path("<str:project_id>/devices/", include("devices.urls")))
+if apps.is_installed("entities") or apps.is_installed("devices"):
+    urlpatterns.append(
+        path("<str:project_id>/smartdatamodels/", include("smartdatamodels.urls"))
+    )

@@ -1,8 +1,11 @@
+import json
+
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Div, HTML
 from django import forms
 
 from entities.requests import AttributeTypes, get_entities_types
+from smartdatamodels.models import SmartDataModel
 
 
 class ListTextWidget(forms.TextInput):
@@ -164,3 +167,20 @@ class JSONForm(forms.Form):
             ],
         },
     )
+
+
+class SmartDataModelEntitiesForm(forms.Form):
+    smart_data_model = forms.ChoiceField()
+
+    def __init__(self, *args, **kwargs):
+        super(SmartDataModelEntitiesForm, self).__init__(*args, **kwargs)
+        qs = SmartDataModel.objects.all()
+        list_of_schemas = []
+        for set in qs:
+            list_of_schemas.append(
+                {"name": set.name, "value": json.dumps(set.jsonschema)}
+            )
+        list_of_schemas.append({"name": "..", "value": ".."})
+        self.fields["smart_data_model"] = forms.ChoiceField(
+            choices=[(x.get("value"), x.get("name")) for x in list_of_schemas]
+        )

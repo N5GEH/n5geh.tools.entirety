@@ -1,6 +1,6 @@
 from django.urls import path
 
-from entities.views import EntityList, Update, Create, Delete, CreateBatch
+from entities.views import EntityList, Update, Create, Delete, CreateBatch, CreateSDM
 
 app_name = "entities"
 urlpatterns = [
@@ -8,5 +8,6 @@ urlpatterns = [
     path("<str:entity_id>/<str:entity_type>/update/", Update.as_view(), name="update"),
     path("create/", Create.as_view(), name="create"),
     path("create/batch", CreateBatch.as_view(), name="create_batch"),
+    path("create/sdm", CreateSDM.as_view(), name="create_sdm"),
     path("delete/", Delete.as_view(), name="delete"),
 ]

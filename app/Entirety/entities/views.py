@@ -5,6 +5,7 @@ from django.contrib import messages
 from django.forms import formset_factory
 from django.shortcuts import render, redirect
 from django.views.generic import TemplateView
+from django_jsonforms.forms import JSONSchemaForm
 from django_tables2 import SingleTableMixin
 from filip.models.ngsi_v2.context import (
     ContextEntity,
@@ -22,6 +23,7 @@ from entities.forms import (
     SelectionForm,
     DeviceForm,
     JSONForm,
+    SmartDataModelEntitiesForm,
 )
 from entities.requests import (
     get_entity,
@@ -168,7 +170,6 @@ class Create(ProjectContextMixin, TemplateView):
 
 class CreateBatch(ProjectContextMixin, TemplateView):
     template_name = "entities/batch.html"
-    form_class = JSONForm
 
     def get_context_data(self, **kwargs):
         json_form = JSONForm()
@@ -205,6 +206,29 @@ class CreateBatch(ProjectContextMixin, TemplateView):
             return redirect("projects:entities:list", project_id=self.project.uuid)
         else:
             return render(request, self.template_name, context)
+
+
+class CreateSDM(ProjectContextMixin, TemplateView):
+    template_name = "entities/sdm.html"
+
+    def get_context_data(self, **kwargs):
+        form = JSONSchemaForm(
+            schema=None,
+            options={
+                "theme": "bootstrap3",
+                "ajax": True,
+                "show_errors": "change",
+                "display_required_only": False,
+                "disable_array_add": True,
+                "ajaxBase": "https://smart-data-models.github.io",
+                # "max_depth" : 2
+            },
+            ajax=True,
+        )
+        context = super(CreateSDM, self).get_context_data(**kwargs)
+        context["json_form"] = form
+        context["smart_data_model_form"] = SmartDataModelEntitiesForm()
+        return context
 
 
 class Update(ProjectContextMixin, TemplateView):

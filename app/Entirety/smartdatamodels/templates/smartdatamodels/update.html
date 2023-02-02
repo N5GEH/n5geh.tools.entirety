@@ -1,0 +1,27 @@
+{% extends '_base.html' %}
+{% load crispy_forms_tags %}
+{% load static %}
+{% load compress %}
+
+{% block title %}{% if update_model %} Update Smart Data Model {% else %} Create New Smart Data Model
+{% endif %}{% endblock %}
+
+{% block content %}
+    <span class="h3">{% if update_model %} Update  Smart Data Model {{ update_model.name }} {% else %} Create New Smart
+        Data Model {% endif %}</span>
+    <form action="" method="post" enctype="multipart/form-data"
+          {% if form_submitted %}class="was-validated" {% endif %}>
+        {% csrf_token %}
+        {% crispy form %}
+
+        <button class="btn btn-primary" onclick="prettyJSON('id_jsonschema')"
+                type="button">
+            <i class="bi bi-braces"></i> Beautify Json
+        </button>
+    </form>
+
+    {% compress js %}
+        <script src="{% static 'js/json.js' %}"></script>
+    {% endcompress %}
+
+{% endblock %}

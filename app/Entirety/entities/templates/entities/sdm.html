@@ -4,23 +4,22 @@
 {% load crispy_forms_tags %}
 
 
-{% block title %}Create Batch Entities {% endblock %}
+{% block title %}Create Entity from Smart Data Models {% endblock %}
 
 {% block content %}
     <span class="h3">Create Batch Entities </span>
+    {% crispy smart_data_model_form %}
     <form method="post" action="" id="jsonForm" {% if form_submitted %}class="was-validated" {% endif %}>
         <div>
             {% csrf_token %}
-            {% crispy json_form %}
-            <button class="btn btn-primary rounded-pill" onclick="prettyJSON('id_entity_json')" type="button">
-                <i class="bi bi-braces"></i> Beautify Json
-            </button>
+            {{ json_form.media }}
+            {{ json_form }}
             <button class="btn btn-warning rounded-pill" type="submit">Create</button>
         </div>
     </form>
 
     {% compress js %}
-        <script src="{% static 'js/json.js' %}"></script>
+        <script src="{% static 'js/jsoneditor.js' %}"></script>
     {% endcompress %}
 
 
