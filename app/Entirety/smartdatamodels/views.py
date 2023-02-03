@@ -11,7 +11,6 @@ class SmartDataModelsList(ProjectContextMixin, ListView):
     model = SmartDataModel
 
     def get_queryset(self):
-        print(SmartDataModel.objects.get(name="Battery").jsonschema)
         return SmartDataModel.objects.order_by("date_modified").filter(
             name__icontains=self.request.GET.get("search", default="")
         )
