@@ -21,39 +21,50 @@ Depending on the necessity, difficulty, and our internal capacity, the features 
 
 ### User Management
 
-| Short Name       | Descriptions                                                                                                        | Short-Term | Long-Term |
-|------------------|---------------------------------------------------------------------------------------------------------------------|------------|-----------|
-|                  | New features will be planned in the future as needed.                                                               |            |           |
+| Short Name                   | Descriptions                                                                                                                                                        | Short-Term | Long-Term |
+|------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------|------------|-----------|
+|                              | New features will be planned in the future as needed.                                                                                                               |            |           |
 
 
 ## App-Specific Features
 
 ### Projects App
-| Short Name        | Descriptions                                                                                                   | Short-Term | Long-Term |
-|-------------------|----------------------------------------------------------------------------------------------------------------|------------|-----------|
-| Add project users | Allow regular users access to the project. For now, only server admins and project owners can access projects. | &check;    |           |
+| Short Name                   | Descriptions                                                                                                                                                        | Short-Term | Long-Term |
+|------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------|------------|-----------|
+| Introduce project maintainer | A new roll, e.g. project maintainer, will be introduced as a buffer between project admin and normal users. A project maintainer can manage the users of a project. | &check;    |           |
+| Add project users            | Allow regular users access to the project. For now, only server admins and project owners can access projects.                                                      | &check;    |           |
 
 ### Entities App
-| Short Name           | Descriptions                                                                             | Short-Term | Long-Term |
-|----------------------|------------------------------------------------------------------------------------------|------------|-----------|
-| Batch Create         | User can create multiple entities with similar entity attributes.                        | &check;    |           |
-| Batch Delete         | User can delete multiple selected entities with a special view for all the associations. | &check;    |           |
+| Short Name         | Descriptions                                                                               | Short-Term  | Long-Term |
+|--------------------|--------------------------------------------------------------------------------------------|-------------|-----------|
+| Batch Create       | User can create multiple entities with similar entity attributes.                          | implemented |           |
+| Batch Delete       | User can delete multiple selected entities with a special view for all the associations.   | implemented |           |
+| Data Model Support | Allow user to create entities based on the predefined data model from the `Data Model App` |             | &check;   |
 
 ### Notifications App
 
-| Short Name                     | Descriptions                                                | Short-Term | Long-Term |
-|--------------------------------|-------------------------------------------------------------|------------|-----------|
-| Expression builder             | Expressions can be created from the app.                    | &check;    |           |
-| Auto-load available attributes | Load available attributes on matching entities.             | &check;    |           |
-| Load Subscriptions             | Synchronize existing subscriptions with the context broker. |            | &check;   |
+| Short Name                     | Descriptions                                                | Short-Term  | Long-Term |
+|--------------------------------|-------------------------------------------------------------|-------------|-----------|
+| Expression builder             | Expressions can be created from the app.                    | &check;     |           |
+| Auto-load available attributes | Load available attributes on matching entities.             | implemented |           |
+| Load Subscriptions             | Synchronize existing subscriptions with the context broker. |             | &check;   |
 
 ### Devices App
 
-| Short Name           | Descriptions                                                                                                                                                       | Short-Term | Long-Term |
-|----------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------|------------|-----------|
-| Batch Create         | User can create multiple devices at the same time.                                                                                                                 | &check;    |           |
-| Batch Delete         | User can delete the devices matching the filter, or delete multiple selected devices.                                                                              | &check;    |           |
-| Multi-Entity Support | User can use the Multi-Entity feature as described [here](https://iotagent-node-lib.readthedocs.io/en/latest/advanced-topics.html#multientity-plugin-multientity). |            | &check;   |
+| Short Name           | Descriptions                                                                                                                                                       | Short-Term  | Long-Term |
+|----------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------|-------------|-----------|
+| Batch Create         | User can create multiple devices at the same time.                                                                                                                 | &check;     |           |
+| Batch Delete         | User can delete the devices matching the filter, or delete multiple selected devices.                                                                              | &check;     |           |
+| Multi-Entity Support | User can use the Multi-Entity feature as described [here](https://iotagent-node-lib.readthedocs.io/en/latest/advanced-topics.html#multientity-plugin-multientity). |             | &check;   |
+| Service Group CRUD   | CRUD operations of service group                                                                                                                                   | implemented |           |
+
+### Data Model App
+
+| Short Name           | Descriptions                                             | Short-Term | Long-Term |
+|----------------------|----------------------------------------------------------|------------|-----------|
+| JSON-Schema Support  | Allow users to work with data model based on JSON-Schema | &check;    |           |
+| Brick-Schema Support | Allow users to import data model based on Brick-Schema   |            | &check;   |
+
 
 ### Semantic App
 The semantic app can visualize the relationships between context entities. Currently, this app is under parallel development and will be integrated into Entirety soon.
