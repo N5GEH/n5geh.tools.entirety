@@ -1,5 +1,6 @@
 {% extends '_base.html' %}
 {% load static %}
+{% load compress %}
 
 {% block title %}Projects{% endblock %}
 
@@ -103,4 +104,9 @@
             </div>
         </div>
     </div>
+
+    {% compress css %}
+        <link type="text/x-scss" href="{% static 'scss/card.scss' %}" rel="stylesheet" media="screen">
+    {% endcompress %}
+
 {% endblock %}

@@ -1,4 +1,6 @@
 {% extends '_base.html' %}
+{% load static %}
+{% load compress %}
 
 {% block title %}Smart Data Models{% endblock %}
 
@@ -47,8 +49,9 @@
                         </div>
 
                         <div class="card-body">
-                            <p class="d-inline-block text-truncate"
-                               title="{{ model.jsonschema }}" style="max-width: 150px;">{{ model.jsonschema }}</p>
+                             <p class="d-inline-block text-secondary">Created by: {{ model.owner.first_name|add:' '|add:model.owner.last_name }}</p>
+                            <br>
+                             <p class="d-inline-block text-secondary">Last modified by: {{ model.last_modified_by.first_name|add:' '|add:model.last_modified_by.last_name }}</p>
                         </div>
                             <div class="ms-3 mb-3">
                                 <a href="{% url 'projects:smartdatamodels:update' project.uuid model.uuid %}"
@@ -89,4 +92,9 @@
             </div>
         </div>
     </div>
+
+    {% compress css %}
+        <link type="text/x-scss" href="{% static 'scss/card.scss' %}" rel="stylesheet" media="screen">
+    {% endcompress %}
+
 {% endblock %}

@@ -6,6 +6,17 @@ from smartdatamodels.models import SmartDataModel
 
 
 class SmartDataModelForm(forms.ModelForm):
+    github_link = forms.URLField(
+        required=False,
+        widget=forms.TextInput(
+            attrs={
+                "data-bs-toggle": "tooltip",
+                "data-bs-placement": "top",
+                "title": "Paste a raw github link for JSON schema",
+            }
+        ),
+    )
+
     def __init__(self, *args, **kwargs):
         super(SmartDataModelForm, self).__init__(*args, **kwargs)
 
@@ -16,4 +27,4 @@ class SmartDataModelForm(forms.ModelForm):
 
     class Meta:
         model = SmartDataModel
-        fields = ["name", "jsonschema"]
+        fields = ["name", "github_link", "jsonschema"]
