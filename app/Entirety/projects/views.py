@@ -1,3 +1,5 @@
+import logging
+
 from django.conf import settings
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import render
@@ -12,12 +14,18 @@ from .forms import ProjectForm
 from .mixins import ProjectCreateMixin, ProjectSelfMixin, ProjectBaseMixin
 from .models import Project
 
+logger = logging.getLogger(__name__)
+
 
 class Index(LoginRequiredMixin, ListView):
     model = Project
     template_name = "projects/index.html"
 
     def get_queryset(self):
+        logger.info("Fetching projects for " +
+                    str(self.request.user.first_name
+                        if self.request.user.first_name
+                        else self.request.user.username))
         if self.request.user.is_server_admin:
             return Project.objects.order_by("date_modified").filter(
                 name__icontains=self.request.GET.get("search", default="")
@@ -41,6 +49,14 @@ class Detail(ProjectBaseMixin, DetailView):
     model = Project
     template_name = "projects/detail.html"
 
+    def get(self, request, *args, **kwargs):
+        _render = super(Detail, self).get(request, *args, **kwargs)
+        logger.info(str(self.request.user.first_name
+                        if self.request.user.first_name
+                        else self.request.user.username)
+                    + f" view project {self.object.name}")
+        return _render
+
     def test_func(self):
         accessed_project = Project.objects.get(pk=self.kwargs["pk"])
         return (
@@ -56,6 +72,13 @@ class Update(ProjectSelfMixin, UpdateView):
     form_class = ProjectForm
 
     def get_success_url(self):
+        logger.info(
+            str(self.request.user.first_name
+                if self.request.user.first_name
+                else self.request.user.username)
+            + " has updated the project "
+            + self.object.name
+        )
         return reverse("projects:index")
 
     def get_form_kwargs(self):
@@ -75,6 +98,13 @@ class Create(ProjectCreateMixin, CreateView):
         return super(Create, self).form_valid(form)
 
     def get_success_url(self):
+        logger.info(
+            str(self.request.user.first_name
+                if self.request.user.first_name
+                else self.request.user.username)
+            + " has created the project "
+            + self.object.name
+        )
         return reverse("projects:index")
 
     def get_form_kwargs(self):
@@ -88,6 +118,13 @@ class Delete(ProjectSelfMixin, DeleteView):
     template_name = "projects/index.html"
 
     def get_success_url(self):
+        logger.info(
+            str(self.request.user.first_name
+                if self.request.user.first_name
+                else self.request.user.username)
+            + " has deleted the project "
+            + self.object.name
+        )
         return reverse("projects:index")
 
 
