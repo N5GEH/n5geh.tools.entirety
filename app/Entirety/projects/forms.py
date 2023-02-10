@@ -41,6 +41,22 @@ class ProjectForm(forms.ModelForm):
             & User.objects.exclude(id=user.id)
         ).filter(is_server_admin=False)
 
+        if user in self.instance.maintainers.all():
+            self.fields["maintainers"].disabled = True
+            self.fields["maintainers"].required = False
+        else:
+            self.fields["maintainers"].widget = forms.CheckboxSelectMultiple(
+                attrs={
+                    "data-bs-toggle": "tooltip",
+                    "data-bs-placement": "left",
+                    "title": "Include or exclude maintainers into project",
+                }
+            )
+            self.fields["maintainers"].queryset = (
+                User.objects.exclude(id=self.instance.owner_id)
+                & User.objects.exclude(id=user.id)
+            ).filter(is_server_admin=False)
+
         self.helper.layout.append(Submit(name="save", value="Save"))
 
     def clean(self):
@@ -60,6 +76,7 @@ class ProjectForm(forms.ModelForm):
             "webpage_url",
             "logo",
             "owner",
+            "maintainers",
             "users",
         ]
         widgets = {

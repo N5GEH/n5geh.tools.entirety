@@ -22,26 +22,41 @@ class Index(LoginRequiredMixin, ListView):
     template_name = "projects/index.html"
 
     def get_queryset(self):
-        logger.info("Fetching projects for " +
-                    str(self.request.user.first_name
-                        if self.request.user.first_name
-                        else self.request.user.username))
+        logger.info(
+            "Fetching projects for "
+            + str(
+                self.request.user.first_name
+                if self.request.user.first_name
+                else self.request.user.username
+            )
+        )
         if self.request.user.is_server_admin:
             return Project.objects.order_by("date_modified").filter(
                 name__icontains=self.request.GET.get("search", default="")
             )
         elif self.request.user.is_project_admin:
-            return Project.objects.order_by("date_modified").filter(
-                name__icontains=self.request.GET.get("search", default=""),
-                owner=self.request.user,
-            ) | Project.objects.order_by("date_modified").filter(
-                name__icontains=self.request.GET.get("search", default=""),
-                users=self.request.user,
+            return (
+                Project.objects.order_by("date_modified").filter(
+                    name__icontains=self.request.GET.get("search", default=""),
+                    owner=self.request.user,
+                )
+                | Project.objects.order_by("date_modified").filter(
+                    name__icontains=self.request.GET.get("search", default=""),
+                    users=self.request.user,
+                )
+                | Project.objects.order_by("date_modified").filter(
+                    name__icontains=self.request.GET.get("search", default=""),
+                    maintainers=self.request.user,
+                )
             )
+
         else:
             return Project.objects.order_by("date_modified").filter(
                 name__icontains=self.request.GET.get("search", default=""),
                 users=self.request.user,
+            ) | Project.objects.order_by("date_modified").filter(
+                name__icontains=self.request.GET.get("search", default=""),
+                maintainers=self.request.user,
             )
 
 
@@ -51,10 +66,14 @@ class Detail(ProjectBaseMixin, DetailView):
 
     def get(self, request, *args, **kwargs):
         _render = super(Detail, self).get(request, *args, **kwargs)
-        logger.info(str(self.request.user.first_name
-                        if self.request.user.first_name
-                        else self.request.user.username)
-                    + f" view project {self.object.name}")
+        logger.info(
+            str(
+                self.request.user.first_name
+                if self.request.user.first_name
+                else self.request.user.username
+            )
+            + f" view project {self.object.name}"
+        )
         return _render
 
     def test_func(self):
@@ -62,6 +81,7 @@ class Detail(ProjectBaseMixin, DetailView):
         return (
             accessed_project.is_owner(user=self.request.user)
             or accessed_project.is_user(user=self.request.user)
+            or accessed_project.is_maintainer(user=self.request.user)
             or self.request.user.is_server_admin
         )
 
@@ -73,9 +93,11 @@ class Update(ProjectSelfMixin, UpdateView):
 
     def get_success_url(self):
         logger.info(
-            str(self.request.user.first_name
+            str(
+                self.request.user.first_name
                 if self.request.user.first_name
-                else self.request.user.username)
+                else self.request.user.username
+            )
             + " has updated the project "
             + self.object.name
         )
@@ -99,9 +121,11 @@ class Create(ProjectCreateMixin, CreateView):
 
     def get_success_url(self):
         logger.info(
-            str(self.request.user.first_name
+            str(
+                self.request.user.first_name
                 if self.request.user.first_name
-                else self.request.user.username)
+                else self.request.user.username
+            )
             + " has created the project "
             + self.object.name
         )
@@ -119,9 +143,11 @@ class Delete(ProjectSelfMixin, DeleteView):
 
     def get_success_url(self):
         logger.info(
-            str(self.request.user.first_name
+            str(
+                self.request.user.first_name
                 if self.request.user.first_name
-                else self.request.user.username)
+                else self.request.user.username
+            )
             + " has deleted the project "
             + self.object.name
         )

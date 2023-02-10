@@ -47,17 +47,21 @@ class ProjectContextMixin(ProjectBaseMixin):
         return super().dispatch(request, *args, **kwargs)
 
     def test_func(self):
-        return self.project.is_owner(user=self.request.user) or \
-               self.project.is_user(user=self.request.user) or \
-               self.request.user.is_server_admin
+        return (
+            self.project.is_owner(user=self.request.user)
+            or self.project.is_user(user=self.request.user)
+            or self.request.user.is_server_admin
+        )
 
 
 class ProjectSelfMixin(ProjectBaseMixin):
     def test_func(self):
         obj = self.get_object()
         return (
-            self.request.user.is_project_admin and obj.owner == self.request.user
-        ) or self.request.user.is_server_admin
+            (self.request.user.is_project_admin and obj.owner == self.request.user)
+            or self.request.user.is_server_admin
+            or (self.request.user in obj.maintainers.all())
+        )
 
 
 class ProjectCreateMixin(ProjectBaseMixin):
