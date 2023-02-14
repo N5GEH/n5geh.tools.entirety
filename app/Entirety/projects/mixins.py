@@ -51,7 +51,7 @@ class ProjectContextMixin(ProjectBaseMixin):
             self.project.is_owner(user=self.request.user)
             or self.project.is_user(user=self.request.user)
             or self.request.user.is_server_admin
-            or (self.request.user in self.project.maintainers.all())
+            or self.project.is_maintainer(self.request.user)
         )
 
 
@@ -61,7 +61,7 @@ class ProjectSelfMixin(ProjectBaseMixin):
         return (
             (self.request.user.is_project_admin and obj.owner == self.request.user)
             or self.request.user.is_server_admin
-            or (self.request.user in obj.maintainers.all())
+            or obj.is_maintainer(self.request.user)
         )
 
 
