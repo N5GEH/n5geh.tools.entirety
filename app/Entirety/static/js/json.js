@@ -12,6 +12,6 @@ function loadSchema(elementId, linkId) {
     $.getJSON(link.value, function (data) {
         schema.value = JSON.stringify(data);
     }).fail(function () {
-        alert("Error - could not get json data from service. Use raw github link.");
+        alert("Error - could not get json data from service. Use, for example, a raw json github link.");
     });
 }

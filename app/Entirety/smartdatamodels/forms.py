@@ -6,13 +6,13 @@ from smartdatamodels.models import SmartDataModel
 
 
 class SmartDataModelForm(forms.ModelForm):
-    github_link = forms.URLField(
+    schema_link = forms.URLField(
         required=False,
         widget=forms.TextInput(
             attrs={
                 "data-bs-toggle": "tooltip",
                 "data-bs-placement": "top",
-                "title": "Paste a raw github link for JSON schema",
+                "title": "Paste a raw link for JSON schema",
             }
         ),
     )
@@ -27,4 +27,4 @@ class SmartDataModelForm(forms.ModelForm):
 
     class Meta:
         model = SmartDataModel
-        fields = ["name", "github_link", "jsonschema"]
+        fields = ["name", "schema_link", "jsonschema"]
