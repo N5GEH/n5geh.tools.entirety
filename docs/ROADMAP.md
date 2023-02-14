@@ -31,7 +31,7 @@ Depending on the necessity, difficulty, and our internal capacity, the features 
 ### Projects App
 | Short Name                   | Descriptions                                                                                                                                                        | Short-Term | Long-Term |
 |------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------|------------|-----------|
-| Introduce project maintainer | A new roll, e.g. project maintainer, will be introduced as a buffer between project admin and normal users. A project maintainer can manage the users of a project. | &check;    |           |
+| Introduce project maintainer | A new role, e.g. project maintainer, will be introduced as a buffer between project admin and normal users. A project maintainer can manage the users of a project. | &check;    |           |
 | Add project users            | Allow regular users access to the project. For now, only server admins and project owners can access projects.                                                      | &check;    |           |
 
 ### Entities App
