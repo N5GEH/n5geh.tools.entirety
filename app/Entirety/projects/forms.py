@@ -44,6 +44,12 @@ class ProjectForm(forms.ModelForm):
         if user in self.instance.maintainers.all():
             self.fields["maintainers"].disabled = True
             self.fields["maintainers"].required = False
+            self.fields["maintainers"].queryset = self.instance.maintainers.all()
+            self.fields["maintainers"].widget.attrs["data-bs-toggle"] = "tooltip"
+            self.fields["maintainers"].widget.attrs["data-bs-placement"] = "left"
+            self.fields["maintainers"].widget.attrs[
+                "title"
+            ] = "Inclusion or exclusion of maintainers into project can by done by project owners only."
         else:
             self.fields["maintainers"].widget = forms.CheckboxSelectMultiple(
                 attrs={
