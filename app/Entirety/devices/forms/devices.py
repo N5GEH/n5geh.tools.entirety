@@ -3,6 +3,7 @@ from crispy_forms.layout import Layout, Div, HTML
 from django import forms
 from django.forms import formset_factory
 from filip.models.ngsi_v2.iot import DataType, ServiceGroup
+from entirety.widgets import ListTextWidget
 
 
 ATTRIBUTES_TYPE = [
@@ -76,8 +77,20 @@ class DeviceAttributes(forms.Form):
             }
         ),
     )
-    type_choices = tuple([(f"{t}", t) for i, t in enumerate(ATTRIBUTES_TYPE)])
-    type = forms.ChoiceField(label="Type", required=True, choices=type_choices)
+    type = forms.CharField(
+        required=True,
+        max_length=256,
+        label="Attribute Type",
+        widget=ListTextWidget(
+            data_list=ATTRIBUTES_TYPE,
+            name="attr-type-list",
+            attrs={
+                "data-bs-toggle": "tooltip",
+                "data-bs-placement": "top",
+                "title": "Type of the context attribute.",
+            },
+        ),
+    )
     object_id = forms.CharField(
         label="Object ID",
         required=False,

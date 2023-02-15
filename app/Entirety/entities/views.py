@@ -259,7 +259,7 @@ class Update(ProjectContextMixin, TemplateView):
         basic_info.fields["id"].widget.attrs["readonly"] = True
         basic_info.fields["type"].widget.attrs["readonly"] = True
         initial = []
-        for attr in entity.get_attributes():
+        for attr in entity.get_attributes(strict_data_type=False):
             initial.append({"name": attr.name, "type": attr.type, "value": attr.value})
         attributes_form_set = formset_factory(AttributeForm, max_num=0)
         attributes = attributes_form_set(prefix="attr", initial=initial)
