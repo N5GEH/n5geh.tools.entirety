@@ -67,6 +67,10 @@ provide following settings in your env file.
 * [CB_URL](./docs/SETTINGS.md#cb_url)
 * [IOTA_URL](./docs/SETTINGS.md#iota_url)
 * [QL_URL](./docs/SETTINGS.md#ql_url)
+* [DATABASE_USER](./docs/SETTINGS.md#DATABASE_USER)
+* [DATABASE_PASSWORD](./docs/SETTINGS.md#DATABASE_PASSWORD)
+* [DATABASE_HOST](./docs/SETTINGS.md#DATABASE_HOST)
+* [DATABASE_PORT](./docs/SETTINGS.md#DATABASE_PORT)
 
 ### Optional
 
