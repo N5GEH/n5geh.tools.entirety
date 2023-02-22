@@ -21,18 +21,30 @@ from django.contrib.messages import constants as messages
 __version__ = "0.4.0"
 
 
+class PostgresSettings(BaseSettings):
+    DATABASE_USER = Field(env="DATABASE_USER", default="postgres")
+    DATABASE_PASSWORD = Field(env="DATABASE_PASSWORD", default="postgrespw")
+    DATABASE_HOST = Field(env="DATABASE_HOST", default="localhost")
+    DATABASE_PORT = Field(env="DATABASE_PORT", default="5432")
+
+    class Config:
+        case_sensitive = False
+        env_file = ".env"
+        env_file_encoding = "utf-8"
+
+
 class Databases(DatabaseSettings):
-    DEFAULT: DatabaseDsn = Field(
-        env="DATABASE_URL", default="postgres://username:password@host:port/db"
+    ps = PostgresSettings()
+    default: DatabaseDsn = Field(
+        default=f"postgres://{ps.DATABASE_USER}:{ps.DATABASE_PASSWORD}@{ps.DATABASE_HOST}:{ps.DATABASE_PORT}/postgres"
     )
 
-    @validator("DEFAULT", pre=True)
-    def set_url(cls, v: Optional[str]) -> Any:
-        if isinstance(v, str):
-            os.environ["DATABASE_URL"] = v
-            return v
+    @validator("*")
+    def format_database_settings(cls, v):
+        if isinstance(v, PostgresSettings):
+            return {}
         else:
-            raise Exception
+            return super(Databases, cls).format_database_settings(v)
 
     class Config:
         case_sensitive = False
