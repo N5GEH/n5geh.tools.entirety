@@ -189,7 +189,7 @@ def get_relationships(entity_id, project):
         relations = []
         for entity in entities:
             if entity.id != entity_id:
-                for attr in entity.get_attributes():
+                for attr in entity.get_attributes(strict_data_type=False):
                     if attr.type == AttributeTypes.RELATIONSHIP.value:
                         if attr.value == entity_id:
                             entity_to_append = entity.dict(include={"id", "type"})
