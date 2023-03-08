@@ -6,7 +6,7 @@ from django.http import HttpRequest
 import json
 from entirety.utils import add_data_to_session, pop_data_from_session
 from projects.mixins import ProjectContextMixin
-from devices.forms import ServiceGroupBasic, Attributes, Commands
+from devices.forms import ServiceGroupBasic, Attributes, Commands, SmartDataModelEntitiesForm
 from devices.utils import (
     prefix_attributes,
     prefix_commands,
@@ -16,11 +16,14 @@ from devices.utils import (
     post_service_group,
     update_service_group,
     delete_service_group,
+    _get_attributes_from_data_model,
+    _get_entity_type_from_data_model
 )
 from devices.tables import GroupsTable
 from requests.exceptions import RequestException
 from pydantic import ValidationError
 import logging
+from filip.models.ngsi_v2.iot import DeviceAttribute
 
 logger = logging.getLogger(__name__)
 
@@ -49,6 +52,12 @@ class ServiceGroupListSubmitView(ProjectContextMixin, View):
                 "projects:devices:create_group", project_id=self.project.uuid
             )
 
+        # press create from data model button
+        elif request.POST.get("Create_Group_Data_Model"):
+            return redirect(
+                "projects:devices:create_group_datamodel", project_id=self.project.uuid
+            )
+
         # press edit button
         elif request.POST.get("Edit_Group"):
             if not request.POST.get("selection"):
@@ -68,8 +77,18 @@ class ServiceGroupListSubmitView(ProjectContextMixin, View):
 # Create service group
 class ServiceGroupCreateView(ProjectContextMixin, TemplateView):
     def get(self, request, *args, **kwargs):
-        basic_info = ServiceGroupBasic(initial={"resource": "/iot/json"})
-        attributes = Attributes(prefix=prefix_attributes)
+        data_model = pop_data_from_session(request, "data_model")
+        if data_model:
+            attributes_model = _get_attributes_from_data_model(data_model)
+            attributes = Attributes(
+                initial=attributes_model, prefix=prefix_attributes
+            )
+            entity_type = _get_entity_type_from_data_model(data_model)
+            basic_info = ServiceGroupBasic(initial={"resource": "/iot/json",
+                                                    "entity_type": entity_type})
+        else:
+            attributes = Attributes(prefix=prefix_attributes)
+            basic_info = ServiceGroupBasic(initial={"resource": "/iot/json"})
         context: dict = super(ServiceGroupCreateView, self).get_context_data(**kwargs)
         context = {
             "basic_info": basic_info,
@@ -137,6 +156,23 @@ class ServiceGroupCreateSubmitView(ProjectContextMixin, TemplateView):
             **context,
         }
         return render(request, "devices/detail.html", context)
+
+
+class ServiceGroupDataModelCreateView(ProjectContextMixin, TemplateView):
+    template_name = "devices/datamodels.html"
+
+    def get_context_data(self, **kwargs):
+        context = super(ServiceGroupDataModelCreateView, self).get_context_data(**kwargs)
+        context["smart_data_model_form"] = SmartDataModelEntitiesForm()
+        return context
+
+
+class ServiceGroupDataModelCreateSubmitView(ProjectContextMixin, TemplateView):
+    def post(self, request: HttpRequest, **kwargs):
+        data_model = json.loads(request.POST.get(key="select_data_model"))
+        add_data_to_session(request, "data_model", data_model)
+        return redirect("projects:devices:create_group",
+                        project_id=self.project.uuid)
 
 
 # Edit service group

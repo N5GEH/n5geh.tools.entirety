@@ -363,3 +363,25 @@ def get_data_from_session(request, key):
         return request.session.pop(key)
     else:
         return None
+
+
+def _get_attributes_from_data_model(data_model):
+    properties = data_model.get("properties")
+    attributes = []
+    if properties:
+        for prop_name in properties:
+            if prop_name in ("id", "type"):
+                continue
+            attribute = {
+                "name": prop_name,
+                "type": properties[prop_name]["type"],
+                "object_id": None
+            }
+            attributes.append(attribute)
+    return attributes
+
+
+def _get_entity_type_from_data_model(data_model):
+    if data_model.get("properties").get("type").get("enum"):
+        if len(data_model.get("properties").get("type").get("enum")) == 1:
+            return data_model.get("properties").get("type").get("enum")[0]

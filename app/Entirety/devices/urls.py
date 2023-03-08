@@ -14,7 +14,9 @@ from devices.views import (
     ServiceGroupCreateSubmitView,
     ServiceGroupEditView,
     ServiceGroupEditSubmitView,
-    ServiceGroupDeleteView
+    ServiceGroupDeleteView,
+    ServiceGroupDataModelCreateView,
+    ServiceGroupDataModelCreateSubmitView
 )
 
 app_name = "devices"
@@ -32,4 +34,7 @@ urlpatterns = [
     path("create-submit-group", ServiceGroupCreateSubmitView.as_view(), name="create_submit_group"),
     path("list-submit-group", ServiceGroupListSubmitView.as_view(), name="list_submit_group"),
     path("delete-group", ServiceGroupDeleteView.as_view(), name="delete_group"),
+    path("create-group-datamodel", ServiceGroupDataModelCreateView.as_view(), name="create_group_datamodel"),
+    path("create-submit-group-datamodel", ServiceGroupDataModelCreateSubmitView.as_view(),
+         name="create_submit_group_datamodel")
 ]
