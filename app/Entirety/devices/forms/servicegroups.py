@@ -47,7 +47,8 @@ class ServiceGroupBasic(forms.Form):
 
 
 class SmartDataModelEntitiesForm(forms.Form):
-    select_data_model = forms.ChoiceField()
+    select_data_model = forms.ChoiceField(label="Select a Data Model", required=True)
+    only_required_attrs = forms.BooleanField(label="Only use required attributes", required=False, initial=False)
 
     def __init__(self, *args, **kwargs):
         super(SmartDataModelEntitiesForm, self).__init__(*args, **kwargs)

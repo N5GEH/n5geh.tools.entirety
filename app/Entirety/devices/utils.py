@@ -5,11 +5,21 @@ from projects.models import Project
 from filip.clients.ngsi_v2 import IoTAClient
 from filip.models import FiwareHeader
 from filip.models.ngsi_v2.iot import Device, DeviceAttribute, DeviceCommand, ServiceGroup
-
+from filip.models.base import DataType
 
 # global settings
 prefix_attributes = "attributes"
 prefix_commands = "commands"
+
+
+JSONSchemaMap = {
+    "string": DataType.TEXT.value,
+    "number": DataType.NUMBER.value,
+    "integer": DataType.INTEGER.value,
+    "object": DataType.STRUCTUREDVALUE.value,
+    "array": DataType.ARRAY.value,
+    "boolean": DataType.BOOLEAN.value
+}
 
 
 def get_device_by_id(project: Project, device_id):
@@ -365,16 +375,24 @@ def get_data_from_session(request, key):
         return None
 
 
-def _get_attributes_from_data_model(data_model):
+def _get_attributes_from_data_model(data_model, only_required_attrs):
     properties = data_model.get("properties")
+    required_attrs = data_model.get("required")
+    print(f"required_attrs: {required_attrs}")
     attributes = []
     if properties:
         for prop_name in properties:
             if prop_name in ("id", "type"):
                 continue
+            if only_required_attrs and prop_name not in required_attrs:
+                continue
+            try:
+                attr_type = JSONSchemaMap[properties[prop_name]["type"]]
+            except:
+                attr_type = DataType.TEXT.value  # by default use text
             attribute = {
                 "name": prop_name,
-                "type": properties[prop_name]["type"],
+                "type": attr_type,
                 "object_id": None
             }
             attributes.append(attribute)

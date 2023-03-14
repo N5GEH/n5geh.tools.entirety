@@ -79,7 +79,8 @@ class ServiceGroupCreateView(ProjectContextMixin, TemplateView):
     def get(self, request, *args, **kwargs):
         data_model = pop_data_from_session(request, "data_model")
         if data_model:
-            attributes_model = _get_attributes_from_data_model(data_model)
+            only_required_attrs = pop_data_from_session(request, "only_required_attrs")
+            attributes_model = _get_attributes_from_data_model(data_model, only_required_attrs)
             attributes = Attributes(
                 initial=attributes_model, prefix=prefix_attributes
             )
@@ -170,7 +171,9 @@ class ServiceGroupDataModelCreateView(ProjectContextMixin, TemplateView):
 class ServiceGroupDataModelCreateSubmitView(ProjectContextMixin, TemplateView):
     def post(self, request: HttpRequest, **kwargs):
         data_model = json.loads(request.POST.get(key="select_data_model"))
+        only_required_attrs = bool(request.POST.get(key="only_required_attrs"))
         add_data_to_session(request, "data_model", data_model)
+        add_data_to_session(request, "only_required_attrs", only_required_attrs)
         return redirect("projects:devices:create_group",
                         project_id=self.project.uuid)
 
