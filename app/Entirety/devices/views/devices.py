@@ -3,6 +3,7 @@ from django.contrib import messages
 from django.shortcuts import render, redirect
 from django.views.generic import View, TemplateView
 from django.http import HttpRequest
+from django.http import HttpResponse
 import json
 from entirety.utils import pop_data_from_session, add_data_to_session
 from projects.mixins import ProjectContextMixin
@@ -162,6 +163,67 @@ class DeviceCreateView(ProjectContextMixin, TemplateView):
         }
         return render(request, "devices/detail.html", context)
 
+class DeviceCreateViewFromQr(ProjectContextMixin,TemplateView):
+    def get(self, request, *args, **kwargs):
+        device_id = request.GET.get('deviceid', None) 
+        entity_name = request.GET.get('entity', None)
+        entity_type = request.GET.get('entitytype', None)        
+        intial_value = {'device_id':device_id, 'entity_name':entity_name, 'entity_type':entity_type}
+        data_basic, data_attributes, data_commands = parse_request_data(
+            intial_value, BasicForm=DeviceBasic
+        )
+        basic_info = DeviceBasic(data=data_basic)
+        attributes = Attributes(data=data_attributes, prefix=prefix_attributes)
+        commands = Commands(data=data_commands, prefix=prefix_commands)
+        if basic_info.is_valid() and attributes.is_valid() and commands.is_valid():
+            try:
+                device = build_device(
+                    data_basic=data_basic,
+                    data_attributes=data_attributes,
+                    data_commands=data_commands,
+                )
+                post_device(device, project=self.project)
+                logger.info(
+                    "Device created by "
+                    + str(
+                        self.request.user.first_name
+                        if self.request.user.first_name
+                        else self.request.user.username
+                    )
+                    + f" in project {self.project.name}"
+                )
+                return redirect("projects:devices:list", project_id=self.project.uuid)
+            # handel the error from server
+            except RequestException as e:
+                messages.error(request, e.response.content.decode("utf-8"))
+                logger.error(
+                    str(
+                        self.request.user.first_name
+                        if self.request.user.first_name
+                        else self.request.user.username
+                    )
+                    + " tried creating device"
+                    + " but failed with error "
+                    + json.loads(e.response.content.decode("utf-8")).get("message")
+                    + f" in project {self.project.name}"
+                )
+            except ValidationError as e:
+                messages.error(request, e.raw_errors[0].exc.__str__())
+
+        # get the project context data
+        context: dict = super(DeviceCreateSubmitView, self).get_context_data(**kwargs)
+
+        context = {
+            "basic_info": basic_info,
+            "attributes": attributes,
+            "commands": commands,
+            "action": "Create",
+            **context,
+        }
+        return render(request, "devices/detail.html", context)
+
+
+        ##return redirect("projects:devices:list", project_id=self.project.uuid)
 
 class DeviceBatchCreateView(ProjectContextMixin, TemplateView):
     template_name = "devices/batch.html"
