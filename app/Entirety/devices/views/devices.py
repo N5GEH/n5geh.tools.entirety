@@ -29,6 +29,10 @@ from devices.utils import (
 from devices.tables import DevicesTable, GroupsTable
 from requests.exceptions import RequestException
 from pydantic import ValidationError
+from filip.models.ngsi_v2.context import (
+    Update as FilipUpdate,
+)
+from entities.requests import update_entity
 
 logger = logging.getLogger(__name__)
 
@@ -200,7 +204,36 @@ class DeviceCreateViewFromQr(ProjectContextMixin,TemplateView):
                     )
                     + f" in project {self.project.name}"
                 )
-                return redirect("projects:devices:list", project_id=self.project.uuid)
+                entitity = {
+                                "actionType": "append",
+                                "entities": [
+                                    {
+                                        "id": "urn:ngsi-ld:TemperatureSensor:001",
+                                        "type": "temperature",
+                                        "A": {
+                                            "type": "type1",
+                                            "value": 10
+                                        },
+                                        "B":{
+                                            "type":"type2",
+                                            "value":20
+                                        },
+                                        "TimeInstant":{
+                                            "type":"DateTime",
+                                            "value":"2023-03-21T11:58:09.725Z"
+                                        }
+                                    }
+                                ]
+                            }
+                # entities_json = json.loads(entitity)
+                entities_to_add = FilipUpdate(**entitity)
+                res = update_entity(
+                    self,
+                    entities_to_add.entities,
+                    entities_to_add.action_type,
+                    self.project,
+                )
+                return redirect("projects:entities:update", project_id=self.project.uuid, entity_id=self.json_data["entity_name"], entity_type=self.json_data["entity_type"])
             # handel the error from server
             except RequestException as e:
                 messages.error(request, e.response.content.decode("utf-8"))
