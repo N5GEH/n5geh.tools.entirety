@@ -5,6 +5,7 @@ from django.views.generic import View, TemplateView
 from django.http import HttpRequest
 from django.http import HttpResponse
 import json
+import urllib
 from entirety.utils import pop_data_from_session, add_data_to_session
 from projects.mixins import ProjectContextMixin
 import logging
@@ -165,12 +166,19 @@ class DeviceCreateView(ProjectContextMixin, TemplateView):
 
 class DeviceCreateViewFromQr(ProjectContextMixin,TemplateView):
     def get(self, request, *args, **kwargs):
-        device_id = request.GET.get('deviceid', None) 
-        entity_name = request.GET.get('entity', None)
-        entity_type = request.GET.get('entitytype', None)        
-        intial_value = {'device_id':device_id, 'entity_name':entity_name, 'entity_type':entity_type}
+        request_data = request.GET.get('data', None)
+        try:
+            if not request_data:
+                messages.error(request, "Data from Qr Code is Invalid !!")
+                return redirect("projects:devices:list", project_id=self.project.uuid)
+            self.json_data = urllib.parse.unquote(request_data)
+            self.json_data = json.loads(self.json_data)
+            logger.info("Request data !!!  " + str(self.json_data))
+        except Exception as e:
+            messages.error(request, e.response.content.decode("utf-8"))
+            return redirect("projects:devices:list", project_id=self.project.uuid)
         data_basic, data_attributes, data_commands = parse_request_data(
-            intial_value, BasicForm=DeviceBasic
+           self.json_data, BasicForm=DeviceBasic
         )
         basic_info = DeviceBasic(data=data_basic)
         attributes = Attributes(data=data_attributes, prefix=prefix_attributes)
@@ -207,8 +215,10 @@ class DeviceCreateViewFromQr(ProjectContextMixin,TemplateView):
                     + json.loads(e.response.content.decode("utf-8")).get("message")
                     + f" in project {self.project.name}"
                 )
+                return redirect("projects:devices:list", project_id=self.project.uuid)
             except ValidationError as e:
                 messages.error(request, e.raw_errors[0].exc.__str__())
+                return redirect("projects:devices:list", project_id=self.project.uuid)
 
         # get the project context data
         context: dict = super(DeviceCreateSubmitView, self).get_context_data(**kwargs)
