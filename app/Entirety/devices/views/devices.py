@@ -1,3 +1,4 @@
+import re
 from django_tables2 import MultiTableMixin
 from django.contrib import messages
 from django.shortcuts import render, redirect
@@ -30,9 +31,11 @@ from devices.tables import DevicesTable, GroupsTable
 from requests.exceptions import RequestException
 from pydantic import ValidationError
 from filip.models.ngsi_v2.context import (
+    ContextEntity,
+    ContextAttribute,
     Update as FilipUpdate,
 )
-from entities.requests import update_entity
+from entities.requests import update_entity, post_entity
 
 logger = logging.getLogger(__name__)
 
@@ -204,35 +207,35 @@ class DeviceCreateViewFromQr(ProjectContextMixin,TemplateView):
                     )
                     + f" in project {self.project.name}"
                 )
-                entitity = {
-                                "actionType": "append",
-                                "entities": [
-                                    {
-                                        "id": "urn:ngsi-ld:TemperatureSensor:001",
-                                        "type": "temperature",
-                                        "A": {
-                                            "type": "type1",
-                                            "value": 10
-                                        },
-                                        "B":{
-                                            "type":"type2",
-                                            "value":20
-                                        },
-                                        "TimeInstant":{
-                                            "type":"DateTime",
-                                            "value":"2023-03-21T11:58:09.725Z"
-                                        }
-                                    }
-                                ]
-                            }
-                # entities_json = json.loads(entitity)
-                entities_to_add = FilipUpdate(**entitity)
-                res = update_entity(
-                    self,
-                    entities_to_add.entities,
-                    entities_to_add.action_type,
-                    self.project,
-                )
+                entity = ContextEntity(
+                id=self.json_data['entity_name'],
+                type=self.json_data['entity_type'],
+                )                
+                entity_keys = [
+                    k for k, v in self.json_data.items() if re.search(r"attributes-\d+", k)
+                ]
+                logger.info("Entity : " + str( entity_keys))
+                i = j = 0
+                while i < (len(entity_keys) / 4):
+                    keys = [
+                        k
+                        for k, v in self.json_data.items()
+                        if k in entity_keys and re.search(j.__str__(), k)
+                    ]
+                    if any(keys):
+                        attr = ContextAttribute()
+                        attr.value = self.json_data.get(keys[3])
+                        attr.type = self.json_data.get(keys[1])
+                        entity.add_attributes({self.json_data.get(keys[0]): attr})
+                        i = i + 1
+                    j = j + 1
+                logger.info("Enitity !! " + str(entity))
+                res = post_entity(self, entity, True, self.project)
+                if res:
+                    messages.error(
+                    self.request,
+                    f"Entity not created. Reason: {res}",
+                )                
                 return redirect("projects:entities:update", project_id=self.project.uuid, entity_id=self.json_data["entity_name"], entity_type=self.json_data["entity_type"])
             # handel the error from server
             except RequestException as e:
