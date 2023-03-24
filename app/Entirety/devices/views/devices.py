@@ -180,9 +180,8 @@ class DeviceCreateViewFromQr(ProjectContextMixin,TemplateView):
                 return redirect("projects:devices:list", project_id=self.project.uuid)
             self.json_data = urllib.parse.unquote(request_data)
             self.json_data = json.loads(self.json_data)
-            logger.info("Request data !!!  " + str(self.json_data))
-        except Exception as e:
-            messages.error(request, e.response.content.decode("utf-8"))
+        except json.decoder.JSONDecodeError as e:
+            messages.error(request, "Inavlid QR data !!")
             return redirect("projects:devices:list", project_id=self.project.uuid)
         data_basic, data_attributes, data_commands = parse_request_data(
            self.json_data, BasicForm=DeviceBasic
@@ -214,9 +213,8 @@ class DeviceCreateViewFromQr(ProjectContextMixin,TemplateView):
                 entity_keys = [
                     k for k, v in self.json_data.items() if re.search(r"attributes-\d+", k)
                 ]
-                logger.info("Entity : " + str( entity_keys))
                 i = j = 0
-                while i < (len(entity_keys) / 4):
+                while i < (len(entity_keys) / 4):   
                     keys = [
                         k
                         for k, v in self.json_data.items()
@@ -224,18 +222,25 @@ class DeviceCreateViewFromQr(ProjectContextMixin,TemplateView):
                     ]
                     if any(keys):
                         attr = ContextAttribute()
-                        attr.value = self.json_data.get(keys[3])
                         attr.type = self.json_data.get(keys[1])
+                        if attr.type == "Number" or attr.type == "Integer":
+                            attr.value = int(self.json_data.get(keys[3]))
+                        elif attr.type == "Boolean":
+                            attr.value = self.json_data.get(keys[3]) == "True"
+                        elif attr.type == "Float":
+                            attr.value = float(self.json_data.get(keys[3]))
+                        else:
+                            attr.value = self.json_data.get(keys[3])
                         entity.add_attributes({self.json_data.get(keys[0]): attr})
                         i = i + 1
                     j = j + 1
-                logger.info("Enitity !! " + str(entity))
                 res = post_entity(self, entity, True, self.project)
                 if res:
                     messages.error(
                     self.request,
                     f"Entity not created. Reason: {res}",
                 )                
+                messages.success(self.request,message="Successfully created Device and Entity !!")
                 return redirect("projects:entities:update", project_id=self.project.uuid, entity_id=self.json_data["entity_name"], entity_type=self.json_data["entity_type"])
             # handel the error from server
             except RequestException as e:
@@ -254,6 +259,9 @@ class DeviceCreateViewFromQr(ProjectContextMixin,TemplateView):
                 return redirect("projects:devices:list", project_id=self.project.uuid)
             except ValidationError as e:
                 messages.error(request, e.raw_errors[0].exc.__str__())
+                return redirect("projects:devices:list", project_id=self.project.uuid)
+            except IndexError as e:
+                messages.error(request, "Cannot update entities !! Check request data in QR code")
                 return redirect("projects:devices:list", project_id=self.project.uuid)
 
         # get the project context data
