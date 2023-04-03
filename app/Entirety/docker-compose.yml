@@ -1,0 +1,89 @@
+version: "3.9"
+services:
+  postgres:
+    image: postgres:14.5
+    hostname: entirety-db
+    restart: unless-stopped
+    environment:
+      - POSTGRES_DB=entirety
+      - POSTGRES_USER=entirety
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+    volumes:
+      - pgdata:/var/lib/postgresql
+    networks:
+      - entirety
+    ports:
+      - "5432:5432"
+
+  entirety:
+    image: ghcr.io/n5geh/n5geh.tools.entirety:latest
+    restart: unless-stopped
+    expose:
+      - 8000
+    environment:
+      DJANGO_SECRET_KEY: ${DJANGO_SECRET_KEY}
+      DATABASE_URL: ${DATABASE_URL}
+      STATIC_ROOT: ${STATIC_ROOT:-/var/entirety/static/}
+      MEDIA_ROOT: ${MEDIA_ROOT:-/var/entirety/media/}
+      ENTITIES_LOAD: ${ENTITIES_LOAD:-True}
+      DEVICES_LOAD: ${DEVICES_LOAD:-True}
+      NOTIFICATIONS_LOAD: ${NOTIFICATIONS_LOAD:-True}
+      CB_URL: ${CB_URL}
+      QL_URL: ${QL_URL}
+      IOTA_URL: ${IOTA_URL}
+    volumes:
+      - static:${STATIC_ROOT:-/var/entirety/static/}
+      - media:${MEDIA_ROOT:-/var/entirety/media/}
+    depends_on:
+      - postgres
+    networks:
+      - entirety
+
+  nginx:
+    image: nginx:1.23.1
+    hostname: ng
+    ports:
+      - "80:80"
+    volumes:
+      - ../configs/nginx:/etc/nginx/templates/
+      - static:${STATIC_ROOT:-/var/entirety/static/}
+      - media:${MEDIA_ROOT:-/var/entirety/media/}
+    environment:
+      NGINX_ENVSUBST_TEMPLATE_SUFFIX: ".conf"
+      WEB_HOST: ${WEB_HOST:-localhost}
+    depends_on:
+      - entirety
+    networks:
+      - entirety
+  orion:
+    image: fiware/orion:latest
+    hostname: orion
+    container_name: orion
+    depends_on:
+      - mongo-db
+    networks:
+      - default
+    expose:
+      - "1026"
+    ports:
+      - "1026:1026"
+    command: -dbhost mongo-db -logLevel DEBUG
+
+  mongo-db:
+      image: mongo:4.2
+      hostname: mongo-db
+      container_name: db-mongo
+      expose:
+          - "27017"
+      ports:
+          - "27017:27017"
+      networks:
+          - default
+
+volumes:
+  static:
+  pgdata:
+  media:
+
+networks:
+  entirety:

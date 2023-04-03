@@ -1,0 +1,33 @@
+{% extends '_base.html' %}
+{% load compress %}
+{% load static %}
+
+{% block title %}Semantics{% endblock %}
+{% block content %}
+
+    {% compress css %}
+        <link type="text/x-scss" href="{% static "semantics/css/base.scss" %}" rel="stylesheet">
+    {% endcompress %}
+
+    <div class="container" style="">
+        <button type="submit"
+                class="btn btn-primary btn-submit mb-1 ms-auto"
+                onclick="goToView('ngsiv2')"
+                title="NGSI-V2">NGSI-V2
+        </button>
+        <button type="submit"
+                class="btn btn-primary btn-submit mb-1 ms-auto"
+                title="NGSI-LD" disabled>NGSI-LD
+        </button>
+
+    </div>
+
+    <script type="text/javascript">
+        function goToView(path) {
+            var x = path + "/";
+            window.location.href += x;
+        }
+    </script>
+
+
+{% endblock %}

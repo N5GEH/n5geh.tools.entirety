@@ -1,13 +1,100 @@
 {% extends '_base.html' %}
+{% load compress %}
+{% load static %}
 
 {% block title %}Semantics{% endblock %}
-
 {% block content %}
 
-    <div class="container">
+    {% compress css %}
+        <link type="text/x-scss" href="{% static "semantics/css/base.scss" %}" rel="stylesheet">
+    {% endcompress %}
 
-    Dash Semantics Visualization comes here....
+    <main class="d-flex flex-column flex-fill ps-4 pe-3 py-3">
+        <nav class="navbar navbar-expand-lg bg-light">
+            <div class="container-fluid">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"
+                           aria-expanded="false">
+                            Filter
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li>
+                                <a class="dropdown-item" href="#">
+                                    Types &raquo;
+                                </a>
+                                <ul class="dropdown-menu dropdown-submenu">
+                                    <li>
+                                        <a class="dropdown-item">
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" value=""
+                                                       id="flexCheckDefault">
+                                                <label class="form-check-label" for="flexCheckDefault">
+                                                    AirTemperatureSensor
+                                                </label>
+                                            </div>
+                                        </a>
+                                    </li>
+                                </ul>
+                            </li>
+                            <li>
+                                <a class="dropdown-item" href="#">
+                                    Relationships &raquo;
+                                </a>
+                                <ul class="dropdown-menu dropdown-submenu">
+                                    <li>
+                                        <a class="dropdown-item">
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" value=""
+                                                       id="flexCheckDefault">
+                                                <label class="form-check-label" for="flexCheckDefault">
+                                                    hasPart
+                                                </label>
+                                            </div>
+                                        </a>
+                                    </li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </li>
 
-    </div>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"
+                           aria-expanded="false">
+                            labeling
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item">Id</a></li>
+                            <li><a class="dropdown-item">Name</a></li>
+                            <li><a class="dropdown-item">None</a></li>
+                        </ul>
+                    </li>
+                </ul>
+                <form class="d-flex" role="search">
+                    <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
+                    <button type="submit"
+                            class="btn btn-warning rounded-pill"
+                    >Search
+                    </button>
+                </form>
+            </div>
+        </nav>
+
+        <span class="h3"> Main Graph</span>
+        <div id="main_graph" class="graph">
+            <body>
+            <div id="cy"></div>
+            </body>
+
+        </div>
+        <span class="h3"> Detail-level</span>
+        <div class="graph">
+
+        </div>
+
+    </main>
+
+    <script src="{% static "semantics/js/cytoscape.umd.js" %}"></script>
+    <script src="{% static "semantics_test/js/semantics.js" %}"></script>
 
 {% endblock %}

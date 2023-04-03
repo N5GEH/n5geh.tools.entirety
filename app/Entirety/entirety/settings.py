@@ -22,7 +22,8 @@ __version__ = "0.4.0"
 
 class Databases(DatabaseSettings):
     DEFAULT: DatabaseDsn = Field(
-        env="DATABASE_URL", default="postgres://username:password@host:port/db"
+        env="DATABASE_URL", default='postgres://entirety:password@entirety-db:5432/entirety'
+
     )
 
     @validator("DEFAULT", pre=True)
@@ -98,6 +99,8 @@ class Settings(PydanticSettings):
         "django.contrib.staticfiles",
         "django.forms",
         "django_tables2",
+        #"django_plotly_dash.apps.DjangoPlotlyDashConfig",
+        #"dpd_static_support",
         "compressor",
         "crispy_forms",
         "crispy_bootstrap5",
@@ -107,6 +110,8 @@ class Settings(PydanticSettings):
     ]
 
     CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
+
+    #X_FRAME_OPTIONS = "SAMEORIGIN"
 
     CRISPY_TEMPLATE_PACK = "bootstrap5"
 
@@ -118,6 +123,7 @@ class Settings(PydanticSettings):
         "django.contrib.auth.middleware.AuthenticationMiddleware",
         "django.contrib.messages.middleware.MessageMiddleware",
         "django.middleware.clickjacking.XFrameOptionsMiddleware",
+        #"django_plotly_dash.middleware.BaseMiddleware",
     ]
 
     MESSAGE_TAGS = {
@@ -185,7 +191,30 @@ class Settings(PydanticSettings):
         "django.contrib.staticfiles.finders.FileSystemFinder",
         "django.contrib.staticfiles.finders.AppDirectoriesFinder",
         "compressor.finders.CompressorFinder",
+        #for dash app "semantics"
+#        "django_plotly_dash.finders.DashAssetFinder",
+#        "django_plotly_dash.finders.DashComponentFinder",
+#        "django_plotly_dash.finders.DashAppDirectoryFinder",
     ]
+#    PLOTLY_DASH = {
+    # Flag controlling local serving of assets
+#    "serve_locally": True,
+
+ #   }
+ #   PLOTLY_COMPONENTS = [
+
+        # Common components (ie within dash itself) are automatically added
+
+        # django-plotly-dash components
+  #      "dpd_components",
+        # static support if serving local assets
+   #     "dpd_static_support",
+
+        # Other components, as needed
+    #    "dash_bootstrap_components",
+     #   "dash_cytoscape",
+      #  "dash_renderer",
+    #]
 
     COMPRESS_PRECOMPILERS = (("text/x-scss", "django_libsass.SassCompiler"),)
 
@@ -325,6 +354,7 @@ class Settings(PydanticSettings):
     if APP_LOAD.NOTIFICATIONS_LOAD is True:
         INSTALLED_APPS.append("subscriptions")
     if APP_LOAD.SEMANTICS_LOAD is True:
+
         INSTALLED_APPS.append("semantics")
 
     class Config:
