@@ -1,16 +1,15 @@
 import pandas as pd
 import json
 
-
-
-df = pd.DataFrame([["urn:ngsi-v2:room:01", "Room", "LR", ["hasPart"], ["urn:ngsi-v2:heater:01"], ["WZ_heater"], ["heater"]],
-                   ["urn:ngsi-v2:heater:01", "heater", "WZ_heater", ["measured_by", "measured_by"],
-                    ["urn:ngsi-v2:t_sensor:01", "urn:ngsi-ld:v2:t_sensor:02"], ["t_sensor:01", "t_sensor:02"],
-                    ["t_sensor", "t_sensor"]],
-                   ["urn:ngsi-ld:v2:t_sensor:02", "t_sensor", "t_sensor:02", ["empty"], ["empty"], ["empty"], ["empty"]],
-                   ["urn:ngsi-ld:v2:t_sensor:01", "t_sensor", "t_sensor:01", ["empty"], ["empty"], ["empty"], ["empty"]]],
-                  columns=["id", "type", "name", "relationship_name", "relationship_with", "relationship_target_name",
-                           "relationship_target_type"])
+df = pd.DataFrame(
+    [["urn:ngsi-v2:room:01", "Room", "LR", ["hasPart"], ["urn:ngsi-v2:heater:01"], ["WZ_heater"], ["heater"]],
+     ["urn:ngsi-v2:heater:01", "heater", "WZ_heater", ["measured_by", "measured_by"],
+      ["urn:ngsi-v2:t_sensor:01", "urn:ngsi-v2:t_sensor:02"], ["t_sensor:01", "t_sensor:02"],
+      ["t_sensor", "t_sensor"]],
+     ["urn:ngsi-v2:t_sensor:02", "t_sensor", "t_sensor:02", ["empty"], ["empty"], ["empty"], ["empty"]],
+     ["urn:ngsi-v2:t_sensor:01", "t_sensor", "t_sensor:01", ["empty"], ["empty"], ["empty"], ["empty"]]],
+    columns=["id", "type", "name", "relationship_name", "relationship_with", "relationship_target_name",
+             "relationship_target_type"])
 
 
 def generate_cytoscape_elements():
@@ -18,8 +17,9 @@ def generate_cytoscape_elements():
     Creates cytoscape elements from generated Data frame (df) in prep_data.py
     :return: two lists with nodes and edges
     """
-    #cy_edges = []
-    #cy_nodes = []
+
+    cy_nodes = []
+    cy_edges = []
     elements = []
     nodes = set()
     for index, row in df.iterrows():
@@ -31,16 +31,28 @@ def generate_cytoscape_elements():
                                                                                   'relationship_target_type']
         if source not in nodes:
             nodes.add(source)
-            elements.append({"data": {"id": source, "label": label}, "classes": source_type})
+            cy_nodes.append({"data": {"id": source, "label": label, "children": target}, "classes": source_type})
+
         for i, j, k, l in zip(target, edge, target_label, target_type):
-            if i not in nodes:
-                nodes.add(i)
-                elements.append(({"data": {"id": i, "label": k}, "classes": l}))
-            elements.append({"data": {"id": source + i, "source": source, "target": i, "label": j, }})
+            cy_edges.append({"data": {"id": source + i, "source": source, "target": i, "label": j, }})
 
-    return json.dumps(elements)
+    for edge in cy_edges:
+        for key, value in edge.items():
+            for k, v in value.items():
+                if k == 'target':
+                    if v not in nodes:
+                        nodes.add(v)
+                        cy_nodes.append({"data": {"id": v, "label": "end_of_graph"}})
 
-def types(df):
+    for i in cy_nodes:
+        elements.append(i)
+    for j in cy_edges:
+        elements.append(j)
+
+    return elements
+
+
+def types():
     """
     Creates a list with all possible types for filtering by type.
     Therefore, this method itterates through the generateted df from prep_data.py.
@@ -49,15 +61,12 @@ def types(df):
     :return: options (list with all possible types)
     """
     options = []
-    for i in df['type'].unique():
-        # count = cbc.count({"type": i})
-        label = i  # + "  (" + count + ")"
-        options.append({'label': label, 'value': i})
+    for type in df['type'].unique():
+        options.append(type)
     return options
 
 
-
-def rel(df):
+def relationships():
     """
     Creates a list with all possible relationships for filtering by relationship.
     Therefore, this method itterates through the generateted df from prep_data.py.
@@ -67,10 +76,9 @@ def rel(df):
     """
     options = []
     all_rel = []
-    for i in df['relationship_name']:
-        for j in i:
-            if j not in all_rel:
-                all_rel.append(j)
-                options.append({'label': j, 'value': j})
+    for rel_list in df['relationship_name']:
+        for rel in rel_list:
+            if rel not in all_rel:
+                all_rel.append(rel)
+                options.append(rel)
     return options
-
