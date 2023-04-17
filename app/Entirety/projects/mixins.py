@@ -52,6 +52,7 @@ class ProjectContextMixin(ProjectBaseMixin):
             self.project.is_owner(user=self.request.user)
             or self.project.is_user(user=self.request.user)
             or self.request.user.is_server_admin
+            or self.project.is_maintainer(self.request.user)
         )
 
 
@@ -59,8 +60,10 @@ class ProjectSelfMixin(ProjectBaseMixin):
     def test_func(self):
         obj = self.get_object()
         return (
-            self.request.user.is_project_admin and obj.owner == self.request.user
-        ) or self.request.user.is_server_admin
+            (self.request.user.is_project_admin and obj.owner == self.request.user)
+            or self.request.user.is_server_admin
+            or obj.is_maintainer(self.request.user)
+        )
 
 
 class ProjectCreateMixin(ProjectBaseMixin):

@@ -19,12 +19,30 @@
 >
 > *default:* not DJANGO_DEBUG
 
-### DATABASE_URL
+### DATABASE_USER
 
-> *description:* Database connection url
+> *description:* Database user name
 >
-> *default:* postgres://username:password@host:port/db
+> *default:* postgres
+
+### DATABASE_PASSWORD
+
+> *description:* Database password
 >
+> *default:* postgrespw
+
+### DATABASE_HOST
+
+> *description:* Database host name
+>
+> *default:* localhost
+
+### DATABASE_PORT
+
+> *description:* Database port
+>
+> *default:* 5432
+
 ### DEVICES_LOAD
 
 > *description:* Toggle this boolean if you want to switch Devices application on or off

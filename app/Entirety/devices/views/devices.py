@@ -1,12 +1,17 @@
-from django_tables2 import SingleTableMixin
+from django_tables2 import SingleTableMixin, MultiTableMixin
 from django.contrib import messages
 from django.shortcuts import render, redirect
 from django.views.generic import View, TemplateView
 from django.http import HttpRequest
+import json
+from entirety.utils import pop_data_from_session
 from projects.mixins import ProjectContextMixin
+import logging
 from devices.forms import DeviceBasic, Attributes, Commands
+from devices.models import _ServiceGroup
 from devices.utils import (
     get_devices,
+    get_service_groups,
     post_device,
     update_device,
     prefix_attributes,
@@ -15,32 +20,68 @@ from devices.utils import (
     build_device,
     get_device_by_id,
     delete_device,
-    devices_filter,
+    pattern_service_groups_filter,
     pattern_devices_filter,
 )
-from devices.tables import DevicesTable
+from devices.tables import DevicesTable, GroupsTable
 from requests.exceptions import RequestException
 from pydantic import ValidationError
 
+logger = logging.getLogger(__name__)
+
 
 # Devices list
-class DeviceListView(ProjectContextMixin, SingleTableMixin, TemplateView):
+class DeviceListView(ProjectContextMixin, MultiTableMixin, TemplateView):
     # TemplateView.as_view() will render the template. Do not need to invoke render function
     template_name = "devices/list.html"
-    table_class = DevicesTable
+    # table_class = DevicesTable
     table_pagination = {"per_page": 15}
 
-    def get_table_data(self):
+    def get_devices_data(self):
         pattern = self.request.GET.get("search-pattern", default="")
         devices = get_devices(self.project)
         # The filtering is now based on a general pattern
         return pattern_devices_filter(devices, pattern)
 
+    def get_groups_data(self):
+        pattern = self.request.GET.get("search-pattern-groups", default="")
+        groups_temp = get_service_groups(self.project)
+        group_filter = pattern_service_groups_filter(groups_temp, pattern)
+        # add dummy id
+        groups = []
+        for i, group_temp in enumerate(group_filter):
+            group = _ServiceGroup(group_temp)
+            group.id = i + 1
+            groups.append(group)
+        return groups
+
+    def get_tables(self):
+        return [
+            DevicesTable(self.get_devices_data()),
+            GroupsTable(self.get_groups_data()),
+        ]
+
     # add context to html
     def get_context_data(self, **kwargs):
+        logger.info(
+            "Fetching devices and service groups for "
+            + str(
+                self.request.user.first_name
+                if self.request.user.first_name
+                else self.request.user.username
+            )
+            + f" in project {self.project.name}"
+        )
         context = super(DeviceListView, self).get_context_data(**kwargs)
+        if pop_data_from_session(self.request, "to_servicegroup"):
+            context["to_servicegroup"] = True
+        else:
+            context["to_servicegroup"] = False
         context["project"] = self.project
-        context["table"] = DeviceListView.get_table(self)
+        if self.request.GET.get("search-pattern-groups", default=""):
+            context["to_servicegroup"] = True
+        context["table_devices"] = DeviceListView.get_tables(self)[0]
+        context["table_groups"] = DeviceListView.get_tables(self)[1]
         return context
 
 
@@ -117,7 +158,9 @@ class DeviceCreateView(ProjectContextMixin, TemplateView):
 class DeviceCreateSubmitView(ProjectContextMixin, TemplateView):
     def post(self, request: HttpRequest, **kwargs):
         # preprocess the request query data
-        data_basic, data_attributes, data_commands = parse_request_data(request.POST)
+        data_basic, data_attributes, data_commands = parse_request_data(
+            request.POST, BasicForm=DeviceBasic
+        )
 
         # create forms from query data
         basic_info = DeviceBasic(data=data_basic)
@@ -132,10 +175,30 @@ class DeviceCreateSubmitView(ProjectContextMixin, TemplateView):
                     data_commands=data_commands,
                 )
                 post_device(device, project=self.project)
+                logger.info(
+                    "Device created by "
+                    + str(
+                        self.request.user.first_name
+                        if self.request.user.first_name
+                        else self.request.user.username
+                    )
+                    + f" in project {self.project.name}"
+                )
                 return redirect("projects:devices:list", project_id=self.project.uuid)
             # handel the error from server
             except RequestException as e:
                 messages.error(request, e.response.content.decode("utf-8"))
+                logger.error(
+                    str(
+                        self.request.user.first_name
+                        if self.request.user.first_name
+                        else self.request.user.username
+                    )
+                    + " tried creating device"
+                    + " but failed with error "
+                    + json.loads(e.response.content.decode("utf-8")).get("message")
+                    + f" in project {self.project.name}"
+                )
             except ValidationError as e:
                 messages.error(request, e.raw_errors[0].exc.__str__())
 
@@ -158,9 +221,18 @@ class DeviceEditView(ProjectContextMixin, TemplateView):
         context = super(DeviceEditView, self).get_context_data()
 
         # get the selected devices from session
-        device_id = request.session.get("devices")
+        device_id = pop_data_from_session(request, "devices")
         # device_id = request.GET["device_id"]
         device = get_device_by_id(project=self.project, device_id=device_id)
+        logger.info(
+            "Fetching single device for "
+            + str(
+                self.request.user.first_name
+                if self.request.user.first_name
+                else self.request.user.username
+            )
+            + f" in project {self.project.name}"
+        )
         device_dict = device.dict()
 
         # disable editing the basic information
@@ -196,7 +268,9 @@ class DeviceEditSubmitView(ProjectContextMixin, TemplateView):
         context = super(DeviceEditSubmitView, self).get_context_data()
 
         # preprocess the POST request data
-        data_basic, data_attributes, data_commands = parse_request_data(request.POST)
+        data_basic, data_attributes, data_commands = parse_request_data(
+            request.POST, BasicForm=DeviceBasic
+        )
 
         basic_info = DeviceBasic(request.POST)
         basic_info.fields["device_id"].widget.attrs["readonly"] = True
@@ -215,9 +289,30 @@ class DeviceEditSubmitView(ProjectContextMixin, TemplateView):
                     data_commands=data_commands,
                 )
                 update_device(device, project=self.project)
+                logger.info(
+                    "Device updated by "
+                    + str(
+                        self.request.user.first_name
+                        if self.request.user.first_name
+                        else self.request.user.username
+                    )
+                    + f" in project {self.project.name}"
+                )
                 return redirect("projects:devices:list", project_id=self.project.uuid)
             except RequestException as e:
                 messages.error(request, e.response.content.decode("utf-8"))
+                logger.error(
+                    str(
+                        self.request.user.first_name
+                        if self.request.user.first_name
+                        else self.request.user.username
+                    )
+                    + " tried updating the device with id "
+                    + data_basic["device_id"]
+                    + " but failed with error "
+                    + json.loads(e.response.content.decode("utf-8")).get("message")
+                    + f" in project {self.project.name}"
+                )
             except ValidationError as e:
                 messages.error(request, e.raw_errors[0].exc.__str__())
 
@@ -235,13 +330,22 @@ class DeviceEditSubmitView(ProjectContextMixin, TemplateView):
 class DeviceDeleteView(ProjectContextMixin, View):
     def get(self, request: HttpRequest, *args, **kwargs):
         # get the selected devices from session
-        device_id = request.session.get("devices")
-        delete_entity = bool(request.session.get("delete_entity"))
+        device_id = pop_data_from_session(request, "devices")
+        delete_entity = bool(pop_data_from_session(request, "delete_entity"))
 
         # delete the device and entity?
         try:
             delete_device(
                 project=self.project, device_id=device_id, delete_entity=delete_entity
+            )
+            logger.info(
+                "Device deleted by "
+                + str(
+                    self.request.user.first_name
+                    if self.request.user.first_name
+                    else self.request.user.username
+                )
+                + f" in project {self.project.name}"
             )
         except RequestException as e:
             messages.error(request, e.response.content.decode("utf-8"))

@@ -4,7 +4,7 @@
             <ul class="nav nav-flush flex-column flex-nowrap text-center text-md-start">
                 {% if user.is_authenticated %}
                     {% if project %}
-                        {% if user.is_server_admin or project.owner == user %}
+                        {% if user.is_server_admin or project.owner == user or user in project.maintainers.all %}
                         <li class="nav-item border-bottom d-inline-flex">
                             <a href="{% url 'projects:update' project.uuid %}" class="nav-link btn-sidebar py-md-2"
                                data-bs-toggle="tooltip" data-bs-placement="right" data-bs-custom-class="d-md-none"
