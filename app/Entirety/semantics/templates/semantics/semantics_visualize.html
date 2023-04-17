@@ -98,11 +98,16 @@
         </div>
         <h3 class="h3">Detail Level</h3>
         <div id="detail_level" class="graph">
-            {{ elements|safe }}
 
         </div>
+        <div class="graph">
+            {{ elements|safe }}
+        </div>
+
+
         <script>
-            var data = {{ elements|safe }}
+            var data =
+            {{ elements|safe }}
 
         </script>
 
@@ -114,7 +119,17 @@
     <script src="{% static "semantics/js/semantics_test.js" %}"></script>
 
     <script>
-        cy.on('click', 'node', handleClick)
+        cy.on('click', 'node', handleClick);
+        detail.on('click', 'node', handleClick);
+
+        //detail.on('click', 'node', function (event) {
+          //  var clickedNode = event.target;
+            //var clickedNode_id = clickedNode.id();
+            //console.log('detail')
+            // Call function to update detail level
+            //update_detail_level(clickedNode_id, clickedNode);
+        //});
+
     </script>
 
 {% endblock %}

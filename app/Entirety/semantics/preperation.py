@@ -38,11 +38,14 @@ def generate_cytoscape_elements():
 
     for edge in cy_edges:
         for key, value in edge.items():
-            for k, v in value.items():
-                if k == 'target':
-                    if v not in nodes:
-                        nodes.add(v)
-                        cy_nodes.append({"data": {"id": v, "label": "end_of_graph"}})
+            if value.get("target") not in nodes:
+                nodes.add(value.get('target'))
+                cy_nodes.append({"data": {"id": value.get("target"), "label": "end_of_graph"}})
+        for node in cy_nodes:
+            for n_key, n_value in node.items():
+                if isinstance(n_value, dict):
+                    if n_value.get("id") == value.get("target"):
+                        n_value['parents'] = [value.get("source")]
 
     for i in cy_nodes:
         elements.append(i)
