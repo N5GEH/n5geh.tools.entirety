@@ -6,7 +6,9 @@ import pandas as pd
 from filip.models.ngsi_v2.base import AttrsFormat
 import json
 from dotenv import load_dotenv
-
+"""
+only read, does nothing, will be deleted!!!
+"""
 load_dotenv()
 
 
