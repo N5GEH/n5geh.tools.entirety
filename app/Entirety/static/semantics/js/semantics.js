@@ -23,6 +23,9 @@ var cy = cytoscape({
             }
         }
     ],
+    maxZoom: 1.7,
+    minZoom: 0.5,
+    wheelSensitivity: 0.2,
     layout: {
         name: 'grid',
         rows: 3
@@ -52,6 +55,9 @@ var detail = cytoscape({
             }
         }
     ],
+    maxZoom: 1.7,
+    minZoom: 0.5,
+    wheelSensitivity: 0.2,
     layout: {
         name: 'grid',
         rows: 3
