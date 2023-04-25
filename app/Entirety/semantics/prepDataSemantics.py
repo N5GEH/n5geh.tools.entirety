@@ -1,26 +1,21 @@
 import pandas as pd
 import json
 from projects.mixins import ProjectContextMixin
-from entities.requests import get_entities_list, get_entity
+from entities.requests import get_entities_list
 
-from filip.clients.ngsi_v2.cb import ContextBrokerClient
-from filip.models.base import FiwareHeader
-from filip.models.ngsi_v2.base import AttrsFormat
-df = pd.DataFrame(
-    [["urn:ngsi-v2:room:01", "Room", "LR", ["hasPart"], ["urn:ngsi-v2:heater:01"], ["WZ_heater"], ["heater"]],
-     ["urn:ngsi-v2:heater:01", "heater", "WZ_heater", ["measured_by", "measured_by"],
-      ["urn:ngsi-v2:t_sensor:01", "urn:ngsi-v2:t_sensor:02"], ["t_sensor:01", "t_sensor:02"],
-      ["t_sensor", "t_sensor"]],
-     ["urn:ngsi-v2:t_sensor:02", "t_sensor", "t_sensor:02", ["empty"], ["empty"], ["empty"], ["empty"]],
-     ["urn:ngsi-v2:t_sensor:01", "t_sensor", "t_sensor:01", ["empty"], ["empty"], ["empty"], ["empty"]]],
-    columns=["id", "type", "name", "relationship_name", "relationship_with", "relationship_target_name",
-             "relationship_target_type"])
 
 class PrepData(ProjectContextMixin):
 
     def generate_df(self):
-        entity_list = get_entities_list(self, ".*", "", self.project)
+        """
+        Generates a pandas DataFrame and a list of Cytoscape elements from a list of entities.
 
+        Returns:
+            list: A list of Cytoscape elements containing information about nodes and edges.
+                Each element is a dictionary with keys 'data' and 'classes', where 'data' is another dictionary
+                containing information about the node or edge, and 'classes' is a string specifying the type of the entity.
+        """
+        entity_list = get_entities_list(self, ".*", "", self.project)
         entity_id_list = []
         entity_type_list = []
         entity_name_list = []
@@ -28,30 +23,30 @@ class PrepData(ProjectContextMixin):
         relationship_target_list = []
 
         for entity in entity_list:
-            entity_json = entity.json()
-            entity_json = json.loads(entity_json)
+            entity_json = json.loads(entity.json())
+
             entity_id_list.append(entity.id)
             entity_type_list.append(entity.type)
 
-            entity_name = 'No Name'  # Standardwert für 'name.value'
-            relationship_name = None
-            relationship_target = None
+            entity_name = 'No Name'  #Start value if no name Attribute is providet'
+            relationship_name = []
+            relationship_target = []
 
-            for key, value in self.all_values(entity_json):
+            all_entity_values = self.all_values(entity_json)
+
+            for key, value in all_entity_values:
                 if value == 'Relationship':
-                    rel_name=[]
-                    rel_target=[]
-                    rel_name.append(key.rsplit('.type', 1)[0])
-                    print(f"rel-name: {rel_name}")
-                    for next_key, next_value in self.all_values(entity_json):
-                        print("irgendwas")
-                        if next_key == f"{rel_name}.value":
-                            rel_target.append(next_value)
-                            relationship_name = rel_name
-                            relationship_target = rel_target
-                            print(rel_target)
+                    rel_name_str = key.rsplit('.type', 1)[0]
+                    for next_key, next_value in all_entity_values:
+                        if next_key == f"{rel_name_str}.value":
+                            if isinstance(next_value, list):
+                                relationship_target.extend(next_value)
+                                relationship_name.extend([rel_name_str] * len(next_value))
+                            else:
+                                relationship_target.append(next_value)
+                                relationship_name.append(rel_name_str)
                             break
-                elif key == 'name.value':
+                elif key == 'name.value'.lower:
                     entity_name = value
 
             entity_name_list.append(entity_name)
@@ -66,106 +61,43 @@ class PrepData(ProjectContextMixin):
                 }
         self.df = pd.DataFrame(data, columns=['id', 'type', 'name', 'relationship_name', 'relationship_with'])
 
-        print(f"id: {entity_id_list}")
-        print(f"type: {entity_type_list}")
-        print(f"name: {entity_name_list}")
-        print(f"rel_name: {relationship_name_list}")
-        print(f"rel_target: {relationship_target_list}")
-
-        try:
-            cy_nodes = []
-            cy_edges = []
-            elements = []
-            nodes = set()
-
-            for index, row in self.df.iterrows():
-                source, label, source_type, target, target_label= row['id'], \
-                                                                  row['name'], \
-                                                                  row['type'], \
-                                                                  row['relationship_with'], \
-                                                                  row['relationship_target_name'], \
-
-                if source not in nodes:
-                    nodes.add(source)
-                    cy_nodes.append(
-                        {"data": {"id": source, "label": label, "children": target}, "classes": source_type})
-
-                for i, j, k, l in zip(target, target_label):
-                    cy_edges.append({"data": {"id": source + i, "source": source, "target": i, "label": j, }})
-
-            for edge in cy_edges:
-                for key, value in edge.items():
-                    if value.get("target") not in nodes:
-                        nodes.add(value.get('target'))
-                        cy_nodes.append({"data": {"id": value.get("target"), "label": "end_of_graph"}})
-                for node in cy_nodes:
-                    for n_key, n_value in node.items():
-                        if isinstance(n_value, dict):
-                            if n_value.get("id") == value.get("target"):
-                                n_value['parents'] = [value.get("source")]
-
-            for i in cy_nodes:
-                elements.append(i)
-            for j in cy_edges:
-                elements.append(j)
-
-        except:
-            print("except")
-            pass
-
-        return elements
+        # generate cytoscape elements
 
 
+        cy_nodes = []
+        cy_edges = []
+        elements = []
+        nodes = set()
 
+        for index, row in self.df.iterrows():
+            source, label, source_type, target, target_label = row['id'], \
+                                                               row['name'], \
+                                                               row['type'], \
+                                                               row['relationship_with'], \
+                                                               row['relationship_name']
 
+            if source not in nodes:
+                nodes.add(source)
+                cy_nodes.append(
+                    {"data": {"id": source, "label": label, "children": target}, "classes": source_type})
 
-    def generate_cytoscape_elements(self):
-        """
-        Creates cytoscape elements from generated Data frame (df) in prep_data.py
-        :return: two lists with nodes and edges
-        """
+            for i, j in zip(target, target_label):
+                cy_edges.append({"data": {"id": source + i, "source": source, "target": i, "label": j, }})
+        for edge in cy_edges:
+            for key, value in edge.items():
+                if value.get("target") not in nodes:
+                    nodes.add(value.get('target'))
+                    cy_nodes.append({"data": {"id": value.get("target"), "label": "end_of_graph"}})
+            for node in cy_nodes:
+                for n_key, n_value in node.items():
+                    if isinstance(n_value, dict):
+                        if n_value.get("id") == value.get("target"):
+                            n_value['parents'] = [value.get("source")]
 
-        try:
-            cy_nodes = []
-            cy_edges = []
-            elements = []
-            nodes = set()
-
-            for index, row in df.iterrows():
-                source, label, source_type, target, target_label, edge, target_type = row['id'], \
-                                                                                      row['name'], \
-                                                                                      row['type'], \
-                                                                                      row['relationship_with'], \
-                                                                                      row['relationship_target_name'], \
-                                                                                      row['relationship_name'], \
-                                                                                      row['relationship_target_type']
-                if source not in nodes:
-                    nodes.add(source)
-                    cy_nodes.append(
-                        {"data": {"id": source, "label": label, "children": target}, "classes": source_type})
-
-                for i, j, k, l in zip(target, edge, target_label, target_type):
-                    cy_edges.append({"data": {"id": source + i, "source": source, "target": i, "label": j, }})
-
-            for edge in cy_edges:
-                for key, value in edge.items():
-                    if value.get("target") not in nodes:
-                        nodes.add(value.get('target'))
-                        cy_nodes.append({"data": {"id": value.get("target"), "label": "end_of_graph"}})
-                for node in cy_nodes:
-                    for n_key, n_value in node.items():
-                        if isinstance(n_value, dict):
-                            if n_value.get("id") == value.get("target"):
-                                n_value['parents'] = [value.get("source")]
-
-            for i in cy_nodes:
-                elements.append(i)
-            for j in cy_edges:
-                elements.append(j)
-
-        except:
-            pass
-
+        for i in cy_nodes:
+            elements.append(i)
+        for j in cy_edges:
+            elements.append(j)
         return elements
 
 
@@ -178,10 +110,9 @@ class PrepData(ProjectContextMixin):
         :return: options (list with all possible types)
         """
         options = []
-        for type in df['type'].unique():
+        for type in self.df['type'].unique():
             options.append(type)
         return options
-
 
     def relationships(self):
         """
@@ -193,7 +124,7 @@ class PrepData(ProjectContextMixin):
         """
         options = []
         all_rel = []
-        for rel_list in df['relationship_name']:
+        for rel_list in self.df['relationship_name']:
             for rel in rel_list:
                 if rel not in all_rel:
                     all_rel.append(rel)
