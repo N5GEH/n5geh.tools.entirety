@@ -1,10 +1,10 @@
-from django_tables2 import SingleTableMixin, MultiTableMixin
+from django_tables2 import MultiTableMixin
 from django.contrib import messages
 from django.shortcuts import render, redirect
 from django.views.generic import View, TemplateView
 from django.http import HttpRequest
 import json
-from entirety.utils import pop_data_from_session
+from entirety.utils import pop_data_from_session, add_data_to_session
 from projects.mixins import ProjectContextMixin
 import logging
 from devices.forms import DeviceBasic, Attributes, Commands
@@ -39,6 +39,9 @@ class DeviceListView(ProjectContextMixin, MultiTableMixin, TemplateView):
 
     def get_devices_data(self):
         pattern = self.request.GET.get("search-pattern", default="")
+        if not pattern:
+            pattern = pop_data_from_session(request=self.request, key="search-pattern")
+            pattern = "" if not pattern else pattern
         devices = get_devices(self.project)
         # The filtering is now based on a general pattern
         return pattern_devices_filter(devices, pattern)
@@ -80,8 +83,6 @@ class DeviceListView(ProjectContextMixin, MultiTableMixin, TemplateView):
         context["project"] = self.project
         if self.request.GET.get("search-pattern-groups", default=""):
             context["to_servicegroup"] = True
-        context["table_devices"] = DeviceListView.get_tables(self)[0]
-        context["table_groups"] = DeviceListView.get_tables(self)[1]
         return context
 
 
@@ -188,6 +189,10 @@ class DeviceCreateSubmitView(ProjectContextMixin, TemplateView):
             # handel the error from server
             except RequestException as e:
                 messages.error(request, e.response.content.decode("utf-8"))
+                if "DUPLICATE_DEVICE_ID" in e.response.content.decode("utf-8"):
+                    device_id = device.device_id
+                    add_data_to_session(request, "search-pattern", device_id)
+                    return redirect("projects:devices:list", project_id=self.project.uuid)
                 logger.error(
                     str(
                         self.request.user.first_name
