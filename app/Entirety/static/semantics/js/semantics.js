@@ -1,4 +1,5 @@
 //generates cytoscape elements in main Graph right at the beginning
+
 var cy = cytoscape({
     container: document.getElementById('main_graph'),
     elements: data,
@@ -70,11 +71,12 @@ var detail = cytoscape({
  * @param event
  */
 function handleClick(event) {
-    console.log('clicked Node id', event.target.id());
+    //console.log('clicked Node id', event.target.id());
     var div = document.getElementById('entity');
     var h3 = div.querySelector('h3');
     // call function to create detail Level
     create_detail_level(event.target.id(), event.target);
+    getEntity(event.target.id())
     //shows entity table and adds node id to headder
     h3.textContent = 'Node ID: ' + event.target.id();
     div.style.display = 'block';
@@ -90,7 +92,7 @@ function handleClick(event) {
  * @param clickedNode
  */
 function create_detail_level(clickedNode_id, clickedNode) {
-    console.log("create_detail_level() function is being called.")
+    //console.log("create_detail_level() function is being called.")
     //detailElements.length = 0;
     var detailElements = [];
 
@@ -106,17 +108,17 @@ function create_detail_level(clickedNode_id, clickedNode) {
 
         });
     } else {
-        console.log("Array is not present or not defined");
+        //console.log("Array is not present or not defined");
     }
     //check if clickedNode has parents
     if (typeof clickedNode.data('parents') === 'object' && clickedNode.data('parents') !== null && Array.isArray(clickedNode.data('parents'))) {
         clickedNode.data('parents').forEach(function (element) {
             // element: current element in the array of children id´s
-            detailElements.push(get_nodes_by_id(element+clickedNode_id));//appends edge between parents and center
+            detailElements.push(get_nodes_by_id(element + clickedNode_id));//appends edge between parents and center
             detailElements.push(get_nodes_by_id(element)); //appends parent nodes to the detail level
         });
     } else {
-        console.log("Array is not present or not defined");
+        //console.log("Array is not present or not defined");
     }
     detail.add(detailElements)
 
@@ -142,7 +144,43 @@ function get_nodes_by_id(nodeID) {
         //console.log('Found object:', foundObject);
         return foundObject
     } else {
-        console.log('Object with ID', targetId, 'not found.');
+        //console.log('Object with ID', targetId, 'not found.');
     }
-
 }
+
+async function makeRequest(url, method, body) {
+
+    let headers = {
+        'X-Requested-With': 'XMLHttpRequest',
+        'Content-Type': 'application/json'
+    }
+    if (method === 'post') {
+        console.log('post')
+        headers['X-CSRFToken'] = document.querySelector('[name=csrfmiddlewaretoken]').value
+        console.log(headers)
+    }
+    let response = await fetch(baseUrl + '/ngsiv2/', {
+        method: method,
+        headers: headers,
+        body: body,
+
+    })
+        .then((response) => response.json())
+    console.log('hello1')
+
+    return await response
+}
+
+async function getEntity(nodeID) {
+    console.log(nodeID)
+
+    let data = await makeRequest(baseUrl + '/ngsiv2/', 'post', JSON.stringify({nodeID: nodeID}))
+    let entity = document.getElementById('table')
+    let li = document.createElement('li')
+    li.innerText= await data['entity']
+    entity.appendChild(li)
+    console.log(data)
+}
+
+
+

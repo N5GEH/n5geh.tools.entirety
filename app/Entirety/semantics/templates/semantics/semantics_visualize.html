@@ -10,6 +10,7 @@
     {% endcompress %}
 
     <main class="d-flex flex-column flex-fill ps-4 pe-3 py-3">
+        {% csrf_token %}
         <nav class="navbar navbar-expand-lg bg-light">
             <div class="container-fluid">
                 <ul class="navbar-nav me-auto mb-2 mb-lg-0">
@@ -60,6 +61,7 @@
                                 </ul>
                             </li>
                         </ul>
+
                     </li>
 
                     <li class="nav-item dropdown">
@@ -87,7 +89,6 @@
         <div id="entity" style="display: none">
             <h3 class="h3"></h3>
             <div id="table" class="graph">
-                entity table will appear!
             </div>
         </div>
 
@@ -101,26 +102,37 @@
 
         </div>
         <div class="graph">
-            {{ elements|safe }}
+            <button id="go" class="btn btn-success" onclick="getNumber()">Go</button>
         </div>
-
 
         <script>
             var data =
             {{ elements|safe }}
-
         </script>
 
 
     </main>
 
 
-    <script src="{% static "semantics/js/cytoscape.umd.js" %}"></script>
-    <script src="{% static "semantics/js/semantics.js" %}"></script>
+    <script src="{% static 'semantics/js/cytoscape.umd.js' %}"></script>
+    <script type="text/javascript" src="{% static 'semantics/js/semantics.js' %}"></script>
 
     <script>
+        let currentUrl = window.location.href;
+        let baseUrl = currentUrl.split('/ngsiv2/')[0];
         cy.on('click', 'node', handleClick);
         detail.on('click', 'node', handleClick);
+
+
+        async function getNumber() {
+            //console.log('hello2')
+            const data = await makeRequest(baseUrl + '/ngsiv2', 'get')
+            //console.log(data.elements)
+            return data.elements
+        }
+
+
+
 
     </script>
 

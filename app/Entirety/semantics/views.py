@@ -1,4 +1,5 @@
 from django.views.generic import TemplateView
+from random import randint
 from django.shortcuts import redirect
 from projects.models import Project
 from django.http import JsonResponse
@@ -6,7 +7,7 @@ import json
 from projects.mixins import ProjectContextMixin
 from semantics.prepDataSemantics import PrepData
 from django.shortcuts import render
-from entities.requests import get_entities_list, get_entity
+from entities.requests import get_entity
 
 
 class StartPage(ProjectContextMixin, TemplateView):
@@ -19,11 +20,34 @@ class SemanticsVisualizer(ProjectContextMixin, TemplateView):
     def get_context_data(self, **kwargs):
 
         context = super().get_context_data(**kwargs)
-        # PrepData.generate_df(self)
+         #PrepData.generate_df(self)
         context['elements'] = PrepData.generate_df(self)
         context['types'] = PrepData.types(self)
         context['relationships'] = PrepData.relationships(self)
         return context
+
+    #def get(self, request, *args, **kwargs):
+    #    if request.headers.get('X-Requested_With') == 'XMLHttpRequest':
+    #        elements = PrepData.generate_df(self)
+    #        number = randint(1, 10)
+    #        return JsonResponse({'elements': elements})
+    #    else:
+    #        context = self.get_context_data(**kwargs)
+    #        return self.render_to_response(context)
+
+    def post(self, request, project_id, *args, **kwargs):
+        data = json.loads(request.body)
+        print(data)
+        entityID = (data['nodeID'])
+        entity = get_entity(self, entityID, "", self.project)
+        print(entity)
+        for i in entity:
+            print(i)
+            print(type(i))
+            for index, item in enumerate(i):
+                print(index, item)
+
+        return JsonResponse({'entity': f'{entity}'})
 
     def all_values(self, dict_obj, parent_key=''):
         """
@@ -51,7 +75,6 @@ class SemanticsVisualizer(ProjectContextMixin, TemplateView):
 
         """
 
-
         # Iterate over all key-value pairs in the passed dictionary
         for key, value in dict_obj.items():
             # Generate the current key by concatenating the parent key and the current key
@@ -64,6 +87,7 @@ class SemanticsVisualizer(ProjectContextMixin, TemplateView):
             else:
                 # Yield the current key and value as a tuple
                 yield current_key, value
+
 
 
 class LdVisualizer(ProjectContextMixin, TemplateView):
