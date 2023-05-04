@@ -28,8 +28,30 @@ var cy = cytoscape({
     minZoom: 0.5,
     wheelSensitivity: 0.2,
     layout: {
-        name: 'grid',
-        rows: 3
+        name: 'breadthfirst',
+        fit: true, // whether to fit the viewport to the graph
+        directed: false, // whether the tree is directed downwards (or edges can point in any direction if false)
+        padding: 30, // padding on fit
+        circle: false, // put depths in concentric circles if true, put depths top down if false
+        grid: false, // whether to create an even grid into which the DAG is placed (circle:false only)
+        spacingFactor: 1.75, // positive spacing factor, larger => more space between nodes (N.B. n/a if causes overlap)
+        boundingBox: undefined, // constrain layout bounds; { x1, y1, x2, y2 } or { x1, y1, w, h }
+        avoidOverlap: true, // prevents node overlap, may overflow boundingBox if not enough space
+        nodeDimensionsIncludeLabels: false, // Excludes the label when calculating node bounding boxes for the layout algorithm
+        roots: undefined, // the roots of the trees
+        depthSort: undefined, // a sorting function to order nodes at equal depth. e.g. function(a, b){ return a.data('weight') - b.data('weight') }
+        animate: false, // whether to transition the node positions
+        animationDuration: 500, // duration of animation in ms if enabled
+        animationEasing: undefined, // easing of animation if enabled,
+        animateFilter: function (node, i) {
+            return true;
+        }, // a function that determines whether the node should be animated.  All nodes animated by default on animate enabled.  Non-animated nodes are positioned immediately when the layout starts
+        ready: undefined, // callback on layoutready
+        stop: undefined, // callback on layoutstop
+        transform: function (node, position) {
+            return position;
+        } // transform a given node position. Useful for changing flow direction in discrete layouts
+
     }
 });
 var detail = cytoscape({
@@ -59,11 +81,9 @@ var detail = cytoscape({
     maxZoom: 1.7,
     minZoom: 0.5,
     wheelSensitivity: 0.2,
-    layout: {
-        name: 'grid',
-        rows: 3
-    }
-});
+
+
+})
 
 
 /**
@@ -166,21 +186,58 @@ async function makeRequest(url, method, body) {
 
     })
         .then((response) => response.json())
-    console.log('hello1')
 
     return await response
 }
 
 async function getEntity(nodeID) {
-    console.log(nodeID)
-
     let data = await makeRequest(baseUrl + '/ngsiv2/', 'post', JSON.stringify({nodeID: nodeID}))
-    let entity = document.getElementById('table')
-    let li = document.createElement('li')
-    li.innerText= await data['entity']
-    entity.appendChild(li)
-    console.log(data)
+    var entity = await data['entity']
+    console.log(entity)
+    // Define columns
+    var tabledata = [{
+        'Name': 'id',
+        'Value': 'urn:ngsi-ld:Shelf:unit001',
+        'Type': '-',
+        'Metadata': '-'
+    }, {'Name': 'type', 'Value': 'Shelf', 'Type': '-', 'Metadata': '-'}, {
+        'Name': 'name',
+        'Value': '"Corner Unit"',
+        'Type': 'Text',
+        'Metadata': '{}'
+    }, {
+        'Name': 'refStore',
+        'Value': '"urn:ngsi-ld:Store:001"',
+        'Type': 'Relationship',
+        'Metadata': '{}'
+    }, {
+        'Name': 'location',
+        'Value': '{"type": "Point", "coordinates": [13.3986112, 52.554699]}',
+        'Type': 'geo:json',
+        'Metadata': '{}'
+    }, {'Name': 'maxCapacity', 'Value': '50', 'Type': 'Integer', 'Metadata': '{}'}];
+    var columns = [
+        {title: "Name", field: "Name"},
+        {title: "Value", field: "Value"},
+        {title: "Type", field: "Type"},
+        {title: "Metadata", field: "Metadata"}
+    ];
+
+    // Create Tabulator table
+    var table = new Tabulator("#table", {
+        layout: "fitDataFill",
+        columns: columns,
+        height: '100%',
+        verticalFillMode: "fill",
+    });
+
+    // Set data after table is built
+    table.on("tableBuilt", function () {
+        table.setData(entity);
+
+    });
 }
+
 
 
 

@@ -1,5 +1,4 @@
 from django.views.generic import TemplateView
-from random import randint
 from django.shortcuts import redirect
 from projects.models import Project
 from django.http import JsonResponse
@@ -18,36 +17,29 @@ class SemanticsVisualizer(ProjectContextMixin, TemplateView):
     template_name = "semantics/semantics_visualize.html"
 
     def get_context_data(self, **kwargs):
-
         context = super().get_context_data(**kwargs)
-         #PrepData.generate_df(self)
+        # PrepData.generate_df(self)
         context['elements'] = PrepData.generate_df(self)
         context['types'] = PrepData.types(self)
         context['relationships'] = PrepData.relationships(self)
         return context
 
-    #def get(self, request, *args, **kwargs):
-    #    if request.headers.get('X-Requested_With') == 'XMLHttpRequest':
-    #        elements = PrepData.generate_df(self)
-    #        number = randint(1, 10)
-    #        return JsonResponse({'elements': elements})
-    #    else:
-    #        context = self.get_context_data(**kwargs)
-    #        return self.render_to_response(context)
-
     def post(self, request, project_id, *args, **kwargs):
         data = json.loads(request.body)
-        print(data)
         entityID = (data['nodeID'])
         entity = get_entity(self, entityID, "", self.project)
-        print(entity)
-        for i in entity:
-            print(i)
-            print(type(i))
-            for index, item in enumerate(i):
-                print(index, item)
+        entity_json = json.loads(entity.json())
+        table_data = []
+        for key, value in entity_json.items():
+            if isinstance(value, dict):
+                val_type = value.get('type', '-')
+                val_value = json.dumps(value.get('value', '-'))
+                val_metadata = json.dumps(value.get('metadata', '-'))
+                table_data.append({"Name": key, "Value": val_value, "Type": val_type, "Metadata": val_metadata})
+            else:
+                table_data.append({"Name": key, "Value": value, "Type": "-", "Metadata": "-"})
 
-        return JsonResponse({'entity': f'{entity}'})
+        return JsonResponse({'entity': table_data})
 
     def all_values(self, dict_obj, parent_key=''):
         """
@@ -87,7 +79,6 @@ class SemanticsVisualizer(ProjectContextMixin, TemplateView):
             else:
                 # Yield the current key and value as a tuple
                 yield current_key, value
-
 
 
 class LdVisualizer(ProjectContextMixin, TemplateView):
