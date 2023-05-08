@@ -9,8 +9,14 @@
         <link type="text/x-scss" href="{% static "semantics/css/base.scss" %}" rel="stylesheet">
     {% endcompress %}
 
+
     <main class="d-flex flex-column flex-fill ps-4 pe-3 py-3">
         {% csrf_token %}
+        <div class="alert alert-danger d-none " role="alert" id="searchAlert">
+            <div>
+                No Id matched
+            </div>
+        </div>
         <nav class="navbar navbar-expand-lg bg-light">
             <div class="container-fluid">
                 <ul class="navbar-nav me-auto mb-2 mb-lg-0">
@@ -30,8 +36,8 @@
                                             <a class="dropdown-item">
                                                 <div class="form-check">
                                                     <input class="form-check-input" type="checkbox" value=""
-                                                           id="flexCheckDefault">
-                                                    <label class="form-check-label" for="flexCheckDefault">
+                                                           id="typecheckbox">
+                                                    <label class="form-check-label" for="typecheckbox">
                                                         {{ type }}
                                                     </label>
                                                 </div>
@@ -50,8 +56,8 @@
                                             <a class="dropdown-item">
                                                 <div class="form-check">
                                                     <input class="form-check-input" type="checkbox" value=""
-                                                           id="flexCheckDefault">
-                                                    <label class="form-check-label" for="flexCheckDefault">
+                                                           id="relcheckbox">
+                                                    <label class="form-check-label" for="relcheckbox">
                                                         {{ rel }}
                                                     </label>
                                                 </div>
@@ -76,31 +82,64 @@
                         </ul>
                     </li>
                 </ul>
-                <form class="d-flex" role="search">
-                    <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
+                <form class="d-flex" role="search" id="search">
+                    <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search"
+                           id="searchform">
                     <button type="submit"
-                            class="btn btn-warning rounded-pill"
+                            class="btn btn-warning rounded-pill" id="searchButton"
                     >Search
                     </button>
                 </form>
             </div>
         </nav>
 
+
         <div id="entity" style="display: none">
             <h3 class="h3"></h3>
-            <div id="table" class="graph">
+            <div class="accordion mt-3" id="entityaccordion">
+                <div class="accordion-item">
+                    <h2 class="accordion-header" id="headingOne">
+                        <button class="accordion-button" type="button" data-bs-toggle="collapse"
+                                data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+                            Entity
+                        </button>
+                    </h2>
+                    <div id="collapseOne" class="accordion-collapse collapse show" aria-labelledby="headingOne"
+                         data-bs-parent="#entityaccordion">
+                        <div class="accordion-body">
+                            <div id="table" class="graph">
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
+
         </div>
 
         <h3 class="h3">Main Graph</h3>
         <div id="main_graph" class="graph">
-
-
+            <div class="dropdown" id="legend">
+                <button class="btn btn-outline-info dropdown-toggle" type="button" id="dropdownMenuButton1"
+                        data-bs-toggle="dropdown" aria-expanded="false">
+                    Legend
+                </button>
+                <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1" id="legendMenu">
+                    <li><a class="dropdown-item" href="#">Types</a></li>
+                    <li>
+                        <div id="typeMenu"></div>
+                    </li>
+                    <li>
+                        <hr class="dropdown-divider">
+                    </li>
+                    <li><a class="dropdown-item" href="#">Relationships</a></li>
+                    <li>
+                        <div id="relMenu"></div>
+                    </li>
+                </ul>
+            </div>
         </div>
         <h3 class="h3">Detail Level</h3>
-        <div id="detail_level" class="graph">
-
-        </div>
+        <div id="detail_level" class="graph"></div>
 
         <script>
             var data =
@@ -113,23 +152,51 @@
 
     <script src="{% static 'semantics/js/cytoscape.umd.js' %}"></script>
     <script type="text/javascript" src="{% static 'semantics/js/semantics.js' %}"></script>
-    <link href="https://unpkg.com/tabulator-tables/dist/css/tabulator.min.css" rel="stylesheet">
+    <link href="https://unpkg.com/tabulator-tables/dist/css/tabulator_bootstrap4.min.css" rel="stylesheet">
     <script type="text/javascript" src="https://unpkg.com/tabulator-tables/dist/js/tabulator.min.js"></script>
+
     <script>
         let currentUrl = window.location.href;
         let baseUrl = currentUrl.split('/ngsiv2/')[0];
         cy.on('click', 'node', handleClick);
         detail.on('click', 'node', handleClick);
 
+        const typelegend = document.getElementById('typeMenu');
+        const rellegend = document.getElementById('relMenu');
+        // Get all the checkboxes inside the existing dropdown menus
+        const typecheckboxes = document.querySelectorAll('.dropdown-menu input[id="typecheckbox"]');
+        const relcheckboxes = document.querySelectorAll('.dropdown-menu input[id="relcheckbox"]');
+        // Listen for changes to the type checkboxes
+        typecheckboxes.forEach(function (checkbox) {
+            checkbox.addEventListener('change', add_type_legend)
+        });
 
-        async function getNumber() {
-            //console.log('hello2')
-            const data = await makeRequest(baseUrl + '/ngsiv2', 'get')
-            //console.log(data.elements)
-            return data.elements
-        }
+        relcheckboxes.forEach(function (checkbox) {
+            checkbox.addEventListener('change', add_rel_legend)
+        });
+
+        const searchInput = document.getElementById('searchform');
+
+        const searchForm = document.getElementById('search');
+        searchForm.addEventListener('submit', handleSearch);
 
 
+        //Try to solve scrolling problem!! not working
+        //const scrollableDiv = document.getElementById('main_graph');
+        // Add event listener for the scroll wheel
+        //scrollableDiv.addEventListener("wheel", function (event) {
+        // If Ctrl key is pressed, show the Bootstrap alert
+        //    if (!event.ctrlKey) {
+        //        console.log('hello')
+        //        event.preventDefault();
+        //        window.scrollBy(0, event.deltaY);
+        //        document.getElementById("scrollAlert").classList.remove("d-none");
+        //       setTimeout(function () {
+        //            document.getElementById("scrollAlert").classList.add("d-none");
+        //        }, 3000);
+        //    }
+        //},{passive:false}
+        //);
 
 
     </script>

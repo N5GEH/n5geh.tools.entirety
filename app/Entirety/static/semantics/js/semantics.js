@@ -3,6 +3,7 @@
 var cy = cytoscape({
     container: document.getElementById('main_graph'),
     elements: data,
+
     style: [
         {
             selector: 'node',
@@ -24,7 +25,7 @@ var cy = cytoscape({
             }
         }
     ],
-    maxZoom: 1.7,
+    maxZoom: 2,
     minZoom: 0.5,
     wheelSensitivity: 0.2,
     layout: {
@@ -81,6 +82,32 @@ var detail = cytoscape({
     maxZoom: 1.7,
     minZoom: 0.5,
     wheelSensitivity: 0.2,
+    layout: {
+        name: 'breadthfirst',
+        fit: true, // whether to fit the viewport to the graph
+        directed: false, // whether the tree is directed downwards (or edges can point in any direction if false)
+        padding: 30, // padding on fit
+        circle: false, // put depths in concentric circles if true, put depths top down if false
+        grid: false, // whether to create an even grid into which the DAG is placed (circle:false only)
+        spacingFactor: 1.75, // positive spacing factor, larger => more space between nodes (N.B. n/a if causes overlap)
+        boundingBox: undefined, // constrain layout bounds; { x1, y1, x2, y2 } or { x1, y1, w, h }
+        avoidOverlap: true, // prevents node overlap, may overflow boundingBox if not enough space
+        nodeDimensionsIncludeLabels: false, // Excludes the label when calculating node bounding boxes for the layout algorithm
+        roots: undefined, // the roots of the trees
+        depthSort: undefined, // a sorting function to order nodes at equal depth. e.g. function(a, b){ return a.data('weight') - b.data('weight') }
+        animate: false, // whether to transition the node positions
+        animationDuration: 500, // duration of animation in ms if enabled
+        animationEasing: undefined, // easing of animation if enabled,
+        animateFilter: function (node, i) {
+            return true;
+        }, // a function that determines whether the node should be animated.  All nodes animated by default on animate enabled.  Non-animated nodes are positioned immediately when the layout starts
+        ready: undefined, // callback on layoutready
+        stop: undefined, // callback on layoutstop
+        transform: function (node, position) {
+            return position;
+        } // transform a given node position. Useful for changing flow direction in discrete layouts
+
+    }
 
 
 })
@@ -91,7 +118,6 @@ var detail = cytoscape({
  * @param event
  */
 function handleClick(event) {
-    //console.log('clicked Node id', event.target.id());
     var div = document.getElementById('entity');
     var h3 = div.querySelector('h3');
     // call function to create detail Level
@@ -151,20 +177,19 @@ function create_detail_level(clickedNode_id, clickedNode) {
  * @returns {node}
  */
 function get_nodes_by_id(nodeID) {
+    var foundObject = null;
 
     for (var i = 0; i < data.length; i++) {
-
         if (data[i].data && data[i].data.id === nodeID) {
-            foundObject = data[i]; // Store the found object
-            break; // Exit the loop when the target object is found
+            foundObject = data[i];
+            break;
         }
     }
 
     if (foundObject) {
-        //console.log('Found object:', foundObject);
-        return foundObject
+        return foundObject;
     } else {
-        //console.log('Object with ID', targetId, 'not found.');
+        return null;
     }
 }
 
@@ -191,31 +216,12 @@ async function makeRequest(url, method, body) {
 }
 
 async function getEntity(nodeID) {
+    console.log('hello')
     let data = await makeRequest(baseUrl + '/ngsiv2/', 'post', JSON.stringify({nodeID: nodeID}))
     var entity = await data['entity']
     console.log(entity)
     // Define columns
-    var tabledata = [{
-        'Name': 'id',
-        'Value': 'urn:ngsi-ld:Shelf:unit001',
-        'Type': '-',
-        'Metadata': '-'
-    }, {'Name': 'type', 'Value': 'Shelf', 'Type': '-', 'Metadata': '-'}, {
-        'Name': 'name',
-        'Value': '"Corner Unit"',
-        'Type': 'Text',
-        'Metadata': '{}'
-    }, {
-        'Name': 'refStore',
-        'Value': '"urn:ngsi-ld:Store:001"',
-        'Type': 'Relationship',
-        'Metadata': '{}'
-    }, {
-        'Name': 'location',
-        'Value': '{"type": "Point", "coordinates": [13.3986112, 52.554699]}',
-        'Type': 'geo:json',
-        'Metadata': '{}'
-    }, {'Name': 'maxCapacity', 'Value': '50', 'Type': 'Integer', 'Metadata': '{}'}];
+
     var columns = [
         {title: "Name", field: "Name"},
         {title: "Value", field: "Value"},
@@ -225,9 +231,10 @@ async function getEntity(nodeID) {
 
     // Create Tabulator table
     var table = new Tabulator("#table", {
-        layout: "fitDataFill",
+
+        layout: "fitColumns",
         columns: columns,
-        height: '100%',
+        height: "300px",
         verticalFillMode: "fill",
     });
 
@@ -238,6 +245,58 @@ async function getEntity(nodeID) {
     });
 }
 
+function add_type_legend() {
+    // If the checkbox is checked, create a new dropdown item and add it to the new dropdown menu
+    if (this.checked) {
+        const label = this.closest('.dropdown-item').querySelector('.form-check-label').textContent;
+        const newItem = document.createElement('li');
+        newItem.innerHTML = '<a class="dropdown-item" href="#">' + '<i class="bi bi-dash-lg" style="color: red"></i>' + label + '</a>';
+        typelegend.appendChild(newItem);
+    }
+    // If the checkbox is unchecked, remove the corresponding dropdown item from the new dropdown menu
+    else {
+        const label = this.closest('.dropdown-item').querySelector('.form-check-label').textContent;
+        const items = legend.querySelectorAll('.dropdown-item');
+        items.forEach(function (item) {
+            if (item.textContent === label) {
+                typelegend.removeChild(item.parentElement);
+            }
+        })
+    }
+}
 
+function add_rel_legend() {
+    // If the checkbox is checked, create a new dropdown item and add it to the new dropdown menu
+    if (this.checked) {
+        const label = this.closest('.dropdown-item').querySelector('.form-check-label').textContent;
+        const newItem = document.createElement('li');
+        newItem.innerHTML = '<a class="dropdown-item" href="#">' + '<i class="bi bi-dash-lg" style="color:blue"></i>' + label + '</a>';
+        rellegend.appendChild(newItem);
+    }
+    // If the checkbox is unchecked, remove the corresponding dropdown item from the new dropdown menu
+    else {
+        const label = this.closest('.dropdown-item').querySelector('.form-check-label').textContent;
+        const items = legend.querySelectorAll('.dropdown-item');
+        items.forEach(function (item) {
+            if (item.textContent === label) {
+                rellegend.removeChild(item.parentElement);
+            }
+        });
+    }
+}
+
+function handleSearch(event) {
+    event.preventDefault(); // prevent the form from submitting and refreshing the page
+    var searchText = document.getElementById('searchform').value;
+    var node = get_nodes_by_id(searchText)
+    if (node) {
+        console.log(node);
+    } else {
+        document.getElementById("searchAlert").classList.remove("d-none");
+        setTimeout(function () {
+            document.getElementById("searchAlert").classList.add("d-none");
+        }, 3000);
+    }
+}
 
 
