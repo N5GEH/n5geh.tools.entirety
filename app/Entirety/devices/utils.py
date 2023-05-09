@@ -95,7 +95,9 @@ def delete_device(project: Project, device_id, **kwargs):
                 service_path=project.fiware_service_path,
             ),
     ) as iota_client:
-        iota_client.delete_device(device_id=device_id, **kwargs)
+        iota_client.delete_device(device_id=device_id,
+                                  cb_url=settings.CB_URL,
+                                  **kwargs)
 
 
 # no use right now

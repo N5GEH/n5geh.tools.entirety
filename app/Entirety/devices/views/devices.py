@@ -91,12 +91,12 @@ class DeviceListSubmitView(ProjectContextMixin, View):
     def post(self, request, *args, **kwargs):
         # press delete button
         if request.POST.get("Delete"):
-            if not request.POST.get("selection"):
+            if not request.POST.getlist("selection"):
                 messages.error(request, "Please select one device")
                 return redirect("projects:devices:list", project_id=self.project.uuid)
             else:
                 # use session to cache the selected devices
-                request.session["devices"] = request.POST.get("selection")
+                request.session["devices"] = request.POST.getlist("selection")
                 request.session["delete_entity"] = (
                     True if request.POST.get("delete_entity") else False
                 )
@@ -105,25 +105,27 @@ class DeviceListSubmitView(ProjectContextMixin, View):
         # press advanced delete button
         elif request.POST.get("AdvancedDelete"):
             # get the selected devices from session
-            device_id = request.POST.get("selection")
+            devices_id = request.POST.getlist("selection")
             subscriptions = True if request.POST.get("subscriptions") else False
             relationships = True if request.POST.get("relationships") else False
 
             # get the entity id and type
-            device = get_device_by_id(project=self.project, device_id=device_id)
-            entity_id = device.entity_name
-            entity_type = device.entity_type
+            entities = []
+            for device_id in devices_id:
+                device = get_device_by_id(project=self.project, device_id=device_id)
+                entity_id = device.entity_name
+                entity_type = device.entity_type
+                entities.append(f"{entity_id}&{entity_type}")
 
             request.session["subscriptions"] = subscriptions
             request.session["relationships"] = relationships
             request.session["devices"] = True
 
             # redirect to entity app
+            add_data_to_session(request, "entities", entities)
             return redirect(
                 "projects:entities:delete",
-                project_id=self.project.uuid,
-                entity_id=entity_id,
-                entity_type=entity_type,
+                project_id=self.project.uuid
             )
 
         # press create button
@@ -335,25 +337,26 @@ class DeviceEditSubmitView(ProjectContextMixin, TemplateView):
 class DeviceDeleteView(ProjectContextMixin, View):
     def get(self, request: HttpRequest, *args, **kwargs):
         # get the selected devices from session
-        device_id = pop_data_from_session(request, "devices")
+        devices_id = pop_data_from_session(request, "devices")
         delete_entity = bool(pop_data_from_session(request, "delete_entity"))
 
         # delete the device and entity?
-        try:
-            delete_device(
-                project=self.project, device_id=device_id, delete_entity=delete_entity
-            )
-            logger.info(
-                "Device deleted by "
-                + str(
-                    self.request.user.first_name
-                    if self.request.user.first_name
-                    else self.request.user.username
+        for device_id in devices_id:
+            try:
+                delete_device(
+                    project=self.project, device_id=device_id, delete_entity=delete_entity
                 )
-                + f" in project {self.project.name}"
-            )
-        except RequestException as e:
-            messages.error(request, e.response.content.decode("utf-8"))
+                logger.info(
+                    "Device deleted by "
+                    + str(
+                        self.request.user.first_name
+                        if self.request.user.first_name
+                        else self.request.user.username
+                    )
+                    + f" in project {self.project.name}"
+                )
+            except RequestException as e:
+                messages.error(request, e.response.content.decode("utf-8"))
 
         # if success, redirect to devices list view
         return redirect("projects:devices:list", project_id=self.project.uuid)

@@ -15,7 +15,7 @@ class GroupsTable(tables.Table):
         attrs={
             "td__input": {
                 "value": lambda record: f"{record.resource};{record.apikey}",
-                "type": "radio",
+                "type": "checkbox",
             },
         },
         orderable=False,
