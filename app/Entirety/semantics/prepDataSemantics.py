@@ -83,7 +83,9 @@ class PrepData(ProjectContextMixin):
 
             for i, j in zip(target, target_label):
                 cy_edges.append({"data": {"id": source + i, "source": source, "target": i, "label": j, }})
+        #kontrolliert ob ob target in den knoten ist
         for edge in cy_edges:
+            parents = []
             for key, value in edge.items():
                 if value.get("target") not in nodes:
                     nodes.add(value.get('target'))

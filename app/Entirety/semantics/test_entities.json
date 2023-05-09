@@ -15,11 +15,6 @@
             "type": "Text",
             "value": "Corner Unit",
             "metadata": {}
-        },
-        "refShelf":{
-            "type":"Relationship",
-            "value":"urn:ngsi-ld:Shelf:unit001",
-            "metadata":{}
         }
     },
     {
@@ -138,7 +133,7 @@
         },
         "refStore": {
             "type": "Relationship",
-            "value": "urn:ngsi-ld:Store:002",
+            "value": "urn:ngsi-ld:Store:001",
             "metadata": {}
         }
     },
@@ -168,7 +163,7 @@
         },
         "refStore": {
             "type": "Relationship",
-            "value": "urn:ngsi-ld:Store:002",
+            "value": "urn:ngsi-ld:Store:001",
             "metadata": {}
         }
     },
@@ -270,35 +265,6 @@
                 "refShelf": {
             "type": "Relationship",
             "value": ["urn:ngsi-ld:Shelf:unit002", "urn:ngsi-ld:Shelf:unit004", "urn:ngsi-ld:Shelf:unit001"],
-            "metadata": {}
-        }
-    },
-    {
-        "id": "urn:ngsi-ld:InventoryItem:001",
-        "type": "InventoryItem",
-        "refProduct": {
-            "type": "Relationship",
-            "value": "urn:ngsi-ld:Product:001",
-            "metadata": {}
-        },
-        "refShelf": {
-            "type": "Relationship",
-            "value": ["urn:ngsi-ld:Shelf:unit001", "urn:ngsi-ld:Shelf:unit003"],
-            "metadata": {}
-        },
-        "refStore": {
-            "type": "Relationship",
-            "value": "urn:ngsi-ld:Store:001",
-            "metadata": {}
-        },
-        "shelfCount": {
-            "type": "Integer",
-            "value": 50,
-            "metadata": {}
-        },
-        "stockCount": {
-            "type": "Integer",
-            "value": 10000,
             "metadata": {}
         }
     }

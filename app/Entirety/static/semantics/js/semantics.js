@@ -31,7 +31,7 @@ var cy = cytoscape({
     layout: {
         name: 'breadthfirst',
         fit: true, // whether to fit the viewport to the graph
-        directed: false, // whether the tree is directed downwards (or edges can point in any direction if false)
+        directed: true, // whether the tree is directed downwards (or edges can point in any direction if false)
         padding: 30, // padding on fit
         circle: false, // put depths in concentric circles if true, put depths top down if false
         grid: false, // whether to create an even grid into which the DAG is placed (circle:false only)
@@ -82,10 +82,70 @@ var detail = cytoscape({
     maxZoom: 1.7,
     minZoom: 0.5,
     wheelSensitivity: 0.2,
-    layout: {
+
+});
+
+
+/**
+ * handels actions when a node has been clicked in the main graph
+ * @param event
+ */
+function handleClick(event) {
+    var div = document.getElementById('entity');
+    var h3 = div.querySelector('h3');
+    // call function to create detail Level
+    create_detail_level(event.target.id(), event.target);
+    getEntity(event.target.id())
+    //console.log(event.target)
+    //shows entity table and adds node id to headder
+    h3.textContent = 'Node ID: ' + event.target.id();
+    div.style.display = 'block';
+
+
+}
+
+/**
+ * creates all detail elements in such manner: (parents->center->children) takes
+ * the clickedNode_id as center and then looks for parents and children as well
+ * as the corresponding edges
+ * @param clickedNode_id
+ * @param clickedNode
+ */
+function create_detail_level(clickedNode_id, clickedNode) {
+    //console.log("create_detail_level() function is being called.")
+    //detailElements.length = 0;
+    var detailElements = [];
+    // Remove all existing nodes in the detail level
+    detail.remove(detail.nodes());
+    detailElements.push(get_nodes_by_id(clickedNode_id));
+
+    //check if clickedNode has children
+    if (typeof clickedNode.data('children') === 'object' && clickedNode.data('children') !== null && Array.isArray(clickedNode.data('children'))) {
+        console.log(clickedNode.data('children'))
+        clickedNode.data('children').forEach(function (element) {
+            // element: current element in the array of children id´s
+            detailElements.push(get_nodes_by_id(clickedNode_id + element));//appends edge between center and children
+            detailElements.push(get_nodes_by_id(element)); //appends children nodes to the detail level
+        });
+    } else {
+        console.log("no children");
+    }
+    //check if clickedNode has parents
+    if (typeof clickedNode.data('parents') === 'object' && clickedNode.data('parents') !== null && Array.isArray(clickedNode.data('parents'))) {
+        console.log('parents'+ clickedNode.data('parents'))
+        clickedNode.data('parents').forEach(function (element) {
+            // element: current element in the array of children id´s
+            detailElements.push(get_nodes_by_id(element + clickedNode_id));//appends edge between parents and center
+            detailElements.push(get_nodes_by_id(element)); //appends parent nodes to the detail level
+        });
+    } else {
+        console.log("no parents");
+    }
+    detail.add(detailElements)
+    detail.layout({
         name: 'breadthfirst',
         fit: true, // whether to fit the viewport to the graph
-        directed: false, // whether the tree is directed downwards (or edges can point in any direction if false)
+        directed: true, // whether the tree is directed downwards (or edges can point in any direction if false)
         padding: 30, // padding on fit
         circle: false, // put depths in concentric circles if true, put depths top down if false
         grid: false, // whether to create an even grid into which the DAG is placed (circle:false only)
@@ -106,69 +166,7 @@ var detail = cytoscape({
         transform: function (node, position) {
             return position;
         } // transform a given node position. Useful for changing flow direction in discrete layouts
-
-    }
-
-
-})
-
-
-/**
- * handels actions when a node has been clicked in the main graph
- * @param event
- */
-function handleClick(event) {
-    var div = document.getElementById('entity');
-    var h3 = div.querySelector('h3');
-    // call function to create detail Level
-    create_detail_level(event.target.id(), event.target);
-    getEntity(event.target.id())
-    //shows entity table and adds node id to headder
-    h3.textContent = 'Node ID: ' + event.target.id();
-    div.style.display = 'block';
-
-
-}
-
-/**
- * creates all detail elements in such manner: (parents->center->children) takes
- * the clickedNode_id as center and then looks for parents and children as well
- * as the corresponding edges
- * @param clickedNode_id
- * @param clickedNode
- */
-function create_detail_level(clickedNode_id, clickedNode) {
-    //console.log("create_detail_level() function is being called.")
-    //detailElements.length = 0;
-    var detailElements = [];
-
-    detailElements.push(get_nodes_by_id(clickedNode_id));
-
-    //check if clickedNode has children
-    if (typeof clickedNode.data('children') === 'object' && clickedNode.data('children') !== null && Array.isArray(clickedNode.data('children'))) {
-
-        clickedNode.data('children').forEach(function (element) {
-            // element: current element in the array of children id´s
-            detailElements.push(get_nodes_by_id(clickedNode_id + element));//appends edge between center and children
-            detailElements.push(get_nodes_by_id(element)); //appends children nodes to the detail level
-
-        });
-    } else {
-        //console.log("Array is not present or not defined");
-    }
-    //check if clickedNode has parents
-    if (typeof clickedNode.data('parents') === 'object' && clickedNode.data('parents') !== null && Array.isArray(clickedNode.data('parents'))) {
-        clickedNode.data('parents').forEach(function (element) {
-            // element: current element in the array of children id´s
-            detailElements.push(get_nodes_by_id(element + clickedNode_id));//appends edge between parents and center
-            detailElements.push(get_nodes_by_id(element)); //appends parent nodes to the detail level
-        });
-    } else {
-        //console.log("Array is not present or not defined");
-    }
-    detail.add(detailElements)
-
-
+    }).run();
 }
 
 /**
@@ -200,9 +198,7 @@ async function makeRequest(url, method, body) {
         'Content-Type': 'application/json'
     }
     if (method === 'post') {
-        console.log('post')
         headers['X-CSRFToken'] = document.querySelector('[name=csrfmiddlewaretoken]').value
-        console.log(headers)
     }
     let response = await fetch(baseUrl + '/ngsiv2/', {
         method: method,
@@ -216,10 +212,9 @@ async function makeRequest(url, method, body) {
 }
 
 async function getEntity(nodeID) {
-    console.log('hello')
+
     let data = await makeRequest(baseUrl + '/ngsiv2/', 'post', JSON.stringify({nodeID: nodeID}))
     var entity = await data['entity']
-    console.log(entity)
     // Define columns
 
     var columns = [
