@@ -35,8 +35,8 @@
                                         <li>
                                             <a class="dropdown-item">
                                                 <div class="form-check">
-                                                    <input class="form-check-input" type="checkbox" value=""
-                                                           id="typecheckbox">
+                                                    <input class="form-check-input" type="checkbox" name="typecheckbox" value=""
+                                                           id="{{ type }}" onchange="colorNodes()";>
                                                     <label class="form-check-label" for="typecheckbox">
                                                         {{ type }}
                                                     </label>
@@ -55,8 +55,8 @@
                                         <li>
                                             <a class="dropdown-item">
                                                 <div class="form-check">
-                                                    <input class="form-check-input" type="checkbox" value=""
-                                                           id="relcheckbox">
+                                                    <input class="form-check-input" type="checkbox" name="relcheckbox" value=""
+                                                           id="{{ rel }}" >
                                                     <label class="form-check-label" for="relcheckbox">
                                                         {{ rel }}
                                                     </label>
@@ -166,8 +166,8 @@
         const typelegend = document.getElementById('typeMenu');
         const rellegend = document.getElementById('relMenu');
         // Get all the checkboxes inside the existing dropdown menus
-        const typecheckboxes = document.querySelectorAll('.dropdown-menu input[id="typecheckbox"]');
-        const relcheckboxes = document.querySelectorAll('.dropdown-menu input[id="relcheckbox"]');
+        const typecheckboxes = document.querySelectorAll('input[name="typecheckbox"]');
+        const relcheckboxes = document.querySelectorAll('.dropdown-menu input[name="relcheckbox"]');
         // Listen for changes to the type checkboxes
         typecheckboxes.forEach(function (checkbox) {
             checkbox.addEventListener('change', add_type_legend)
