@@ -12,7 +12,8 @@ var cy = cytoscape({
                 height: '20px',
                 shape: 'ellipse',
                 label: 'data(id)',
-            },
+                'background-color': 'gray',
+            }
         },
         {
             selector: 'edge',
@@ -170,7 +171,7 @@ function create_detail_level(clickedNode_id, clickedNode) {
 }
 
 /**
- * Takes an id as input and searces for the node in all data wich maches the input id
+ * Takes an id as input and searces for the node in all data wich matches the input id
  * @param nodeID
  * @returns {node}
  */
@@ -240,12 +241,17 @@ async function getEntity(nodeID) {
     });
 }
 
+// Pick random node colors (Color generator will follow)
+const nodecolors = ['#feb236', '#0a3bff', '#00B300', '#ff2d5a', '#ff7b25', '#0ad3ff', '#6CDB42'];
+
 function add_type_legend() {
     // If the checkbox is checked, create a new dropdown item and add it to the new dropdown menu
-    if (this.checked) {
+    if (this.checked && this.name == 'typecheckbox') {
         const label = this.closest('.dropdown-item').querySelector('.form-check-label').textContent;
         const newItem = document.createElement('li');
-        newItem.innerHTML = '<a class="dropdown-item" href="#">' + '<i class="bi bi-dash-lg" style="color: red"></i>' + label + '</a>';
+        const nodeindex = Array.from(this.closest('.dropdown-menu').querySelectorAll('.form-check-input')).indexOf(this);
+        const nodecolor = nodecolors[nodeindex];
+        newItem.innerHTML = '<a class="dropdown-item" href="#">' + '<i class="bi bi-check-circle-fill" style="color: ' + nodecolor + '"></i>' + label + '</a>';
         typelegend.appendChild(newItem);
     }
     // If the checkbox is unchecked, remove the corresponding dropdown item from the new dropdown menu
@@ -260,12 +266,17 @@ function add_type_legend() {
     }
 }
 
+// Pick random relationship colors (Color generator will follow)
+const relcolors = ['#f44336', '#faff00', '#c90076', '#2986cc', '#1ad70f', '#f89c05'];
+
 function add_rel_legend() {
     // If the checkbox is checked, create a new dropdown item and add it to the new dropdown menu
-    if (this.checked) {
+    if (this.checked && this.name == 'relcheckbox') {
         const label = this.closest('.dropdown-item').querySelector('.form-check-label').textContent;
         const newItem = document.createElement('li');
-        newItem.innerHTML = '<a class="dropdown-item" href="#">' + '<i class="bi bi-dash-lg" style="color:blue"></i>' + label + '</a>';
+        const relindex = Array.from(this.closest('.dropdown-menu').querySelectorAll('.form-check-input')).indexOf(this);
+        const relcolor = relcolors[relindex];
+        newItem.innerHTML = '<a class="dropdown-item" href="#">' + '<i class="bi bi-dash-lg" style="color: ' + relcolor + '"></i>' + label + '</a>';
         rellegend.appendChild(newItem);
     }
     // If the checkbox is unchecked, remove the corresponding dropdown item from the new dropdown menu
@@ -294,4 +305,23 @@ function handleSearch(event) {
     }
 }
 
-
+// Color corresponding node if checkbox is checked
+function colorNodes() {
+    const nodecheckboxes = document.querySelectorAll('input[name="typecheckbox"]:checked');
+    const nodecheckedCheckboxes = [];
+    for (let i = 0; i < nodecheckboxes.length; i++) {
+      nodecheckedCheckboxes.push(`.${nodecheckboxes[i].id}`);
+    }
+    console.log(nodecheckedCheckboxes);
+  
+    
+    for (let i = 0; i < nodecheckedCheckboxes.length; i++) {
+      const id = nodecheckedCheckboxes[i];
+      const color = nodecolors[i % nodecolors.length];
+      cy.style()
+        .selector(id)
+        .style('background-color', color)
+        .update();
+      console.log(id, color);
+    }
+  }
