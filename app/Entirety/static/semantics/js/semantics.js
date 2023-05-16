@@ -11,7 +11,7 @@ var cy = cytoscape({
                 width: '20px',
                 height: '20px',
                 shape: 'ellipse',
-                label: 'data(id)',
+                label: "",
                 'background-color': 'gray',
             }
         },
@@ -266,7 +266,7 @@ function add_type_legend() {
     }
 }
 
-// Pick random relationship colors (Color generator will follow)
+// Pick random edge colors (Color generator will follow)
 const relcolors = ['#f44336', '#faff00', '#c90076', '#2986cc', '#1ad70f', '#f89c05'];
 
 function add_rel_legend() {
@@ -305,7 +305,7 @@ function handleSearch(event) {
     }
 }
 
-// Color corresponding node if checkbox is checked
+// Colors corresponding node if checkbox is checked
 function colorNodes() {
     const nodecheckboxes = document.querySelectorAll('input[name="typecheckbox"]:checked');
     const nodecheckedCheckboxes = [];
@@ -325,3 +325,32 @@ function colorNodes() {
       console.log(id, color);
     }
   }
+
+  // Colors corresponding edge if checkbox is checked
+/*function colorEdges() {
+    const edgecheckboxes = document.querySelectorAll('input[name="relcheckbox"]:checked');
+    const edgecheckedCheckboxes = [];
+    for (let i = 0; i < edgecheckboxes.length; i++) {
+      edgecheckedCheckboxes.push(`.${edgecheckboxes[i].id}`);
+    }
+    console.log(edgecheckedCheckboxes);
+
+    for (let i = 0; i < edgecheckedCheckboxes.length; i++) {
+      const id = edgecheckedCheckboxes[i];
+      const color = relcolors[i % relcolors.length];
+      cy.style()
+        .selector('.refShelf')
+        .style('line-color', 'green');
+      console.log(id, color);
+    }
+  }*/
+
+function changelabelid () {
+    cy.style().selector('node').style({ label: 'data(id)' }).update();
+}
+function changelabelname () {
+    cy.style().selector('node').style({ label: 'data(label)' }).update();
+}
+function changelabelnone () {
+    cy.style().selector('node').style({ label: "" }).update();
+}
