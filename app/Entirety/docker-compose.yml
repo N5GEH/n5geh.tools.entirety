@@ -9,11 +9,13 @@ services:
       - POSTGRES_USER=entirety
       - POSTGRES_PASSWORD=${DATABASE_PASSWORD}
     volumes:
-      - pgdata:/var/lib/postgresql
+      - pg:/var/lib/postgresql
+      - pgdata:/var/lib/postgresql/data
     networks:
       - entirety
     ports:
       - "5432:5432"
+
 
   entirety:
     image: ghcr.io/n5geh/n5geh.tools.entirety:latest
@@ -55,6 +57,7 @@ services:
       - entirety
     networks:
       - entirety
+
   orion:
     image: fiware/orion:latest
     hostname: orion
@@ -79,11 +82,21 @@ services:
           - "27017:27017"
       networks:
           - default
+      volumes:
+          - type: volume
+            source: mongodbdata
+            target: /data/db
+          - type: volume
+            source: mongodbconfig
+            target: /data/configdb
 
 volumes:
   static:
+  pg:
   pgdata:
   media:
+  mongodbdata:
+  mongodbconfig:
 
 networks:
   entirety:
