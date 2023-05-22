@@ -280,7 +280,7 @@ function add_type_legend() {
         const newItem = document.createElement('li');
         const nodeindex = Array.from(this.closest('.dropdown-menu').querySelectorAll('.form-check-input')).indexOf(this);
         const nodecolor = nodecolors[nodeindex];
-        newItem.innerHTML = '<a class="dropdown-item" href="#">' + '<i class="bi bi-check-circle-fill" style="color: ' + nodecolor + '"></i>' + label + '</a>';
+        newItem.innerHTML = '<a class="dropdown-item" href="#">' + '<i class="bi bi-circle-fill" style="color: ' + nodecolor + '"></i>' + label + '</a>';
         typelegend.appendChild(newItem);
     }
     // If the checkbox is unchecked, remove the corresponding dropdown item from the new dropdown menu
@@ -348,6 +348,10 @@ function colorNodes() {
         .selector(id)
         .style('background-color', color)
         .update();
+      detail.style()
+        .selector(id)
+        .style('background-color', color)
+        .update();
       originalColors.push({ id, color });
     }
   
@@ -359,6 +363,10 @@ function colorNodes() {
         if (originalColorIndex !== -1) {
           const originalColor = originalColors[originalColorIndex];
           cy.style()
+            .selector(id)
+            .style('background-color', checkbox.checked ? originalColor.color : 'gray')
+            .update();
+          detail.style()
             .selector(id)
             .style('background-color', checkbox.checked ? originalColor.color : 'gray')
             .update();
