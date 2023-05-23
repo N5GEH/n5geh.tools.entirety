@@ -11,7 +11,7 @@ var cy = cytoscape({
                 width: '20px',
                 height: '20px',
                 shape: 'ellipse',
-                label: "",
+                label: 'data(id)',
                 'background-color': 'gray',
             }
         },
@@ -24,20 +24,7 @@ var cy = cytoscape({
                 'curve-style': 'bezier',
                 label: 'data(label)'
             }
-        },
-       /* {
-            selector: 'edge[Attribute="refShelf"]',
-            style: {
-                'line-color': 'yellow',
-            }
-        },
-        {
-            selector: 'Attribute = refStore',
-            style: {
-                'line-color': 'blue',
-            }
-        }*/
-        
+        }        
     ],
     maxZoom: 2,
     minZoom: 0.5,
@@ -255,8 +242,9 @@ async function getEntity(nodeID) {
 }
 
 // Pick random node colors to start with
-const nodecolors = ['#feb236', '#57C5B6', '#146C94', '#D14D72', '#ff7b25', '#0ad3ff', '#6CDB42']
+const colors = ['#feb236', '#57C5B6', '#146C94', '#D14D72', '#ff7b25', '#0ad3ff', '#6CDB42']
 const tcheckboxes = document.querySelectorAll('input[name="typecheckbox"]');
+const rcheckboxes = document.querySelectorAll('input[name="relcheckbox"]');
 const numAdditionalColors = tcheckboxes.length;
 // Generates additional colors
 function generateRandomColor() {
@@ -269,7 +257,7 @@ function generateRandomColor() {
 }
 for (let i = 0; i < numAdditionalColors; i++) {
   const randomColor = generateRandomColor();
-  nodecolors.push(randomColor);
+  colors.push(randomColor);
 }
 
 
@@ -279,7 +267,7 @@ function add_type_legend() {
         const label = this.closest('.dropdown-item').querySelector('.form-check-label').textContent;
         const newItem = document.createElement('li');
         const nodeindex = Array.from(this.closest('.dropdown-menu').querySelectorAll('.form-check-input')).indexOf(this);
-        const nodecolor = nodecolors[nodeindex];
+        const nodecolor = colors[nodeindex];
         newItem.innerHTML = '<a class="dropdown-item" href="#">' + '<i class="bi bi-circle-fill" style="color: ' + nodecolor + '"></i>' + label + '</a>';
         typelegend.appendChild(newItem);
     }
@@ -295,16 +283,13 @@ function add_type_legend() {
     }
 }
 
-// Pick random edge colors to start with
-const relcolors = ['#f44336', '#faff00', '#c90076', '#2986cc', '#1ad70f', '#f89c05'];
-
 function add_rel_legend() {
     // If the checkbox is checked, create a new dropdown item and add it to the new dropdown menu
     if (this.checked && this.name == 'relcheckbox') {
         const label = this.closest('.dropdown-item').querySelector('.form-check-label').textContent;
         const newItem = document.createElement('li');
         const relindex = Array.from(this.closest('.dropdown-menu').querySelectorAll('.form-check-input')).indexOf(this);
-        const relcolor = relcolors[relindex];
+        const relcolor = colors[relindex];
         newItem.innerHTML = '<a class="dropdown-item" href="#">' + '<i class="bi bi-dash-lg" style="color: ' + relcolor + '"></i>' + label + '</a>';
         rellegend.appendChild(newItem);
     }
@@ -343,7 +328,7 @@ function colorNodes() {
     for (const checkbox of nodecheckboxes) {
       const id = `.${checkbox.id}`;
       const nodeindex = Array.from(tcheckboxes).indexOf(checkbox);
-      const color = nodecolors[nodeindex];
+      const color = colors[nodeindex];
       cy.style()
         .selector(id)
         .style('background-color', color)
@@ -354,7 +339,6 @@ function colorNodes() {
         .update();
       originalColors.push({ id, color });
     }
-  
     const checkboxes = document.querySelectorAll('input[name="typecheckbox"]');
     checkboxes.forEach(checkbox => {
       checkbox.addEventListener('change', () => {
@@ -369,6 +353,49 @@ function colorNodes() {
           detail.style()
             .selector(id)
             .style('background-color', checkbox.checked ? originalColor.color : 'gray')
+            .update();
+  
+          if (!checkbox.checked) {
+            originalColors.splice(originalColorIndex, 1);
+          }
+        }
+      });
+    });
+}
+
+// Colors corresponding edge if checkbox is checked
+function colorEdges() {
+    const edgecheckboxes = document.querySelectorAll('input[name="relcheckbox"]:checked');
+    const originalColors = [];
+  
+    for (const checkbox of edgecheckboxes) {
+      const label = `edge[label = "${checkbox.id}"]`;
+      const edgeindex = Array.from(rcheckboxes).indexOf(checkbox);
+      const color = colors[edgeindex];
+      cy.style()
+        .selector(label)
+        .style('line-color', color)
+        .update();
+      detail.style()
+        .selector(label)
+        .style('line-color', color)
+        .update();
+      originalColors.push({ label, color });
+    }
+    const checkboxes = document.querySelectorAll('input[name="relcheckbox"]');
+    checkboxes.forEach(checkbox => {
+      checkbox.addEventListener('change', () => {
+        const label = `edge[label = "${checkbox.id}"]`;
+        const originalColorIndex = originalColors.findIndex(item => item.label === label);
+        if (originalColorIndex !== -1) {
+          const originalColor = originalColors[originalColorIndex];
+          cy.style()
+            .selector(label)
+            .style('line-color', checkbox.checked ? originalColor.color : '#ccc')
+            .update();
+          detail.style()
+            .selector(label)
+            .style('line-color', checkbox.checked ? originalColor.color : '#ccc')
             .update();
   
           if (!checkbox.checked) {
