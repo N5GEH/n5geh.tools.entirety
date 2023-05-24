@@ -11,7 +11,7 @@ var cy = cytoscape({
                 width: '20px',
                 height: '20px',
                 shape: 'ellipse',
-                label: 'data(id)',
+                label: 'data(label)',
                 'background-color': 'gray',
             }
         },
@@ -242,7 +242,7 @@ async function getEntity(nodeID) {
 }
 
 // Pick random node colors to start with
-const colors = ['#feb236', '#57C5B6', '#146C94', '#D14D72', '#ff7b25', '#0ad3ff', '#6CDB42']
+const colors = ['#57C5B6', '#feb236', '#146C94', '#D14D72', '#ff7b25', '#0ad3ff', '#6CDB42']
 const tcheckboxes = document.querySelectorAll('input[name="typecheckbox"]');
 const rcheckboxes = document.querySelectorAll('input[name="relcheckbox"]');
 const numAdditionalColors = tcheckboxes.length;
