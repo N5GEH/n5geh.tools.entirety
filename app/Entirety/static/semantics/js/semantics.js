@@ -242,7 +242,7 @@ async function getEntity(nodeID) {
 }
 
 // Pick random node colors to start with
-const colors = ['#57C5B6', '#feb236', '#146C94', '#D14D72', '#ff7b25', '#0ad3ff', '#6CDB42']
+const colors = ['#57C5B6', '#feb236', '#107cad', '#D14D72', '#ff7b25', '#0ad3ff', '#6CDB42']
 const tcheckboxes = document.querySelectorAll('input[name="typecheckbox"]');
 const rcheckboxes = document.querySelectorAll('input[name="relcheckbox"]');
 const numAdditionalColors = tcheckboxes.length;
@@ -406,16 +406,22 @@ function colorEdges() {
     });
 }
 
-// Adds selected labels
-function changelabelid () {
-    cy.style().selector('node').style({ label: 'data(id)' }).update();
+// Adapts labels as selected
+function changeLabel (labelName) {
+    var label;
+    switch (labelName) {
+        case "id":
+            cy.style().selector('node').style({ label: 'data(id)' }).update();
+            break;
+        case "name":
+            cy.style().selector('node').style({ label: 'data(label)' }).update();
+            break;
+        case "none":
+            cy.style().selector('node').style({ label: "" }).update();
+            break;
+        }
 }
-function changelabelname () {
-    cy.style().selector('node').style({ label: 'data(label)' }).update();
-}
-function changelabelnone () {
-    cy.style().selector('node').style({ label: "" }).update();
-}
+
 
 // Colors edges temporary when nodes are grabbed
 cy.$('node').on('grab', function (e) {
@@ -426,3 +432,42 @@ cy.$('node').on('free', function (e) {
     var ele = e.target;
     ele.connectedEdges().style({ 'line-color': '#ccc' });
 });
+
+// Adapts layout as selected
+function changeLayout(layoutName) {
+    var layout;
+    switch (layoutName) {
+      case "circle":
+        layout = { name: "circle" };
+        break;
+      case "grid":
+        layout = { name: "grid" };
+        break;
+      default:
+        layout = { 
+            name: "breadthfirst",
+            fit: true, // whether to fit the viewport to the graph
+            directed: true, // whether the tree is directed downwards (or edges can point in any direction if false)
+            padding: 30, // padding on fit
+            circle: false, // put depths in concentric circles if true, put depths top down if false
+            grid: false, // whether to create an even grid into which the DAG is placed (circle:false only)
+            spacingFactor: 1.75, // positive spacing factor, larger => more space between nodes (N.B. n/a if causes overlap)
+            boundingBox: undefined, // constrain layout bounds; { x1, y1, x2, y2 } or { x1, y1, w, h }
+            avoidOverlap: true, // prevents node overlap, may overflow boundingBox if not enough space
+            nodeDimensionsIncludeLabels: false, // Excludes the label when calculating node bounding boxes for the layout algorithm
+            roots: undefined, // the roots of the trees
+            depthSort: undefined, // a sorting function to order nodes at equal depth. e.g. function(a, b){ return a.data('weight') - b.data('weight') }
+            animate: false, // whether to transition the node positions
+            animationDuration: 500, // duration of animation in ms if enabled
+            animationEasing: undefined, // easing of animation if enabled,
+            animateFilter: function (node, i) {
+                return true;
+            }, // a function that determines whether the node should be animated.  All nodes animated by default on animate enabled.  Non-animated nodes are positioned immediately when the layout starts
+            ready: undefined, // callback on layoutready
+            stop: undefined, // callback on layoutstop
+            transform: function (node, position) {
+                return position;
+            }}; // transform a given node position. Useful for changing flow direction in discrete layouts
+    }
+    cy.layout(layout).run();
+}
