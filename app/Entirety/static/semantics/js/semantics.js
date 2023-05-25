@@ -91,18 +91,23 @@ var detail = cytoscape({
  * handels actions when a node has been clicked in the main graph
  * @param event
  */
+
+var entIndex;
+nodeArray = [];
+nodeArray = cy.nodes().map(x => x.id())
+//console.log(nodeArray);
+
 function handleClick(event) {
     var div = document.getElementById('entity');
     var h3 = div.querySelector('h3');
     // call function to create detail Level
     create_detail_level(event.target.id(), event.target);
-    getEntity(event.target.id())
+    getEntity(event.target.id());
+    entIndex = Array.from(nodeArray).indexOf(event.target.id());
     //console.log(event.target)
     //shows entity table and adds node id to headder
     h3.textContent = 'Node ID: ' + event.target.id();
     div.style.display = 'block';
-
-
 }
 
 /**
@@ -470,4 +475,22 @@ function changeLayout(layoutName) {
             }}; // transform a given node position. Useful for changing flow direction in discrete layouts
     }
     cy.layout(layout).run();
+}
+
+function nextEntity() {
+    if (entIndex < nodeArray.length -2) {
+        ++entIndex;
+    } else {
+        entIndex = 0;
+    }
+   var newEntity = nodeArray[entIndex];
+   let newTarget = null;
+   cy.nodes().forEach(node => {
+    if (node.id() == newEntity) {
+        newTarget = node;
+        return false;
+    }
+   });
+   getEntity(newEntity);
+   create_detail_level(newEntity, newTarget);
 }

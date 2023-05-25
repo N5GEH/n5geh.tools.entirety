@@ -87,9 +87,9 @@
                             Layout
                         </a>
                         <ul class="dropdown-menu">
-                            <li><a class="dropdown-item dropdown-link" onclick="changeLayout('circle')" >Circle</a>  </li>
-                            <li><a class="dropdown-item dropdown-link" onclick="changeLayout('grid')">Grid</a></li>
-                            <li><a class="dropdown-item dropdown-link" onclick="changeLayout('breadthfirst')">Breadth-first</a></li>
+                            <li><a class="dropdown-item dropdown-link" onclick="changeLayout('circle')" title="organizes nodes clockwise in a circle">Circle</a>  </li>
+                            <li><a class="dropdown-item dropdown-link" onclick="changeLayout('grid')" title="organizes nodes in a grid from left to right and top to bottom">Grid</a></li>
+                            <li><a class="dropdown-item dropdown-link" onclick="changeLayout('breadthfirst')" title="organizes nodes in levels according to a breadth-first-search">Breadth-first</a></li>
                         </ul>
                     </li>
                 </ul>
@@ -113,7 +113,7 @@
                         <button class="accordion-button" type="button" data-bs-toggle="collapse"
                                 data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
                             Entity
-                        </button>
+                        </button> <i class="bi bi-arrow-right-circle-fill" style="color: #256B88" z-index="9999" onclick="nextEntity()"></i>
                     </h2>
                     <div id="collapseOne" class="accordion-collapse collapse show" aria-labelledby="headingOne"
                          data-bs-parent="#entityaccordion">
