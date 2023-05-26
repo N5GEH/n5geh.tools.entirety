@@ -1,5 +1,8 @@
 //generates cytoscape elements in main Graph right at the beginning
 
+const nodecolor = 'gray'; // pick the default node color
+const edgecolor = '#ccc'; // pick the default edge color
+
 var cy = cytoscape({
     container: document.getElementById('main_graph'),
     elements: data,
@@ -11,15 +14,15 @@ var cy = cytoscape({
                 width: '20px',
                 height: '20px',
                 shape: 'ellipse',
-                label: 'data(label)',
-                'background-color': 'gray',
+                label: 'data(label)', // default label: name of entity
+                'background-color': nodecolor,
             }
         },
         {
             selector: 'edge',
             style: {
-                'line-color': '#ccc',
-                'target-arrow-color': '#ccc',
+                'line-color': edgecolor,
+                'target-arrow-color': edgecolor,
                 'target-arrow-shape': 'triangle',
                 'curve-style': 'bezier',
                 label: 'data(label)'
@@ -92,10 +95,9 @@ var detail = cytoscape({
  * @param event
  */
 
-var entIndex;
+var entIndex; // index of node in the order posted on orion
 nodeArray = [];
-nodeArray = cy.nodes().map(x => x.id())
-//console.log(nodeArray);
+nodeArray = cy.nodes().map(x => x.id());
 
 function handleClick(event) {
     var div = document.getElementById('entity');
@@ -246,12 +248,12 @@ async function getEntity(nodeID) {
     });
 }
 
-// Pick random node colors to start with
-const colors = ['#57C5B6', '#feb236', '#107cad', '#D14D72', '#ff7b25', '#0ad3ff', '#6CDB42']
+// Pick node and edge colors to be displayed first
+const colors = ['#57C5B6', '#feb236', '#0dcaf0', '#D14D72', '#107cad', '#6CDB42', '#ff7b25', '#bea0d7', '#B70404', '#F9F54B', '#9A1663', '#9F8772', '#FF8787']
 const tcheckboxes = document.querySelectorAll('input[name="typecheckbox"]');
 const rcheckboxes = document.querySelectorAll('input[name="relcheckbox"]');
 const numAdditionalColors = tcheckboxes.length;
-// Generates additional colors
+// Generates as many additional random colors as there are entities in orion 
 function generateRandomColor() {
   const letters = '0123456789ABCDEF';
   let color = '#';
@@ -334,7 +336,7 @@ function colorNodes() {
       const id = `.${checkbox.id}`;
       const nodeindex = Array.from(tcheckboxes).indexOf(checkbox);
       const color = colors[nodeindex];
-      cy.style()
+      cy.style() // changes node style by filterung for selectors
         .selector(id)
         .style('background-color', color)
         .update();
@@ -344,6 +346,7 @@ function colorNodes() {
         .update();
       originalColors.push({ id, color });
     }
+    // set nodes back to gray by unchecking the checkbox
     const checkboxes = document.querySelectorAll('input[name="typecheckbox"]');
     checkboxes.forEach(checkbox => {
       checkbox.addEventListener('change', () => {
@@ -353,11 +356,11 @@ function colorNodes() {
           const originalColor = originalColors[originalColorIndex];
           cy.style()
             .selector(id)
-            .style('background-color', checkbox.checked ? originalColor.color : 'gray')
+            .style('background-color', checkbox.checked ? originalColor.color : nodecolor)
             .update();
           detail.style()
             .selector(id)
-            .style('background-color', checkbox.checked ? originalColor.color : 'gray')
+            .style('background-color', checkbox.checked ? originalColor.color : nodecolor)
             .update();
   
           if (!checkbox.checked) {
@@ -377,7 +380,7 @@ function colorEdges() {
       const label = `edge[label = "${checkbox.id}"]`;
       const edgeindex = Array.from(rcheckboxes).indexOf(checkbox);
       const color = colors[edgeindex];
-      cy.style()
+      cy.style() // changes edge style by filterung for selectors
         .selector(label)
         .style('line-color', color)
         .update();
@@ -387,6 +390,7 @@ function colorEdges() {
         .update();
       originalColors.push({ label, color });
     }
+    // set edges back to gray by unchecking the checkbox
     const checkboxes = document.querySelectorAll('input[name="relcheckbox"]');
     checkboxes.forEach(checkbox => {
       checkbox.addEventListener('change', () => {
@@ -396,11 +400,11 @@ function colorEdges() {
           const originalColor = originalColors[originalColorIndex];
           cy.style()
             .selector(label)
-            .style('line-color', checkbox.checked ? originalColor.color : '#ccc')
+            .style('line-color', checkbox.checked ? originalColor.color : edgecolor)
             .update();
           detail.style()
             .selector(label)
-            .style('line-color', checkbox.checked ? originalColor.color : '#ccc')
+            .style('line-color', checkbox.checked ? originalColor.color : edgecolor)
             .update();
   
           if (!checkbox.checked) {
@@ -411,7 +415,7 @@ function colorEdges() {
     });
 }
 
-// Adapts labels as selected
+// Adapts node labels as selected, otherwise default value name is set
 function changeLabel (labelName) {
     var label;
     switch (labelName) {
@@ -435,7 +439,7 @@ cy.$('node').on('grab', function (e) {
 });
 cy.$('node').on('free', function (e) {
     var ele = e.target;
-    ele.connectedEdges().style({ 'line-color': '#ccc' });
+    ele.connectedEdges().style({ 'line-color': edgecolor });
 });
 
 // Adapts layout as selected
@@ -477,6 +481,7 @@ function changeLayout(layoutName) {
     cy.layout(layout).run();
 }
 
+// By clicking the icon: creates next Entity in table and detail view according to the order of posted entities in orion
 function nextEntity() {
     if (entIndex < nodeArray.length -2) {
         ++entIndex;
