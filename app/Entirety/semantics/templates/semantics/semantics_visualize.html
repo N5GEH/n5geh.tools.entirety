@@ -12,11 +12,7 @@
 
     <main class="d-flex flex-column flex-fill ps-4 pe-3 py-3">
         {% csrf_token %}
-        <div class="alert alert-danger d-none " role="alert" id="searchAlert">
-            <div>
-                No Id matched
-            </div>
-        </div>
+        <div class="warning" id="warning_Wrapper"></div>
         <nav class="navbar navbar-expand-lg bg-light">
             <div class="container-fluid">
                 <ul class="navbar-nav me-auto mb-2 mb-lg-0">
@@ -35,8 +31,9 @@
                                         <li>
                                             <a class="dropdown-item">
                                                 <div class="form-check">
-                                                    <input class="form-check-input" type="checkbox" name="typecheckbox" value=""
-                                                           id="{{ type }}" onchange="colorNodes()";>
+                                                    <input class="form-check-input" type="checkbox" name="typecheckbox"
+                                                           value=""
+                                                           id="{{ type }}" onchange="colorNodes()" ;>
                                                     <label class="form-check-label" for="typecheckbox">
                                                         {{ type }}
                                                     </label>
@@ -55,8 +52,9 @@
                                         <li>
                                             <a class="dropdown-item">
                                                 <div class="form-check">
-                                                    <input class="form-check-input" type="checkbox" name="relcheckbox" value=""
-                                                           id="{{ rel }}" onchange="colorEdges()";>
+                                                    <input class="form-check-input" type="checkbox" name="relcheckbox"
+                                                           value=""
+                                                           id="{{ rel }}" onchange="colorEdges()" ;>
                                                     <label class="form-check-label" for="relcheckbox">
                                                         {{ rel }}
                                                     </label>
@@ -76,7 +74,7 @@
                             Label
                         </a>
                         <ul class="dropdown-menu">
-                            <li><a class="dropdown-item dropdown-link" onclick="changeLabel('id')" >Id</a>  </li>
+                            <li><a class="dropdown-item dropdown-link" onclick="changeLabel('id')">Id</a></li>
                             <li><a class="dropdown-item dropdown-link" onclick="changeLabel('name')">Name</a></li>
                             <li><a class="dropdown-item dropdown-link" onclick="changeLabel('none')">None</a></li>
                         </ul>
@@ -87,20 +85,39 @@
                             Layout
                         </a>
                         <ul class="dropdown-menu">
-                            <li><a class="dropdown-item dropdown-link" onclick="changeLayout('circle')" title="organizes nodes clockwise in a circle">Circle</a>  </li>
-                            <li><a class="dropdown-item dropdown-link" onclick="changeLayout('grid')" title="organizes nodes in a grid from left to right and top to bottom">Grid</a></li>
-                            <li><a class="dropdown-item dropdown-link" onclick="changeLayout('breadthfirst')" title="organizes nodes in levels according to a breadth-first-search">Breadth-first</a></li>
+                            <li><a class="dropdown-item dropdown-link" onclick="changeLayout('circle')"
+                                   title="organizes nodes clockwise in a circle">Circle</a></li>
+                            <li><a class="dropdown-item dropdown-link" onclick="changeLayout('grid')"
+                                   title="organizes nodes in a grid from left to right and top to bottom">Grid</a></li>
+                            <li><a class="dropdown-item dropdown-link" onclick="changeLayout('breadthfirst')"
+                                   title="organizes nodes in levels according to a breadth-first-search">Breadth-first</a>
+                            </li>
                         </ul>
                     </li>
                 </ul>
-                <form class="d-flex" role="search" id="search">
-                    <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search"
-                           id="searchform">
-                    <button type="submit"
-                            class="btn btn-warning rounded-pill" id="searchButton"
-                    >Search
-                    </button>
-                </form>
+                <div class="input-group">
+                    <input type="text" class="form-control" aria-label="Search field">
+                    <div class="input-group-append">
+                        <button class="btn btn-outline-secondary dropdown-toggle" type="button" id="searchOptions"
+                                data-bs-toggle="dropdown"
+                                style="border-bottom-left-radius: 0; border-top-left-radius: 0;"
+                                aria-haspopup="true" aria-expanded="false"
+                        >Dropdown
+                        </button>
+                        <div class="dropdown-menu dropdown-menu-right">
+                            <a class="dropdown-item" href="#" data-value="id1">ID</a>
+                            <a class="dropdown-item" href="#" data-value="type1">Type</a>
+                            <a class="dropdown-item disabled" href="#" data-value="name1">Name</a>
+                            <a class="dropdown-item" href="#" data-value="relationship1">Relationship</a>
+                        </div>
+                        <button type="submit"
+                                class="btn btn-warning rounded-pill" id="searchButton"
+                        >Search
+                        </button>
+                    </div>
+                </div>
+
+
             </div>
         </nav>
 
@@ -113,8 +130,11 @@
                         <button class="accordion-button" type="button" data-bs-toggle="collapse"
                                 data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
                             Entity
-                        </button> 
-                        <i class="bi bi-arrow-right-circle-fill" style="color: #256B88" z-index="9999" onclick="nextEntity()"></i> <!-- Comment out this line to hide the "next entity"-icon -->
+                            <button type="button" class="btn btn-primary" id="edit" onclick="editEntity()">Edit</button>
+                        </button>
+
+                        <i class="bi bi-arrow-right-circle-fill disabeld" style="color: #256B88" z-index="9999"
+                           onclick="nextEntity()"></i> <!-- Comment out this line to hide the "next entity"-icon -->
                     </h2>
                     <div id="collapseOne" class="accordion-collapse collapse show" aria-labelledby="headingOne"
                          data-bs-parent="#entityaccordion">
@@ -151,11 +171,18 @@
             </div>
         </div>
         <h3 class="h3">Detail Level</h3>
-        <div id="detail_level" class="graph"></div>
+        <div id="detail_level" class="graph">
+
+        </div>
+
 
         <script>
             var data =
             {{ elements|safe }}
+            var types =
+            {{ types|safe }}
+            var relationships =
+            {{ relationships|safe }}
         </script>
 
 
@@ -174,7 +201,6 @@
         detail.on('click', 'node', handleClick);
 
 
-
         const typelegend = document.getElementById('typeMenu');
         const rellegend = document.getElementById('relMenu');
         // Get all the checkboxes inside the existing dropdown menus
@@ -188,11 +214,29 @@
         relcheckboxes.forEach(function (checkbox) {
             checkbox.addEventListener('change', add_rel_legend)
         });
+        var searchButton = document.getElementById('searchButton');
+        searchButton.addEventListener('click', handleSearch);
+        var dropdownButton = document.getElementById("searchOptions");
+        dropdownButton.textContent = "Options";
 
-        const searchInput = document.getElementById('searchform');
+        // Add event listener to dropdown items
+        var dropdownItems = document.querySelectorAll('.dropdown-menu.dropdown-menu-right .dropdown-item');
+        dropdownItems.forEach(function (item) {
+            item.addEventListener('click', function (event) {
+                event.preventDefault();
+                dropdownItems.forEach(function (item) {
+                    item.classList.remove('active');
+                });
+                item.classList.add('active');
 
-        const searchForm = document.getElementById('search');
-        searchForm.addEventListener('submit', handleSearch);
+                // Update the dropdown button text with the selected value
+                dropdownButton.textContent = item.textContent.trim();
+            });
+        });
+        var searchField = document.querySelector('.form-control');
+        searchField.addEventListener('input', checkInputEmpty);
+        //var editButton = document.getElementById('edit')
+        //editButton.addEventListener('click', editEntity)
 
 
         //Try to solve scrolling problem!! not working
