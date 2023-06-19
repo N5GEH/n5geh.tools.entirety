@@ -1,15 +1,21 @@
 //generates cytoscape elements in main Graph right at the beginning
-const clickedNodeColor = "blue";
+const clickedNodeColor = "#17a2b8";
+
+const defaultnodecolor = '#6c757d'; // pick the default color for all nodes
+const defaulttextcolor = '#343a40'; // pick the default color for the node label
+const defaultedgecolor = '#6c757d'; // pick the default color for all edges
+const searchcolor = 'red'; // pick the default color for search highlights
+
+var previousInput = "" //safe previous input in search field
+var currentlyClickedNode = "" //currently clicked Node
+var previousClickedNode = "" // previous clicked Node
+var currentNodeType = ""
+
+// for higliting nodes
 const parantsNodeColor = "yellow";
 const childrensNodeColor = "orange";
 const edgesNodeColor = "red";
-const defaultnodecolor = 'gray'; // pick the default node color
-const defaultedgecolor = '#ccc'; // pick the default edge color
-const searchcolor = 'red'; // pick the default color for search highlights
-var previousInput = "" //safe previous input in search field
-var currentlyClickedNode = "" //currently clicked Node
-var currentNodeType = ""
-console.log(data)
+
 
 var cy = cytoscape({
     container: document.getElementById('main_graph'),
@@ -24,14 +30,18 @@ var cy = cytoscape({
                 shape: 'ellipse',
                 label: 'data(label)', // default label: name of entity
                 'background-color': defaultnodecolor,
+                'color': defaulttextcolor,
             }
         },
         {
             selector: 'edge',
             style: {
                 'line-color': defaultedgecolor,
+                'color': defaulttextcolor,
+                'width': '1px',
+                'line-opacity': '30%',
                 'target-arrow-color': defaultedgecolor,
-                'target-arrow-shape': 'triangle',
+                'target-arrow-shape': 'vee',
                 'curve-style': 'bezier',
                 label: 'data(label)'
             }
@@ -78,15 +88,17 @@ var detail = cytoscape({
                 height: '20px',
                 shape: 'ellipse',
                 label: 'data(id)',
+                'color': defaulttextcolor,
             },
         },
         {
             selector: 'edge',
             style: {
-                'line-color': '#ccc',
-                'target-arrow-color': '#ccc',
-                'target-arrow-shape': 'triangle',
+                'width': '1px',
+                'line-opacity': '30%',
+                'target-arrow-shape': 'vee',
                 'curve-style': 'bezier',
+                'color': defaulttextcolor,
                 label: 'data(label)'
             }
         }
@@ -107,20 +119,26 @@ nodeArray = [];
 nodeArray = cy.nodes().map(x => x.id());
 
 function handleClick(event) {
+    previousClickedNode = currentlyClickedNode
     var div = document.getElementById('entity');
     var h3 = div.querySelector('h3');
     currentlyClickedNode = event.target.id()
     currentNodeType = event.target.classes()[0]
     create_detail_level(event.target.id(), event.target);
-    getEntity(event.target.id());
+    getEntity();
     entIndex = Array.from(nodeArray).indexOf(event.target.id());
     //shows entity table and adds node id to headder
     h3.textContent = 'Node ID: ' + event.target.id();
     div.style.display = 'block';
-    clickedNodeStyling(event.target)
+    clickedNodeStyling()
 
 }
 
+/**
+ * This function highlights the clicked nodes.
+ * For future highliting of parents and childrens of clicked Node: the functionalities are already implemented but buggy
+ * @param clickedNode
+ */
 function clickedNodeStyling(clickedNode) {
     var clickedNodeSelector = "";
     var childSelector = [];
@@ -128,65 +146,70 @@ function clickedNodeStyling(clickedNode) {
     var parentsEdge = [];
     var parentsSelector = [];
     var childrenEdge = [];
+    //get childrens of clicked node for highliting
+    // if (typeof clickedNode.data('children') === 'object' && clickedNode.data('children') !== null && Array.isArray(clickedNode.data('children'))) {
+    //
+    //     clickedNode.data('children').forEach(function (element) {
+    //         // element: current element in the array of children id´s
+    //         childSelector.push("#" + escapeColons(element))
+    //
+    //         var escapedEdgeId = escapeColons(clickedNode.data('id') + element);
+    //         //var edgeSelector = `edge[source="${escapeColons(clickedNode.data('id'))}"][target="${escapeColons(element)}"]`;
+    //         //childEdgeSelector.push(edgeSelector);
+    //         childEdgeSelector.push("#" + escapeColons(clickedNode.data('id') + element));
+    //     });
+    // }
+    // //check if clickedNode has parents
+    // if (typeof clickedNode.data('parents') === 'object' && clickedNode.data('parents') !== null && Array.isArray(clickedNode.data('parents'))) {
+    //
+    //     clickedNode.data('parents').forEach(function (element) {
+    //         // element: current element in the array of children id´s
+    //         parentsEdge.push(get_nodes_by_id(element + currentlyClickedNode));//appends edge between parents and center
+    //         parentsSelector.push(get_nodes_by_id(element)); //appends parent nodes to the detail level
+    //     });
+    // }
+    // if (childEdgeSelector.length === 0) {
+    //     console.log("Die Liste ist leer.");
+    // } else {
+    //     console.log("Die Liste ist nicht leer.");
+    // }
+    //
+    // console.log("childedgeSelector1: " + childrenEdge)
+    // //console.log(cy.$("#" + escapeColons(currentlyClickedNode)))
+    // console.log("childEdge:" + childEdgeSelector)
+    // //console.log("childSelector" + childSelector)
+    // //console.log("parentsEdge" + parentsEdge)
+    // //console.log("parentsSelector" + parentsSelector)
+    // childSelector.forEach(function (selector) {
+    //     console.log("child "+ selector)
+    //     cy.style()
+    //         .selector(selector)
+    //         .style("background-color", childrensNodeColor)
+    //         .style("color", childrensNodeColor)
+    //         .update();
+    // });
+    // childEdgeSelector.forEach(function (selector) {
+    //     console.log("selector 4: "+ selector)
+    //     cy.style()
+    //         .selector(cy.$(selector))
+    //         .style("line-color", edgesNodeColor)
+    //         .update();
+    // });
 
-    if (typeof clickedNode.data('children') === 'object' && clickedNode.data('children') !== null && Array.isArray(clickedNode.data('children'))) {
+    //styles clicked Node
+    clearSearchHighlight(previousClickedNode)
 
-        clickedNode.data('children').forEach(function (element) {
-            // element: current element in the array of children id´s
-            childSelector.push("#" + escapeColons(element))
 
-            var escapedEdgeId = escapeColons(clickedNode.data('id') + element);
-            //var edgeSelector = `edge[source="${escapeColons(clickedNode.data('id'))}"][target="${escapeColons(element)}"]`;
-            //childEdgeSelector.push(edgeSelector);
-            childEdgeSelector.push("#" + escapeColons(clickedNode.data('id') + element));
-        });
-    }
-    //check if clickedNode has parents
-    if (typeof clickedNode.data('parents') === 'object' && clickedNode.data('parents') !== null && Array.isArray(clickedNode.data('parents'))) {
-
-        clickedNode.data('parents').forEach(function (element) {
-            // element: current element in the array of children id´s
-            parentsEdge.push(get_nodes_by_id(element + currentlyClickedNode));//appends edge between parents and center
-            parentsSelector.push(get_nodes_by_id(element)); //appends parent nodes to the detail level
-        });
-    }
-    if (childEdgeSelector.length === 0) {
-        console.log("Die Liste ist leer.");
-    } else {
-        console.log("Die Liste ist nicht leer.");
-    }
-
-    console.log("childedgeSelector1: " + childrenEdge)
-    //console.log(cy.$("#" + escapeColons(currentlyClickedNode)))
-    console.log("childEdge:" + childEdgeSelector)
-    //console.log("childSelector" + childSelector)
-    //console.log("parentsEdge" + parentsEdge)
-    //console.log("parentsSelector" + parentsSelector)
-    childSelector.forEach(function (selector) {
-        console.log("child "+ selector)
-        cy.style()
-            .selector(selector)
-            .style("background-color", childrensNodeColor)
-            .style("color", childrensNodeColor)
-            .update();
-    });
-    childEdgeSelector.forEach(function (selector) {
-        console.log("selector 4: "+ selector)
-        cy.style()
-            .selector(cy.$(selector))
-            .style("line-color", edgesNodeColor)
-            .update();
-    });
     cy.style()
             .selector("#"+ escapeColons(currentlyClickedNode))
             .style("background-color", clickedNodeColor)
             .style("color", clickedNodeColor)
             .update();
-    cy.style()
-            .selector(cy.$("#urn\\:ngsi-ld\\:Product\\:001urn\\:ngsi-ld\\:Shelf\\:unit001"))
-            .style("line-color", edgesNodeColor)
+    detail.style()
+            .selector("#"+ escapeColons(currentlyClickedNode))
+            .style("background-color", clickedNodeColor)
+            .style("color", clickedNodeColor)
             .update();
-
 }
 
 
@@ -271,6 +294,14 @@ function get_nodes_by_id(nodeID) {
     }
 }
 
+/**
+ *  Makes an asynchronous HTTP request with Fetch to the specified URL with the given method and body.
+
+ * @param url (str): The URL to send the request to.
+ * @param method (str): The HTTP method to use for the request (e.g., 'GET', 'POST', 'PUT', etc.).
+ * @param body (str): The request body data, formatted as JSON
+ * @returns {Promise<*>} (dict): The response data received from the server, parsed as JSON.
+ */
 async function makeRequest(url, method, body) {
 
     let headers = {
@@ -280,7 +311,7 @@ async function makeRequest(url, method, body) {
     if (method === 'post') {
         headers['X-CSRFToken'] = document.querySelector('[name=csrfmiddlewaretoken]').value
     }
-    let response = await fetch(baseUrl + '/ngsiv2/', {
+    let response = await fetch(baseUrl + '/semantics/', {
         method: method,
         headers: headers,
         body: body,
@@ -291,9 +322,14 @@ async function makeRequest(url, method, body) {
     return await response
 }
 
-async function getEntity(nodeID) {
+/**
+ *Retrieves an entity from the server based on the provided node ID and displays it in a Tabulator table.
+ * @param nodeID (str): The ID of the node to retrieve the entity for.
+ * @returns {Promise<void>}
+ */
+async function getEntity() {
 
-    let data = await makeRequest(baseUrl + '/ngsiv2/', 'post', JSON.stringify({nodeID: nodeID}))
+    let data = await makeRequest(baseUrl + '/semantics/', 'post', JSON.stringify({nodeID: currentlyClickedNode}))
     var entity = await data['entity']
     // Define columns
 
@@ -319,6 +355,7 @@ async function getEntity(nodeID) {
     });
 }
 
+
 // Pick node and edge colors to be displayed first
 const colors = ['#57C5B6', '#feb236', '#0dcaf0', '#D14D72', '#107cad', '#6CDB42', '#ff7b25', '#bea0d7', '#B70404', '#F9F54B', '#9A1663', '#9F8772', '#FF8787']
 const tcheckboxes = document.querySelectorAll('input[name="typecheckbox"]');
@@ -340,7 +377,9 @@ for (let i = 0; i < numAdditionalColors; i++) {
     colors.push(randomColor);
 }
 
-
+/**
+ * Inserts an endtry in the Dropdown menu in the main graph, which contains the color legends for types filter
+ */
 function add_type_legend() {
     // If the checkbox is checked, create a new dropdown item and add it to the new dropdown menu
     if (this.checked && this.name == 'typecheckbox') {
@@ -362,7 +401,9 @@ function add_type_legend() {
         })
     }
 }
-
+/**
+ * Inserts an endtry in the Dropdown menu in the main graph, which contains the color legends for relationships filter
+ */
 function add_rel_legend() {
     // If the checkbox is checked, create a new dropdown item and add it to the new dropdown menu
     if (this.checked && this.name == 'relcheckbox') {
@@ -385,7 +426,10 @@ function add_rel_legend() {
     }
 }
 
-// Handle search button click
+/**
+ *Handles the search functionality based and calls the designated function based on the selected search option.
+ * @param event event (Event): The event object triggered by the search action.
+ */
 function handleSearch(event) {
     event.preventDefault();
 
@@ -399,17 +443,24 @@ function handleSearch(event) {
 
     // Call the corresponding function based on the selected value
     if (selectedValue === null) {
-        addWarning('Please select a search Option!')
+        addWarning('Please select a search option!')
     } else if (selectedValue === 'id1') {
         handleIdSearch(input);
     } else if (selectedValue === 'type1') {
         handleTypeSearch(input);
     } else if (selectedValue === 'relationship1') {
         handleRelationshipSearch(input);
+    }else if (selectedValue === 'name1') {
+        handleNameSearch(input)
     }
 }
 
-// Function to escape ':' in the id of a node
+/**
+ * Function to escape ':' in the id of a node
+ * @param str (str): The string which ':' are escapted
+ * @returns {*} (str): escaped string or unchanged string
+ */
+
 function escapeColons(str) {
     if (typeof str === 'undefined') {
         console.log("übergebener Wert ist nicht definiert funktion escapeColons")
@@ -418,18 +469,9 @@ function escapeColons(str) {
     return str.replace(/:/g, '\\:');
 }
 
-function clearSearchHighlight(input) {
-    var element = escapeColons(input)
-    var idSelector = cy.$("#" + element)
-    var relSelector = `edge[label = "${input}"]`
-    cy.style()
-        .selector(idSelector + ", ." + input + "," + relSelector)
-        .style('background-color', defaultnodecolor)
-        .style('line-color', defaultedgecolor)
-        .update();
-    previousInput = '';
-}
-
+/**
+ * Checks if search field is empty
+ */
 function checkInputEmpty() {
     var searchField = document.querySelector('.form-control');
     var input = searchField.value;
@@ -438,7 +480,34 @@ function checkInputEmpty() {
     }
 }
 
-// Function for handling ID option
+/**
+ * Clears the highlighting of search results in the graph and resets it to default value
+ * @param input - The input or label to be cleared.
+ */
+function clearSearchHighlight(input) {
+    var element = escapeColons(input)
+    var idSelector = cy.$("#" + element)
+    var relSelector = `edge[label = "${input}"]`
+    cy.style()
+        .selector(idSelector + ", ." + input + "," + relSelector)
+        .style('background-color', defaultnodecolor)
+        .style('line-color', defaultedgecolor)
+        .style("color", defaulttextcolor)
+        // .update();
+    detail.style()
+        .selector(idSelector + ", ." + input + "," + relSelector)
+        .style('background-color', defaultnodecolor)
+        .style('line-color', defaultedgecolor)
+        .style("color", defaulttextcolor)
+        .update();
+    previousInput = '';
+}
+
+
+/**
+ * This function handles the search by ID if this option is selected
+ * @param inputValue (str): input string from the search field
+ */
 function handleIdSearch(inputValue) {
 
     var node = get_nodes_by_id(inputValue)
@@ -453,12 +522,15 @@ function handleIdSearch(inputValue) {
             .update();
         previousInput = inputValue
     } else {
-        addWarning("No matching Entity ID found")
+        addWarning("No matching Entity ID found. Perhaps you want to use another search option?")
 
     }
 }
 
-// Function for handling Type option
+/**
+ * This function handles the search by Type if this option is selected
+ * @param inputValue (str): input string form search field
+ */
 function handleTypeSearch(inputValue) {
     //var lowerCaseTypes = types.map(function (item) {
     //    return item.toLowerCase();
@@ -475,11 +547,14 @@ function handleTypeSearch(inputValue) {
         previousInput = inputValue
 
     } else {
-        addWarning('No matching Type found')
+        addWarning('No matching Type found. Perhaps you want to use another search option?')
     }
 }
 
-// Function for handling Relationship option
+/**
+ * This function handles the search by Relationship if this option is selected
+ * @param inputValue (str): input string form search field
+ */
 function handleRelationshipSearch(inputValue) {
     //var lowerCaseRels = relationships.map(function (item) {
     //    return item.toLowerCase();
@@ -496,10 +571,47 @@ function handleRelationshipSearch(inputValue) {
         previousInput = inputValue
 
     } else {
-        addWarning('No matching Relationship found')
+        addWarning('No matching Relationship found. Perhaps you want to use another search option?')
     }
 }
 
+/**
+ * This function handles the search by name if this option is selected
+ * @param inputValue (str): input string form search field
+ */
+function handleNameSearch(inputValue) {
+    //var lowerCaseRels = relationships.map(function (item) {
+    //    return item.toLowerCase();
+    //});
+    var foundObject = null;
+
+    for (var i = 0; i < data.length; i++) {
+        if (data[i].data && data[i].data.label === inputValue) {
+            foundObject = data[i];
+            break;
+            //if at least one name is found the highlighting will be executed
+        }
+    }
+    if (foundObject) {
+        const nameSelector = `node[label = "${inputValue}"]`;
+        if (inputValue !== previousInput) {
+            clearSearchHighlight(previousInput)
+        }
+        cy.style() // changes node style by filterung for selectors
+            .selector(nameSelector)
+            .style('background-color', searchcolor)
+            .update();
+        previousInput = inputValue
+
+    } else {
+        addWarning('No matching Name found. Perhaps you want to use another search option?')
+    }
+}
+
+/**
+ * This function adds a warning div if something went wrong during the search
+ * @param warningText
+ */
 function addWarning(warningText) {
     var alertHtml = '<div class="alert alert-danger d-none" role="alert" id="searchAlert">' +
         '<div>' +
@@ -624,15 +736,15 @@ function changeLabel(labelName) {
 }
 
 
-// Colors edges temporary when nodes are grabbed
-cy.$('node').on('grab', function (e) {
-    var ele = e.target;
-    ele.connectedEdges().style({'line-color': 'dimgray'});
-});
-cy.$('node').on('free', function (e) {
-    var ele = e.target;
-    ele.connectedEdges().style({'line-color': defaultedgecolor});
-});
+// // Colors edges temporary when nodes are grabbed
+// cy.$('node').on('grab', function (e) {
+//     var ele = e.target;
+//     ele.connectedEdges().style({'line-color': 'dimgray'});
+// });
+// cy.$('node').on('free', function (e) {
+//     var ele = e.target;
+//     ele.connectedEdges().style({'line-color': defaultedgecolor});
+// });
 
 // Adapts layout as selected
 function changeLayout(layoutName) {
@@ -674,29 +786,31 @@ function changeLayout(layoutName) {
     cy.layout(layout).run();
 }
 
-// By clicking the icon: creates next Entity in table and detail view according to the order of posted entities in orion
-function nextEntity() {
-    if (entIndex < nodeArray.length - 2) {
-        ++entIndex;
-    } else {
-        entIndex = 0;
-    }
-    var newEntity = nodeArray[entIndex];
-    let newTarget = null;
-    cy.nodes().forEach(node => {
-        if (node.id() == newEntity) {
-            newTarget = node;
-            return false;
-        }
-    });
-    getEntity(newEntity);
-    create_detail_level(newEntity, newTarget);
-}
+// // By clicking the icon: creates next Entity in table and detail view according to the order of posted entities in orion
+// function nextEntity() {
+//     if (entIndex < nodeArray.length - 2) {
+//         ++entIndex;
+//     } else {
+//         entIndex = 0;
+//     }
+//     var newEntity = nodeArray[entIndex];
+//     let newTarget = null;
+//     cy.nodes().forEach(node => {
+//         if (node.id() == newEntity) {
+//             newTarget = node;
+//             return false;
+//         }
+//     });
+//     getEntity(newEntity);
+//     create_detail_level(newEntity, newTarget);
+// }
 
+/**
+ * This function redirects the user to the Entity page if he/she clicked on the "edit" button
+ */
 function editEntity() {
     entitiesUrl = currentUrl.split('/semantics/')[0]
     var newUrl = entitiesUrl + "/entities/" + currentlyClickedNode + "/" + currentNodeType + "/update/";
-    //window.open(newUrl, 'Popup-Fenster', 'width=800,height=600')
+    //window.open(newUrl, 'Popup-Fenster', 'width=800,height=600') idea for popup window instead of redirection
     window.location.href = newUrl;
-
 }

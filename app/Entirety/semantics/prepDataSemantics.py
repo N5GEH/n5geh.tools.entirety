@@ -28,14 +28,15 @@ class PrepData(ProjectContextMixin):
             entity_id_list.append(entity.id)
             entity_type_list.append(entity.type)
 
-            entity_name = 'No Name'  #Start value if no name Attribute is providet'
-            relationship_name = []
-            relationship_target = []
-
             all_entity_values = self.all_values(entity_json)
+            entity_name = 'No name Set'  # default value if no "name" attribute is present
+            relationship_target = []
+            relationship_name = []
 
             for key, value in all_entity_values:
-                if value == 'Relationship':
+                if key == 'name.value':
+                    entity_name = value
+                elif value == 'Relationship':
                     rel_name_str = key.rsplit('.type', 1)[0]
                     for next_key, next_value in all_entity_values:
                         if next_key == f"{rel_name_str}.value":
@@ -45,9 +46,6 @@ class PrepData(ProjectContextMixin):
                             else:
                                 relationship_target.append(next_value)
                                 relationship_name.append(rel_name_str)
-                            break
-                elif key == 'name.value'.lower:
-                    entity_name = value
 
             entity_name_list.append(entity_name)
             relationship_name_list.append(relationship_name)
@@ -63,7 +61,6 @@ class PrepData(ProjectContextMixin):
 
         # generate cytoscape elements
 
-
         cy_nodes = []
         cy_edges = []
         elements = []
@@ -75,33 +72,36 @@ class PrepData(ProjectContextMixin):
                                                                row['type'], \
                                                                row['relationship_with'], \
                                                                row['relationship_name']
-
+            # finding all parents of 'source'
+            parents = []
+            bool_series = self.df['relationship_with'].apply(lambda
+                                                                 cell: source in cell)  # get pd.Series with all rows wich contains the id marked as True, otherwise False
+            index_list_true = bool_series[bool_series].index  # get index of rows which are true
+            for val in index_list_true:
+                parents.append(self.df.iloc[val, 0])
             if source not in nodes:
                 nodes.add(source)
                 cy_nodes.append(
-                    {"data": {"id": source, "label": label, "children": target}, "classes": source_type})
+                    {"data": {"id": source, "label": label, "children": target, "parents": parents},
+                     "classes": source_type})
 
             for i, j in zip(target, target_label):
                 cy_edges.append({"data": {"id": source + i, "source": source, "target": i, "label": j, }})
-        #kontrolliert ob ob target in den knoten ist
+        # Check if the target id of an edge has a target Node. If not a node will be added, however ther is no real entity behind it
+        # (necessary, otherwise cytoscape fails)
         for edge in cy_edges:
-            parents = []
             for key, value in edge.items():
                 if value.get("target") not in nodes:
                     nodes.add(value.get('target'))
-                    cy_nodes.append({"data": {"id": value.get("target"), "label": "end_of_graph"}})
-            for node in cy_nodes:
-                for n_key, n_value in node.items():
-                    if isinstance(n_value, dict):
-                        if n_value.get("id") == value.get("target"):
-                            n_value['parents'] = [value.get("source")]
+                    cy_nodes.append(
+                        {"data": {"id": value.get("target"), "label": "This Relationship has no target entity"}})
 
         for i in cy_nodes:
             elements.append(i)
         for j in cy_edges:
             elements.append(j)
-        return elements
 
+        return elements
 
     def types(self):
         """

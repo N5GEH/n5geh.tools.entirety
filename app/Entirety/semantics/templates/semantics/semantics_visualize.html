@@ -96,28 +96,27 @@
                     </li>
                 </ul>
                 <div class="input-group">
-                    <input type="text" class="form-control" aria-label="Search field">
+                    <input type="text" class="form-control" placeholder="Search field...">
                     <div class="input-group-append">
                         <button class="btn btn-outline-secondary dropdown-toggle" type="button" id="searchOptions"
-                                data-bs-toggle="dropdown"
+                                data-bs-toggle="dropdown" title="Choose a search option"
                                 style="border-bottom-left-radius: 0; border-top-left-radius: 0;"
                                 aria-haspopup="true" aria-expanded="false"
-                        >Dropdown
+                        >Options
                         </button>
-                        <div class="dropdown-menu dropdown-menu-right">
+                        <div class="dropdown-menu">
                             <a class="dropdown-item" href="#" data-value="id1">ID</a>
                             <a class="dropdown-item" href="#" data-value="type1">Type</a>
-                            <a class="dropdown-item disabled" href="#" data-value="name1">Name</a>
+                            <a class="dropdown-item" href="#" data-value="name1">Name</a>
                             <a class="dropdown-item" href="#" data-value="relationship1">Relationship</a>
                         </div>
                         <button type="submit"
-                                class="btn btn-warning rounded-pill" id="searchButton"
-                        >Search
+                                class="btn btn-warning bi-search rounded-pill" id="searchButton" data-bs-toggle="tooltip"
+                                title="Start search"
+                        > Search
                         </button>
                     </div>
                 </div>
-
-
             </div>
         </nav>
 
@@ -130,15 +129,19 @@
                         <button class="accordion-button" type="button" data-bs-toggle="collapse"
                                 data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
                             Entity
-                            <button type="button" class="btn btn-primary" id="edit" onclick="editEntity()">Edit</button>
                         </button>
 
-                        <i class="bi bi-arrow-right-circle-fill disabeld" style="color: #256B88" z-index="9999"
-                           onclick="nextEntity()"></i> <!-- Comment out this line to hide the "next entity"-icon -->
+
                     </h2>
                     <div id="collapseOne" class="accordion-collapse collapse show" aria-labelledby="headingOne"
                          data-bs-parent="#entityaccordion">
                         <div class="accordion-body">
+                            <button class="btn btn-primary bi-pen my-2 " id="edit" onclick="editEntity()"
+                            data-bs-toggle="tooltip" title="Edit this Entity">
+                            </button>
+                            <button class="btn btn-primary bi-arrow-clockwise my-2" id="refresh" onclick="getEntity()"
+                            data-bs-toggle="tooltip"  title="Reload this entity to get current real time data!">
+                            </button>
                             <div id="table" class="graph">
                             </div>
                         </div>
@@ -151,7 +154,7 @@
         <h3 class="h3">Main Graph</h3>
         <div id="main_graph" class="graph">
             <div class="dropdown" id="legend">
-                <button class="btn btn-outline-info dropdown-toggle" type="button" id="dropdownMenuButton1"
+                <button class="btn btn-outline-info bi-list dropdown-toggle" type="button" id="dropdownMenuButton1"
                         data-bs-toggle="dropdown" aria-expanded="false">
                     Legend
                 </button>
@@ -172,7 +175,6 @@
         </div>
         <h3 class="h3">Detail Level</h3>
         <div id="detail_level" class="graph">
-
         </div>
 
 
@@ -196,7 +198,7 @@
 
     <script>
         let currentUrl = window.location.href;
-        let baseUrl = currentUrl.split('/ngsiv2/')[0];
+        let baseUrl = currentUrl.split('/semantics')[0];
         cy.on('click', 'node', handleClick);
         detail.on('click', 'node', handleClick);
 
@@ -235,8 +237,7 @@
         });
         var searchField = document.querySelector('.form-control');
         searchField.addEventListener('input', checkInputEmpty);
-        //var editButton = document.getElementById('edit')
-        //editButton.addEventListener('click', editEntity)
+
 
 
         //Try to solve scrolling problem!! not working
