@@ -2,11 +2,22 @@ from django.views.generic import TemplateView
 from django.shortcuts import redirect
 from projects.models import Project
 from django.http import JsonResponse
+from django.http import HttpRequest
 import json
 from projects.mixins import ProjectContextMixin
 from semantics.prepDataSemantics import PrepData
 from django.shortcuts import render
 from entities.requests import get_entity
+from entities.requests import get_entities_list, get_entity
+import stardog
+from .models import Prefix
+from django.urls import reverse_lazy
+from django.conf import settings
+from django.contrib import messages
+from django.forms import formset_factory
+from django.shortcuts import render, redirect
+from SPARQLWrapper import SPARQLWrapper, JSON
+
 
 
 class StartPage(ProjectContextMixin, TemplateView):
@@ -80,6 +91,71 @@ class SemanticsVisualizer(ProjectContextMixin, TemplateView):
                 # Yield the current key and value as a tuple
                 yield current_key, value
 
+class RDFFileVisualizer(ProjectContextMixin, TemplateView):
+    template_name = "semantics/rdf_visualizer.html"   
+    prefix_form_class = Prefix
+
+    def post(self, request,*args, **kwargs):
+        context = super(RDFFileVisualizer, self).get_context_data()
+        self.request.session['prefixes'] = "PREFIX MVF test"
+        file = request.FILES['myfile']
+        context['prefixes'] = self.request.session['prefixes']
+        content = file.read()
+        self.post_ttl(request, file, content)
+        return render(request, "semantics/start_page.html", context)
+
+    def post_ttl(self, request, file, content):        
+        self.conn_details = {
+        'endpoint': settings.STARDOG_URL,
+        'username': settings.STARDOG_USER,
+        'password': settings.STARDOG_PASSWORD
+        }
+        database = settings.STARDOG_DATABASE
+        # print("Content: ", content)
+        try:
+            with stardog.Connection(database, **self.conn_details) as conn:
+                # messages.success(self.request,message="Successfully Connected to Stardog Database !!")
+                conn.begin()
+                if 'ttl' in file.name:
+                    messages.success(self.request,message="Successfully Uploade File to Stardog Database !!")
+                    conn.add(stardog.content.Raw(content, content_type="text/turtle"))
+                    conn.commit()
+        except Exception as e:
+            messages.error(self.request,e)
+            print(e)
+    
+    def get_rdf_data(self, query):        
+        database = settings.STARDOG_DATABASE     
+        self.conn_details = {
+            'endpoint': settings.STARDOG_URL,
+            'username': settings.STARDOG_USER,
+            'password': settings.STARDOG_PASSWORD
+            }
+        try:
+            if query:                
+                with stardog.Connection(database, **self.conn_details) as conn:           
+                    store_query_result = conn.select(query)
+                    list_to_print = []
+                    filtered_keys = ['subject', 'property', 'object']
+                    for row in store_query_result['results']['bindings']:
+                        for key in row.keys():
+                            if key not in filtered_keys:
+                                row.pop(key)
+                                break
+                        list_to_print.append(row)
+                    results_list = PrepData.prep_query_result(self,query_list=list_to_print)
+                    return PrepData.prep_cyto_list(self, results_list)
+        except  Exception as e:
+            messages.error(self.request, e)
+
+    def get_context_data(self, **kwargs):
+        context = super(RDFFileVisualizer, self).get_context_data(**kwargs)
+        query = self.request.GET.get("query", default="")      
+        context['query'] = query
+        context["elements"] = self.get_rdf_data(query)
+        self.request.session['prefixes'] = "PREFIX MVF test"
+        context['prefixes'] = self.request.session['prefixes']
+        return context
 
 class LdVisualizer(ProjectContextMixin, TemplateView):
     templet_name = "semantics/semantics_LdVisualize.html"

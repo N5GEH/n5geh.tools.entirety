@@ -1,0 +1,193 @@
+{% extends '_base.html' %}
+{% load compress %}
+{% load static %}
+
+{% block title %}Semantics{% endblock %}
+{% block content %}
+{% compress css %}
+        <link type="text/x-scss" href="{% static "semantics/css/base.scss" %}" rel="stylesheet">
+    {% endcompress %}
+<div class="container-fluid d-flex h-100 flex-column"> 
+    <div class="row justify-content-center" >
+        <div class="col-4">
+            <div style="padding:20px;border:1px solid #ccc">
+                <h2 style="color:#297797">Upload Semantics File</h2>
+                <form method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <input type="file" name="myfile" accept=".ttl" />
+                    <input type="submit" name="submit" value="Upload"/>
+                </form>    
+            </div>
+        </div>
+        <div class="col-8 my-auto">
+            <div class="row " style="border:1px solid #ccc">
+                <div class="col-12" style="padding:5px">
+                <form action="" >
+                    <fieldset>
+                        <legend style="color:#297797;font-size: 1.5rem">Enter SPARQL Search Query</legend>
+                    <!-- <div class="p-3 border border-light rounded-pill bg-light" style="width: 100%;height: 100%"> -->
+                        <div class="input-group" style="width: 100%;height: 100%;border: 2px solid #ccc;box-sizing: border-box;">
+                            <!-- <input name="query" type="text" class="form-control border-light rounded-pill"
+                                placeholder="Query RDF Data "/> -->
+                            <textarea name="query" class="form-control border-light"  placeholder="PREFIX ... SELECT ... WHERE ... ORDER BY ...">{{query}}</textarea>
+                            <span class="input-group-btn">
+                                <button class="btn btn-info btn-lg bg-light border-light" type="submit"
+                                        value="search">
+                                    <i class="bi-search"></i>
+                                </button>
+                            </span>                        
+                        </div>
+                    <!-- </div> -->
+                </fieldset>
+                </form>
+                </div>
+            </div>
+            <!-- <div class="row justify-content-center">                    
+                    <h2>Search Results for {{ query }} </h2>
+                <div>
+                   <h4> Results {{ results }}  </h4> 
+                </div>
+            </div> -->
+        </div>
+    </div>
+    <div class="row justify-content-center" >
+        Prefixes :{{prefixes}}
+    </div>
+    <!-- <div class="row justify-content-center">
+        <div class="col-3"></div>
+        <div class="col-6 my-auto">
+            <p>Search Results for {{ query }} </p>
+        </div>
+        <div class="col-3"></div>
+    </div> -->
+    <!-- <div class="row justify-content-center">
+        <div>
+            <h4> Results {{ results }}  </h4> 
+         </div> 
+    </div> -->
+
+</div>
+<main class="d-flex flex-column flex-fill ps-4 pe-3 py-3">
+        <nav class="navbar navbar-expand-lg bg-light">
+            <div class="container-fluid">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"
+                           aria-expanded="false">
+                            Filter
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li>
+                                <a class="dropdown-item" href="#">
+                                    Types &raquo;
+                                </a>
+                                <ul class="dropdown-menu dropdown-submenu">
+                                    {% for type in types %}
+                                        <li>
+                                            <a class="dropdown-item">
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" value=""
+                                                           id="flexCheckDefault">
+                                                    <label class="form-check-label" for="flexCheckDefault">
+                                                        {{ type }}
+                                                    </label>
+                                                </div>
+                                            </a>
+                                        </li>
+                                    {% endfor %}
+                                </ul>
+                            </li>
+                            <li>
+                                <a class="dropdown-item" href="#">
+                                    Relationships &raquo;
+                                </a>
+                                <ul class="dropdown-menu dropdown-submenu">
+                                    {% for rel in relationships %}
+                                        <li>
+                                            <a class="dropdown-item">
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" value=""
+                                                           id="flexCheckDefault">
+                                                    <label class="form-check-label" for="flexCheckDefault">
+                                                        {{ rel }}
+                                                    </label>
+                                                </div>
+                                            </a>
+                                        </li>
+                                    {% endfor %}
+                                </ul>
+                            </li>
+                        </ul>
+                    </li>
+
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"
+                           aria-expanded="false">
+                            labeling
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item">Id</a></li>
+                            <li><a class="dropdown-item">Name</a></li>
+                            <li><a class="dropdown-item">None</a></li>
+                        </ul>
+                    </li>
+                </ul>
+                <form class="d-flex" role="search">
+                    <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
+                    <button type="submit"
+                            class="btn btn-warning rounded-pill"
+                    >Search
+                    </button>
+                </form>
+            </div>
+        </nav>
+
+        <div id="entity" style="display: none">
+            <h3 class="h3"></h3>
+            <div id="table" class="graph">
+                entity table will appear!
+            </div>
+        </div>
+
+        <h3 class="h3">Main Graph</h3>
+        <div id="main_graph" class="graph">
+
+
+        </div>
+        <h3 class="h3">Detail Level</h3>
+        <div id="detail_level" class="graph">
+
+        </div>
+        <div class="graph">
+            {{ elements|safe }}
+        </div>
+
+
+        <script>
+            var data =
+            {{ elements|safe }}
+
+        </script>
+
+
+    </main>
+
+
+    <script src="{% static "semantics/js/cytoscape.umd.js" %}"></script>
+    <script src="{% static "semantics/js/semantics.js" %}"></script>
+
+    <script>
+        cy.on('click', 'node', handleClick);
+        detail.on('click', 'node', handleClick);
+
+        //detail.on('click', 'node', function (event) {
+          //  var clickedNode = event.target;
+            //var clickedNode_id = clickedNode.id();
+            //console.log('detail')
+            // Call function to update detail level
+            //update_detail_level(clickedNode_id, clickedNode);
+        //});
+
+    </script>
+
+{% endblock %}

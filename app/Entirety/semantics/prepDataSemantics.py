@@ -132,3 +132,68 @@ class PrepData(ProjectContextMixin):
                     all_rel.append(rel)
                     options.append(rel)
         return options
+    
+    def prep_query_result(self, query_list = None):
+        # Load triples into list and print list
+        self.pretty_list = []
+        
+        for row in query_list:
+            #Make IRI pretty by removing http
+            #pretty_row = []
+            pretty_row = {
+                "source": "",
+                "label": "",
+                "target": "",
+            }
+            if 'subject' in row:
+                pretty_subject = row['subject']['value']
+                if '#' in pretty_subject:
+                    pretty_row['source'] = pretty_subject.split('#')[1]
+                else:
+                    pretty_row['source'] = pretty_subject
+            if 'property' in row:
+                pretty_property = row['property']['value']
+                if '#' in pretty_property:
+                    pretty_row['label'] = pretty_property.split('#')[1]
+                else:
+                    pretty_row['label'] = pretty_property
+            if 'object' in row:
+                pretty_object = row['object']['value']
+                if '#' in pretty_object:
+                    pretty_row['target'] = pretty_object.split('#')[1]
+                else:
+                    pretty_row['target'] = pretty_object
+            self.pretty_list.append(pretty_row)
+
+
+        # Turn on when printing is not needed
+        return self.pretty_list
+    
+    def prep_cyto_list(self, pretty_list):
+        cy_edges = []
+        cy_nodes = []
+        elements = []
+        nodes = set()
+        for item in pretty_list:
+            json_list = {"data":{ "id": str(item["source"] + item["target"]), "source":item["source"], "target":item["target"], "label":item["label"]}}
+            # print(json_list)
+            cy_edges.append(json_list)
+            if item["source"] not in nodes:
+                nodes.add(item["source"])
+                cy_nodes.append({"data": {"id": item["source"], "label": item["label"], "children": item["target"]}, "classes": "test"})
+        for edge in cy_edges:
+                for key, value in edge.items():
+                    if value.get("target") not in nodes:
+                        nodes.add(value.get('target'))
+                        cy_nodes.append({"data": {"id": value.get("target"), "label": "end_of_graph"}})
+        for node in cy_nodes:
+            for n_key, n_value in node.items():
+                if isinstance(n_value, dict):
+                    if n_value.get("id") == value.get("target"):
+                        n_value['parents'] = [value.get("source")]
+        for i in cy_nodes:
+                elements.append(i)
+        for j in cy_edges:
+            elements.append(j)
+        
+        return elements
