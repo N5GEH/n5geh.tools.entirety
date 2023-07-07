@@ -77,6 +77,11 @@ class AttributeForm(forms.Form):
             }
         ),
     )
+    metadata = forms.JSONField(
+        required=False,
+        label="Metadata",
+        widget=forms.Textarea(attrs={"onfocus": "prettyJSON(this.id)"}),
+    )
 
     def __init__(self, *args, **kwargs):
         super(AttributeForm, self).__init__(*args, **kwargs)
@@ -88,6 +93,7 @@ class AttributeForm(forms.Form):
                 "name",
                 "type",
                 "value",
+                "metadata",
                 HTML(
                     "<button class='remove-form btn btn-danger rounded-pill btn-sm'><i class='bi "
                     "bi-trash'></i></button>"

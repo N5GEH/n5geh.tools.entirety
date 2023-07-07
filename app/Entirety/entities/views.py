@@ -141,7 +141,7 @@ class Create(ProjectContextMixin, TemplateView):
                 k for k, v in self.request.POST.items() if re.search(r"attr-\d+", k)
             ]
             i = j = 0
-            while i < (len(entity_keys) / 3):
+            while i < (len(entity_keys) / 4):
                 keys = [
                     k
                     for k, v in self.request.POST.items()
@@ -149,6 +149,7 @@ class Create(ProjectContextMixin, TemplateView):
                 ]
                 if any(keys):
                     attr = ContextAttribute()
+                    attr.metadata = json.load(self.request.POST.get(keys[3]))
                     attr.value = self.request.POST.get(keys[2])
                     attr.type = self.request.POST.get(keys[1])
                     entity.add_attributes({self.request.POST.get(keys[0]): attr})
@@ -260,7 +261,16 @@ class Update(ProjectContextMixin, TemplateView):
         basic_info.fields["type"].widget.attrs["readonly"] = True
         initial = []
         for attr in entity.get_attributes(strict_data_type=False):
-            initial.append({"name": attr.name, "type": attr.type, "value": attr.value})
+            for metadata_key, meta_data_value in attr.metadata.items():
+                attr.metadata[metadata_key] = meta_data_value.dict()
+            initial.append(
+                {
+                    "name": attr.name,
+                    "type": attr.type,
+                    "value": attr.value,
+                    "metadata": attr.metadata,
+                }
+            )
         attributes_form_set = formset_factory(AttributeForm, max_num=0)
         attributes = attributes_form_set(prefix="attr", initial=initial)
         context = super(Update, self).get_context_data(**kwargs)
@@ -278,7 +288,7 @@ class Update(ProjectContextMixin, TemplateView):
             k for k, v in self.request.POST.items() if re.search(r"attr-\d+", k)
         ]
         i = j = 0
-        while i < (len(entity_keys) / 3):
+        while i < (len(entity_keys) / 4):
             new_keys = [
                 k
                 for k, v in self.request.POST.items()
@@ -286,6 +296,7 @@ class Update(ProjectContextMixin, TemplateView):
             ]
             if any(new_keys):
                 attr = ContextAttribute()
+                attr.metadata = json.loads(self.request.POST.get(new_keys[3]))
                 attr.value = self.request.POST.get(new_keys[2])
                 attr.type = self.request.POST.get(new_keys[1])
                 entity.add_attributes({self.request.POST.get(new_keys[0]): attr})

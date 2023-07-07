@@ -1,6 +1,6 @@
-function prettyJSON() {
-    var ugly = document.getElementById('id_entity_json').value;
+function prettyJSON(element_id) {
+    var ugly = document.getElementById(element_id).value;
     var obj = JSON.parse(ugly);
     var pretty = JSON.stringify(obj, undefined, 4);
-    document.getElementById('id_entity_json').value = pretty;
+    document.getElementById(element_id).value = pretty;
 }
