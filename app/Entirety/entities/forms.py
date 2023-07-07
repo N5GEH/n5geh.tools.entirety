@@ -80,7 +80,14 @@ class AttributeForm(forms.Form):
     metadata = forms.JSONField(
         required=False,
         label="Metadata",
-        widget=forms.Textarea(attrs={"onfocus": "prettyJSON(this.id)"}),
+        widget=forms.Textarea(
+            attrs={
+                "onfocus": "prettyJSON(this.id)",
+                "data-bs-toggle": "tooltip",
+                "data-bs-placement": "top",
+                "title": "(optional) Metadata dictionary",
+            }
+        ),
     )
 
     def __init__(self, *args, **kwargs):
