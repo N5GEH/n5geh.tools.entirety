@@ -80,6 +80,7 @@ class AttributeForm(forms.Form):
     metadata = forms.JSONField(
         required=False,
         label="Metadata",
+        initial={},
         widget=forms.Textarea(
             attrs={
                 "onfocus": "prettyJSON(this.id)",
