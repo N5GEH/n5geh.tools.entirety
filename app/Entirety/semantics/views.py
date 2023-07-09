@@ -9,8 +9,8 @@ from django.shortcuts import render
 from entities.requests import get_entity
 
 
-class StartPage(ProjectContextMixin, TemplateView):
-    template_name = "semantics/start_page.html"
+# class StartPage(ProjectContextMixin, TemplateView):
+#     template_name = "semantics/start_page.html"
 
 
 class SemanticsVisualizer(ProjectContextMixin, TemplateView):

@@ -11,45 +11,71 @@ var currentlyClickedNode = "" //currently clicked Node
 var previousClickedNode = "" // previous clicked Node
 var currentNodeType = ""
 
-// for higliting nodes
+// for highlighting nodes
 const parantsNodeColor = "yellow";
 const childrensNodeColor = "orange";
 const edgesNodeColor = "red";
 
-
-var cy = cytoscape({
-    container: document.getElementById('main_graph'),
-    elements: data,
-
-    style: [
+var currentStyleCy = {
+    styleSheets: [
         {
             selector: 'node',
             style: {
                 width: '20px',
                 height: '20px',
                 shape: 'ellipse',
-                label: 'data(label)', // default label: name of entity
-                'background-color': defaultnodecolor,
-                'color': defaulttextcolor,
+                label: 'data(label)',
+                backgroundColor: defaultnodecolor,
+                color: defaulttextcolor
             }
         },
         {
             selector: 'edge',
             style: {
-                'line-color': defaultedgecolor,
+                lineColor: defaultedgecolor,
+                color: defaulttextcolor,
+                width: '1px',
+                targetArrowColor: defaultedgecolor,
+                targetArrowShape: 'vee',
+                curveStyle: 'bezier',
+                label: 'data(label)'
+            }
+        }
+    ]
+};
+var currentStyleDetail = {
+    styleSheets: [
+        {
+            selector: 'node',
+            style: {
+                width: '20px',
+                height: '20px',
+                shape: 'ellipse',
+                label: 'data(label)',
                 'color': defaulttextcolor,
+            },
+        },
+        {
+            selector: 'edge',
+            style: {
                 'width': '1px',
-                'line-opacity': '30%',
-                'target-arrow-color': defaultedgecolor,
                 'target-arrow-shape': 'vee',
                 'curve-style': 'bezier',
+                'color': defaulttextcolor,
                 label: 'data(label)'
             }
         }
     ],
+
+}
+
+var cy = cytoscape({
+    container: document.getElementById('main_graph'),
+    elements: data,
     maxZoom: 2,
     minZoom: 0.5,
     wheelSensitivity: 0.2,
+    userZoomingEnabled: false,
     layout: {
         name: 'breadthfirst',
         fit: true, // whether to fit the viewport to the graph
@@ -77,47 +103,114 @@ var cy = cytoscape({
 
     }
 });
+//this part enables zooming and shows an alert message to teach the user how to Zoom
+var containerMainGraph = document.getElementById('main_graph');
+var alertShownMainGraph = false;
+containerMainGraph.addEventListener('wheel', function (event) {
+    if (!cy.userZoomingEnabled() && !alertShownMainGraph) {
+        document.getElementById("scrollAlert").classList.remove("d-none");
+        setTimeout(function () {
+            document.getElementById("scrollAlert").classList.add("d-none");
+        }, 2000);
+        alertShownMainGraph = true;
+    }
+});
+document.addEventListener('keydown', function (event) {
+    if (event.key === 'Control') {
+        cy.userZoomingEnabled(true);
+    }
+});
+document.addEventListener('keyup', function (event) {
+    if (event.key === 'Control') {
+        cy.userZoomingEnabled(false);
+    }
+});
+cy.style(currentStyleCy.styleSheets).update();
+
 var detail = cytoscape({
     container: document.getElementById('detail_level'),
     elements: [],
-    style: [
-        {
-            selector: 'node',
-            style: {
-                width: '20px',
-                height: '20px',
-                shape: 'ellipse',
-                label: 'data(id)',
-                'color': defaulttextcolor,
-            },
-        },
-        {
-            selector: 'edge',
-            style: {
-                'width': '1px',
-                'line-opacity': '30%',
-                'target-arrow-shape': 'vee',
-                'curve-style': 'bezier',
-                'color': defaulttextcolor,
-                label: 'data(label)'
-            }
-        }
-    ],
     maxZoom: 1.7,
     minZoom: 0.5,
+    userZoomingEnabled: false,
     wheelSensitivity: 0.2,
 
 });
+//this part enables zooming and shows an alert message to teach the user how to Zoom
+var containerDetail = document.getElementById('detail_level');
+var alertShownDetail = false;
+containerDetail.addEventListener('wheel', function (event) {
+    if (!detail.userZoomingEnabled() && !alertShownDetail) {
+        document.getElementById("scrollAlertDetail").classList.remove("d-none");
+        setTimeout(function () {
+            document.getElementById("scrollAlertDetail").classList.add("d-none");
+        }, 2000);
+        alertShownDetail = true;
+    }
+});
+document.addEventListener('keydown', function (event) {
+    if (event.key === 'Control') {
+        detail.userZoomingEnabled(true);
+    }
+});
+document.addEventListener('keyup', function (event) {
+    if (event.key === 'Control') {
+        detail.userZoomingEnabled(false);
+    }
+});
+detail.style(currentStyleCy.styleSheets).update();
 
+detail.style(currentStyleDetail.styleSheets).update();
+
+function removeStyleBySelector(targetGraph, selector) {
+    if (targetGraph === 'mainGraph') {
+        var indexToRemoveCy = currentStyleCy.styleSheets.findIndex(function (styleObject) {
+            return styleObject.selector === selector;
+        });
+
+        if (indexToRemoveCy !== -1) {
+            currentStyleCy.styleSheets.splice(indexToRemoveCy, 1);
+            cy.style(currentStyleCy.styleSheets).update();
+        }
+    }
+    if (targetGraph === 'detail') {
+        var IndexToRemoveDetail = currentStyleDetail.styleSheets.findIndex(function (styleObject) {
+            return styleObject.selector === selector;
+        });
+
+        if (IndexToRemoveDetail !== -1) {
+            currentStyleDetail.styleSheets.splice(IndexToRemoveDetail, 1);
+            detail.style(currentStyleDetail.styleSheets).update();
+        }
+    }
+
+}
+
+/**
+ * Clears the highlighting of search results in the graph and resets it to default value
+ * @param input - The input or label to be cleared.
+ */
+function clearSearchHighlight(input) {
+    var element = escapeColons(input)
+    var idSelector = 'node#' + element
+    var relSelector = `edge[label = "${input}"]`
+    var nameSelector = `node[label = "${input}"]`
+    removeStyleBySelector('mainGraph', idSelector)
+    removeStyleBySelector('mainGraph', "." + input)
+    removeStyleBySelector('mainGraph', relSelector)
+    removeStyleBySelector('mainGraph', nameSelector)
+
+    cy.style(currentStyleCy.styleSheets).update();
+    previousInput = '';
+}
 
 /**
  * handels actions when a node has been clicked in the main graph
  * @param event
  */
-var entIndex; // index of node in the order posted on orion
-nodeArray = [];
-nodeArray = cy.nodes().map(x => x.id());
-
+// var entIndex; // index of node in the order posted on orion
+// nodeArray = [];
+// nodeArray = cy.nodes().map(x => x.id());
 function handleClick(event) {
     previousClickedNode = currentlyClickedNode
     var div = document.getElementById('entity');
@@ -126,7 +219,7 @@ function handleClick(event) {
     currentNodeType = event.target.classes()[0]
     create_detail_level(event.target.id(), event.target);
     getEntity();
-    entIndex = Array.from(nodeArray).indexOf(event.target.id());
+    //entIndex = Array.from(nodeArray).indexOf(event.target.id());
     //shows entity table and adds node id to headder
     h3.textContent = 'Node ID: ' + event.target.id();
     div.style.display = 'block';
@@ -140,78 +233,30 @@ function handleClick(event) {
  * @param clickedNode
  */
 function clickedNodeStyling(clickedNode) {
-    var clickedNodeSelector = "";
-    var childSelector = [];
-    var childEdgeSelector = [];
-    var parentsEdge = [];
-    var parentsSelector = [];
-    var childrenEdge = [];
-    //get childrens of clicked node for highliting
-    // if (typeof clickedNode.data('children') === 'object' && clickedNode.data('children') !== null && Array.isArray(clickedNode.data('children'))) {
-    //
-    //     clickedNode.data('children').forEach(function (element) {
-    //         // element: current element in the array of children id´s
-    //         childSelector.push("#" + escapeColons(element))
-    //
-    //         var escapedEdgeId = escapeColons(clickedNode.data('id') + element);
-    //         //var edgeSelector = `edge[source="${escapeColons(clickedNode.data('id'))}"][target="${escapeColons(element)}"]`;
-    //         //childEdgeSelector.push(edgeSelector);
-    //         childEdgeSelector.push("#" + escapeColons(clickedNode.data('id') + element));
-    //     });
-    // }
-    // //check if clickedNode has parents
-    // if (typeof clickedNode.data('parents') === 'object' && clickedNode.data('parents') !== null && Array.isArray(clickedNode.data('parents'))) {
-    //
-    //     clickedNode.data('parents').forEach(function (element) {
-    //         // element: current element in the array of children id´s
-    //         parentsEdge.push(get_nodes_by_id(element + currentlyClickedNode));//appends edge between parents and center
-    //         parentsSelector.push(get_nodes_by_id(element)); //appends parent nodes to the detail level
-    //     });
-    // }
-    // if (childEdgeSelector.length === 0) {
-    //     console.log("Die Liste ist leer.");
-    // } else {
-    //     console.log("Die Liste ist nicht leer.");
-    // }
-    //
-    // console.log("childedgeSelector1: " + childrenEdge)
-    // //console.log(cy.$("#" + escapeColons(currentlyClickedNode)))
-    // console.log("childEdge:" + childEdgeSelector)
-    // //console.log("childSelector" + childSelector)
-    // //console.log("parentsEdge" + parentsEdge)
-    // //console.log("parentsSelector" + parentsSelector)
-    // childSelector.forEach(function (selector) {
-    //     console.log("child "+ selector)
-    //     cy.style()
-    //         .selector(selector)
-    //         .style("background-color", childrensNodeColor)
-    //         .style("color", childrensNodeColor)
-    //         .update();
-    // });
-    // childEdgeSelector.forEach(function (selector) {
-    //     console.log("selector 4: "+ selector)
-    //     cy.style()
-    //         .selector(cy.$(selector))
-    //         .style("line-color", edgesNodeColor)
-    //         .update();
-    // });
-
     //styles clicked Node
-    clearSearchHighlight(previousClickedNode)
+    removeStyleBySelector('mainGraph', "#" + escapeColons(previousClickedNode))
+    removeStyleBySelector('detail', "#" + escapeColons(previousClickedNode))
 
+    var newStyleMainGraphe = {
+        "selector": "#" + escapeColons(currentlyClickedNode),
+        style: {
+            "background-color": clickedNodeColor,
+            "color": clickedNodeColor
+        }
+    }
+    currentStyleCy.styleSheets.push(newStyleMainGraphe);
+    cy.style(currentStyleCy.styleSheets).update();
 
-    cy.style()
-            .selector("#"+ escapeColons(currentlyClickedNode))
-            .style("background-color", clickedNodeColor)
-            .style("color", clickedNodeColor)
-            .update();
-    detail.style()
-            .selector("#"+ escapeColons(currentlyClickedNode))
-            .style("background-color", clickedNodeColor)
-            .style("color", clickedNodeColor)
-            .update();
+    var newStyleDetail = {
+        "selector": "#" + escapeColons(currentlyClickedNode),
+        style: {
+            "background-color": clickedNodeColor,
+            "color": clickedNodeColor
+        }
+    }
+    currentStyleDetail.styleSheets.push(newStyleDetail);
+    detail.style(currentStyleDetail.styleSheets).update();
 }
-
 
 /**
  * creates all detail elements in such manner: (parents->center->children) takes
@@ -362,7 +407,9 @@ const tcheckboxes = document.querySelectorAll('input[name="typecheckbox"]');
 const rcheckboxes = document.querySelectorAll('input[name="relcheckbox"]');
 const numAdditionalColors = tcheckboxes.length;
 
-// Generates as many additional random colors as there are entities in orion
+/*
+Generates as many additional random colors as there are entities in orion
+ */
 function generateRandomColor() {
     const letters = '0123456789ABCDEF';
     let color = '#';
@@ -401,6 +448,7 @@ function add_type_legend() {
         })
     }
 }
+
 /**
  * Inserts an endtry in the Dropdown menu in the main graph, which contains the color legends for relationships filter
  */
@@ -450,7 +498,7 @@ function handleSearch(event) {
         handleTypeSearch(input);
     } else if (selectedValue === 'relationship1') {
         handleRelationshipSearch(input);
-    }else if (selectedValue === 'name1') {
+    } else if (selectedValue === 'name1') {
         handleNameSearch(input)
     }
 }
@@ -460,7 +508,6 @@ function handleSearch(event) {
  * @param str (str): The string which ':' are escapted
  * @returns {*} (str): escaped string or unchanged string
  */
-
 function escapeColons(str) {
     if (typeof str === 'undefined') {
         console.log("übergebener Wert ist nicht definiert funktion escapeColons")
@@ -481,30 +528,6 @@ function checkInputEmpty() {
 }
 
 /**
- * Clears the highlighting of search results in the graph and resets it to default value
- * @param input - The input or label to be cleared.
- */
-function clearSearchHighlight(input) {
-    var element = escapeColons(input)
-    var idSelector = cy.$("#" + element)
-    var relSelector = `edge[label = "${input}"]`
-    cy.style()
-        .selector(idSelector + ", ." + input + "," + relSelector)
-        .style('background-color', defaultnodecolor)
-        .style('line-color', defaultedgecolor)
-        .style("color", defaulttextcolor)
-        // .update();
-    detail.style()
-        .selector(idSelector + ", ." + input + "," + relSelector)
-        .style('background-color', defaultnodecolor)
-        .style('line-color', defaultedgecolor)
-        .style("color", defaulttextcolor)
-        .update();
-    previousInput = '';
-}
-
-
-/**
  * This function handles the search by ID if this option is selected
  * @param inputValue (str): input string from the search field
  */
@@ -516,14 +539,18 @@ function handleIdSearch(inputValue) {
         if (inputValue !== previousInput) {
             clearSearchHighlight(previousInput)
         }
-        cy.style() // changes node style by filterung for selectors
-            .selector(cy.$('#' + element))
-            .style('background-color', searchcolor)
-            .update();
+        var newStyle = {
+            "selector": 'node#' + element,
+            style: {
+                'background-color': searchcolor,
+                'color': searchcolor
+            }
+        }
+        currentStyleCy.styleSheets.push(newStyle);
+        cy.style(currentStyleCy.styleSheets).update();
         previousInput = inputValue
     } else {
         addWarning("No matching Entity ID found. Perhaps you want to use another search option?")
-
     }
 }
 
@@ -540,10 +567,15 @@ function handleTypeSearch(inputValue) {
         if (inputValue !== previousInput) {
             clearSearchHighlight(previousInput)
         }
-        cy.style() // changes node style by filterung for selectors
-            .selector(typeSelector)
-            .style('background-color', searchcolor)
-            .update();
+        var newStyle = {
+            "selector": typeSelector,
+            style: {
+                'background-color': searchcolor,
+                'color': searchcolor
+            }
+        }
+        currentStyleCy.styleSheets.push(newStyle);
+        cy.style(currentStyleCy.styleSheets).update();
         previousInput = inputValue
 
     } else {
@@ -564,10 +596,15 @@ function handleRelationshipSearch(inputValue) {
         if (inputValue !== previousInput) {
             clearSearchHighlight(previousInput)
         }
-        cy.style() // changes node style by filterung for selectors
-            .selector(relSelector)
-            .style('line-color', searchcolor)
-            .update();
+        var newStyle = {
+            "selector": relSelector,
+            style: {
+                'line-color': searchcolor,
+                'color': searchcolor
+            }
+        }
+        currentStyleCy.styleSheets.push(newStyle);
+        cy.style(currentStyleCy.styleSheets).update();
         previousInput = inputValue
 
     } else {
@@ -597,10 +634,15 @@ function handleNameSearch(inputValue) {
         if (inputValue !== previousInput) {
             clearSearchHighlight(previousInput)
         }
-        cy.style() // changes node style by filterung for selectors
-            .selector(nameSelector)
-            .style('background-color', searchcolor)
-            .update();
+        var newStyle = {
+            "selector": nameSelector,
+            style: {
+                'background-color': searchcolor,
+                'color': searchcolor
+            }
+        }
+        currentStyleCy.styleSheets.push(newStyle);
+        cy.style(currentStyleCy.styleSheets).update();
         previousInput = inputValue
 
     } else {
@@ -640,14 +682,15 @@ function colorNodes() {
         const id = `.${checkbox.id}`;
         const nodeindex = Array.from(tcheckboxes).indexOf(checkbox);
         const color = colors[nodeindex];
-        cy.style() // changes node style by filterung for selectors
-            .selector(id)
-            .style('background-color', color)
-            .update();
-        detail.style()
-            .selector(id)
-            .style('background-color', color)
-            .update();
+        cy.style() // changes node style by filtering for selectors
+        var newStyle = {
+            "selector": id,
+            style: {
+                'background-color': color,
+            },
+        }
+        currentStyleCy.styleSheets.push(newStyle);
+        cy.style(currentStyleCy.styleSheets).update();
         originalColors.push({id, color});
     }
     // set nodes back to gray by unchecking the checkbox
@@ -658,14 +701,8 @@ function colorNodes() {
             const originalColorIndex = originalColors.findIndex(item => item.id === id);
             if (originalColorIndex !== -1) {
                 const originalColor = originalColors[originalColorIndex];
-                cy.style()
-                    .selector(id)
-                    .style('background-color', checkbox.checked ? originalColor.color : defaultnodecolor)
-                    .update();
-                detail.style()
-                    .selector(id)
-                    .style('background-color', checkbox.checked ? originalColor.color : defaultnodecolor)
-                    .update();
+                removeStyleBySelector('mainGraph', id)
+                cy.style(currentStyleCy.styleSheets).update();
 
                 if (!checkbox.checked) {
                     originalColors.splice(originalColorIndex, 1);
@@ -684,10 +721,14 @@ function colorEdges() {
         const label = `edge[label = "${checkbox.id}"]`;
         const edgeindex = Array.from(rcheckboxes).indexOf(checkbox);
         const color = colors[edgeindex];
-        cy.style() // changes edge style by filterung for selectors
-            .selector(label)
-            .style('line-color', color)
-            .update();
+        var newStyle = {
+            "selector": label,
+            style: {
+                "line-color": color,
+            }
+        }
+        currentStyleCy.styleSheets.push(newStyle);
+        cy.style(currentStyleCy.styleSheets).update();
         detail.style()
             .selector(label)
             .style('line-color', color)
@@ -702,10 +743,8 @@ function colorEdges() {
             const originalColorIndex = originalColors.findIndex(item => item.label === label);
             if (originalColorIndex !== -1) {
                 const originalColor = originalColors[originalColorIndex];
-                cy.style()
-                    .selector(label)
-                    .style('line-color', checkbox.checked ? originalColor.color : defaultedgecolor)
-                    .update();
+                removeStyleBySelector('mainGraph', label)
+                cy.style(currentStyleCy.styleSheets).update()
                 detail.style()
                     .selector(label)
                     .style('line-color', checkbox.checked ? originalColor.color : defaultedgecolor)
@@ -721,18 +760,29 @@ function colorEdges() {
 
 // Adapts node labels as selected, otherwise default value name is set
 function changeLabel(labelName) {
-    var label;
+    var nodeStyleMainGraph = currentStyleCy.styleSheets.find(function (styleObject) {
+        return styleObject.selector === 'node';
+    });
+    var nodeStyleDetail = currentStyleDetail.styleSheets.find(function (styleObject) {
+        return styleObject.selector === 'node';
+    });
+
     switch (labelName) {
         case "id":
-            cy.style().selector('node').style({label: 'data(id)'}).update();
+            nodeStyleMainGraph.style.label = 'data(id)';
+            nodeStyleDetail.style.label = 'data(id)';
             break;
         case "name":
-            cy.style().selector('node').style({label: 'data(label)'}).update();
+            nodeStyleMainGraph.style.label = 'data(label)';
+            nodeStyleDetail.style.label = 'data(label)';
             break;
         case "none":
-            cy.style().selector('node').style({label: ""}).update();
+            nodeStyleMainGraph.style.label = '';
+            nodeStyleDetail.style.label = '';
             break;
     }
+    cy.style(currentStyleCy.styleSheets).update();
+    detail.style(currentStyleDetail.styleSheets).update();
 }
 
 
@@ -811,6 +861,6 @@ function changeLayout(layoutName) {
 function editEntity() {
     entitiesUrl = currentUrl.split('/semantics/')[0]
     var newUrl = entitiesUrl + "/entities/" + currentlyClickedNode + "/" + currentNodeType + "/update/";
-    //window.open(newUrl, 'Popup-Fenster', 'width=800,height=600') idea for popup window instead of redirection
+    //window.open(newUrl, 'Popup-Fenster', 'width=800,height=600')// idea for popup window instead of redirection
     window.location.href = newUrl;
 }

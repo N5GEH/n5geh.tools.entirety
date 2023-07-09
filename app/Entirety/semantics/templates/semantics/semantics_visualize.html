@@ -99,19 +99,20 @@
                     <input type="text" class="form-control" placeholder="Search field...">
                     <div class="input-group-append">
                         <button class="btn btn-outline-secondary dropdown-toggle" type="button" id="searchOptions"
-                                data-bs-toggle="dropdown" title="Choose a search option"
+                                data-bs-toggle="dropdown"
                                 style="border-bottom-left-radius: 0; border-top-left-radius: 0;"
                                 aria-haspopup="true" aria-expanded="false"
                         >Options
                         </button>
-                        <div class="dropdown-menu">
+                        <div class="dropdown-menu dropdown-menu-right">
                             <a class="dropdown-item" href="#" data-value="id1">ID</a>
                             <a class="dropdown-item" href="#" data-value="type1">Type</a>
                             <a class="dropdown-item" href="#" data-value="name1">Name</a>
                             <a class="dropdown-item" href="#" data-value="relationship1">Relationship</a>
                         </div>
                         <button type="submit"
-                                class="btn btn-warning bi-search rounded-pill" id="searchButton" data-bs-toggle="tooltip"
+                                class="btn btn-warning bi-search rounded-pill" id="searchButton"
+                                data-bs-toggle="tooltip"
                                 title="Start search"
                         > Search
                         </button>
@@ -137,10 +138,10 @@
                          data-bs-parent="#entityaccordion">
                         <div class="accordion-body">
                             <button class="btn btn-primary bi-pen my-2 " id="edit" onclick="editEntity()"
-                            data-bs-toggle="tooltip" title="Edit this Entity">
+                                    data-bs-toggle="tooltip" title="Edit this Entity">
                             </button>
                             <button class="btn btn-primary bi-arrow-clockwise my-2" id="refresh" onclick="getEntity()"
-                            data-bs-toggle="tooltip"  title="Reload this entity to get current real time data!">
+                                    data-bs-toggle="tooltip" title="Reload this entity to get current real time data!">
                             </button>
                             <div id="table" class="graph">
                             </div>
@@ -153,6 +154,9 @@
 
         <h3 class="h3">Main Graph</h3>
         <div id="main_graph" class="graph">
+            <div class="alert alert-warning d-none" role="alert" id="scrollAlert">
+                Use <strong>Ctrl + Mouse Wheel</strong> to zoom.
+            </div>
             <div class="dropdown" id="legend">
                 <button class="btn btn-outline-info bi-list dropdown-toggle" type="button" id="dropdownMenuButton1"
                         data-bs-toggle="dropdown" aria-expanded="false">
@@ -175,6 +179,9 @@
         </div>
         <h3 class="h3">Detail Level</h3>
         <div id="detail_level" class="graph">
+            <div class="alert alert-warning d-none" role="alert" id="scrollAlertDetail">
+                Use <strong>Ctrl + Mouse Wheel</strong> to zoom.
+            </div>
         </div>
 
 
@@ -237,7 +244,6 @@
         });
         var searchField = document.querySelector('.form-control');
         searchField.addEventListener('input', checkInputEmpty);
-
 
 
         //Try to solve scrolling problem!! not working
