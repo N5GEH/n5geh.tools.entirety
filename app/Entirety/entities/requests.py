@@ -8,6 +8,8 @@ from filip.clients.ngsi_v2 import ContextBrokerClient, IoTAClient
 from filip.models import FiwareHeader
 from filip.utils.filter import filter_subscriptions_by_entity
 
+from subscriptions.models import Subscription
+
 
 class AttributeTypes(Enum):
     RELATIONSHIP = "Relationship"
@@ -122,6 +124,7 @@ def delete_subscription(sub_ids, project):
     ) as cb_client:
         for sub_id in sub_ids:
             cb_client.delete_subscription(sub_id)
+        Subscription.objects.filter(uuid__in=sub_ids).delete()
 
 
 def delete_relationship(entity_id, attribute_name, entity_type, project):
@@ -186,7 +189,7 @@ def get_relationships(entity_id, project):
         relations = []
         for entity in entities:
             if entity.id != entity_id:
-                for attr in entity.get_attributes():
+                for attr in entity.get_attributes(strict_data_type=False):
                     if attr.type == AttributeTypes.RELATIONSHIP.value:
                         if attr.value == entity_id:
                             entity_to_append = entity.dict(include={"id", "type"})
