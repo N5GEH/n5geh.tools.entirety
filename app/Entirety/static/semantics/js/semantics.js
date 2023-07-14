@@ -111,7 +111,7 @@ containerMainGraph.addEventListener('wheel', function (event) {
         document.getElementById("scrollAlert").classList.remove("d-none");
         setTimeout(function () {
             document.getElementById("scrollAlert").classList.add("d-none");
-        }, 2000);
+        }, 5000);
         alertShownMainGraph = true;
     }
 });
@@ -144,7 +144,7 @@ containerDetail.addEventListener('wheel', function (event) {
         document.getElementById("scrollAlertDetail").classList.remove("d-none");
         setTimeout(function () {
             document.getElementById("scrollAlertDetail").classList.add("d-none");
-        }, 2000);
+        }, 5000);
         alertShownDetail = true;
     }
 });
