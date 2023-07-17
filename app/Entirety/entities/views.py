@@ -50,8 +50,13 @@ class EntityList(ProjectContextMixin, SingleTableMixin, TemplateView):
     form_class = SelectionForm
 
     def get_table_data(self):
-        search_id = self.request.GET.get("search-id", default="")
-        search_type = self.request.GET.get("search-type", default="")
+        search_option = self.request.GET.get("search-options", default="")
+        search_id = ""
+        search_type = ""
+        if search_option == "id":
+            search_id = self.request.GET.get("search-entity", default="")
+        elif search_option == "type":
+            search_type = self.request.GET.get("search-entity", default="")
         try:
             return EntityTable.get_query_set(self, search_id, search_type, self.project)
         except Exception as e:
