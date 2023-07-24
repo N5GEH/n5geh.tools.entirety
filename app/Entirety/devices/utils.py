@@ -375,6 +375,7 @@ def get_data_from_session(request, key):
         return None
 
 
+# TODO deprecate
 def _get_attributes_from_data_model(data_model, only_required_attrs):
     properties = data_model.get("properties")
     required_attrs = data_model.get("required")
@@ -399,6 +400,8 @@ def _get_attributes_from_data_model(data_model, only_required_attrs):
     return attributes
 
 
+
+# TODO deprecate
 def _get_entity_type_from_data_model(data_model):
     if data_model.get("properties").get("type").get("enum"):
         if len(data_model.get("properties").get("type").get("enum")) == 1:

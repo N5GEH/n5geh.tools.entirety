@@ -5,6 +5,7 @@ from django.views.generic import View, TemplateView
 from django.http import HttpRequest
 import json
 from entirety.utils import add_data_to_session, pop_data_from_session
+from utils.json_schema_parser import EntiretyJsonSchemaParser
 from projects.mixins import ProjectContextMixin
 from devices.forms import ServiceGroupBasic, Attributes, Commands, SmartDataModelEntitiesForm
 from devices.utils import (
@@ -16,14 +17,11 @@ from devices.utils import (
     post_service_group,
     update_service_group,
     delete_service_group,
-    _get_attributes_from_data_model,
-    _get_entity_type_from_data_model
 )
 from devices.tables import GroupsTable
 from requests.exceptions import RequestException
 from pydantic import ValidationError
 import logging
-from filip.models.ngsi_v2.iot import DeviceAttribute
 
 logger = logging.getLogger(__name__)
 
@@ -79,14 +77,16 @@ class ServiceGroupCreateView(ProjectContextMixin, TemplateView):
     def get(self, request, *args, **kwargs):
         data_model = pop_data_from_session(request, "data_model")
         if data_model:
+            json_schema_parser = EntiretyJsonSchemaParser(data_model=data_model)
             only_required_attrs = pop_data_from_session(request, "only_required_attrs")
-            attributes_model = _get_attributes_from_data_model(data_model, only_required_attrs)
+            service_group_template = json_schema_parser.parse_to_service_group(
+                only_required_attrs=only_required_attrs)
+            attributes_model = [attr.dict() for attr in service_group_template.attributes]
             attributes = Attributes(
                 initial=attributes_model, prefix=prefix_attributes
             )
-            entity_type = _get_entity_type_from_data_model(data_model)
-            basic_info = ServiceGroupBasic(initial={"resource": "/iot/json",
-                                                    "entity_type": entity_type})
+            basic_info = ServiceGroupBasic(initial={"resource": service_group_template.resource,
+                                                    "entity_type": service_group_template.entity_type})
         else:
             attributes = Attributes(prefix=prefix_attributes)
             basic_info = ServiceGroupBasic(initial={"resource": "/iot/json"})
