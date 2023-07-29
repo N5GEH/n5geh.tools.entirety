@@ -6,7 +6,7 @@
 //copy and paste this as payload
 
 {
-"actionType":"APPEND",
+"actionType":"append",
 "entities":[
     {
         "id":"urn:ngsi-ld:Store:001",

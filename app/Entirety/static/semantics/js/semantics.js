@@ -183,7 +183,6 @@ function removeStyleBySelector(targetGraph, selector) {
             detail.style(currentStyleDetail.styleSheets).update();
         }
     }
-
 }
 
 /**
@@ -208,9 +207,6 @@ function clearSearchHighlight(input) {
  * handels actions when a node has been clicked in the main graph
  * @param event
  */
-// var entIndex; // index of node in the order posted on orion
-// nodeArray = [];
-// nodeArray = cy.nodes().map(x => x.id());
 function handleClick(event) {
     previousClickedNode = currentlyClickedNode
     var div = document.getElementById('entity');
@@ -219,12 +215,9 @@ function handleClick(event) {
     currentNodeType = event.target.classes()[0]
     create_detail_level(event.target.id(), event.target);
     getEntity();
-    //entIndex = Array.from(nodeArray).indexOf(event.target.id());
-    //shows entity table and adds node id to headder
     h3.textContent = 'Node ID: ' + event.target.id();
     div.style.display = 'block';
     clickedNodeStyling()
-
 }
 
 /**
@@ -785,17 +778,6 @@ function changeLabel(labelName) {
     detail.style(currentStyleDetail.styleSheets).update();
 }
 
-
-// // Colors edges temporary when nodes are grabbed
-// cy.$('node').on('grab', function (e) {
-//     var ele = e.target;
-//     ele.connectedEdges().style({'line-color': 'dimgray'});
-// });
-// cy.$('node').on('free', function (e) {
-//     var ele = e.target;
-//     ele.connectedEdges().style({'line-color': defaultedgecolor});
-// });
-
 // Adapts layout as selected
 function changeLayout(layoutName) {
     var layout;
@@ -835,25 +817,6 @@ function changeLayout(layoutName) {
     }
     cy.layout(layout).run();
 }
-
-// // By clicking the icon: creates next Entity in table and detail view according to the order of posted entities in orion
-// function nextEntity() {
-//     if (entIndex < nodeArray.length - 2) {
-//         ++entIndex;
-//     } else {
-//         entIndex = 0;
-//     }
-//     var newEntity = nodeArray[entIndex];
-//     let newTarget = null;
-//     cy.nodes().forEach(node => {
-//         if (node.id() == newEntity) {
-//             newTarget = node;
-//             return false;
-//         }
-//     });
-//     getEntity(newEntity);
-//     create_detail_level(newEntity, newTarget);
-// }
 
 /**
  * This function redirects the user to the Entity page if he/she clicked on the "edit" button
