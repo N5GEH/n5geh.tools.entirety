@@ -11,24 +11,13 @@
             <form action="">
                 <div class="p-3 border border-light rounded-pill bg-light">
                     <div class="input-group border-0 shadow-none">
-                        <input name="search-id" type="text" class="form-control border-light rounded-pill"
-                               placeholder="Search entities by id"/>
-                        <span class="input-group-btn">
-                                        <button class="btn btn-info btn-lg bg-light border-light" type="submit"
-                                                value="search">
-                                            <i class="bi-search"></i>
-                                        </button>
-                                        </span>
-                    </div>
-                </div>
-            </form>
-        </div>
-        <div class="col-4">
-            <form action="">
-                <div class="p-3 border border-light rounded-pill bg-light">
-                    <div class="input-group border-0 shadow-none">
-                        <input name="search-type" type="text" class="form-control border-light rounded-pill"
-                               placeholder="Search entities by type"/>
+                        <input name="search-entity" type="text" class="form-control border-light rounded-pill"
+                               placeholder="Search entities by ......"/>
+                        <select class="form-select-sm btn dropdown-toggle rounded-pill" name="search-options">
+                            <option  class="dropdown-item" disabled>Options</option>
+                            <option class="dropdown-item" value="id" selected>ID</option>
+                            <option class="dropdown-item" value="type">Type</option>
+                        </select>
                         <span class="input-group-btn">
                                         <button class="btn btn-info btn-lg bg-light border-light" type="submit"
                                                 value="search">
