@@ -214,7 +214,7 @@ function handleClick(event) {
     currentlyClickedNode = event.target.id()
     currentNodeType = event.target.classes()[0]
     create_detail_level(event.target.id(), event.target);
-    getEntity();
+    getEntityTree();
     h3.textContent = 'Node ID: ' + event.target.id();
     div.style.display = 'block';
     clickedNodeStyling()
@@ -365,34 +365,120 @@ async function makeRequest(url, method, body) {
  * @param nodeID (str): The ID of the node to retrieve the entity for.
  * @returns {Promise<void>}
  */
-async function getEntity() {
-
-    let data = await makeRequest(baseUrl + '/semantics/', 'post', JSON.stringify({nodeID: currentlyClickedNode}))
-    var entity = await data['entity']
-    // Define columns
-
-    var columns = [
-        {title: "Name", field: "Name", formatter: "textarea"},
-        {title: "Value", field: "Value", formatter: "textarea"},
-        {title: "Type", field: "Type", formatter: "textarea"},
-        {title: "Metadata", field: "Metadata", formatter: "textarea"}
-    ];
-
-    // Create Tabulator table
-    var table = new Tabulator("#table", {
-
-        layout: "fitDataFill",
-        columns: columns,
-        height: "300px",
-        verticalFillMode: "fill"
-    });
-
-    // Set data after table is built
-    table.on("tableBuilt", function () {
-        table.setData(entity);
-    });
+async function getEntityTree() {
+    $('#collapseOne').jstree(
+        {
+            'core': {
+                'data': [
+                    {
+                        'text': 'id',
+                        'state': {'opened': false},
+                        'children': ['urn:ngsi-ld:Store:001']
+                    },
+                    {
+                        'text': 'type',
+                        'state': {'opened': false},
+                        'children': ['Store']
+                    },
+                    {
+                        'text': 'name1',
+                        'state': {'opened': false},
+                        'children': [{
+                            'text': 'type',
+                            'state': {'opened': false},
+                            'children': ['Text']
+                        },
+                            {
+                                'text': 'value',
+                                'state': {'opened': false},
+                                'children': ['Corner Unit'
+                                ]
+                            },
+                            {
+                                'text': 'metadata',
+                                'state': {
+                                    'opened': false,
+                                    'disabled': true
+                                },
+                            }
+                        ]
+                    },
+                    {
+                        'text': 'name2',
+                        'state': {'opened': false},
+                        'children': [{
+                            'text': 'Text',
+                            'state': {'opened': false},
+                        },
+                            {
+                                'text': 'Corner Unit',
+                                'state': {'opened': true},
+                            },
+                            {
+                                'text': 'metadata',
+                                'state': {
+                                    'opened': false,
+                                    'disabled': true
+                                },
+                            }
+                        ]
+                    },
+                    {
+                        'text': 'name3: Corner Unit',
+                        'state': {'opened': false},
+                        'children': [
+                            {
+                                'text': 'type: Text',
+                                'state': {'opened': false},
+                            },
+                            {
+                                'text': 'metadata',
+                                'state': {
+                                    'opened': false,
+                                    'disabled': true
+                                },
+                            }
+                        ]
+                    },
+                    {
+                        'text': 'location',
+                        'state': {'opened': false},
+                        'children': [
+                            {
+                                'text': 'type',
+                                'state': {'opened': false},
+                                'children': ['geo:json']
+                            },
+                            {
+                                'text': 'value',
+                                'state': {'opened': true},
+                                'children': [
+                                    {
+                                        'text': 'type',
+                                        'state': {'opened': false},
+                                        'children': ['Point']
+                                    },
+                                    {
+                                        'text': 'coordinates',
+                                        'state': {'opened': false},
+                                        'children': ['13.3986112', '52.554699']
+                                    }
+                                ]
+                            },
+                            {
+                                'text': 'metadata',
+                                'state': {
+                                    'opened': false,
+                                    'disabled': true
+                                },
+                            }
+                        ]
+                    }
+                ]
+            }
+        }
+    )
 }
-
 
 // Pick node and edge colors to be displayed first
 const colors = ['#57C5B6', '#feb236', '#0dcaf0', '#D14D72', '#107cad', '#6CDB42', '#ff7b25', '#bea0d7', '#B70404', '#F9F54B', '#9A1663', '#9F8772', '#FF8787']
