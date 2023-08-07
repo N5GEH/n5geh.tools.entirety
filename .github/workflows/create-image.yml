@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - development
+      - 125-rework-entirety-image
   release:
     types:
       - created
