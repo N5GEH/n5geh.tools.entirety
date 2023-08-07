@@ -210,13 +210,20 @@ function clearSearchHighlight(input) {
 function handleClick(event) {
     previousClickedNode = currentlyClickedNode
     var div = document.getElementById('entity');
-    var h3 = div.querySelector('h3');
+    var nodeIdText = document.getElementById('nodeIdText');
+    var table = document.getElementById('collapseOne');
     currentlyClickedNode = event.target.id()
     currentNodeType = event.target.classes()[0]
     create_detail_level(event.target.id(), event.target);
     getEntity();
-    h3.textContent = 'Node ID: ' + event.target.id();
+    entIndex = Array.from(nodeArray).indexOf(event.target.id());
+    nodeIdText.textContent = 'Additional information on Node ID: ' + event.target.id();
     div.style.display = 'block';
+    setTimeout(function() {
+        table.classList.remove('show');
+        console.log("Accordion-Klasse:", table.className);
+    }, 10);
+    window.scrollBy(0,1);
     clickedNodeStyling()
 }
 
@@ -372,10 +379,10 @@ async function getEntity() {
     // Define columns
 
     var columns = [
-        {title: "Name", field: "Name", formatter: "textarea"},
-        {title: "Value", field: "Value", formatter: "textarea"},
-        {title: "Type", field: "Type", formatter: "textarea"},
-        {title: "Metadata", field: "Metadata", formatter: "textarea"}
+        {title: "Name", field: "Name", formatter: "textarea", maxWidth: 150},
+        {title: "Value", field: "Value", formatter: "textarea", maxWidth: 450},
+        {title: "Type", field: "Type", formatter: "textarea", maxWidth: 150},
+        {title: "Metadata", field: "Metadata", formatter: "textarea", maxWidth: 450}
     ];
 
     // Create Tabulator table
@@ -826,4 +833,99 @@ function editEntity() {
     var newUrl = entitiesUrl + "/entities/" + currentlyClickedNode + "/" + currentNodeType + "/update/";
     //window.open(newUrl, 'Popup-Fenster', 'width=800,height=600')// idea for popup window instead of redirection
     window.location.href = newUrl;
+}
+
+/**
+ * This function creates a contextmenu with attributes at right clicked mouse event
+ */
+
+document.addEventListener("contextmenu", function (event) {
+    var modal = document.getElementById("myModal");
+    var isInsideModal = false;
+    var targetElement = event.target;
+    while (targetElement) {
+      if (targetElement === modal || targetElement.id === "attributesList" || targetElement.id === "myModal") {
+        isInsideModal = true;
+        break;
+      }
+      targetElement = targetElement.parentElement;
+    }
+    if (isInsideModal) {
+      event.preventDefault();
+    }
+  });
+
+cy.ready(function() {
+    cy.on('cxttap', 'node', handlerightClick);
+});
+
+async function handlerightClick(event) {
+    console.log("hello")
+    var nodeID = event.target.id();
+    currentlyClickedNode = get_nodes_by_id(nodeID);
+    currentNodeType = event.target.classes()[0]
+    let requestBody = JSON.stringify({ nodeID });
+    let response = await makeRequest(baseUrl + '/semantics/', 'post', requestBody);
+    
+    var selectionmenu = {
+        menuRadius: function(ele){ return 100; },
+        minSpotlightRadius: 18,
+        fillColor: 'rgba(0, 0, 0, 0.75)',
+        activeFillColor: 'rgba(1, 105, 217, 0.75)',
+        selector: 'node',
+        commands: [
+            {
+                content: 'Remove node from graph',
+                select: function (ele) {
+                  ele.remove();
+                }
+              },
+            {
+                content: 'Add entity',
+                select: function () {
+                    createUrl = currentUrl.split('/semantics/')[0]
+                    var newUrl = createUrl + "/entities/create/";
+                    window.location.href = newUrl;
+                }
+            },
+            {
+                content: 'Edit this entity',
+                select: function() {
+                    currentlyClickedNode = nodeID;
+                    editEntity();
+                }
+            },
+            {
+                content: 'Show Attributes',
+                select: function (ele) {
+                    var attributes = response.entity;
+                    var attributesListHTML = '';
+                    for (var i = 0; i < attributes.length; i++) {
+                   
+                    var attribute = attributes[i];
+                    console.log (attribute.Name + ':' + attribute.Value);
+                    attributesListHTML += '<p>' + attribute.Name + ': ' + attribute.Value + '</p>';
+                    }
+                    document.getElementById("attributesList").innerHTML = attributesListHTML;
+                    var modal = document.getElementById("myModal");
+                    modal.style.display = "block";
+                    var closeBtn = document.getElementsByClassName("close")[0];
+                    closeBtn.onclick = function () {
+                        modal.style.display = "none";
+                    };
+                    window.onclick = function (event) {
+                        if (event.target === modal) {
+                            modal.style.display = "none";
+                        }
+                    };
+                }
+            }
+        ],
+    };
+    cy.cxtmenu(selectionmenu);
+  }
+
+function refreshGraph() {
+
+    cy.reload();
 }

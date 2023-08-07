@@ -120,22 +120,28 @@
                 </div>
             </div>
         </nav>
+        <div id="myModal" class="modal">
+            <div class="modal-content">
+              <span class="close">&times;</span>
+              <h2>Attributes</h2>
+              <div id="attributesList"></div>
+            </div>
+          </div>
 
 
         <div id="entity" style="display: none">
-            <h3 class="h3"></h3>
             <div class="accordion mt-3" id="entityaccordion">
                 <div class="accordion-item">
                     <h2 class="accordion-header" id="headingOne">
                         <button class="accordion-button" type="button" data-bs-toggle="collapse"
                                 data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
-                            Entity Information
+                                <span id="nodeIdText">Entity Information</span>
                         </button>
 
 
                     </h2>
-                    <div id="collapseOne" class="accordion-collapse collapse show" aria-labelledby="headingOne"
-                         data-bs-parent="#entityaccordion">
+                    <div id="collapseOne" class="accordion-collapse collapse" aria-labelledby="headingOne"
+                            data-bs-parent="#entityaccordion">
                         <div class="accordion-body">
                             <button class="btn btn-primary bi-pen my-2 " id="edit" onclick="editEntity()"
                                     data-bs-toggle="tooltip" title="Edit this Entity">
@@ -158,6 +164,9 @@
                 Use <strong>Ctrl + Mouse Wheel</strong> to zoom.
             </div>
             <div class="dropdown" id="legend">
+                <button class="btn btn-primary bi-arrow-clockwise my-2" id="refreshButton" onclick="refreshGraph()"
+                            data-bs-toggle="tooltip"  title="Refresh graph">
+                            </button>
                 <button class="btn btn-outline-info bi-list dropdown-toggle" type="button" id="dropdownMenuButton1"
                         data-bs-toggle="dropdown" aria-expanded="false">
                     Legend
@@ -199,6 +208,7 @@
 
 
     <script src="{% static 'semantics/js/cytoscape.umd.js' %}"></script>
+    <script src="{% static 'semantics/js/cytoscape-cxtmenu.js' %}"></script>
     <script type="text/javascript" src="{% static 'semantics/js/semantics.js' %}"></script>
     <link href="https://unpkg.com/tabulator-tables/dist/css/tabulator_bootstrap4.min.css" rel="stylesheet">
     <script type="text/javascript" src="https://unpkg.com/tabulator-tables/dist/js/tabulator.min.js"></script>
