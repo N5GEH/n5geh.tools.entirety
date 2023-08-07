@@ -216,7 +216,6 @@ function handleClick(event) {
     currentNodeType = event.target.classes()[0]
     create_detail_level(event.target.id(), event.target);
     getEntity();
-    entIndex = Array.from(nodeArray).indexOf(event.target.id());
     nodeIdText.textContent = 'Additional information on Node ID: ' + event.target.id();
     div.style.display = 'block';
     setTimeout(function() {
