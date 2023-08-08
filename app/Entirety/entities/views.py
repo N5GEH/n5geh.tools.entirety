@@ -149,7 +149,7 @@ class Create(ProjectContextMixin, TemplateView):
                 ]
                 if any(keys):
                     attr = ContextAttribute()
-                    attr.metadata = json.load(self.request.POST.get(keys[3]))
+                    attr.metadata = json.loads(self.request.POST.get(keys[3]))
                     attr.value = self.request.POST.get(keys[2])
                     attr.type = self.request.POST.get(keys[1])
                     entity.add_attributes({self.request.POST.get(keys[0]): attr})
