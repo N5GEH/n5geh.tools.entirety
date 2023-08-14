@@ -132,6 +132,12 @@ class Create(ProjectContextMixin, TemplateView):
         return context
 
     def post(self, request, *args, **kwargs):
+        basic_info = EntityForm(initial=request.POST, project=self.project)
+        attributes_form_set = formset_factory(AttributeForm, max_num=0)
+        attributes = attributes_form_set(request.POST, prefix="attr")
+        context = super(Create, self).get_context_data(**kwargs)
+        context["basic_info"] = basic_info
+        context["attributes"] = attributes
         try:
             entity = ContextEntity(
                 id=self.request.POST.get("id"),
@@ -149,7 +155,18 @@ class Create(ProjectContextMixin, TemplateView):
                 ]
                 if any(keys):
                     attr = ContextAttribute()
-                    attr.metadata = json.loads(self.request.POST.get(keys[3]))
+                    try:
+                        attr.metadata = (
+                            json.loads(self.request.POST.get(keys[3]))
+                            if self.request.POST.get(keys[3])
+                            else {}
+                        )
+                    except ValueError as e:
+                        messages.error(
+                            self.request,
+                            "Metadata JSON is invalid, error: " + e.args.__str__(),
+                        )
+                        return render(request, self.template_name, context)
                     attr.value = self.request.POST.get(keys[2])
                     attr.type = self.request.POST.get(keys[1])
                     entity.add_attributes({self.request.POST.get(keys[0]): attr})
@@ -166,12 +183,7 @@ class Create(ProjectContextMixin, TemplateView):
         # handel the error from server
         except ValidationError as e:
             messages.error(request, e.raw_errors[0].exc.__str__())
-        basic_info = EntityForm(initial=request.POST, project=self.project)
-        attributes_form_set = formset_factory(AttributeForm, max_num=0)
-        attributes = attributes_form_set(request.POST, prefix="attr")
-        context = super(Create, self).get_context_data(**kwargs)
-        context["basic_info"] = basic_info
-        context["attributes"] = attributes
+
         if res:
             messages.error(
                 self.request,
@@ -284,6 +296,15 @@ class Update(ProjectContextMixin, TemplateView):
             id=self.request.POST.get("id"),
             type=self.request.POST.get("type"),
         )
+        basic_info = EntityForm(initial=request.POST, project=self.project)
+        basic_info.fields["id"].widget.attrs["readonly"] = True
+        basic_info.fields["type"].widget.attrs["readonly"] = True
+        attributes_form_set = formset_factory(AttributeForm, max_num=0)
+        attributes = attributes_form_set(request.POST, prefix="attr")
+        context = super(Update, self).get_context_data(**kwargs)
+        context["basic_info"] = basic_info
+        context["attributes"] = attributes
+        context["update_entity"] = entity.id
         entity_keys = [
             k for k, v in self.request.POST.items() if re.search(r"attr-\d+", k)
         ]
@@ -296,7 +317,19 @@ class Update(ProjectContextMixin, TemplateView):
             ]
             if any(new_keys):
                 attr = ContextAttribute()
-                attr.metadata = json.loads(self.request.POST.get(new_keys[3]))
+                try:
+                    attr.metadata = (
+                        json.loads(self.request.POST.get(new_keys[3]))
+                        if self.request.POST.get(new_keys[3])
+                        else {}
+                    )
+                except Exception as e:
+                    messages.error(
+                        self.request,
+                        "Metadata JSON is invalid, error: " + e.args.__str__(),
+                    )
+                    return render(request, self.template_name, context)
+
                 attr.value = self.request.POST.get(new_keys[2])
                 attr.type = self.request.POST.get(new_keys[1])
                 entity.add_attributes({self.request.POST.get(new_keys[0]): attr})
@@ -305,15 +338,7 @@ class Update(ProjectContextMixin, TemplateView):
 
         # res = update_entity(self, entity)
         res = post_entity(self, entity, True, self.project)
-        basic_info = EntityForm(initial=request.POST, project=self.project)
-        basic_info.fields["id"].widget.attrs["readonly"] = True
-        basic_info.fields["type"].widget.attrs["readonly"] = True
-        attributes_form_set = formset_factory(AttributeForm, max_num=0)
-        attributes = attributes_form_set(request.POST, prefix="attr")
-        context = super(Update, self).get_context_data(**kwargs)
-        context["basic_info"] = basic_info
-        context["attributes"] = attributes
-        context["update_entity"] = entity.id
+
         if res:
             # messages.error(self.request, "Entity not updated. Reason: " + str(res))
             messages.error(
