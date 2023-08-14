@@ -4,12 +4,10 @@ services:
     image: postgres:14.5
     hostname: entirety-db
     restart: unless-stopped
-    environment:
-      - POSTGRES_DB=entirety
-      - POSTGRES_USER=entirety
-      - POSTGRES_PASSWORD=${DATABASE_PASSWORD}
+    env_file:
+      - .env
     volumes:
-      - pgdata:/var/lib/postgresql
+      - pgdata:/var/lib/postgresql/data
     networks:
       - entirety
     ports:
@@ -20,17 +18,8 @@ services:
     restart: unless-stopped
     expose:
       - 8000
-    environment:
-      DJANGO_SECRET_KEY: ${DJANGO_SECRET_KEY}
-      DATABASE_URL: ${DATABASE_URL}
-      STATIC_ROOT: ${STATIC_ROOT:-/var/entirety/static/}
-      MEDIA_ROOT: ${MEDIA_ROOT:-/var/entirety/media/}
-      ENTITIES_LOAD: ${ENTITIES_LOAD:-True}
-      DEVICES_LOAD: ${DEVICES_LOAD:-True}
-      NOTIFICATIONS_LOAD: ${NOTIFICATIONS_LOAD:-True}
-      CB_URL: ${CB_URL}
-      QL_URL: ${QL_URL}
-      IOTA_URL: ${IOTA_URL}
+    env_file:
+      - .env
     volumes:
       - static:${STATIC_ROOT:-/var/entirety/static/}
       - media:${MEDIA_ROOT:-/var/entirety/media/}
