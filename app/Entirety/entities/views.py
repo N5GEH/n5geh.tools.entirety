@@ -137,6 +137,12 @@ class Create(ProjectContextMixin, TemplateView):
         return context
 
     def post(self, request, *args, **kwargs):
+        basic_info = EntityForm(initial=request.POST, project=self.project)
+        attributes_form_set = formset_factory(AttributeForm, max_num=0)
+        attributes = attributes_form_set(request.POST, prefix="attr")
+        context = super(Create, self).get_context_data(**kwargs)
+        context["basic_info"] = basic_info
+        context["attributes"] = attributes
         try:
             entity = ContextEntity(
                 id=self.request.POST.get("id"),
@@ -146,7 +152,7 @@ class Create(ProjectContextMixin, TemplateView):
                 k for k, v in self.request.POST.items() if re.search(r"attr-\d+", k)
             ]
             i = j = 0
-            while i < (len(entity_keys) / 3):
+            while i < (len(entity_keys) / 4):
                 keys = [
                     k
                     for k, v in self.request.POST.items()
@@ -154,6 +160,18 @@ class Create(ProjectContextMixin, TemplateView):
                 ]
                 if any(keys):
                     attr = ContextAttribute()
+                    try:
+                        attr.metadata = (
+                            json.loads(self.request.POST.get(keys[3]))
+                            if self.request.POST.get(keys[3])
+                            else {}
+                        )
+                    except ValueError as e:
+                        messages.error(
+                            self.request,
+                            "Metadata JSON is invalid, error: " + e.args.__str__(),
+                        )
+                        return render(request, self.template_name, context)
                     attr.value = self.request.POST.get(keys[2])
                     attr.type = self.request.POST.get(keys[1])
                     entity.add_attributes({self.request.POST.get(keys[0]): attr})
@@ -170,12 +188,7 @@ class Create(ProjectContextMixin, TemplateView):
         # handel the error from server
         except ValidationError as e:
             messages.error(request, e.raw_errors[0].exc.__str__())
-        basic_info = EntityForm(initial=request.POST, project=self.project)
-        attributes_form_set = formset_factory(AttributeForm, max_num=0)
-        attributes = attributes_form_set(request.POST, prefix="attr")
-        context = super(Create, self).get_context_data(**kwargs)
-        context["basic_info"] = basic_info
-        context["attributes"] = attributes
+
         if res:
             messages.error(
                 self.request,
@@ -265,7 +278,16 @@ class Update(ProjectContextMixin, TemplateView):
         basic_info.fields["type"].widget.attrs["readonly"] = True
         initial = []
         for attr in entity.get_attributes(strict_data_type=False):
-            initial.append({"name": attr.name, "type": attr.type, "value": attr.value})
+            for metadata_key, meta_data_value in attr.metadata.items():
+                attr.metadata[metadata_key] = meta_data_value.dict()
+            initial.append(
+                {
+                    "name": attr.name,
+                    "type": attr.type,
+                    "value": attr.value,
+                    "metadata": attr.metadata,
+                }
+            )
         attributes_form_set = formset_factory(AttributeForm, max_num=0)
         attributes = attributes_form_set(prefix="attr", initial=initial)
         context = super(Update, self).get_context_data(**kwargs)
@@ -279,26 +301,6 @@ class Update(ProjectContextMixin, TemplateView):
             id=self.request.POST.get("id"),
             type=self.request.POST.get("type"),
         )
-        entity_keys = [
-            k for k, v in self.request.POST.items() if re.search(r"attr-\d+", k)
-        ]
-        i = j = 0
-        while i < (len(entity_keys) / 3):
-            new_keys = [
-                k
-                for k, v in self.request.POST.items()
-                if k in entity_keys and re.search(i.__str__(), k)
-            ]
-            if any(new_keys):
-                attr = ContextAttribute()
-                attr.value = self.request.POST.get(new_keys[2])
-                attr.type = self.request.POST.get(new_keys[1])
-                entity.add_attributes({self.request.POST.get(new_keys[0]): attr})
-                i = i + 1
-            j = j + 1
-
-        # res = update_entity(self, entity)
-        res = post_entity(self, entity, True, self.project)
         basic_info = EntityForm(initial=request.POST, project=self.project)
         basic_info.fields["id"].widget.attrs["readonly"] = True
         basic_info.fields["type"].widget.attrs["readonly"] = True
@@ -308,6 +310,40 @@ class Update(ProjectContextMixin, TemplateView):
         context["basic_info"] = basic_info
         context["attributes"] = attributes
         context["update_entity"] = entity.id
+        entity_keys = [
+            k for k, v in self.request.POST.items() if re.search(r"attr-\d+", k)
+        ]
+        i = j = 0
+        while i < (len(entity_keys) / 4):
+            new_keys = [
+                k
+                for k, v in self.request.POST.items()
+                if k in entity_keys and re.search(i.__str__(), k)
+            ]
+            if any(new_keys):
+                attr = ContextAttribute()
+                try:
+                    attr.metadata = (
+                        json.loads(self.request.POST.get(new_keys[3]))
+                        if self.request.POST.get(new_keys[3])
+                        else {}
+                    )
+                except Exception as e:
+                    messages.error(
+                        self.request,
+                        "Metadata JSON is invalid, error: " + e.args.__str__(),
+                    )
+                    return render(request, self.template_name, context)
+
+                attr.value = self.request.POST.get(new_keys[2])
+                attr.type = self.request.POST.get(new_keys[1])
+                entity.add_attributes({self.request.POST.get(new_keys[0]): attr})
+                i = i + 1
+            j = j + 1
+
+        # res = update_entity(self, entity)
+        res = post_entity(self, entity, True, self.project)
+
         if res:
             # messages.error(self.request, "Entity not updated. Reason: " + str(res))
             messages.error(
