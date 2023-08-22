@@ -5,7 +5,6 @@ from django.forms import formset_factory
 from filip.models.ngsi_v2.iot import DataType, ServiceGroup
 from entirety.widgets import ListTextWidget
 
-
 ATTRIBUTES_TYPE = [
     DataType.NUMBER.value,
     DataType.FLOAT.value,
@@ -40,8 +39,8 @@ class DeviceBasic(forms.Form):
                 "data-bs-toggle": "tooltip",
                 # "data-bs-placement": "top ",
                 "title": "ID of the entity representing the device in the Context Broker, "
-                "e.g. urn:ngsi-ld:TemperatureSensor:001. Combination of ID and "
-                "Type must be unique.",
+                         "e.g. urn:ngsi-ld:TemperatureSensor:001. Combination of ID and "
+                         "Type must be unique.",
             }
         ),
     )
@@ -53,7 +52,7 @@ class DeviceBasic(forms.Form):
                 "data-bs-toggle": "tooltip",
                 # "data-bs-placement": "top ",
                 "title": "Type of the entity in the Context Broker. Combination of ID and "
-                "Type must be unique.",
+                         "Type must be unique.",
             }
         ),
     )
@@ -73,7 +72,7 @@ class DeviceAttributes(forms.Form):
                 "data-bs-toggle": "tooltip",
                 # "data-bs-placement": "top ",
                 "title": "Unique name to identify this attribute within the context entity in the "
-                "Context Broker",
+                         "Context Broker",
             }
         ),
     )
@@ -99,7 +98,7 @@ class DeviceAttributes(forms.Form):
                 "data-bs-toggle": "tooltip",
                 # "data-bs-placement": "top ",
                 "title": " (optional) Name of the attribute as coming from the device ("
-                "incoming southbound traffic).",
+                         "incoming southbound traffic).",
             }
         ),
     )
@@ -150,6 +149,49 @@ class DeviceCommands(forms.Form):
                 css_class="d_attr_form col-6",
             )
         )
+
+
+class DeviceBatchForm(forms.Form):
+    json_field = forms.JSONField(
+        required=True,
+        initial={
+            "devices":
+                [
+                    {
+                        "protocol": "IoTA-JSON",
+                        "transport": "MQTT",
+                        "explicitAttrs": False,
+                        "device_id": "device:001",
+                        "entity_name": "urn:ngsi-ld:Example:001",
+                        "entity_type": "Example",
+                        "attributes": [
+                            {
+                                "name": "attr1",
+                                "type": "Number",
+                                "object_id": "a1"
+                            }
+                        ],
+                        "ngsiVersion": "v2"
+                    },
+                    {
+                        "protocol": "IoTA-JSON",
+                        "transport": "MQTT",
+                        "explicitAttrs": False,
+                        "device_id": "device:002",
+                        "entity_name": "urn:ngsi-ld:Example:002",
+                        "entity_type": "Example",
+                        "attributes": [
+                            {
+                                "name": "attr2",
+                                "type": "Number",
+                                "object_id": "a2"
+                            }
+                        ],
+                        "ngsiVersion": "v2"
+                    },
+                ]
+        }
+    )
 
 
 Attributes = formset_factory(DeviceAttributes, extra=0)

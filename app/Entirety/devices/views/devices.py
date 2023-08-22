@@ -7,7 +7,8 @@ import json
 from entirety.utils import pop_data_from_session, add_data_to_session
 from projects.mixins import ProjectContextMixin
 import logging
-from devices.forms import DeviceBasic, Attributes, Commands
+from filip.models.ngsi_v2.iot import Device
+from devices.forms import DeviceBasic, Attributes, Commands, DeviceBatchForm
 from devices.models import _ServiceGroup
 from devices.utils import (
     get_devices,
@@ -21,7 +22,7 @@ from devices.utils import (
     get_device_by_id,
     delete_device,
     pattern_service_groups_filter,
-    pattern_devices_filter,
+    pattern_devices_filter, post_devices,
 )
 from devices.tables import DevicesTable, GroupsTable
 from requests.exceptions import RequestException
@@ -132,6 +133,10 @@ class DeviceListSubmitView(ProjectContextMixin, View):
         elif request.POST.get("Create"):
             return redirect("projects:devices:create", project_id=self.project.uuid)
 
+        # press batch create button
+        elif request.POST.get("BatchCreate"):
+            return redirect("projects:devices:batchcreate", project_id=self.project.uuid)
+
         # press edit button
         elif request.POST.get("Edit"):
             request.session["devices"] = request.POST.get("selection")
@@ -156,6 +161,59 @@ class DeviceCreateView(ProjectContextMixin, TemplateView):
             **context,
         }
         return render(request, "devices/detail.html", context)
+
+
+class DeviceBatchCreateView(ProjectContextMixin, TemplateView):
+    template_name = "devices/batch.html"
+    form_class = DeviceBatchForm
+
+    def get_context_data(self, **kwargs):
+        json_form = DeviceBatchForm()
+        context = super(DeviceBatchCreateView, self).get_context_data(**kwargs)
+        context["json_form"] = json_form
+        return context
+
+    def post(self, request, *args, **kwargs):
+        form = DeviceBatchForm(request.POST)
+        context = super(DeviceBatchCreateView, self).get_context_data(**kwargs)
+        context["json_form"] = form
+        if form.is_valid():
+            devices_json = json.loads(self.request.POST.get("json_field"))
+            try:
+                devices = [Device(**device_dict) for device_dict in devices_json["devices"]]
+                post_devices(
+                    devices,
+                    project=self.project
+                )
+                logger.info(
+                    "Devices created by "
+                    + str(
+                        self.request.user.first_name
+                        if self.request.user.first_name
+                        else self.request.user.username
+                    )
+                    + f" in project {self.project.name}"
+                )
+                return redirect("projects:devices:list", project_id=self.project.uuid)
+            # handel the error from server
+            except RequestException as e:
+                messages.error(request, e.response.content.decode("utf-8"))
+                logger.error(
+                    str(
+                        self.request.user.first_name
+                        if self.request.user.first_name
+                        else self.request.user.username
+                    )
+                    + " tried creating device"
+                    + " but failed with error "
+                    + json.loads(e.response.content.decode("utf-8")).get("message")
+                    + f" in project {self.project.name}"
+                )
+            except ValidationError as e:
+                messages.error(request, e.raw_errors[0].exc.__str__())
+        # get the project context data
+        context: dict = super(DeviceBatchCreateView, self).get_context_data(**kwargs)
+        return render(request, "devices/batch.html", context)
 
 
 class DeviceCreateSubmitView(ProjectContextMixin, TemplateView):

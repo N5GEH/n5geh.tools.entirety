@@ -146,7 +146,7 @@ class SelectionForm(forms.Form):
 
 
 class JSONForm(forms.Form):
-    entity_json = forms.JSONField(
+    json_field = forms.JSONField(
         required=True,
         initial={
             "actionType": "append",
