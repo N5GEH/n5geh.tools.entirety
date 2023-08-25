@@ -1,4 +1,6 @@
 {% extends '_base.html' %}
+{% load compress %}
+{% load static %}
 
 {% block title %}{% if update_entity %} Update Entity {% else %} Create New Entity {% endif %}{% endblock %}
 
@@ -10,4 +12,8 @@
             <button class="btn btn-warning rounded-pill" type="submit">{% if update_entity %} Update {% else %} Create {% endif %}</button>
         </div>
     </form>
+
+    {% compress js %}
+        <script src="{% static 'js/json.js' %}"></script>
+    {% endcompress %}
 {% endblock %}

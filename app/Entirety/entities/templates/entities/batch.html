@@ -12,7 +12,7 @@
         <div>
             {% csrf_token %}
             {% crispy json_form %}
-            <button class="btn btn-primary rounded-pill" onclick="prettyJSON()" type="button">
+            <button class="btn btn-primary rounded-pill" onclick="prettyJSON('id_entity_json')" type="button">
                 <i class="bi bi-braces"></i> Beautify Json
             </button>
             <button class="btn btn-warning rounded-pill" type="submit">Create</button>
