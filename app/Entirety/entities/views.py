@@ -237,7 +237,7 @@ class CreateBatch(ProjectContextMixin, TemplateView):
         context = super(CreateBatch, self).get_context_data(**kwargs)
         context["json_form"] = form
         if form.is_valid():
-            entities_json = json.loads(self.request.POST.get("json_field"))
+            entities_json = json.loads(self.request.POST.get("entity_json"))
             try:
                 entities_to_add = FilipUpdate(**entities_json)
                 res = update_entity(

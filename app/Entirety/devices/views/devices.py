@@ -178,7 +178,7 @@ class DeviceBatchCreateView(ProjectContextMixin, TemplateView):
         context = super(DeviceBatchCreateView, self).get_context_data(**kwargs)
         context["json_form"] = form
         if form.is_valid():
-            devices_json = json.loads(self.request.POST.get("json_field"))
+            devices_json = json.loads(self.request.POST.get("device_json"))
             try:
                 devices = [Device(**device_dict) for device_dict in devices_json["devices"]]
                 post_devices(
@@ -212,7 +212,9 @@ class DeviceBatchCreateView(ProjectContextMixin, TemplateView):
             except ValidationError as e:
                 messages.error(request, e.raw_errors[0].exc.__str__())
         # get the project context data
+        json_form = DeviceBatchForm()
         context: dict = super(DeviceBatchCreateView, self).get_context_data(**kwargs)
+        context["json_form"] = json_form
         return render(request, "devices/batch.html", context)
 
 

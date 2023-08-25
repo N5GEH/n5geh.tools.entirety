@@ -152,7 +152,7 @@ class DeviceCommands(forms.Form):
 
 
 class DeviceBatchForm(forms.Form):
-    json_field = forms.JSONField(
+    device_json = forms.JSONField(
         required=True,
         initial={
             "devices":
