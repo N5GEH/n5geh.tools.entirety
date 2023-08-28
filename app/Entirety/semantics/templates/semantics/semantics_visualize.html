@@ -96,27 +96,27 @@
                     </li>
                 </ul>
                 <div class="input-group">
-                    <input type="text" class="form-control" placeholder="Search field...">
+                    <input type="text" class="form-control rounded" placeholder="Search entities by ..." id="searchentity" style="border-color: #aaa9a9">
+                    <div class="btn-group">
+                        <select class="form-select-sm btn dropdown-toggle rounded mx-1" name="searchOptions"
+                        style="width: 140px;">
+                            <option  class="dropdown-item" disabled>Options</option>
+                            <option class="dropdown-item" href="#" data-value="id1" selected>ID</option>
+                            <option class="dropdown-item" href="#" data-value="type1">Type</option>
+                            <option class="dropdown-item" href="#" data-value="name1">Name</option>
+                            <option class="dropdown-item" href="#" data-value="relationship1">Relationship</option>
+                        </select>
+                    </div>
                     <div class="input-group-append">
-                        <button class="btn btn-outline-secondary dropdown-toggle" type="button" id="searchOptions"
-                                data-bs-toggle="dropdown"
-                                style="border-bottom-left-radius: 0; border-top-left-radius: 0;"
-                                aria-haspopup="true" aria-expanded="false"
-                        >Options
-                        </button>
-                        <div class="dropdown-menu dropdown-menu-right">
-                            <a class="dropdown-item" href="#" data-value="id1">ID</a>
-                            <a class="dropdown-item" href="#" data-value="type1">Type</a>
-                            <a class="dropdown-item" href="#" data-value="name1">Name</a>
-                            <a class="dropdown-item" href="#" data-value="relationship1">Relationship</a>
-                        </div>
                         <button type="submit"
-                                class="btn btn-warning bi-search rounded-pill" id="searchButton"
+                                class="btn btn bi-search rounded-pill bg-primary" 
                                 data-bs-toggle="tooltip"
-                                title="Start search"
+                                title="Start Search"
+                                id="searchButton"
+                                style="color: white"
                         > Search
                         </button>
-                    </div>
+                    </div> 
                 </div>
             </div>
         </nav>
@@ -137,8 +137,6 @@
                                 data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
                                 <span id="nodeIdText">Entity Information</span>
                         </button>
-
-
                     </h2>
                     <div id="collapseOne" class="accordion-collapse collapse" aria-labelledby="headingOne"
                             data-bs-parent="#entityaccordion">
@@ -147,7 +145,7 @@
                                     data-bs-toggle="tooltip" title="Edit this Entity">
                             </button>
                             <button class="btn btn-primary bi-arrow-clockwise my-2" id="refresh" onclick="getEntity()"
-                                    data-bs-toggle="tooltip" title="Reload this entity to get current real time data!">
+                                    data-bs-toggle="tooltip" title="Reload this Entity to get current real time data!">
                             </button>
                             <div id="table" class="graph">
                             </div>
@@ -160,18 +158,18 @@
 
         <h3 class="h3">Main Graph</h3>
         <div id="main_graph" class="graph">
-            <div class="alert alert-warning d-none" role="alert" id="scrollAlert">
+            <div class="alert alert-warning d-none" role="alert" id="scrollAlert" style="position: absolute; width: 100%; height: 10%">
                 Use <strong>Ctrl + Mouse Wheel</strong> to zoom.
             </div>
             <div class="dropdown" id="legend">
-                <button class="btn btn-primary bi-arrow-clockwise my-2" id="refreshButton" onclick="refreshGraph()"
-                            data-bs-toggle="tooltip"  title="Refresh graph">
-                            </button>
-                <button class="btn btn-outline-info bi-list dropdown-toggle" type="button" id="dropdownMenuButton1"
+                <button class="btn btn bi-list dropdown-toggle" type="button" id="dropdownMenuButton1"
                         data-bs-toggle="dropdown" aria-expanded="false">
                     Legend
                 </button>
-                <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1" id="legendMenu">
+                <button class="btn btn-primary bi-arrow-clockwise my-2" onclick="refreshGraph()"
+                            data-bs-toggle="tooltip"  title="Refresh Graph" >
+                    </button>
+                    <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1" id="legendMenu">
                     <li><a class="dropdown-item" href="#">Types</a></li>
                     <li>
                         <div id="typeMenu"></div>
@@ -188,10 +186,12 @@
         </div>
         <h3 class="h3">Detail Level</h3>
         <div id="detail_level" class="graph">
-            <div class="alert alert-warning d-none" role="alert" id="scrollAlertDetail">
+            <div class="alert alert-warning d-none" role="alert" id="scrollAlertDetail" style="position: absolute; width: 100%; height: 10%">
                 Use <strong>Ctrl + Mouse Wheel</strong> to zoom.
-            </div>
         </div>
+
+        <button class="bi bi-arrow-up-circle-fill" id="scrollupoutside" onclick="scrollToMain()"> </button>
+        <button class="bi bi-arrow-down-circle-fill" id="scrolldownoutside" onclick="scrollToDetail()" > </button>
 
 
         <script>
@@ -235,8 +235,6 @@
         });
         var searchButton = document.getElementById('searchButton');
         searchButton.addEventListener('click', handleSearch);
-        var dropdownButton = document.getElementById("searchOptions");
-        dropdownButton.textContent = "Options";
 
         // Add event listener to dropdown items
         var dropdownItems = document.querySelectorAll('.dropdown-menu.dropdown-menu-right .dropdown-item');

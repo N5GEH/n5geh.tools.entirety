@@ -211,17 +211,12 @@ function handleClick(event) {
     previousClickedNode = currentlyClickedNode
     var div = document.getElementById('entity');
     var nodeIdText = document.getElementById('nodeIdText');
-    var table = document.getElementById('collapseOne');
     currentlyClickedNode = event.target.id()
     currentNodeType = event.target.classes()[0]
     create_detail_level(event.target.id(), event.target);
     getEntity();
     nodeIdText.textContent = 'Additional information on Node ID: ' + event.target.id();
     div.style.display = 'block';
-    setTimeout(function() {
-        table.classList.remove('show');
-        console.log("Accordion-Klasse:", table.className);
-    }, 10);
     window.scrollBy(0,1);
     clickedNodeStyling()
 }
@@ -239,8 +234,7 @@ function clickedNodeStyling(clickedNode) {
     var newStyleMainGraphe = {
         "selector": "#" + escapeColons(currentlyClickedNode),
         style: {
-            "background-color": clickedNodeColor,
-            "color": clickedNodeColor
+            "background-color": clickedNodeColor
         }
     }
     currentStyleCy.styleSheets.push(newStyleMainGraphe);
@@ -249,8 +243,7 @@ function clickedNodeStyling(clickedNode) {
     var newStyleDetail = {
         "selector": "#" + escapeColons(currentlyClickedNode),
         style: {
-            "background-color": clickedNodeColor,
-            "color": clickedNodeColor
+            "background-color": clickedNodeColor
         }
     }
     currentStyleDetail.styleSheets.push(newStyleDetail);
@@ -373,10 +366,21 @@ async function makeRequest(url, method, body) {
  */
 async function getEntity() {
 
-    let data = await makeRequest(baseUrl + '/semantics/', 'post', JSON.stringify({nodeID: currentlyClickedNode}))
+    let data = await makeRequest(baseUrl + '/semantics/', 'post', JSON.stringify({nodeID: currentlyClickedNode}), null, '\t')
     var entity = await data['entity']
-    // Define columns
+    
+    entity.forEach(entry => {
+        if (entry['Value']) {
+            try {
+                const parsedValue = JSON.parse(entry['Value']);
+                entry['Value'] = JSON.stringify(parsedValue, null, 4);
+            } catch (error) {
+                entry['Value'] = entry['Value'].replace(/'/g, '"');
+            }
+        }
+    });
 
+    // Define columns
     var columns = [
         {title: "Name", field: "Name", formatter: "textarea", maxWidth: 150},
         {title: "Value", field: "Value", formatter: "textarea", maxWidth: 450},
@@ -399,9 +403,8 @@ async function getEntity() {
     });
 }
 
-
 // Pick node and edge colors to be displayed first
-const colors = ['#57C5B6', '#feb236', '#0dcaf0', '#D14D72', '#107cad', '#6CDB42', '#ff7b25', '#bea0d7', '#B70404', '#F9F54B', '#9A1663', '#9F8772', '#FF8787']
+const colors = ['#feb236', '#0dcaf0', '#D14D72', '#00FF00',  '#107cad', '#57C5B6', '#6CDB42', '#ff7b25', '#bea0d7', '#B70404', '#F9F54B', '#9A1663', '#9F8772', '#FF8787']
 const tcheckboxes = document.querySelectorAll('input[name="typecheckbox"]');
 const rcheckboxes = document.querySelectorAll('input[name="relcheckbox"]');
 const numAdditionalColors = tcheckboxes.length;
@@ -480,13 +483,12 @@ function add_rel_legend() {
 function handleSearch(event) {
     event.preventDefault();
 
-    var searchField = document.querySelector('.form-control');
+    var searchField = document.getElementById('searchentity')
     var input = searchField.value;
     var selectedValue = null;
-    var activeDropdownItem = document.querySelector('.dropdown-menu.dropdown-menu-right .dropdown-item.active');
-    if (activeDropdownItem) {
-        selectedValue = activeDropdownItem.getAttribute('data-value');
-    }
+    var selectedOption = document.querySelector('.form-select-sm[name="searchOptions"] option:checked');
+    var selectedValue = selectedOption.getAttribute('data-value');
+
 
     // Call the corresponding function based on the selected value
     if (selectedValue === null) {
@@ -501,6 +503,13 @@ function handleSearch(event) {
         handleNameSearch(input)
     }
 }
+
+var enterSearch = document.getElementById('searchentity');
+enterSearch.addEventListener("keydown", function (e) {
+    if (e.code === "Enter") {
+        handleSearch(e);
+    }
+});
 
 /**
  * Function to escape ':' in the id of a node
@@ -854,77 +863,79 @@ document.addEventListener("contextmenu", function (event) {
     }
   });
 
-cy.ready(function() {
-    cy.on('cxttap', 'node', handlerightClick);
-});
+function refreshGraph() {
+    cy.elements().remove();
+    cy.add(data);
+    changeLayout('breadthfirst');
+}
 
-async function handlerightClick(event) {
-    console.log("hello")
-    var nodeID = event.target.id();
-    currentlyClickedNode = get_nodes_by_id(nodeID);
-    currentNodeType = event.target.classes()[0]
-    let requestBody = JSON.stringify({ nodeID });
-    let response = await makeRequest(baseUrl + '/semantics/', 'post', requestBody);
-    
-    var selectionmenu = {
-        menuRadius: function(ele){ return 100; },
-        minSpotlightRadius: 18,
-        fillColor: 'rgba(0, 0, 0, 0.75)',
-        activeFillColor: 'rgba(1, 105, 217, 0.75)',
-        selector: 'node',
-        commands: [
-            {
-                content: 'Remove node from graph',
-                select: function (ele) {
-                  ele.remove();
+function scrollToDetail() {
+    var detialview = document.getElementById("detail_level");
+    detialview.scrollIntoView({ behavior: "smooth" });
+}
+function scrollToMain() {
+    window.scrollTo({top: 0, behavior: "smooth"});
+}
+
+var selectionmenu = {
+    menuRadius: function(ele){ return 100; },
+    minSpotlightRadius: 18,
+    fillColor: 'rgba(0, 0, 0, 0.75)',
+    activeFillColor: 'rgba(1, 105, 217, 0.75)',
+    selector: 'node',
+    commands: [
+        {
+            content: 'Remove node from graph',
+            select: function (ele) {
+              ele.remove();
+            }
+          },
+        {
+            content: 'Add entity',
+            select: function () {
+                createUrl = currentUrl.split('/semantics/')[0]
+                var newUrl = createUrl + "/entities/create/";
+                window.location.href = newUrl;
+            }
+        },
+        {
+            content: 'Edit this entity',
+            select: function (ele) {
+                currentlyClickedNode = ele.id();
+                currentNodeType = ele.classes()[0];
+                console.log(currentlyClickedNode);
+                console.log(currentNodeType);
+                editEntity();
+            }
+        },
+        {
+            content: 'Show Attributes',
+            select: async function (ele) {
+                var nodeID = ele.id();
+                currentlyClickedNode = get_nodes_by_id(nodeID);
+                currentNodeType = ele.classes()[0];
+                let requestBody = JSON.stringify({ nodeID });
+                let response = await makeRequest(baseUrl + '/semantics/', 'post', requestBody);
+                var attributes = response.entity;
+                var attributesListHTML = '';
+                for (var i = 0; i < attributes.length; i++) {
+                var attribute = attributes[i];
+                attributesListHTML += '<p>' + attribute.Name + ': ' + attribute.Value + '</p>';
                 }
-              },
-            {
-                content: 'Add entity',
-                select: function () {
-                    createUrl = currentUrl.split('/semantics/')[0]
-                    var newUrl = createUrl + "/entities/create/";
-                    window.location.href = newUrl;
-                }
-            },
-            {
-                content: 'Edit this entity',
-                select: function() {
-                    currentlyClickedNode = nodeID;
-                    editEntity();
-                }
-            },
-            {
-                content: 'Show Attributes',
-                select: function (ele) {
-                    var attributes = response.entity;
-                    var attributesListHTML = '';
-                    for (var i = 0; i < attributes.length; i++) {
-                   
-                    var attribute = attributes[i];
-                    console.log (attribute.Name + ':' + attribute.Value);
-                    attributesListHTML += '<p>' + attribute.Name + ': ' + attribute.Value + '</p>';
-                    }
-                    document.getElementById("attributesList").innerHTML = attributesListHTML;
-                    var modal = document.getElementById("myModal");
-                    modal.style.display = "block";
-                    var closeBtn = document.getElementsByClassName("close")[0];
-                    closeBtn.onclick = function () {
+                document.getElementById("attributesList").innerHTML = attributesListHTML;
+                var modal = document.getElementById("myModal");
+                modal.style.display = "block";
+                var closeBtn = document.getElementsByClassName("close")[0];
+                closeBtn.onclick = function () {
+                    modal.style.display = "none";
+                };
+                window.onclick = function (event) {
+                    if (event.target === modal) {
                         modal.style.display = "none";
-                    };
-                    window.onclick = function (event) {
-                        if (event.target === modal) {
-                            modal.style.display = "none";
-                        }
-                    };
+                    }
                 }
             }
-        ],
-    };
-    cy.cxtmenu(selectionmenu);
-  }
-
-function refreshGraph() {
-
-    cy.reload();
-}
+        }
+    ],
+};
+cy.cxtmenu(selectionmenu);

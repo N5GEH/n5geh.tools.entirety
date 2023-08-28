@@ -7,14 +7,36 @@
   border: .5px solid #dadee3;
   border-radius: 10px;
   font-size: 12px;
-  overflow: auto;
+  overflow: hidden;
 
   #legend {
     position: absolute;
     top: 5px;
-    right: 5px;
+    right: 10px;
     z-index: 2;
   }
+}
+
+#scrolldownoutside {
+  position: fixed;
+  right: .2%;
+  bottom: 10px;
+  font-size: 25px;
+  border: none;
+  background: none;
+  z-index: 2;
+  color: #297797;
+}
+
+#scrollupoutside {
+  position: fixed;
+  right: .2%;
+  bottom: 45px;
+  font-size: 25px;
+  border: none;
+  background: none;
+  z-index: 2;
+  color: #297797;
 }
 
 .dropdown-menu li {
@@ -48,7 +70,7 @@
 }
 .input-group{
   float: right;
-  width: 50%;
+  width: 60%;
 }
 
 .modal {
@@ -68,8 +90,8 @@
   margin: 15% auto;
   padding: 20px;
   border: 1px solid #888;
-  width: 80%;
-  max-width: 600px;
+  width: 50%;
+  max-width: 80%;
 }
 
 .close {
@@ -90,3 +112,6 @@
   cursor: pointer;
 }
 
+#refreshEntitiesList {
+  position: right;
+}
