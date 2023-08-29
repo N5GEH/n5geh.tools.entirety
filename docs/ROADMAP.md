@@ -58,8 +58,8 @@ Depending on the necessity, difficulty, and our internal capacity, the features 
 
 | Short Name           | Descriptions                                                                                                                                                       | Short-Term  | Long-Term |
 |----------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------|-------------|-----------|
-| Batch Create         | User can create multiple devices at the same time.                                                                                                                 | o     |           |
-| Batch Delete         | User can delete the devices matching the filter, or delete multiple selected devices.                                                                              | o     |           |
+| Batch Create         | User can create multiple devices at the same time.                                                                                                                 | &check;     |           |
+| Batch Delete         | User can delete the devices matching the filter, or delete multiple selected devices.                                                                              | &check;     |           |
 | Multi-Entity Support | User can use the Multi-Entity feature as described [here](https://iotagent-node-lib.readthedocs.io/en/latest/advanced-topics.html#multientity-plugin-multientity). |             | x   |
 | Service Group CRUD   | CRUD operations of service group                                                                                                                                   | &check; |           |
 
