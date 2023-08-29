@@ -9,6 +9,8 @@
 - Bootstrap 5.2
 - htmx 1.8.2
 
+## Roadmap
+Have a look at our [roadmap](./docs/ROADMAP.md) to see what features we plan to work on in the short and long run. We kindly invite you to participate in [discussions](https://github.com/N5GEH/n5geh.tools.entirety/discussions) about possible features as well.
 ## Deployment
 
 To deploy the application please refer to
@@ -104,7 +106,7 @@ See [changelog](./docs/CHANGELOG.md) for detailed overview of changes.
 
 [@djs0109](https://github.com/djs0109)
 
-[@dnikolay-ebc](https://github.com/dnikolay-ebc)
+[@mwr-ebc](https://github.com/mwr-ebc)
 
 ## License
 
