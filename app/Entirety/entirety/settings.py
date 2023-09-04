@@ -308,6 +308,9 @@ class Settings(PydanticSettings):
 
     IOTA_URL: AnyUrl = Field(default="http://localhost:4041", env="IOTA_URL")
 
+    # CSRF
+    CSRF_TRUSTED_ORIGINS: list = Field(default=[], env="CSRF_TRUSTED_ORIGINS ")
+
     # Database
     # https://docs.djangoproject.com/en/4.0/ref/settings/#databases
     DATABASES: Databases = Field({})
