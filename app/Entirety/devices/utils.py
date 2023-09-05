@@ -1,10 +1,9 @@
 from django.conf import settings
-from django.forms import Form
-from typing import Type, List
+from typing import List
 from projects.models import Project
 from filip.clients.ngsi_v2 import IoTAClient
 from filip.models import FiwareHeader
-from filip.models.ngsi_v2.iot import Device, DeviceAttribute, DeviceCommand, ServiceGroup
+from filip.models.ngsi_v2.iot import Device, DeviceAttribute, DeviceCommand
 
 
 # global settings
@@ -70,20 +69,6 @@ def post_device(device: Device, project: Project):
         iota_client.post_device(device=device)
 
 
-def post_devices(devices: List[Device], project: Project):
-    """
-    Post the device to IoTAgent
-    """
-    with IoTAClient(
-        url=settings.IOTA_URL,
-        fiware_header=FiwareHeader(
-            service=project.fiware_service,
-            service_path=project.fiware_service_path,
-        ),
-    ) as iota_client:
-        iota_client.post_devices(devices=devices)
-
-
 def update_device(device: Device, project: Project):
     """
     Update the device to IoTAgent
@@ -109,9 +94,7 @@ def delete_device(project: Project, device_id, **kwargs):
                 service_path=project.fiware_service_path,
             ),
     ) as iota_client:
-        iota_client.delete_device(device_id=device_id,
-                                  cb_url=settings.CB_URL,
-                                  **kwargs)
+        iota_client.delete_device(device_id=device_id, **kwargs)
 
 
 # no use right now
@@ -123,7 +106,7 @@ def devices_filter(devices: list,
                    name_pattern: str = None,
                    type_pattern: str = None):
     """
-    Filter devices with specified pattern of device_id, device_name or entity_type
+    Filter devices with specified pattern of device_id, device_name or device_type
     Return the intersection set
     """
     if id_pattern:
@@ -212,14 +195,16 @@ def build_device(data_basic, data_attributes, data_commands):
     return device
 
 
-def parse_request_data(data, BasicForm: Type[Form]):
+def parse_request_data(data):
     """
     Parse the query dict, and separat the data to
     basic information, attributes, and commands
     """
-    fields_basic = BasicForm.base_fields.keys()
+
     data_basic = {
-        field: data[field] for field in fields_basic if data.get(field)
+        "device_id": data["device_id"],
+        "entity_name": data["entity_name"],
+        "entity_type": data["entity_type"],
     }
 
     data_attributes = {
@@ -230,7 +215,7 @@ def parse_request_data(data, BasicForm: Type[Form]):
     )
     data_attributes[
         f"{prefix_attributes}-INITIAL_FORMS"
-    ] = f"0"
+    ] = f"0"  # TODO can this always be 0?
 
     data_commands = {key: data[key] for key in data if key.startswith(prefix_commands)}
     data_commands[f"{prefix_commands}-TOTAL_FORMS"] = str(
@@ -238,144 +223,6 @@ def parse_request_data(data, BasicForm: Type[Form]):
     )
     data_commands[
         f"{prefix_commands}-INITIAL_FORMS"
-    ] = f"0"
+    ] = f"0"  # TODO can this always be 0?
 
     return data_basic, data_attributes, data_commands
-
-
-# service groups
-
-def get_service_groups(project: Project):
-    """
-    Get all service groups for current project
-    Args:
-        project: dict
-
-    Returns:
-        list of service groups
-    """
-    try:
-        with IoTAClient(
-            url=settings.IOTA_URL,
-            fiware_header=FiwareHeader(
-                service=project.fiware_service,
-                service_path=project.fiware_service_path,
-            ),
-        ) as iota_client:
-            service_groups = iota_client.get_group_list()
-        return service_groups
-
-    except RuntimeError:
-        return [{}]
-
-
-def pattern_service_groups_filter(service_groups: list, pattern: str = None):
-    """
-    Filter service groups with specified pattern to resource, apikey, entity_type
-    """
-    pattern = pattern.lower()
-    if pattern:
-        service_groups = [service_group for service_group in service_groups
-                   if pattern in service_group.resource.lower()
-                   or pattern in service_group.apikey.lower()
-                   or pattern in service_group.entity_type.lower()]
-    return service_groups
-
-
-def get_service_group_by_apikey(project: Project, **kwargs):
-    """
-    Get service groups by apikey in current project by apikey and resource
-    Args:
-        project: dict
-        apikey: see iota_client.get_group
-        resource: see iota_client.get_group
-    Returns:
-        filip.models.ngsi_v2.iot.ServiceGroup
-    """
-    with IoTAClient(
-        url=settings.IOTA_URL,
-        fiware_header=FiwareHeader(
-            service=project.fiware_service,
-            service_path=project.fiware_service_path,
-        ),
-    ) as iota_client:
-        return iota_client.get_group(**kwargs)
-
-
-def build_service_group(data_basic, data_attributes):
-    """Build service group object base on the query data"""
-    attributes = get_attribute_list(data_attributes)
-    service_group = ServiceGroup(
-        resource=data_basic["resource"],
-        apikey=data_basic["apikey"]
-    )
-    if data_basic.get("entity_type"):
-        service_group.entity_type = data_basic.get("entity_type")
-    if data_basic.get("explicit_attrs"):
-        service_group.explicitAttrs = True
-    else:
-        service_group.explicitAttrs = False
-    if data_basic.get("autoprovision"):
-        service_group.autoprovision = True
-    else:
-        service_group.autoprovision = False
-    if attributes:
-        service_group.attributes = attributes
-    return service_group
-
-
-def post_service_group(service_group: ServiceGroup, project: Project):
-    """
-    Post the service group to IoTAgent
-    """
-    with IoTAClient(
-        url=settings.IOTA_URL,
-        fiware_header=FiwareHeader(
-            service=project.fiware_service,
-            service_path=project.fiware_service_path,
-        ),
-    ) as iota_client:
-        iota_client.post_group(service_group=service_group)
-
-
-def update_service_group(service_group: ServiceGroup, project: Project):
-    """
-    Update a service group
-    """
-    with IoTAClient(
-        url=settings.IOTA_URL,
-        fiware_header=FiwareHeader(
-            service=project.fiware_service,
-            service_path=project.fiware_service_path,
-        ),
-    ) as iota_client:
-        iota_client.update_group(service_group=service_group)
-
-
-def delete_service_group(project: Project, **kwargs):
-    """
-    Delete a service group
-    """
-    with IoTAClient(
-            url=settings.IOTA_URL,
-            fiware_header=FiwareHeader(
-                service=project.fiware_service,
-                service_path=project.fiware_service_path,
-            ),
-    ) as iota_client:
-        iota_client.delete_group(**kwargs)
-
-
-def add_group_to_session(request):
-    """
-    Add to_servicegroup = True to session
-    """
-    request.session["to_servicegroup"] = True
-    return request
-
-
-def get_data_from_session(request, key):
-    if request.session.get(key):
-        return request.session.pop(key)
-    else:
-        return None

@@ -2,7 +2,7 @@ from django.core.validators import URLValidator
 from django.forms import MultiValueField, ChoiceField, CharField, URLField
 from django.utils.translation import gettext_lazy as _
 
-from entirety.widgets import SelectTextInputWidget, DropdownOrTextWidget
+from entirety.widgets import SelectTextInputWidget
 from entirety.validators import CustomURLValidator
 
 
@@ -42,24 +42,3 @@ class SelectTextMultiField(MultiValueField):
             return "|".join(data_list)
 
         return ""
-
-
-class DropdownOrTextField(MultiValueField):
-    widget = DropdownOrTextWidget()
-
-    def __init__(self, choices, require_all_fields=False, **kwargs):
-        self.widget = DropdownOrTextWidget(choices=choices, **kwargs)
-        fields_list = [
-            ChoiceField(required=False, choices=choices),
-            CharField(required=False),
-        ]
-        super(DropdownOrTextField, self).__init__(
-            fields=fields_list, require_all_fields=require_all_fields
-        )
-
-    def compress(self, data_list):
-        if data_list:
-            if data_list[1] != "---":
-                return data_list[1]
-            else:
-                return data_list[0]
