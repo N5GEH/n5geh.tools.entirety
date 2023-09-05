@@ -19,35 +19,11 @@
 >
 > *default:* not DJANGO_DEBUG
 
-### DATABASE_USER
-
-> *description:* Database user name
->
-> *default:* postgres
-
-### DATABASE_PASSWORD
-
-> *description:* Database password
->
-> *default:* postgrespw
-
-### DATABASE_HOST
-
-> *description:* Database host name
->
-> *default:* localhost
-
-### DATABASE_PORT
-
-> *description:* Database port
->
-> *default:* 5432
-
 ### DEVICES_LOAD
 
 > *description:* Toggle this boolean if you want to switch Devices application on or off
 >
-> *default:* True
+> *default:* False
 
 ### DJANGO_DEBUG
 
@@ -65,7 +41,7 @@
 
 > *description:* Toggle this boolean if you want to switch Entities application on or off
 >
-> *default:* True
+> *default:* False
 
 ### IOTA_URL
 
@@ -79,12 +55,6 @@
 >
 > *default:* en-us
 
-### LOCAL_AUTH
-
-> *description:* Use local authentication
->
-> *default:* True
->
 ### LOGIN_REDIRECT_URL
 
 > *description:* Application successful login redirect url.
@@ -102,12 +72,6 @@
 > *description:* Application successful logout redirect url.
 >
 > *default:* /
-
-### LOKI_ENABLE
-
-> *description:* Toggle to enable/disable loki logging
->
-> *default:* False
 
 ### LOKI_HOST
 
@@ -155,7 +119,7 @@
 
 > *description:* Toggle this boolean if you want to switch Notifications application on or off
 >
-> *default:* True
+> *default:* False
 
 ### OIDC_OP_AUTHORIZATION_ENDPOINT
 
@@ -236,9 +200,3 @@ Server admins can create/update projects for any project admin.
 > *description:* Application timezone
 >
 > *default:* Europe/Berlin
-
-### WEB_HOST
-
-> *description:* Hostname under which the application will be accessible
->
-> *default:* localhost

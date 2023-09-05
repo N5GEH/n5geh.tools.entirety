@@ -1,5 +1,4 @@
 import json
-import logging
 
 from django.http import HttpResponseRedirect, HttpResponse
 from django.conf import settings
@@ -11,8 +10,6 @@ from filip.models import FiwareHeader
 
 from projects.mixins import ProjectContextMixin
 from subscriptions.models import Subscription
-
-logger = logging.getLogger("subscriptions.views")
 
 
 class Delete(ProjectContextMixin, DeleteView):
@@ -41,16 +38,6 @@ class Delete(ProjectContextMixin, DeleteView):
         ) as cb_client:
             cb_client.delete_subscription(uuid)
 
-        logger.info(
-            str(
-                self.request.user.first_name
-                if self.request.user.first_name
-                else self.request.user.username
-            )
-            + " has deleted the subscription with id "
-            + uuid
-            + f" in project {self.project.name}"
-        )
         return HttpResponse(status=204, headers={"HX-Redirect": success_url})
 
     def get_success_url(self):

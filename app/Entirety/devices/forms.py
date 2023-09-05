@@ -2,8 +2,8 @@ from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Div, HTML
 from django import forms
 from django.forms import formset_factory
-from filip.models.ngsi_v2.iot import DataType, ServiceGroup
-from entirety.widgets import ListTextWidget
+from filip.models.ngsi_v2.iot import DataType
+
 
 ATTRIBUTES_TYPE = [
     DataType.NUMBER.value,
@@ -39,8 +39,8 @@ class DeviceBasic(forms.Form):
                 "data-bs-toggle": "tooltip",
                 # "data-bs-placement": "top ",
                 "title": "ID of the entity representing the device in the Context Broker, "
-                         "e.g. urn:ngsi-ld:TemperatureSensor:001. Combination of ID and "
-                         "Type must be unique.",
+                "e.g. urn:ngsi-ld:TemperatureSensor:001. Combination of ID and "
+                "Type must be unique.",
             }
         ),
     )
@@ -52,7 +52,7 @@ class DeviceBasic(forms.Form):
                 "data-bs-toggle": "tooltip",
                 # "data-bs-placement": "top ",
                 "title": "Type of the entity in the Context Broker. Combination of ID and "
-                         "Type must be unique.",
+                "Type must be unique.",
             }
         ),
     )
@@ -72,24 +72,12 @@ class DeviceAttributes(forms.Form):
                 "data-bs-toggle": "tooltip",
                 # "data-bs-placement": "top ",
                 "title": "Unique name to identify this attribute within the context entity in the "
-                         "Context Broker",
+                "Context Broker",
             }
         ),
     )
-    type = forms.CharField(
-        required=True,
-        max_length=256,
-        label="Attribute Type",
-        widget=ListTextWidget(
-            data_list=ATTRIBUTES_TYPE,
-            name="attr-type-list",
-            attrs={
-                "data-bs-toggle": "tooltip",
-                "data-bs-placement": "top",
-                "title": "Type of the context attribute.",
-            },
-        ),
-    )
+    type_choices = tuple([(f"{t}", t) for i, t in enumerate(ATTRIBUTES_TYPE)])
+    type = forms.ChoiceField(label="Type", required=True, choices=type_choices)
     object_id = forms.CharField(
         label="Object ID",
         required=False,
@@ -98,7 +86,7 @@ class DeviceAttributes(forms.Form):
                 "data-bs-toggle": "tooltip",
                 # "data-bs-placement": "top ",
                 "title": " (optional) Name of the attribute as coming from the device ("
-                         "incoming southbound traffic).",
+                "incoming southbound traffic).",
             }
         ),
     )
@@ -149,49 +137,6 @@ class DeviceCommands(forms.Form):
                 css_class="d_attr_form col-6",
             )
         )
-
-
-class DeviceBatchForm(forms.Form):
-    device_json = forms.JSONField(
-        required=True,
-        initial={
-            "devices":
-                [
-                    {
-                        "protocol": "IoTA-JSON",
-                        "transport": "MQTT",
-                        "explicitAttrs": False,
-                        "device_id": "device:001",
-                        "entity_name": "urn:ngsi-ld:Example:001",
-                        "entity_type": "Example",
-                        "attributes": [
-                            {
-                                "name": "attr1",
-                                "type": "Number",
-                                "object_id": "a1"
-                            }
-                        ],
-                        "ngsiVersion": "v2"
-                    },
-                    {
-                        "protocol": "IoTA-JSON",
-                        "transport": "MQTT",
-                        "explicitAttrs": False,
-                        "device_id": "device:002",
-                        "entity_name": "urn:ngsi-ld:Example:002",
-                        "entity_type": "Example",
-                        "attributes": [
-                            {
-                                "name": "attr2",
-                                "type": "Number",
-                                "object_id": "a2"
-                            }
-                        ],
-                        "ngsiVersion": "v2"
-                    },
-                ]
-        }
-    )
 
 
 Attributes = formset_factory(DeviceAttributes, extra=0)

@@ -1,8 +1,7 @@
 import os
-import logging.config as LOG
 
 from pathlib import Path
-from typing import List, Any, Optional, Sequence, Union
+from typing import List, Any, Optional, Sequence
 from mimetypes import add_type
 
 import django_loki
@@ -21,30 +20,18 @@ from django.contrib.messages import constants as messages
 __version__ = "0.4.0"
 
 
-class PostgresSettings(BaseSettings):
-    DATABASE_USER = Field(env="DATABASE_USER", default="postgres")
-    DATABASE_PASSWORD = Field(env="DATABASE_PASSWORD", default="postgrespw")
-    DATABASE_HOST = Field(env="DATABASE_HOST", default="localhost")
-    DATABASE_PORT = Field(env="DATABASE_PORT", default="5432")
-
-    class Config:
-        case_sensitive = False
-        env_file = ".env"
-        env_file_encoding = "utf-8"
-
-
 class Databases(DatabaseSettings):
-    ps = PostgresSettings()
-    default: DatabaseDsn = Field(
-        default=f"postgres://{ps.DATABASE_USER}:{ps.DATABASE_PASSWORD}@{ps.DATABASE_HOST}:{ps.DATABASE_PORT}/postgres"
+    DEFAULT: DatabaseDsn = Field(
+        env="DATABASE_URL", default="postgres://username:password@host:port/db"
     )
 
-    @validator("*")
-    def format_database_settings(cls, v):
-        if isinstance(v, PostgresSettings):
-            return {}
+    @validator("DEFAULT", pre=True)
+    def set_url(cls, v: Optional[str]) -> Any:
+        if isinstance(v, str):
+            os.environ["DATABASE_URL"] = v
+            return v
         else:
-            return super(Databases, cls).format_database_settings(v)
+            raise Exception
 
     class Config:
         case_sensitive = False
@@ -53,7 +40,6 @@ class Databases(DatabaseSettings):
 
 
 class LokiSettings(BaseSettings):
-    LOKI_ENABLE: bool = Field(default=False, env="LOKI_ENABLE")
     LOKI_LEVEL: str = Field(default="INFO", env="LOKI_LEVEL")
     LOKI_PORT: int = Field(default=3100, env="LOKI_PORT")
     LOKI_TIMEOUT: float = Field(default=0.5, env="LOKI_TIMEOUT")
@@ -78,9 +64,9 @@ class AuthenticationSettings(BaseSettings):
 
 
 class AppLoadSettings(BaseSettings):
-    ENTITIES_LOAD: bool = Field(default=True, env="ENTITIES_LOAD")
-    DEVICES_LOAD: bool = Field(default=True, env="DEVICES_LOAD")
-    NOTIFICATIONS_LOAD: bool = Field(default=True, env="NOTIFICATIONS_LOAD")
+    ENTITIES_LOAD: bool = Field(default=False, env="ENTITIES_LOAD")
+    DEVICES_LOAD: bool = Field(default=False, env="DEVICES_LOAD")
+    NOTIFICATIONS_LOAD: bool = Field(default=False, env="NOTIFICATIONS_LOAD")
 
     class Config:
         case_sensitive = False
@@ -92,8 +78,6 @@ class Settings(PydanticSettings):
     add_type("text/css", ".css", True)
     __auth = AuthenticationSettings()
     LOCAL_AUTH = __auth.LOCAL_AUTH
-    LOKI = LokiSettings()
-    APP_LOAD = AppLoadSettings()
 
     # Build paths inside the project like this: BASE_DIR / 'subdir'.
     BASE_DIR: DirectoryPath = Path(__file__).resolve().parent.parent
@@ -206,78 +190,39 @@ class Settings(PydanticSettings):
 
     DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
-    LOGGING_CONFIG: Union[str, None] = None
-
-    LOGGERS = {
-        "projects.views": {
-            "propagate": False,
-            "level": "INFO",
-        },
-        "filip": {
-            "propagate": False,
-            "level": "INFO",
-        },
-        "entirety.oidc": {
-            "propagate": False,
-            "level": "INFO",
-        },
-        "entities.views": {
-            "propagate": False,
-            "level": "INFO",
-        },
-        "django.server": {
-            "propagate": False,
-            "level": "INFO",
-        },
-        "devices.views": {
-            "propagate": False,
-            "level": "INFO",
-        },
-        "subscriptions.views": {
-            "propagate": False,
-            "level": "INFO",
-        },
-    }
-
-    if LOKI.LOKI_ENABLE is True:
-        for LOGGER in LOGGERS:
-            LOGGERS[LOGGER]["handlers"] = ["loki"]
-        HANDLER = {
-            "loki": {
-                "level": "DEBUG",
-                "class": "logging.handlers.RotatingFileHandler",
-                "filename": os.path.join(BASE_DIR, "logs/entirety_logs.log"),
-                "maxBytes": 1 * 1024 * 1024,
-                "backupCount": 2,
-                "formatter": "default",
-            }
-        }
-    else:
-        for LOGGER in LOGGERS:
-            LOGGERS[LOGGER]["handlers"] = ["console"]
-        HANDLER = {
-            "console": {
-                "class": "logging.StreamHandler",
-                "level": "DEBUG",
-                "formatter": "default",
-            }
-        }
-
     LOGGING = {
         "version": 1,
-        "disable_existing_loggers": True,
+        "disable_existing_loggers": False,
         "formatters": {
-            "default": {
+            "loki": {
+                "class": "django_loki.LokiFormatter",
                 "format": "[%(asctime)s] %(levelname)s [%(name)s:%(lineno)s] "
                 "[%(funcName)s] %(message)s",
                 "datefmt": "%Y-%m-%d %H:%M:%S",
             },
         },
-        "handlers": HANDLER,
-        "loggers": LOGGERS,
+        "handlers": {
+            "console": {"class": "logging.StreamHandler", "level": "DEBUG"},
+            "loki": {
+                "level": LokiSettings().dict().get("LOKI_LEVEL"),
+                "class": "django_loki.LokiHttpHandler",
+                "host": LokiSettings().dict().get("LOKI_HOST"),
+                "formatter": "loki",
+                "port": LokiSettings().dict().get("LOKI_PORT"),
+                "timeout": LokiSettings().dict().get("LOKI_TIMEOUT"),
+                "protocol": LokiSettings().dict().get("LOKI_PROTOCOL"),
+                "source": "Loki",
+                "src_host": LokiSettings().dict().get("LOKI_SRC_HOST"),
+                "tz": LokiSettings().dict().get("LOKI_TIMEZONE"),
+            },
+        },
+        "loggers": {
+            "": {
+                "handlers": ["loki"],
+                "level": "INFO",
+            },
+        },
     }
-
-    LOG.dictConfig(LOGGING)
 
     # Media location
     # https://docs.djangoproject.com/en/4.0/howto/static-files/#serving-files
@@ -368,11 +313,11 @@ class Settings(PydanticSettings):
 
     DJANGO_TABLES2_TEMPLATE = "django_tables2/bootstrap4.html"
 
-    if APP_LOAD.ENTITIES_LOAD is True:
+    if AppLoadSettings().dict().get("ENTITIES_LOAD") is True:
         INSTALLED_APPS.append("entities")
-    if APP_LOAD.DEVICES_LOAD is True:
+    if AppLoadSettings().dict().get("DEVICES_LOAD") is True:
         INSTALLED_APPS.append("devices")
-    if APP_LOAD.NOTIFICATIONS_LOAD is True:
+    if AppLoadSettings().dict().get("NOTIFICATIONS_LOAD") is True:
         INSTALLED_APPS.append("subscriptions")
 
     class Config:

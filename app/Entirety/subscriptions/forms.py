@@ -1,15 +1,14 @@
 from django import forms
 from django.forms.utils import ErrorList
 from crispy_forms.helper import FormHelper
-from crispy_forms.layout import Layout, Fieldset, Div, HTML, Button, Field
+from crispy_forms.layout import Layout, Fieldset, Div, HTML, Button
 from crispy_forms.bootstrap import InlineCheckboxes
 
 from filip.models.ngsi_v2.base import AttrsFormat
 from filip.utils.simple_ql import Operator
 
 from subscriptions.models import Subscription
-from entirety.fields import MQTTURLField, HTTPURLField, DropdownOrTextField
-from entities.requests import get_entities_list, get_entities_types
+from entirety.fields import MQTTURLField, HTTPURLField
 
 
 class AttributesForm(forms.Form):
@@ -56,34 +55,6 @@ class AttributesForm(forms.Form):
         )
 
 
-class EntityIdList:
-    def __init__(self, project):
-        self.list = get_entities_list(self, None, None, project)
-        pass
-
-    def id_list(self):
-        id_only_list = []
-        for item in self.list:
-            id_only_list.append((item.id, item.id))
-        return id_only_list
-
-
-class EntityTypeList:
-    def __init__(self, project):
-        self.list = get_entities_types(project)
-        pass
-
-    def type_list(self):
-        id_only_list = []
-        for item in self.list:
-            id_only_list.append((item, item))
-        return id_only_list
-
-
-class EntityListForm(forms.ChoiceField):
-    choices = []
-
-
 class EntitiesForm(forms.Form):
     _entity_choices = [
         ("id", "id"),
@@ -94,102 +65,31 @@ class EntitiesForm(forms.Form):
         ("type_pattern", "type pattern"),
     ]
 
-    entity_selector = forms.ChoiceField(
-        choices=_entity_choices,
-        widget=forms.Select(
-            attrs={"onChange": "updateEntityList(this.value, this.id)"}
-        ),
-    )
-    type_selector = forms.ChoiceField(
-        choices=_type_choices,
-        required=False,
-        widget=forms.Select(
-            attrs={"onChange": "updateEntityList(this.value, this.id)"}
-        ),
-    )
+    entity_selector = forms.ChoiceField(choices=_entity_choices)
+    entity_id = forms.CharField(
+        widget=forms.TextInput(
+            attrs={
+                "data-bs-toggle": "tooltip",
+                "data-bs-placement": "top",
+                "title": "Entity id or id pattern. "
+                         "Notification will be triggered "
+                         "by changes in the matched entities.",
+            },
+        ),)
 
-    entity_id_list = []
-    entity_type_list = []
-
-    entity_id = DropdownOrTextField(choices=entity_id_list,
-                                    tooltip="Entity type or type pattern.")
-
-    entity_type = forms.ChoiceField(choices=entity_type_list)
+    type_selector = forms.ChoiceField(choices=_type_choices, required=False)
+    entity_type = forms.CharField(required=False,
+                                  widget=forms.TextInput(
+                                      attrs={
+                                          "data-bs-toggle": "tooltip",
+                                          "data-bs-placement": "top",
+                                          "title": "Entity type or type pattern.",
+                                      },
+                                  )
+                                  )
 
     def __init__(self, *args, **kwargs):
-        project = None
-        if "project" in kwargs:
-            project = kwargs.pop("project")
         super(EntitiesForm, self).__init__(*args, **kwargs)
-
-        if project != None:
-            entity_id_list = EntityIdList(project).id_list()
-            entity_type_list = EntityTypeList(project).type_list()
-        else:
-            entity_id_list = []
-            entity_type_list = []
-
-        entity_selector = type_selector = None
-        entity_pattern = type_pattern = None
-        entity_id = entity_type = None
-
-        if "initial" in kwargs:
-            initial = kwargs["initial"]
-            if "entity_selector" in initial:
-                if initial["entity_selector"] == "id":
-                    entity_selector = "id"
-                    if "entity_id" in initial:
-                        entity_id = initial["entity_id"]
-                        initial["entity_id"] = (
-                            initial["entity_id"],
-                            "---",
-                        )
-                if initial["entity_selector"] == "id_pattern":
-                    entity_selector = "pattern"
-                    if "entity_id" in initial:
-                        entity_pattern = initial["entity_id"]
-                        initial["entity_id"] = (
-                            "",
-                            initial["entity_id"],
-                        )
-            if "type_selector" in initial:
-                if initial["type_selector"] == "id":
-                    type_selector = "type"
-                    if "entity_type" in initial:
-                        entity_type = initial["entity_type"]
-                        initial["entity_type"] = (
-                            initial["entity_type"],
-                            "---",
-                        )
-                if initial["type_selector"] == "type_pattern":
-                    type_selector = "pattern"
-                    if "entity_type" in initial:
-                        type_pattern = initial["entity_type"]
-                        initial["entity_type"] = (
-                            "",
-                            initial["entity_type"],
-                        )
-
-        entity_kwargs = {
-            "selector": entity_selector,
-            "pattern": entity_pattern,
-            "id": entity_id,
-        }
-
-        type_kwargs = {
-            "selector": type_selector,
-            "pattern": type_pattern,
-            "id": entity_type,
-        }
-
-        self.fields["entity_id"] = DropdownOrTextField(
-            choices=entity_id_list, **entity_kwargs,
-            tooltip="Entity id"
-        )
-        self.fields["entity_type"] = DropdownOrTextField(
-            choices=entity_type_list, **type_kwargs,
-            tooltip="Entity type"
-        )
 
         self.helper = FormHelper(self)
         self.helper.form_tag = False
@@ -275,27 +175,25 @@ class SubscriptionForm(forms.ModelForm):
     # Notification
 
     # TODO: httpCustom
-    http = HTTPURLField(
-        required=False,
-        widget=forms.TextInput(
-            attrs={
-                "data-bs-toggle": "tooltip",
-                "data-bs-placement": "top",
-                "title": "HTTP endpoint to receive the notification.",
-            }
-        ),
-    )
+    http = HTTPURLField(required=False,
+                        widget=forms.TextInput(
+                            attrs={
+                                "data-bs-toggle": "tooltip",
+                                "data-bs-placement": "top",
+                                "title": "HTTP endpoint to receive the notification.",
+                            }
+                        )
+                        )
     # TODO: mqttCustom
-    mqtt = MQTTURLField(
-        required=False,
-        widget=forms.TextInput(
-            attrs={
-                "data-bs-toggle": "tooltip",
-                "data-bs-placement": "top",
-                "title": "MQTT endpoint to receive the notification.",
-            }
-        ),
-    )
+    mqtt = MQTTURLField(required=False,
+                        widget=forms.TextInput(
+                            attrs={
+                                "data-bs-toggle": "tooltip",
+                                "data-bs-placement": "top",
+                                "title": "MQTT endpoint to receive the notification.",
+                            }
+                        )
+                        )
 
     metadata = forms.CharField(
         required=False,

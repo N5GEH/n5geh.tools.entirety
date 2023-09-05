@@ -31,15 +31,3 @@ Following commit types will affect the version of the next release:
 * **div:** _d\_\<name\>_
 * **dropdown:** _dd\_\<name\>_
 * **modal**: _m\_\<name\>_
-
-## GitHub Workflow for development
-
-1. Open a new issue for feature requirement or bug resolution.
-2. Assign a user to that issue.
-3. Create new branch for the corresponding issue (you can use the button/link on issue page to create the new branch).
-4. Make changes to that branch.
-5. Open a Pull Request from the new branch to development branch.
-6. Assign reviewer from the list of Reviewers.
-7. Once the Pull Request is approved by at least one reviewer, merge the branch to development, test if development
-branch is working as expected and delete the old branch.
-8. Updated development docker image will be automatically pushed to package registry when development branch will be updated.
