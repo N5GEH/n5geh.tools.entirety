@@ -19,4 +19,4 @@ jobs:
       uses: relekang/python-semantic-release@master
       with:
         directory: ./app/Entirety
-        github_token: ${{ secrets.CI_TOKEN }}
+        github_token: ${{ secrets.GITHUB_TOKEN }}
