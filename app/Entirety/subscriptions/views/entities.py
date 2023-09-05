@@ -21,6 +21,8 @@ class Entities(ProjectContextMixin, View):
         post["entity-TOTAL_FORMS"] = total + 1
         request.POST = post
 
-        entities = forms.Entities(request.POST, prefix="entity")
+        entities = forms.Entities(
+            request.POST, prefix="entity", form_kwargs={"project": self.project}
+        )
 
         return render(request, "subscriptions/entities.html", {"entities": entities})

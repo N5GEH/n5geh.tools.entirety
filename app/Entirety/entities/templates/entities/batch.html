@@ -1,0 +1,27 @@
+{% extends '_base.html' %}
+{% load static %}
+{% load compress %}
+{% load crispy_forms_tags %}
+
+
+{% block title %}Create Batch Entities {% endblock %}
+
+{% block content %}
+    <span class="h3">Create Batch Entities </span>
+    <form method="post" action="" id="jsonForm" {% if form_submitted %}class="was-validated" {% endif %}>
+        <div>
+            {% csrf_token %}
+            {% crispy json_form %}
+            <button class="btn btn-primary rounded-pill" onclick="prettyJSON('id_entity_json')" type="button">
+                <i class="bi bi-braces"></i> Beautify Json
+            </button>
+            <button class="btn btn-warning rounded-pill" type="submit">Create</button>
+        </div>
+    </form>
+
+    {% compress js %}
+        <script src="{% static 'js/json.js' %}"></script>
+    {% endcompress %}
+
+
+{% endblock %}

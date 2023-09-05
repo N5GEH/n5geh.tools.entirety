@@ -5,16 +5,32 @@
         Create Device
     {% elif action == "Edit" %}
         Edit Device
+    {% elif action == "Create_Group" %}
+        Create Service Group
+    {% elif action == "Edit_Group" %}
+        Edit Service Group
     {% endif %}
 {% endblock %}
 
 {% block content %}
-    <h3 class="mt-5">{{ action }} Device</h3>
+    {% if action == "Create" %}
+        <h3 class="mt-5">Create Device</h3>
+    {% elif action == "Edit" %}
+        <h3 class="mt-5">Edit Device</h3>
+    {% elif action == "Create_Group" %}
+        <h3 class="mt-5">Create Service Group</h3>
+    {% elif action == "Edit_Group" %}
+        <h3 class="mt-5">Edit Service Group</h3>
+    {% endif %}
 
     {% if action == "Create" %}
         <form action="{% url 'projects:devices:create_submit' project.uuid %}" method="post" novalidate>
     {% elif action == "Edit" %}
-        <form action="{% url 'projects:devices:edit-submit' project.uuid %}" method="post" novalidate>
+        <form action="{% url 'projects:devices:edit_submit' project.uuid %}" method="post" novalidate>
+    {% elif action == "Create_Group" %}
+        <form action="{% url 'projects:devices:create_submit_group' project.uuid %}" method="post" novalidate>
+    {% elif action == "Edit_Group" %}
+        <form action="{% url 'projects:devices:edit_submit_group' project.uuid %}" method="post" novalidate>
     {% endif %}
         {% csrf_token %}
             {% include 'accordion.html' %}

@@ -2,24 +2,8 @@ from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Div, HTML
 from django import forms
 
+from entirety.widgets import ListTextWidget
 from entities.requests import AttributeTypes, get_entities_types
-
-
-class ListTextWidget(forms.TextInput):
-    def __init__(self, data_list, name, *args, **kwargs):
-        super(ListTextWidget, self).__init__(*args, **kwargs)
-        self._name = name
-        self._list = data_list
-        self.attrs.update({"list": "list__%s" % self._name})
-
-    def render(self, name, value, attrs=None, renderer=None):
-        text_html = super(ListTextWidget, self).render(name, value, attrs=attrs)
-        data_list = '<datalist id="list__%s">' % self._name
-        for item in self._list:
-            data_list += '<option value="%s">' % item
-        data_list += "</datalist>"
-
-        return text_html + data_list
 
 
 class EntityForm(forms.Form):
@@ -68,8 +52,19 @@ class AttributeForm(forms.Form):
             }
         ),
     )
-    type = forms.ChoiceField(
-        label="Attribute Type", choices=[(x.value, x.name) for x in AttributeTypes]
+    type = forms.CharField(
+        required=True,
+        max_length=256,
+        label="Attribute Type",
+        widget=ListTextWidget(
+            data_list=[x.value for x in AttributeTypes],
+            name="attr-type-list",
+            attrs={
+                "data-bs-toggle": "tooltip",
+                "data-bs-placement": "top",
+                "title": "Type of the context attribute.",
+            },
+        ),
     )
     value = forms.CharField(
         required=False,
@@ -79,6 +74,19 @@ class AttributeForm(forms.Form):
                 "data-bs-toggle": "tooltip",
                 "data-bs-placement": "top",
                 "title": "(optional) Value of the attribute",
+            }
+        ),
+    )
+    metadata = forms.JSONField(
+        required=False,
+        label="Metadata",
+        initial={},
+        widget=forms.Textarea(
+            attrs={
+                "onfocus": "prettyJSON(this.id)",
+                "data-bs-toggle": "tooltip",
+                "data-bs-placement": "top",
+                "title": "(optional) Metadata dictionary",
             }
         ),
     )
@@ -93,6 +101,7 @@ class AttributeForm(forms.Form):
                 "name",
                 "type",
                 "value",
+                "metadata",
                 HTML(
                     "<button class='remove-form btn btn-danger rounded-pill btn-sm'><i class='bi "
                     "bi-trash'></i></button>"
@@ -148,3 +157,19 @@ class SelectionForm(forms.Form):
 
         self.helper = FormHelper(self)
         self.helper.form_tag = False
+
+
+class JSONForm(forms.Form):
+    entity_json = forms.JSONField(
+        required=True,
+        initial={
+            "actionType": "append",
+            "entities": [
+                {
+                    "id": "urn:ngsi-ld:Example:001",
+                    "type": "Example",
+                    "attribute_example": {"type": "Number", "value": 0},
+                }
+            ],
+        },
+    )

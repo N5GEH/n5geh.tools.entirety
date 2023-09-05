@@ -10,7 +10,7 @@
                 <div class="col-md-1">
                     <span class="input-group-btn">
                         <div class="row">
-                            {% if view_permissions %}
+                            {% if user.is_server_admin or user.is_project_admin %}
                                 <a href="{% url 'projects:create' %}" class="btn btn-secondary btn-lg">
                                     <i class="bi-plus-circle"></i>
                                 </a>
@@ -53,7 +53,7 @@
                             {% if project.logo.url|length > 0 %}
                                 <img src="{{ project.logo.url }}" class="card-img-top w-100" alt="{{ project.name }}">
                             {% else %}
-                                <img src="{% static "/img/n5geh.png" %}" class="card-img-top" alt="{{ project.name }}">
+                                <img src="{% static "/img/blank.png" %}" class="card-img-top" alt="{{ project.name }}">
                             {% endif %}
                         </a>
 
@@ -61,7 +61,7 @@
                             <p class="d-inline-block text-truncate" data-bs-toggle="tooltip" data-bs-placement="bottom"
                                title="{{ project.description }}" style="max-width: 150px;">{{ project.description }}</p>
                         </div>
-                        {% if view_permissions %}
+                        {% if project.owner == user or user.is_server_admin or user in project.maintainers.all %}
                             <div class="ms-3 mb-3">
                                 <a href="{% url 'projects:update' project.uuid %}"
                                    class="btn btn-primary rounded-pill btn-sm">Edit</a>
