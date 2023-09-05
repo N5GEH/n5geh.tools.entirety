@@ -1,5 +1,5 @@
 from django_tables2 import tables
-
+from entirety.utils import django_table2_limit_text_length
 from entities.requests import get_entities_list
 
 
@@ -18,7 +18,7 @@ class EntityTable(tables.Table):
         attrs={
             "td__input": {
                 "value": lambda record: record.id + "&" + record.type,
-                "type": "radio",
+                "type": "checkbox",
             },
         },
         orderable=False,
@@ -26,6 +26,16 @@ class EntityTable(tables.Table):
     id = tables.columns.Column()
     type = tables.columns.Column()
     attrs = tables.columns.Column(verbose_name="Attributes")
+    length_limit = 40
 
     def get_query_set(self, id_pattern, type_pattern, project):
-        return get_entities_list(self, id_pattern, type_pattern, project)
+        try:
+            return get_entities_list(self, id_pattern, type_pattern, project)
+        except Exception as e:
+            raise e
+
+    def render_id(self, value):
+        return django_table2_limit_text_length(value, length=self.length_limit)
+
+    def render_type(self, value):
+        return django_table2_limit_text_length(value, length=self.length_limit)

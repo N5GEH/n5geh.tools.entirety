@@ -12,9 +12,8 @@
 
 
     {% compress css %}
-        {#        <link type="text/x-scss" href="{% static 'bootstrap/scss/bootstrap.scss' %}" rel="stylesheet" media="screen">#}
         <link type="text/x-scss" href="{% static 'scss/style.scss' %}" rel="stylesheet" media="screen">
-        <link type="text/x-scss" href="{% static 'bootstrap/scss/bootstrap-icons.scss' %}" rel="stylesheet"
+        <link type="text/x-scss" href="{% static 'bootstrap-icons/scss/bootstrap-icons.scss' %}" rel="stylesheet"
               media="screen">
     {% endcompress %}
 </head>
@@ -31,6 +30,8 @@
                      class="d-inline-block align-text-top">
                 <img src="{% static 'img/fiware.gif' %}" alt="fiware" height="30"
                      class="d-inline-block align-text-top">
+{#                <img src="{% static 'img/Entirety-logo.png' %}" alt="fiware" height="30"#}
+{#                     class="d-inline-block align-text-top">#}
             </a>
         </div>
         <div class="d-none d-sm-flex">
