@@ -169,6 +169,8 @@ class SmartDataModelEntitiesForm(forms.Form):
 
     def __init__(self, *args, **kwargs):
         super(SmartDataModelEntitiesForm, self).__init__(*args, **kwargs)
+        self.helper = FormHelper(self)
+        self.helper.form_tag = False
         qs = SmartDataModel.objects.all()
         list_of_schemas = []
         for set in qs:
