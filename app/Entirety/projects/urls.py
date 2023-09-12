@@ -23,3 +23,5 @@ if apps.is_installed("subscriptions"):
     )
 if apps.is_installed("devices"):
     urlpatterns.append(path("<str:project_id>/devices/", include("devices.urls")))
+if apps.is_installed("semantics"):
+    urlpatterns.append(path("<str:project_id>/semantics/", include("semantics.urls")))

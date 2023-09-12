@@ -1,0 +1,250 @@
+{% extends '_base.html' %}
+{% load compress %}
+{% load static %}
+
+{% block title %}Semantics{% endblock %}
+{% block content %}
+
+    {% compress css %}
+        <link type="text/x-scss" href="{% static "semantics/css/base.scss" %}" rel="stylesheet">
+    {% endcompress %}
+
+
+    <main class="d-flex flex-column flex-fill ps-4 pe-3 py-3">
+        {% csrf_token %}
+        <div class="warning" id="warning_Wrapper"></div>
+        <nav class="navbar navbar-expand-lg bg-light">
+            <div class="container-fluid">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"
+                           aria-expanded="false">
+                            Filter
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li>
+                                <a class="dropdown-item" href="#">
+                                    Types &raquo;
+                                </a>
+                                <ul class="dropdown-menu dropdown-submenu">
+                                    {% for type in types %}
+                                        <li>
+                                            <a class="dropdown-item">
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" name="typecheckbox"
+                                                           value=""
+                                                           id="{{ type }}" onchange="colorNodes()" ;>
+                                                    <label class="form-check-label" for="typecheckbox">
+                                                        {{ type }}
+                                                    </label>
+                                                </div>
+                                            </a>
+                                        </li>
+                                    {% endfor %}
+                                </ul>
+                            </li>
+                            <li>
+                                <a class="dropdown-item" href="#">
+                                    Relationships &raquo;
+                                </a>
+                                <ul class="dropdown-menu dropdown-submenu">
+                                    {% for rel in relationships %}
+                                        <li>
+                                            <a class="dropdown-item">
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" name="relcheckbox"
+                                                           value=""
+                                                           id="{{ rel }}" onchange="colorEdges()" ;>
+                                                    <label class="form-check-label" for="relcheckbox">
+                                                        {{ rel }}
+                                                    </label>
+                                                </div>
+                                            </a>
+                                        </li>
+                                    {% endfor %}
+                                </ul>
+                            </li>
+                        </ul>
+
+                    </li>
+
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"
+                           aria-expanded="false">
+                            Label
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item dropdown-link" onclick="changeLabel('id')">Id</a></li>
+                            <li><a class="dropdown-item dropdown-link" onclick="changeLabel('name')">Name</a></li>
+                            <li><a class="dropdown-item dropdown-link" onclick="changeLabel('none')">None</a></li>
+                        </ul>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"
+                           aria-expanded="false">
+                            Layout
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item dropdown-link" onclick="changeLayout('circle')"
+                                   title="organizes nodes clockwise in a circle">Circle</a></li>
+                            <li><a class="dropdown-item dropdown-link" onclick="changeLayout('grid')"
+                                   title="organizes nodes in a grid from left to right and top to bottom">Grid</a></li>
+                            <li><a class="dropdown-item dropdown-link" onclick="changeLayout('breadthfirst')"
+                                   title="organizes nodes in levels according to a breadth-first-search">Breadth-first</a>
+                            </li>
+                        </ul>
+                    </li>
+                </ul>
+                <div class="input-group">
+                    <input type="text" class="form-control" placeholder="Search field...">
+                    <div class="input-group-append">
+                        <button class="btn btn-outline-secondary dropdown-toggle" type="button" id="searchOptions"
+                                data-bs-toggle="dropdown"
+                                style="border-bottom-left-radius: 0; border-top-left-radius: 0;"
+                                aria-haspopup="true" aria-expanded="false"
+                        >Options
+                        </button>
+                        <div class="dropdown-menu dropdown-menu-right">
+                            <a class="dropdown-item" href="#" data-value="id1">ID</a>
+                            <a class="dropdown-item" href="#" data-value="type1">Type</a>
+                            <a class="dropdown-item" href="#" data-value="name1">Name</a>
+                            <a class="dropdown-item" href="#" data-value="relationship1">Relationship</a>
+                        </div>
+                        <button type="submit"
+                                class="btn btn-warning bi-search rounded-pill" id="searchButton"
+                                data-bs-toggle="tooltip"
+                                title="Start search"
+                        > Search
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </nav>
+
+
+        <div id="entity" style="display: none">
+            <h3 class="h3"></h3>
+            <div class="accordion mt-3" id="entityaccordion">
+                <div class="accordion-item">
+                    <h2 class="accordion-header" id="headingOne">
+                        <button class="accordion-button" type="button" data-bs-toggle="collapse"
+                                data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+                            Entity Information
+                        </button>
+
+
+                    </h2>
+                    <div id="collapseOne" class="accordion-collapse collapse show" aria-labelledby="headingOne"
+                         data-bs-parent="#entityaccordion">
+                        <div class="accordion-body">
+                            <button class="btn btn-primary bi-pen my-2 " id="edit" onclick="editEntity()"
+                                    data-bs-toggle="tooltip" title="Edit this Entity">
+                            </button>
+                            <button class="btn btn-primary bi-arrow-clockwise my-2" id="refresh" onclick="getEntity()"
+                                    data-bs-toggle="tooltip" title="Reload this entity to get current real time data!">
+                            </button>
+                            <div id="table" class="graph">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <h3 class="h3">Main Graph</h3>
+        <div id="main_graph" class="graph">
+            <div class="alert alert-warning d-none" role="alert" id="scrollAlert">
+                Use <strong>Ctrl + Mouse Wheel</strong> to zoom.
+            </div>
+            <div class="dropdown" id="legend">
+                <button class="btn btn-outline-info bi-list dropdown-toggle" type="button" id="dropdownMenuButton1"
+                        data-bs-toggle="dropdown" aria-expanded="false">
+                    Legend
+                </button>
+                <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1" id="legendMenu">
+                    <li><a class="dropdown-item" href="#">Types</a></li>
+                    <li>
+                        <div id="typeMenu"></div>
+                    </li>
+                    <li>
+                        <hr class="dropdown-divider">
+                    </li>
+                    <li><a class="dropdown-item" href="#">Relationships</a></li>
+                    <li>
+                        <div id="relMenu"></div>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        <h3 class="h3">Detail Level</h3>
+        <div id="detail_level" class="graph">
+            <div class="alert alert-warning d-none" role="alert" id="scrollAlertDetail">
+                Use <strong>Ctrl + Mouse Wheel</strong> to zoom.
+            </div>
+        </div>
+
+
+        <script>
+            var data =
+            {{ elements|safe }}
+            var types =
+            {{ types|safe }}
+            var relationships =
+            {{ relationships|safe }}
+        </script>
+
+
+    </main>
+
+
+    <script src="{% static 'cytoscape/cytoscape.umd.js' %}"></script>
+    <script type="text/javascript" src="{% static 'js/semantics.js' %}"></script>
+    <link href="https://unpkg.com/tabulator-tables/dist/css/tabulator_bootstrap4.min.css" rel="stylesheet">
+    <script type="text/javascript" src="{% static  'tabulator/tabulator.min.js' %}"></script>
+
+    <script>
+        let currentUrl = window.location.href;
+        let baseUrl = currentUrl.split('/semantics')[0];
+        cy.on('click', 'node', handleClick);
+        detail.on('click', 'node', handleClick);
+
+
+        const typelegend = document.getElementById('typeMenu');
+        const rellegend = document.getElementById('relMenu');
+        // Get all the checkboxes inside the existing dropdown menus
+        const typecheckboxes = document.querySelectorAll('input[name="typecheckbox"]');
+        const relcheckboxes = document.querySelectorAll('.dropdown-menu input[name="relcheckbox"]');
+        // Listen for changes to the type checkboxes
+        typecheckboxes.forEach(function (checkbox) {
+            checkbox.addEventListener('change', add_type_legend)
+        });
+
+        relcheckboxes.forEach(function (checkbox) {
+            checkbox.addEventListener('change', add_rel_legend)
+        });
+        var searchButton = document.getElementById('searchButton');
+        searchButton.addEventListener('click', handleSearch);
+        var dropdownButton = document.getElementById("searchOptions");
+        dropdownButton.textContent = "Options";
+
+        // Add event listener to dropdown items
+        var dropdownItems = document.querySelectorAll('.dropdown-menu.dropdown-menu-right .dropdown-item');
+        dropdownItems.forEach(function (item) {
+            item.addEventListener('click', function (event) {
+                event.preventDefault();
+                dropdownItems.forEach(function (item) {
+                    item.classList.remove('active');
+                });
+                item.classList.add('active');
+
+                // Update the dropdown button text with the selected value
+                dropdownButton.textContent = item.textContent.trim();
+            });
+        });
+        var searchField = document.querySelector('.form-control');
+        searchField.addEventListener('input', checkInputEmpty);
+
+    </script>
+
+{% endblock %}
