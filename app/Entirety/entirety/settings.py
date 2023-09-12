@@ -120,6 +120,7 @@ class Settings(PydanticSettings):
         "projects",
         "examples",
         "users",
+        "django_truncate"
     ]
 
     CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
@@ -338,6 +339,14 @@ class Settings(PydanticSettings):
 
     IOTA_URL: AnyUrl = Field(default="http://localhost:4041", env="IOTA_URL")
 
+    STARDOG_URL: AnyUrl = Field(default="http://localhost:5082", env="STARDOG_URL")
+
+    STARDOG_USER = Field(default="admin", env="STARDOG_USER")
+
+    STARDOG_PASSWORD = Field(default="admin", env="STARDOG_PASSWORD")
+
+    STARDOG_DATABASE = Field(default="admin", env="STARDOG_DATABASE")
+
     # Database
     # https://docs.djangoproject.com/en/4.0/ref/settings/#databases
     DATABASES: Databases = Field({})
@@ -405,7 +414,6 @@ class Settings(PydanticSettings):
     if APP_LOAD.NOTIFICATIONS_LOAD is True:
         INSTALLED_APPS.append("subscriptions")
     if APP_LOAD.SEMANTICS_LOAD is True:
-
         INSTALLED_APPS.append("semantics")
 
     class Config:

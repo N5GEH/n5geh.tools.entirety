@@ -1,4 +1,4 @@
-from django.views.generic import TemplateView
+from django.views.generic import TemplateView, ListView
 from django.shortcuts import redirect
 from projects.models import Project
 from django.http import JsonResponse
@@ -17,6 +17,9 @@ from django.contrib import messages
 from django.forms import formset_factory
 from django.shortcuts import render, redirect
 from SPARQLWrapper import SPARQLWrapper, JSON
+from semantics.tables import PrefixTable
+from semantics.forms import PrefixForm, PrefixBasicForm
+import re
 
 
 
@@ -93,11 +96,20 @@ class SemanticsVisualizer(ProjectContextMixin, TemplateView):
 
 class RDFFileVisualizer(ProjectContextMixin, TemplateView):
     template_name = "semantics/rdf_visualizer.html"   
-    prefix_form_class = Prefix
+    table_class = PrefixTable
+
+    def get_table_data(self):
+        self.entries = Prefix.objects.all().filter(projectid=self.project.uuid)
+        # print("Entries : ", self.entries)
+        if not self.request.session.get("prefixes"):
+            self.set_table_data()
+        return PrefixTable(self.entries)
+    
+    def set_table_data(self):
+        self.request.session["prefixes"] = [{"name": "mvf", "value":"1244"}]
 
     def post(self, request,*args, **kwargs):
         context = super(RDFFileVisualizer, self).get_context_data()
-        self.request.session['prefixes'] = "PREFIX MVF test"
         file = request.FILES['myfile']
         context['prefixes'] = self.request.session['prefixes']
         content = file.read()
@@ -111,7 +123,6 @@ class RDFFileVisualizer(ProjectContextMixin, TemplateView):
         'password': settings.STARDOG_PASSWORD
         }
         database = settings.STARDOG_DATABASE
-        # print("Content: ", content)
         try:
             with stardog.Connection(database, **self.conn_details) as conn:
                 # messages.success(self.request,message="Successfully Connected to Stardog Database !!")
@@ -133,7 +144,16 @@ class RDFFileVisualizer(ProjectContextMixin, TemplateView):
             }
         try:
             if query:                
-                with stardog.Connection(database, **self.conn_details) as conn:           
+                with stardog.Connection(database, **self.conn_details) as conn:
+                    pks = self.request.POST.getlist("include")
+                    selected_objects = Prefix.objects.filter(pk__in=pks)
+                    print("Selected Objects :",pks)
+                    query_string = ""
+                    for item in self.request.session['prefixes']:
+                        query_string = query_string + "@prefix " + item["name"] + ": " + item["value"] + " .\n"
+                        # query_string = query_string + "PREFIX " + item["name"] + ": " + item["value"] + "\n"
+                    query_string = query_string + query
+                    print(query_string)
                     store_query_result = conn.select(query)
                     list_to_print = []
                     filtered_keys = ['subject', 'property', 'object']
@@ -149,13 +169,96 @@ class RDFFileVisualizer(ProjectContextMixin, TemplateView):
             messages.error(self.request, e)
 
     def get_context_data(self, **kwargs):
+        # del self.request.session["prefixes"]
         context = super(RDFFileVisualizer, self).get_context_data(**kwargs)
-        query = self.request.GET.get("query", default="")      
+        query = self.request.GET.get("query", default="")
+        context['tagglevalue'] = 1
         context['query'] = query
         context["elements"] = self.get_rdf_data(query)
-        self.request.session['prefixes'] = "PREFIX MVF test"
-        context['prefixes'] = self.request.session['prefixes']
+        context['prefixestable'] = RDFFileVisualizer.get_table_data(self)
+        # print("Debug table: ", )      
         return context
 
+class UpdatePrefix(ProjectContextMixin,TemplateView):
+    template_name = "semantics/update.html"
+    form_class = PrefixBasicForm
+
+    def get_context_data(self, **kwargs):
+        basic_info = PrefixBasicForm(initial={"projectid":self.project.uuid})
+        basic_info.fields["projectid"].widget.attrs["readonly"] = True
+        prefix_form_set = formset_factory(PrefixForm, max_num=0)
+        entries = Prefix.objects.all().filter(projectid=self.project.uuid)
+        obj = []
+        for entry in entries:
+            # include_val = "on" if entry.include == True else "off"
+            # test = "on" if entry.include == True else "off"
+            obj.append({"name": entry.name, "value":entry.value, "key":str(entry.name)+str(self.project.uuid), "include": entry.include})
+            # obj.append({"name": entry.name, "value":entry.value, "include":test,"key":str(entry.name)+str(self.project.uuid)})            
+        print("Object : ", obj)
+        attributes = prefix_form_set(prefix="attr", initial=obj)
+        context = super(UpdatePrefix, self).get_context_data(**kwargs)
+        # context['prefixes'] = self.request.session['prefixes'] 
+        context["attributes"] = attributes
+        context["basic_info"] = basic_info
+        context["update_prefix"] = self.project.name
+        return context
+
+    def post(self, request, *args, **kwargs):
+        print(self.request.POST.items())
+        prefix = []
+        form_prefix_keys = [
+            k for k, v in self.request.POST.items() if re.search(r"attr-\d+", k)
+        ]
+        i = j = 0
+        self.clear_prefix_table()
+        while i < (len(form_prefix_keys) /3):
+            keys = [
+                    k
+                    for k, v in self.request.POST.items()
+                    if k in form_prefix_keys and re.search(j.__str__(), k)
+                ]
+            if any(keys):
+                try:
+                    include_key = self.request.POST.get(keys[2])
+                except:
+                    include_val = False
+                    include_key = "off"
+                print("Include key", include_key)
+                if include_key == "on":
+                    include_val = True
+                else: include_val = False                  
+                prefix_obj = { "name": self.request.POST.get(keys[0]), "value": self.request.POST.get(keys[1]), "include": include_val,
+                              "key":self.request.POST.get(keys[0])+str(self.project.uuid)}                
+                # obj = Prefix(name=self.request.POST.get(keys[0]), value=self.request.POST.get(keys[1]), include=include_val,
+                #             projectid=self.project.uuid, key=str(self.project.uuid)+str(self.request.POST.get(keys[0])))
+                obj = Prefix(name=self.request.POST.get(keys[0]), value=self.request.POST.get(keys[1]), include = include_val,
+                            projectid=self.project.uuid, key=str(self.project.uuid)+str(self.request.POST.get(keys[0])))                
+                print(prefix_obj)
+                obj.save()
+                prefix.append(prefix_obj)
+                i = i +1
+            j = j + 1
+        self.request.session["prefixes"] = prefix
+        context = super(UpdatePrefix, self).get_context_data(**kwargs)
+        return redirect("projects:semantics:rdfvisualize", project_id=self.project.uuid)
+
+    def clear_prefix_table(self):
+        Prefix.objects.all().delete()
+
+class UpdateTable(ProjectContextMixin, TemplateView):
+    template_name = "semantics/rdf_visualizer.html"   
+    table_class = PrefixTable
+    def post(self, request, *args, **kwargs):
+        pks = request.POST.getlist("include")
+        selected_objects = Prefix.objects.filter(pk__in=pks)
+        print(selected_objects)
+        return redirect("projects:semantics:rdfvisualize", project_id=self.project.uuid)
+    
+    def get_context_data(self, **kwargs):
+        context = super(UpdateTable, self).get_context_data(**kwargs)
 class LdVisualizer(ProjectContextMixin, TemplateView):
     templet_name = "semantics/semantics_LdVisualize.html"
+
+class PrefixListView(ListView):
+    model = Prefix
+    template_name = "test.html"

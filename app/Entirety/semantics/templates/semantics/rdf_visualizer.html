@@ -1,11 +1,12 @@
 {% extends '_base.html' %}
 {% load compress %}
 {% load static %}
-
+{% load django_tables2 %}
 {% block title %}Semantics{% endblock %}
 {% block content %}
 {% compress css %}
-        <link type="text/x-scss" href="{% static "semantics/css/base.scss" %}" rel="stylesheet">
+<link type="text/x-scss" href="{% static 'semantics/css/base.scss' %}" rel="stylesheet">
+<link href="{% static 'semantics/css/style.css' %}" rel="stylesheet">
     {% endcompress %}
 <div class="container-fluid d-flex h-100 flex-column"> 
     <div class="row justify-content-center" >
@@ -50,21 +51,38 @@
             </div> -->
         </div>
     </div>
-    <div class="row justify-content-center" >
-        Prefixes :{{prefixes}}
-    </div>
-    <!-- <div class="row justify-content-center">
-        <div class="col-3"></div>
+    <div class="row align-items-center" >
+        <div class="col-2"></div>
         <div class="col-6 my-auto">
-            <p>Search Results for {{ query }} </p>
+        <form action="table" method="post">
+                {% csrf_token %}
+                {% render_table prefixestable %}             
+            <!-- <input type="submit"/> -->
+        </form>
         </div>
-        <div class="col-3"></div>
-    </div> -->
-    <!-- <div class="row justify-content-center">
-        <div>
-            <h4> Results {{ results }}  </h4> 
-         </div> 
-    </div> -->
+        
+        <!-- <div class="col-4">
+            <div id="tagglesw" class="result">
+                Prefix in Query <span id="status"> Excluded</span>
+            </div>
+            <label class="toggle">
+                <input class="togglecheckbox" type="checkbox">
+                <div class="toggle-switch"></div>         
+            </label>
+            
+        </div> -->
+    </div>
+    <div class="row">
+        <div class="col-2"></div>
+        <!-- <div class="col-4"></div> -->
+        <div class="col-5">
+            <button type="submit" class="btn btn-secondary mb-1" data-bs-toggle="tooltip" data-bs-placement="bottom" onclick="goToView('prefix')">Edit</button>
+        </div>
+        <div class="col-2">
+            <!-- <button type="submit" class="btn btn-secondary mb-1" data-bs-toggle="tooltip" data-bs-placement="bottom" onclick="goToView('table')">Save</button> -->
+            <input type="submit" class="btn btn-secondary mb-1" name="submit" value="Save"/>
+        </div>
+    </div>
 
 </div>
 <main class="d-flex flex-column flex-fill ps-4 pe-3 py-3">
@@ -168,26 +186,34 @@
             {{ elements|safe }}
 
         </script>
-
-
     </main>
 
 
-    <script src="{% static "semantics/js/cytoscape.umd.js" %}"></script>
-    <script src="{% static "semantics/js/semantics.js" %}"></script>
+    <script src="{% static 'semantics/js/cytoscape.umd.js' %}"></script>
+    <script src="{% static 'semantics/js/semantics.js' %}"></script>
 
     <script>
         cy.on('click', 'node', handleClick);
         detail.on('click', 'node', handleClick);
+    </script>
+    <script type="text/javascript">
+        function goToView(path) {
+            var x = path + "/";
+            window.location.href = window.location.href.split('?')[0] + x;
+            // window.location.href += x;
+        }
+    </script>
+    <script>
+        var input = document.getElementById('togglecheckbox');
+        var outputtext = document.getElementById('status');
 
-        //detail.on('click', 'node', function (event) {
-          //  var clickedNode = event.target;
-            //var clickedNode_id = clickedNode.id();
-            //console.log('detail')
-            // Call function to update detail level
-            //update_detail_level(clickedNode_id, clickedNode);
-        //});
-
+        input.addEventListener('change',function(){
+            if(this.checked) {
+                outputtext.innerHTML = "aktiv";
+            } else {
+                outputtext.innerHTML = "inaktiv";
+            }
+        });
     </script>
 
 {% endblock %}

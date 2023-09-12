@@ -1,0 +1,13 @@
+{% extends '_base.html' %}
+
+{% block title %}{% if update_prefix %} Update Prefix Table {% else %} Create New Prefix Table {% endif %}{% endblock %}
+
+{% block content %}
+    <span class="h3">{% if update_prefix %} Update prefix table for project {{ update_prefix }} {% else %} Create New Prefix Table {% endif %}</span>
+    <form method="post" action="">
+        <div>
+            {% include 'accordion.html' %}
+            <button class="btn btn-warning rounded-pill" type="submit">{% if update_prefix %} Update {% else %} Create {% endif %}</button>
+        </div>
+    </form>
+{% endblock %}
