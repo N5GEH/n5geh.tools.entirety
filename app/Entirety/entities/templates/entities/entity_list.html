@@ -34,18 +34,6 @@
             </form>
         </div>
     </div>
-    <script>
-        document.addEventListener("DOMContentLoaded", function() {
-            var searchInput = document.getElementById('search-entity');
-            var searchButton = document.getElementById('search-button');
-            searchInput.addEventListener("keydown", function(e) {
-                if (e.key === "Enter") {
-                    e.preventDefault();
-                    searchButton.click();
-                }
-            });
-        });
-    </script>
 
     <form action="" method="POST">
         <div class="btn-group dropup">
@@ -141,4 +129,21 @@
         </div>
 
     </form>
+    
+    <script>
+        /**
+         * The search button is activated by pressing enter
+         */
+        document.addEventListener("DOMContentLoaded", function() {
+            var searchInput = document.getElementById('search-entity');
+            var searchButton = document.getElementById('search-button');
+            searchInput.addEventListener("keydown", function(e) {
+                if (e.key === "Enter") {
+                    e.preventDefault();
+                    searchButton.click();
+                }
+            });
+        });
+    </script>
+    
 {% endblock %}

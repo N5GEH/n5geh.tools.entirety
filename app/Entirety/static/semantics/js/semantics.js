@@ -1,5 +1,5 @@
 //generates cytoscape elements in main Graph right at the beginning
-const clickedNodeColor = "#17a2b8";
+const clickedNodeColor = "#2fa1ce";
 
 const defaultnodecolor = '#6c757d'; // pick the default color for all nodes
 const defaulttextcolor = '#343a40'; // pick the default color for the node label
@@ -366,16 +366,18 @@ async function makeRequest(url, method, body) {
  */
 async function getEntity() {
 
-    let data = await makeRequest(baseUrl + '/semantics/', 'post', JSON.stringify({nodeID: currentlyClickedNode}), null, '\t')
+    let data = await makeRequest(baseUrl + '/semantics/', 'post', JSON.stringify({nodeID: currentlyClickedNode}), null)
     var entity = await data['entity']
     
     entity.forEach(entry => {
         if (entry['Value']) {
             try {
                 const parsedValue = JSON.parse(entry['Value']);
-                entry['Value'] = JSON.stringify(parsedValue, null, 4);
+                entry['Value'] = JSON.stringify(parsedValue, null, 4).trim();
+                console.log(parsedValue);
             } catch (error) {
                 entry['Value'] = entry['Value'].replace(/'/g, '"');
+                
             }
         }
     });
@@ -391,10 +393,11 @@ async function getEntity() {
     // Create Tabulator table
     var table = new Tabulator("#table", {
 
-        layout: "fitDataFill",
+        layout: "fitColumns",
         columns: columns,
         height: "300px",
-        verticalFillMode: "fill"
+        verticalFillMode: "fill",
+        columnVertAlign: true,
     });
 
     // Set data after table is built
@@ -681,7 +684,9 @@ function addWarning(warningText) {
 
 }
 
-// Colors corresponding node if checkbox is checked
+/**
+ * This function colors corresponding node if checkbox is checked
+ */
 function colorNodes() {
     const nodecheckboxes = document.querySelectorAll('input[name="typecheckbox"]:checked');
     const originalColors = [];
@@ -720,7 +725,9 @@ function colorNodes() {
     });
 }
 
-// Colors corresponding edge if checkbox is checked
+/**
+ * This function colors corresponding edge if checkbox is checked
+ */
 function colorEdges() {
     const edgecheckboxes = document.querySelectorAll('input[name="relcheckbox"]:checked');
     const originalColors = [];
@@ -766,7 +773,9 @@ function colorEdges() {
     });
 }
 
-// Adapts node labels as selected, otherwise default value name is set
+/**
+ * This function adapts node labels as selected, otherwise default value name is set
+ */
 function changeLabel(labelName) {
     var nodeStyleMainGraph = currentStyleCy.styleSheets.find(function (styleObject) {
         return styleObject.selector === 'node';
@@ -793,7 +802,9 @@ function changeLabel(labelName) {
     detail.style(currentStyleDetail.styleSheets).update();
 }
 
-// Adapts layout as selected
+/**
+ * This function adapts the layout as selected
+ */
 function changeLayout(layoutName) {
     var layout;
     switch (layoutName) {
@@ -844,46 +855,15 @@ function editEntity() {
 }
 
 /**
- * This function creates a contextmenu with attributes at right clicked mouse event
+ * This function creates a contextmenu with attributes and actions at right clicked mouse event
  */
-
-document.addEventListener("contextmenu", function (event) {
-    var modal = document.getElementById("myModal");
-    var isInsideModal = false;
-    var targetElement = event.target;
-    while (targetElement) {
-      if (targetElement === modal || targetElement.id === "attributesList" || targetElement.id === "myModal") {
-        isInsideModal = true;
-        break;
-      }
-      targetElement = targetElement.parentElement;
-    }
-    if (isInsideModal) {
-      event.preventDefault();
-    }
-  });
-
-function refreshGraph() {
-    cy.elements().remove();
-    cy.add(data);
-    changeLayout('breadthfirst');
-}
-
-function scrollToDetail() {
-    var detialview = document.getElementById("detail_level");
-    detialview.scrollIntoView({ behavior: "smooth" });
-}
-function scrollToMain() {
-    window.scrollTo({top: 0, behavior: "smooth"});
-}
-
 var selectionmenu = {
     menuRadius: function(ele){ return 100; },
     minSpotlightRadius: 18,
     fillColor: 'rgba(0, 0, 0, 0.75)',
     activeFillColor: 'rgba(1, 105, 217, 0.75)',
     selector: 'node',
-    commands: [
+    commands: [ // add actions or functions for the contextmenu to commands
         {
             content: 'Remove node from graph',
             select: function (ele) {
@@ -897,6 +877,36 @@ var selectionmenu = {
                 var newUrl = createUrl + "/entities/create/";
                 window.location.href = newUrl;
             }
+        },
+        {
+            content: 'Add parent node',
+            select: function (ele) {
+                var childrenNode = ele.id();
+                console.log(childrenNode);
+                var newEntityData = {
+                    id: 'urn:ngsi-ld:newEntity',
+                    label: 'newEntity',
+                    children: {
+                            group: 'nodes',
+                            data: {
+                                id: childrenNode,
+                                label: ele.data('label'),
+                            }
+                        }
+                }
+                cy.add({
+                    group: 'nodes',
+                    data: newEntityData,
+                });
+                cy.add({
+                    group: 'edges',
+                    data: {
+                      id: 'edgeId',
+                      source: cy.getElementById('urn:ngsi-ld:newEntity').id(),
+                      target: childrenNode,
+                    },
+                  });
+            } 
         },
         {
             content: 'Edit this entity',
@@ -918,6 +928,7 @@ var selectionmenu = {
                 let response = await makeRequest(baseUrl + '/semantics/', 'post', requestBody);
                 var attributes = response.entity;
                 var attributesListHTML = '';
+                console.log(currentlyClickedNode);
                 for (var i = 0; i < attributes.length; i++) {
                 var attribute = attributes[i];
                 attributesListHTML += '<p>' + attribute.Name + ': ' + attribute.Value + '</p>';
@@ -939,3 +950,40 @@ var selectionmenu = {
     ],
 };
 cy.cxtmenu(selectionmenu);
+
+document.addEventListener("contextmenu", function (event) {
+    var modal = document.getElementById("myModal");
+    var isInsideModal = false;
+    var targetElement = event.target;
+    while (targetElement) {
+      if (targetElement === modal || targetElement.id === "attributesList" || targetElement.id === "myModal") {
+        isInsideModal = true;
+        break;
+      }
+      targetElement = targetElement.parentElement;
+    }
+    if (isInsideModal) {
+      event.preventDefault();
+    }
+  });
+
+/**
+ * This function resets the graph after moving/deleting nodes
+ */
+function refreshGraph() {
+    cy.elements().remove();
+    cy.add(data);
+    changeLayout('breadthfirst');
+}
+
+/**
+ * This function adapts the display area
+ */
+function scrollToDetail() {
+    var detialview = document.getElementById("detail_level");
+    detialview.scrollIntoView({ behavior: "smooth" });
+}
+function scrollToMain() {
+    window.scrollTo({top: 0, behavior: "smooth"});
+}
+
