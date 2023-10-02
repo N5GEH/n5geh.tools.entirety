@@ -16,3 +16,5 @@ crispy-bootstrap5==0.7
 pre-commit==2.20.0
 psycopg2==2.9.4
 Pillow==9.2.0
+-e git+https://jugit.fz-juelich.de/iek-10/public/fiware/jsonschemaparser@v0.4.2#egg=jsonschemaparser
+jsonschemaparser
