@@ -175,7 +175,7 @@ class SmartDataModelEntitiesForm(forms.Form):
         list_of_schemas = []
         for set in qs:
             list_of_schemas.append(
-                {"name": set.name, "value": json.dumps(set.jsonschema)}
+                {"name": set.name, "value": set.name}
             )
         list_of_schemas.append({"name": "..", "value": ".."})
         self.fields["smart_data_model"] = forms.ChoiceField(

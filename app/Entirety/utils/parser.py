@@ -1,16 +1,35 @@
 import datetime
 from typing import List, Optional
-
+import tempfile
+import json
 from jsonschemaparser import JsonSchemaParser
-
+from smartdatamodels.models import SmartDataModel
 from entities.requests import AttributeTypes
 
 MANDATORY_ENTITY_FIELDS: List[str] = ["id", "type"]
 
 
-def parser(schema):
+def save_schema_to_temp_file(json_schema: dict):
+    # TODO check if it is also usable in docker container
+    with tempfile.NamedTemporaryFile(delete=False, suffix=".json") as temp_file:
+        temp_file.write(json.dumps(json_schema).encode('utf-8'))
+        temp_file.flush()
+        return temp_file.name
+
+
+def parser(schema_name):
+    # get data model object
+    data_model = SmartDataModel.objects.get(name=schema_name)
+    # check if schema link or json model
+    if data_model.jsonschema:
+        path = save_schema_to_temp_file(data_model.jsonschema)
+    elif data_model.schema_link:
+        path = data_model.schema_link
+    else:
+        raise NotImplementedError("Data model parser only accept json schema or url/path to access json schema")
+    # load json schema
     with JsonSchemaParser() as schema_parser:
-        parsed_schema = schema_parser.parse_schema(schema=schema)
+        parsed_schema = schema_parser.parse_schema(schema=path)
 
     data_model = parsed_schema.datamodel
     entity_json = extract_id_and_type(data_model)

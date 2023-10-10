@@ -6,16 +6,8 @@ from smartdatamodels.models import SmartDataModel
 
 
 class SmartDataModelForm(forms.ModelForm):
-    schema_link = forms.URLField(
-        required=False,
-        widget=forms.TextInput(
-            attrs={
-                "data-bs-toggle": "tooltip",
-                "data-bs-placement": "top",
-                "title": "Paste a raw link for JSON schema",
-            }
-        ),
-    )
+    schema_link = forms.URLField(required=False)
+    jsonschema = forms.JSONField(required=False)
 
     def __init__(self, *args, **kwargs):
         super(SmartDataModelForm, self).__init__(*args, **kwargs)
