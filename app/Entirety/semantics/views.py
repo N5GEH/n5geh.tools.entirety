@@ -169,7 +169,6 @@ class RDFFileVisualizer(ProjectContextMixin, TemplateView):
             messages.error(self.request, e)
 
     def get_context_data(self, **kwargs):
-        # del self.request.session["prefixes"]
         context = super(RDFFileVisualizer, self).get_context_data(**kwargs)
         query = self.request.GET.get("query", default="")
         context['tagglevalue'] = 1
@@ -190,14 +189,9 @@ class UpdatePrefix(ProjectContextMixin,TemplateView):
         entries = Prefix.objects.all().filter(projectid=self.project.uuid)
         obj = []
         for entry in entries:
-            # include_val = "on" if entry.include == True else "off"
-            # test = "on" if entry.include == True else "off"
-            obj.append({"name": entry.name, "value":entry.value, "key":str(entry.name)+str(self.project.uuid), "include": entry.include})
-            # obj.append({"name": entry.name, "value":entry.value, "include":test,"key":str(entry.name)+str(self.project.uuid)})            
-        print("Object : ", obj)
+            obj.append({"name": entry.name, "value":entry.value, "key":str(entry.name)+str(self.project.uuid), "include": entry.include})        
         attributes = prefix_form_set(prefix="attr", initial=obj)
         context = super(UpdatePrefix, self).get_context_data(**kwargs)
-        # context['prefixes'] = self.request.session['prefixes'] 
         context["attributes"] = attributes
         context["basic_info"] = basic_info
         context["update_prefix"] = self.project.name
@@ -210,8 +204,8 @@ class UpdatePrefix(ProjectContextMixin,TemplateView):
             k for k, v in self.request.POST.items() if re.search(r"attr-\d+", k)
         ]
         i = j = 0
-        self.clear_prefix_table()
-        while i < (len(form_prefix_keys) /3):
+        self.clear_prefix_table() # clear table since update wasn't working
+        while i < int(form_prefix_keys[-1].split("-")[1]) + 1:
             keys = [
                     k
                     for k, v in self.request.POST.items()
@@ -223,17 +217,14 @@ class UpdatePrefix(ProjectContextMixin,TemplateView):
                 except:
                     include_val = False
                     include_key = "off"
-                print("Include key", include_key)
                 if include_key == "on":
                     include_val = True
                 else: include_val = False                  
                 prefix_obj = { "name": self.request.POST.get(keys[0]), "value": self.request.POST.get(keys[1]), "include": include_val,
                               "key":self.request.POST.get(keys[0])+str(self.project.uuid)}                
-                # obj = Prefix(name=self.request.POST.get(keys[0]), value=self.request.POST.get(keys[1]), include=include_val,
-                #             projectid=self.project.uuid, key=str(self.project.uuid)+str(self.request.POST.get(keys[0])))
                 obj = Prefix(name=self.request.POST.get(keys[0]), value=self.request.POST.get(keys[1]), include = include_val,
-                            projectid=self.project.uuid, key=str(self.project.uuid)+str(self.request.POST.get(keys[0])))                
-                print(prefix_obj)
+                            projectid=self.project.uuid, key=str(self.project.uuid)+str(self.request.POST.get(keys[0])))     
+                print(prefix_obj)           
                 obj.save()
                 prefix.append(prefix_obj)
                 i = i +1
@@ -243,22 +234,6 @@ class UpdatePrefix(ProjectContextMixin,TemplateView):
         return redirect("projects:semantics:rdfvisualize", project_id=self.project.uuid)
 
     def clear_prefix_table(self):
-        Prefix.objects.all().delete()
+        Prefix.objects.all().filter(projectid=self.project.uuid).delete()
 
-class UpdateTable(ProjectContextMixin, TemplateView):
-    template_name = "semantics/rdf_visualizer.html"   
-    table_class = PrefixTable
-    def post(self, request, *args, **kwargs):
-        pks = request.POST.getlist("include")
-        selected_objects = Prefix.objects.filter(pk__in=pks)
-        print(selected_objects)
-        return redirect("projects:semantics:rdfvisualize", project_id=self.project.uuid)
-    
-    def get_context_data(self, **kwargs):
-        context = super(UpdateTable, self).get_context_data(**kwargs)
-class LdVisualizer(ProjectContextMixin, TemplateView):
-    templet_name = "semantics/semantics_LdVisualize.html"
 
-class PrefixListView(ListView):
-    model = Prefix
-    template_name = "test.html"

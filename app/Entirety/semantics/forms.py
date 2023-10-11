@@ -77,5 +77,4 @@ class PrefixForm(forms.Form):
             }
         )
     )
-    include = forms.BooleanField(label="include",initial="off", required=False)
-    # include = forms.BooleanField(initial=True)
+    include = forms.BooleanField(label="include", required=False)
