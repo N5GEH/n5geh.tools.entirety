@@ -384,10 +384,10 @@ async function getEntity() {
 
     // Define columns
     var columns = [
-        {title: "Name", field: "Name", formatter: "textarea", maxWidth: 150},
-        {title: "Value", field: "Value", formatter: "textarea", maxWidth: 450},
-        {title: "Type", field: "Type", formatter: "textarea", maxWidth: 150},
-        {title: "Metadata", field: "Metadata", formatter: "textarea", maxWidth: 450}
+        {title: "Name", field: "Name", formatter: "textarea", widthGrow:1},
+        {title: "Value", field: "Value", formatter: "textarea", widthGrow:2},
+        {title: "Type", field: "Type", formatter: "textarea", widthGrow:1},
+        {title: "Metadata", field: "Metadata", formatter: "textarea", widthGrow:2}
     ];
 
     // Create Tabulator table
@@ -397,6 +397,7 @@ async function getEntity() {
         columns: columns,
         height: "300px",
         verticalFillMode: "fill",
+        horizontalFillMode: "fill",
         columnVertAlign: true,
     });
 
@@ -878,6 +879,9 @@ var selectionmenu = {
                 window.location.href = newUrl;
             }
         },
+        /* Adds a parent node to the graph, which has the selected node as a target
+        * This is only a frontend solution
+        * For creating an entity in the backend, the JSON has to be passed to Orion
         {
             content: 'Add parent node',
             select: function (ele) {
@@ -906,8 +910,8 @@ var selectionmenu = {
                       target: childrenNode,
                     },
                   });
-            } 
-        },
+            }
+        },*/
         {
             content: 'Edit this entity',
             select: function (ele) {
