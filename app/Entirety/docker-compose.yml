@@ -5,8 +5,7 @@ services:
     hostname: entirety-db
     restart: unless-stopped
     environment:
-      - POSTGRES_DB=entirety
-      - POSTGRES_USER=entirety
+
       - POSTGRES_PASSWORD=${DATABASE_PASSWORD}
     volumes:
       - pgdata:/var/lib/postgresql
@@ -14,30 +13,6 @@ services:
       - entirety
     ports:
       - "5432:5432"
-
-  entirety:
-    image: ghcr.io/n5geh/n5geh.tools.entirety:latest
-    restart: unless-stopped
-    expose:
-      - 8000
-    environment:
-      DJANGO_SECRET_KEY: ${DJANGO_SECRET_KEY}
-      DATABASE_URL: ${DATABASE_URL}
-      STATIC_ROOT: ${STATIC_ROOT:-/var/entirety/static/}
-      MEDIA_ROOT: ${MEDIA_ROOT:-/var/entirety/media/}
-      ENTITIES_LOAD: ${ENTITIES_LOAD:-True}
-      DEVICES_LOAD: ${DEVICES_LOAD:-True}
-      NOTIFICATIONS_LOAD: ${NOTIFICATIONS_LOAD:-True}
-      CB_URL: ${CB_URL}
-      QL_URL: ${QL_URL}
-      IOTA_URL: ${IOTA_URL}
-    volumes:
-      - static:${STATIC_ROOT:-/var/entirety/static/}
-      - media:${MEDIA_ROOT:-/var/entirety/media/}
-    depends_on:
-      - postgres
-    networks:
-      - entirety
   orion:
     image: fiware/orion:latest
     hostname: orion
@@ -70,28 +45,8 @@ services:
         source: mongodbconfig
         target: /data/configdb
 
-
-  nginx:
-    image: nginx:1.23.1
-    hostname: ng
-    ports:
-      - "80:80"
-    volumes:
-      - ../configs/nginx:/etc/nginx/templates/
-      - static:${STATIC_ROOT:-/var/entirety/static/}
-      - media:${MEDIA_ROOT:-/var/entirety/media/}
-    environment:
-      NGINX_ENVSUBST_TEMPLATE_SUFFIX: ".conf"
-      WEB_HOST: ${WEB_HOST:-localhost}
-    depends_on:
-      - entirety
-    networks:
-      - entirety
-
 volumes:
-  static:
   pgdata:
-  media:
   mongodbdata:
   mongodbconfig:
 
