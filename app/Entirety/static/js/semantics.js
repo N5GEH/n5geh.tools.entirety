@@ -198,9 +198,9 @@ function clearSearchHighlight(input) {
     removeStyleBySelector('mainGraph', "." + input)
     removeStyleBySelector('mainGraph', relSelector)
     removeStyleBySelector('mainGraph', nameSelector)
-
     cy.style(currentStyleCy.styleSheets).update();
     previousInput = '';
+    console.log('clear')
 }
 
 /**
@@ -218,7 +218,7 @@ function handleClick(event) {
 
     nodeIdText.textContent = 'Additional information on Node ID: ' + event.target.id();
     div.style.display = 'block';
-    window.scrollBy(0,1);
+    window.scrollBy(0, 1);
     clickedNodeStyling()
 }
 
@@ -369,7 +369,7 @@ async function getEntity() {
 
     let data = await makeRequest(baseUrl + '/semantics/', 'post', JSON.stringify({nodeID: currentlyClickedNode}), null)
     var entity = await data['entity']
-    
+
     entity.forEach(entry => {
         if (entry['Value']) {
             try {
@@ -378,17 +378,17 @@ async function getEntity() {
                 console.log(parsedValue);
             } catch (error) {
                 entry['Value'] = entry['Value'].replace(/'/g, '"');
-                
+
             }
         }
     });
 
     // Define columns
     var columns = [
-        {title: "Name", field: "Name", formatter: "textarea", widthGrow:1},
-        {title: "Value", field: "Value", formatter: "textarea", widthGrow:2},
-        {title: "Type", field: "Type", formatter: "textarea", widthGrow:1},
-        {title: "Metadata", field: "Metadata", formatter: "textarea", widthGrow:2}
+        {title: "Name", field: "Name", formatter: "textarea", widthGrow: 1},
+        {title: "Value", field: "Value", formatter: "textarea", widthGrow: 2},
+        {title: "Type", field: "Type", formatter: "textarea", widthGrow: 1},
+        {title: "Metadata", field: "Metadata", formatter: "textarea", widthGrow: 2}
     ];
 
     // Create Tabulator table
@@ -408,7 +408,7 @@ async function getEntity() {
 }
 
 // Pick node and edge colors to be displayed first
-const colors = ['#feb236', '#0dcaf0', '#D14D72', '#00FF00',  '#107cad', '#57C5B6', '#6CDB42', '#ff7b25', '#bea0d7', '#B70404', '#F9F54B', '#9A1663', '#9F8772', '#FF8787']
+const colors = ['#feb236', '#0dcaf0', '#D14D72', '#00FF00', '#107cad', '#57C5B6', '#6CDB42', '#ff7b25', '#bea0d7', '#B70404', '#F9F54B', '#9A1663', '#9F8772', '#FF8787']
 const tcheckboxes = document.querySelectorAll('input[name="typecheckbox"]');
 const rcheckboxes = document.querySelectorAll('input[name="relcheckbox"]');
 const numAdditionalColors = tcheckboxes.length;
@@ -486,10 +486,8 @@ function add_rel_legend() {
  */
 function handleSearch(event) {
     event.preventDefault();
-
     var searchField = document.getElementById('searchentity')
     var input = searchField.value;
-    var selectedValue = null;
     var selectedOption = document.querySelector('.form-select-sm[name="searchOptions"] option:checked');
     var selectedValue = selectedOption.getAttribute('data-value');
 
@@ -504,6 +502,87 @@ function handleSearch(event) {
         handleRelationshipSearch(input);
     } else if (selectedValue === 'name1') {
         handleNameSearch(input)
+    }
+}
+
+function autoComplete(event, arr) {
+    // var searchField = document.getElementById('searchentity')
+    // var input = searchField.value;
+    var selectedOption = document.querySelector('.form-select-sm[name="searchOptions"] option:checked');
+    var selectedValue = selectedOption.getAttribute('data-value');
+    // console.log(input)
+    var currentFocus;
+    console.log(event)
+    event.addEventListener("input", function (e) {
+        var a, b, i, val = this.value
+        console.log(val)
+        closeAllLists();
+        if (!val) {
+            return False;
+        }
+        currentFocus = -1;
+        a = document.createElement("DIV")
+        a.setAttribute("id", this.id + "autocomplete-list")
+        a.setAttribute("class", "autocomplete-items");
+        this.parentNode.appendChild(a)
+        for (i = 0; i < arr.length; i++) {
+            if (arr[i].substr(0, val.length).toUpperCase() == val.toUpperCase()) {
+                b = document.createElement("DIV");
+                b.innerHTML = "<strong>" + arr[i].substr(0, val.length) + "</strong>";
+                b.innerHTML += arr[i].substr(val.length);
+                b.innerHTML += "<input type='hidden' value='" + arr[i] + "'>";
+                b.addEventListener("click", function (e) {
+                    inp.value = this.getElementsByTagName("input")[0].value;
+                    closeAllLists();
+                });
+                a.appendChild(b);
+            }
+        }
+    });
+    event.addEventListener("keydown", function (e) {
+        var x = document.getElementById(this.id + "autocomplete-list");
+        if (x) x = x.getElementsByTagName("div");
+        if (e.keyCode == 40) {
+            currentFocus++;
+            addActive(x);
+        } else if (e.keyCode == 38) {
+            currentFocus--;
+            addActive(x);
+        } else if (e.keyCode == 13) {
+            e.preventDefault();
+            if (currentFocus > -1) {
+                if (x) x[currentFocus].click();
+            }
+        }
+    });
+
+    function addActive(x) {
+        /*a function to classify an item as "active":*/
+        if (!x) return false;
+        /*start by removing the "active" class on all items:*/
+        removeActive(x);
+        if (currentFocus >= x.length) currentFocus = 0;
+        if (currentFocus < 0) currentFocus = (x.length - 1);
+        /*add class "autocomplete-active":*/
+        x[currentFocus].classList.add("autocomplete-active");
+    }
+
+    function removeActive(x) {
+        /*a function to remove the "active" class from all autocomplete items:*/
+        for (var i = 0; i < x.length; i++) {
+            x[i].classList.remove("autocomplete-active");
+        }
+    }
+
+    function closeAllLists(elmnt) {
+        /*close all autocomplete lists in the document,
+        except the one passed as an argument:*/
+        var x = document.getElementsByClassName("autocomplete-items");
+        for (var i = 0; i < x.length; i++) {
+            if (elmnt != x[i] && elmnt != event) {
+                x[i].parentNode.removeChild(x[i]);
+            }
+        }
     }
 }
 
@@ -860,7 +939,9 @@ function editEntity() {
  * This function creates a contextmenu with attributes and actions at right clicked mouse event
  */
 var selectionmenu = {
-    menuRadius: function(ele){ return 100; },
+    menuRadius: function (ele) {
+        return 100;
+    },
     minSpotlightRadius: 18,
     fillColor: 'rgba(0, 0, 0, 0.75)',
     activeFillColor: 'rgba(1, 105, 217, 0.75)',
@@ -869,9 +950,9 @@ var selectionmenu = {
         {
             content: 'Remove node from graph',
             select: function (ele) {
-              ele.remove();
+                ele.remove();
             }
-          },
+        },
         {
             content: 'Add entity',
             select: function () {
@@ -918,8 +999,6 @@ var selectionmenu = {
             select: function (ele) {
                 currentlyClickedNode = ele.id();
                 currentNodeType = ele.classes()[0];
-                console.log(currentlyClickedNode);
-                console.log(currentNodeType);
                 editEntity();
             }
         },
@@ -929,14 +1008,13 @@ var selectionmenu = {
                 var nodeID = ele.id();
                 currentlyClickedNode = get_nodes_by_id(nodeID);
                 currentNodeType = ele.classes()[0];
-                let requestBody = JSON.stringify({ nodeID });
+                let requestBody = JSON.stringify({nodeID});
                 let response = await makeRequest(baseUrl + '/semantics/', 'post', requestBody);
                 var attributes = response.entity;
                 var attributesListHTML = '';
-                console.log(currentlyClickedNode);
                 for (var i = 0; i < attributes.length; i++) {
-                var attribute = attributes[i];
-                attributesListHTML += '<p>' + attribute.Name + ': ' + attribute.Value + '</p>';
+                    var attribute = attributes[i];
+                    attributesListHTML += '<p>' + attribute.Name + ': ' + attribute.Value + '</p>';
                 }
                 document.getElementById("attributesList").innerHTML = attributesListHTML;
                 var modal = document.getElementById("myModal");
@@ -961,16 +1039,16 @@ document.addEventListener("contextmenu", function (event) {
     var isInsideModal = false;
     var targetElement = event.target;
     while (targetElement) {
-      if (targetElement === modal || targetElement.id === "attributesList" || targetElement.id === "myModal") {
-        isInsideModal = true;
-        break;
-      }
-      targetElement = targetElement.parentElement;
+        if (targetElement === modal || targetElement.id === "attributesList" || targetElement.id === "myModal") {
+            isInsideModal = true;
+            break;
+        }
+        targetElement = targetElement.parentElement;
     }
     if (isInsideModal) {
-      event.preventDefault();
+        event.preventDefault();
     }
-  });
+});
 
 /**
  * This function resets the graph after moving/deleting nodes
@@ -986,8 +1064,9 @@ function refreshGraph() {
  */
 function scrollToDetail() {
     var detialview = document.getElementById("detail_level");
-    detialview.scrollIntoView({ behavior: "smooth" });
+    detialview.scrollIntoView({behavior: "smooth"});
 }
+
 function scrollToMain() {
     window.scrollTo({top: 0, behavior: "smooth"});
 }
