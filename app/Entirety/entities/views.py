@@ -53,6 +53,8 @@ class EntityList(ProjectContextMixin, SingleTableMixin, TemplateView):
         search_option = self.request.GET.get("search-options", default="")
         search_id = ""
         search_type = ""
+        if not search_option and self.request.POST.get("Edit"):
+            return EntityTable.get_query_set(self, "", "", self.project)
         if search_option == "id":
             search_id = self.request.GET.get("search-entity", default="")
         elif search_option == "type":
@@ -62,6 +64,7 @@ class EntityList(ProjectContextMixin, SingleTableMixin, TemplateView):
         except Exception as e:
             messages.error(self.request, e)
             return []
+
 
     def get_context_data(self, **kwargs):
         logger.info(
@@ -81,13 +84,15 @@ class EntityList(ProjectContextMixin, SingleTableMixin, TemplateView):
 
     def post(self, request, *args, **kwargs):
         selected = self.request.POST.getlist("selection")
-        if not selected:
-            messages.warning(
-                self.request,
-                "Please select an entity from the table to edit or delete.",
-            )
-            return redirect("projects:entities:list", project_id=self.project.uuid)
+        
         if self.request.POST.get("Edit"):
+            if not selected:
+                messages.warning(
+                    self.request,
+                    "Please select an entity from the table to edit.",
+                )
+                return redirect("projects:entities:list", project_id=self.project.uuid)
+            
             # TODO: error if more than one selected for edit
             return redirect(
                 "projects:entities:update",
@@ -95,7 +100,18 @@ class EntityList(ProjectContextMixin, SingleTableMixin, TemplateView):
                 entity_id=selected[0].split("&")[0],
                 entity_type=selected[0].split("&")[1],
             )
+        
+        if self.request.POST.get("Refresh"):
+            return redirect("projects:entities:list", project_id=self.project.uuid)
+
         if self.request.POST.get("Delete"):
+            if not selected:
+                messages.warning(
+                    self.request,
+                    "Please select an entity from the table to edit.",
+                )
+                return redirect("projects:entities:list", project_id=self.project.uuid)
+                     
             entities = []
             for entity in selected:
                 id = entity.split("&")[0]

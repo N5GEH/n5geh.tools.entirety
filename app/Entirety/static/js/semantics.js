@@ -1,5 +1,5 @@
 //generates cytoscape elements in main Graph right at the beginning
-const clickedNodeColor = "#17a2b8";
+const clickedNodeColor = "#2fa1ce";
 
 const defaultnodecolor = '#6c757d'; // pick the default color for all nodes
 const defaulttextcolor = '#343a40'; // pick the default color for the node label
@@ -210,13 +210,15 @@ function clearSearchHighlight(input) {
 function handleClick(event) {
     previousClickedNode = currentlyClickedNode
     var div = document.getElementById('entity');
-    var h3 = div.querySelector('h3');
+    var nodeIdText = document.getElementById('nodeIdText');
     currentlyClickedNode = event.target.id()
     currentNodeType = event.target.classes()[0]
     create_detail_level(event.target.id(), event.target);
     getEntity();
-    h3.textContent = 'Node ID: ' + event.target.id();
+
+    nodeIdText.textContent = 'Additional information on Node ID: ' + event.target.id();
     div.style.display = 'block';
+    window.scrollBy(0,1);
     clickedNodeStyling()
 }
 
@@ -233,8 +235,7 @@ function clickedNodeStyling(clickedNode) {
     var newStyleMainGraphe = {
         "selector": "#" + escapeColons(currentlyClickedNode),
         style: {
-            "background-color": clickedNodeColor,
-            "color": clickedNodeColor
+            "background-color": clickedNodeColor
         }
     }
     currentStyleCy.styleSheets.push(newStyleMainGraphe);
@@ -243,8 +244,7 @@ function clickedNodeStyling(clickedNode) {
     var newStyleDetail = {
         "selector": "#" + escapeColons(currentlyClickedNode),
         style: {
-            "background-color": clickedNodeColor,
-            "color": clickedNodeColor
+            "background-color": clickedNodeColor
         }
     }
     currentStyleDetail.styleSheets.push(newStyleDetail);
@@ -367,24 +367,38 @@ async function makeRequest(url, method, body) {
  */
 async function getEntity() {
 
-    let data = await makeRequest(baseUrl + '/semantics/', 'post', JSON.stringify({nodeID: currentlyClickedNode}))
+    let data = await makeRequest(baseUrl + '/semantics/', 'post', JSON.stringify({nodeID: currentlyClickedNode}), null)
     var entity = await data['entity']
-    // Define columns
+    
+    entity.forEach(entry => {
+        if (entry['Value']) {
+            try {
+                const parsedValue = JSON.parse(entry['Value']);
+                entry['Value'] = JSON.stringify(parsedValue, null, 4).trim();
+                console.log(parsedValue);
+            } catch (error) {
+                entry['Value'] = entry['Value'].replace(/'/g, '"');
+                
+            }
+        }
+    });
 
+    // Define columns
     var columns = [
-        {title: "Name", field: "Name", formatter: "textarea"},
-        {title: "Value", field: "Value", formatter: "textarea"},
-        {title: "Type", field: "Type", formatter: "textarea"},
-        {title: "Metadata", field: "Metadata", formatter: "textarea"}
+        {title: "Name", field: "Name", formatter: "textarea", widthGrow:1},
+        {title: "Value", field: "Value", formatter: "textarea", widthGrow:2},
+        {title: "Type", field: "Type", formatter: "textarea", widthGrow:1},
+        {title: "Metadata", field: "Metadata", formatter: "textarea", widthGrow:2}
     ];
 
     // Create Tabulator table
     var table = new Tabulator("#table", {
-
-        layout: "fitDataFill",
+        layout: "fitColumns",
         columns: columns,
         height: "300px",
-        verticalFillMode: "fill"
+        verticalFillMode: "fill",
+        horizontalFillMode: "fill",
+        columnVertAlign: true,
     });
 
     // Set data after table is built
@@ -393,9 +407,8 @@ async function getEntity() {
     });
 }
 
-
 // Pick node and edge colors to be displayed first
-const colors = ['#57C5B6', '#feb236', '#0dcaf0', '#D14D72', '#107cad', '#6CDB42', '#ff7b25', '#bea0d7', '#B70404', '#F9F54B', '#9A1663', '#9F8772', '#FF8787']
+const colors = ['#feb236', '#0dcaf0', '#D14D72', '#00FF00',  '#107cad', '#57C5B6', '#6CDB42', '#ff7b25', '#bea0d7', '#B70404', '#F9F54B', '#9A1663', '#9F8772', '#FF8787']
 const tcheckboxes = document.querySelectorAll('input[name="typecheckbox"]');
 const rcheckboxes = document.querySelectorAll('input[name="relcheckbox"]');
 const numAdditionalColors = tcheckboxes.length;
@@ -474,13 +487,11 @@ function add_rel_legend() {
 function handleSearch(event) {
     event.preventDefault();
 
-    var searchField = document.querySelector('.form-control');
+    var searchField = document.getElementById('searchentity')
     var input = searchField.value;
     var selectedValue = null;
-    var activeDropdownItem = document.querySelector('.dropdown-menu.dropdown-menu-right .dropdown-item.active');
-    if (activeDropdownItem) {
-        selectedValue = activeDropdownItem.getAttribute('data-value');
-    }
+    var selectedOption = document.querySelector('.form-select-sm[name="searchOptions"] option:checked');
+    var selectedValue = selectedOption.getAttribute('data-value');
 
     // Call the corresponding function based on the selected value
     if (selectedValue === null) {
@@ -495,6 +506,13 @@ function handleSearch(event) {
         handleNameSearch(input)
     }
 }
+
+var enterSearch = document.getElementById('searchentity');
+enterSearch.addEventListener("keydown", function (e) {
+    if (e.code === "Enter") {
+        handleSearch(e);
+    }
+});
 
 /**
  * Function to escape ':' in the id of a node
@@ -666,7 +684,9 @@ function addWarning(warningText) {
 
 }
 
-// Colors corresponding node if checkbox is checked
+/**
+ * This function colors corresponding node if checkbox is checked
+ */
 function colorNodes() {
     const nodecheckboxes = document.querySelectorAll('input[name="typecheckbox"]:checked');
     const originalColors = [];
@@ -705,7 +725,9 @@ function colorNodes() {
     });
 }
 
-// Colors corresponding edge if checkbox is checked
+/**
+ * This function colors corresponding edge if checkbox is checked
+ */
 function colorEdges() {
     const edgecheckboxes = document.querySelectorAll('input[name="relcheckbox"]:checked');
     const originalColors = [];
@@ -751,7 +773,10 @@ function colorEdges() {
     });
 }
 
-// Adapts node labels as selected, otherwise default value name is set
+
+/**
+ * This function adapts node labels as selected, otherwise default value name is set
+ */
 function changeLabel(labelName) {
     var nodeStyleMainGraph = currentStyleCy.styleSheets.find(function (styleObject) {
         return styleObject.selector === 'node';
@@ -778,7 +803,9 @@ function changeLabel(labelName) {
     detail.style(currentStyleDetail.styleSheets).update();
 }
 
-// Adapts layout as selected
+/**
+ * This function adapts the layout as selected
+ */
 function changeLayout(layoutName) {
     var layout;
     switch (layoutName) {
@@ -826,4 +853,143 @@ function editEntity() {
     var newUrl = entitiesUrl + "/entities/" + currentlyClickedNode + "/" + currentNodeType + "/update/";
     //window.open(newUrl, 'Popup-Fenster', 'width=800,height=600')// idea for popup window instead of redirection
     window.location.href = newUrl;
+
 }
+
+/**
+ * This function creates a contextmenu with attributes and actions at right clicked mouse event
+ */
+var selectionmenu = {
+    menuRadius: function(ele){ return 100; },
+    minSpotlightRadius: 18,
+    fillColor: 'rgba(0, 0, 0, 0.75)',
+    activeFillColor: 'rgba(1, 105, 217, 0.75)',
+    selector: 'node',
+    commands: [ // add actions or functions for the contextmenu to commands
+        {
+            content: 'Remove node from graph',
+            select: function (ele) {
+              ele.remove();
+            }
+          },
+        {
+            content: 'Add entity',
+            select: function () {
+                createUrl = currentUrl.split('/semantics/')[0]
+                var newUrl = createUrl + "/entities/create/";
+                window.location.href = newUrl;
+            }
+        },
+        /* Adds a parent node to the graph, which has the selected node as a target
+        * This is only a frontend solution
+        * For creating an entity in the backend, the JSON has to be passed to Orion
+        {
+            content: 'Add parent node',
+            select: function (ele) {
+                var childrenNode = ele.id();
+                console.log(childrenNode);
+                var newEntityData = {
+                    id: 'urn:ngsi-ld:newEntity',
+                    label: 'newEntity',
+                    children: {
+                            group: 'nodes',
+                            data: {
+                                id: childrenNode,
+                                label: ele.data('label'),
+                            }
+                        }
+                }
+                cy.add({
+                    group: 'nodes',
+                    data: newEntityData,
+                });
+                cy.add({
+                    group: 'edges',
+                    data: {
+                      id: 'edgeId',
+                      source: cy.getElementById('urn:ngsi-ld:newEntity').id(),
+                      target: childrenNode,
+                    },
+                  });
+            }
+        },*/
+        {
+            content: 'Edit this entity',
+            select: function (ele) {
+                currentlyClickedNode = ele.id();
+                currentNodeType = ele.classes()[0];
+                console.log(currentlyClickedNode);
+                console.log(currentNodeType);
+                editEntity();
+            }
+        },
+        {
+            content: 'Show Attributes',
+            select: async function (ele) {
+                var nodeID = ele.id();
+                currentlyClickedNode = get_nodes_by_id(nodeID);
+                currentNodeType = ele.classes()[0];
+                let requestBody = JSON.stringify({ nodeID });
+                let response = await makeRequest(baseUrl + '/semantics/', 'post', requestBody);
+                var attributes = response.entity;
+                var attributesListHTML = '';
+                console.log(currentlyClickedNode);
+                for (var i = 0; i < attributes.length; i++) {
+                var attribute = attributes[i];
+                attributesListHTML += '<p>' + attribute.Name + ': ' + attribute.Value + '</p>';
+                }
+                document.getElementById("attributesList").innerHTML = attributesListHTML;
+                var modal = document.getElementById("myModal");
+                modal.style.display = "block";
+                var closeBtn = document.getElementsByClassName("close")[0];
+                closeBtn.onclick = function () {
+                    modal.style.display = "none";
+                };
+                window.onclick = function (event) {
+                    if (event.target === modal) {
+                        modal.style.display = "none";
+                    }
+                }
+            }
+        }
+    ],
+};
+cy.cxtmenu(selectionmenu);
+
+document.addEventListener("contextmenu", function (event) {
+    var modal = document.getElementById("myModal");
+    var isInsideModal = false;
+    var targetElement = event.target;
+    while (targetElement) {
+      if (targetElement === modal || targetElement.id === "attributesList" || targetElement.id === "myModal") {
+        isInsideModal = true;
+        break;
+      }
+      targetElement = targetElement.parentElement;
+    }
+    if (isInsideModal) {
+      event.preventDefault();
+    }
+  });
+
+/**
+ * This function resets the graph after moving/deleting nodes
+ */
+function refreshGraph() {
+    cy.elements().remove();
+    cy.add(data);
+    changeLayout('breadthfirst');
+}
+
+/**
+ * This function adapts the display area
+ */
+function scrollToDetail() {
+    var detialview = document.getElementById("detail_level");
+    detialview.scrollIntoView({ behavior: "smooth" });
+}
+function scrollToMain() {
+    window.scrollTo({top: 0, behavior: "smooth"});
+}
+
+
