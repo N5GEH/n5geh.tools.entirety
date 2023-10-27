@@ -480,45 +480,21 @@ function add_rel_legend() {
     }
 }
 
-/**
- *Handles the search functionality based and calls the designated function based on the selected search option.
- * @param event event (Event): The event object triggered by the search action.
- */
-function handleSearch(event) {
-    event.preventDefault();
-    var searchField = document.getElementById('searchentity')
-    var input = searchField.value;
-    var selectedOption = document.querySelector('.form-select-sm[name="searchOptions"] option:checked');
-    var selectedValue = selectedOption.getAttribute('data-value');
-
-    // Call the corresponding function based on the selected value
-    if (selectedValue === null) {
-        addWarning('Please select a search option!')
-    } else if (selectedValue === 'id1') {
-        handleIdSearch(input);
-    } else if (selectedValue === 'type1') {
-        handleTypeSearch(input);
-    } else if (selectedValue === 'relationship1') {
-        handleRelationshipSearch(input);
-    } else if (selectedValue === 'name1') {
-        handleNameSearch(input)
-    }
-}
-
-function autoComplete(event, arr) {
-    // var searchField = document.getElementById('searchentity')
-    // var input = searchField.value;
-    var selectedOption = document.querySelector('.form-select-sm[name="searchOptions"] option:checked');
-    var selectedValue = selectedOption.getAttribute('data-value');
-    // console.log(input)
+function autoComplete(event) {
     var currentFocus;
-    console.log(event)
     event.addEventListener("input", function (e) {
+
+        var selectedOption = document.querySelector('.form-select-sm[name="searchOptions"] option:checked');
+        var selectedValue = selectedOption.getAttribute('data-value');
+        console.log(selectedValue)
+        var arr = getData(selectedValue)
+        console.log(arr)
+        console.log(arr.length)
+
         var a, b, i, val = this.value
-        console.log(val)
         closeAllLists();
         if (!val) {
-            return False;
+            return false;
         }
         currentFocus = -1;
         a = document.createElement("DIV")
@@ -532,7 +508,7 @@ function autoComplete(event, arr) {
                 b.innerHTML += arr[i].substr(val.length);
                 b.innerHTML += "<input type='hidden' value='" + arr[i] + "'>";
                 b.addEventListener("click", function (e) {
-                    inp.value = this.getElementsByTagName("input")[0].value;
+                    event.value = this.getElementsByTagName("input")[0].value;
                     closeAllLists();
                 });
                 a.appendChild(b);
@@ -584,14 +560,51 @@ function autoComplete(event, arr) {
             }
         }
     }
+
+    function getData(selectedValue) {
+
+        if (selectedValue === 'id1') {
+            console.log('id')
+        } else if (selectedValue === 'type1') {
+            return types
+        } else if (selectedValue === 'relationship1') {
+            console.log('rel')
+        } else if (selectedValue === 'name1') {
+            console.log('name')
+        }
+    }
+
+    document.addEventListener("click", function (e) {
+        closeAllLists(e.target);
+    });
 }
 
-var enterSearch = document.getElementById('searchentity');
-enterSearch.addEventListener("keydown", function (e) {
-    if (e.code === "Enter") {
-        handleSearch(e);
+/**
+ *Handles the search functionality based and calls the designated function based on the selected search option.
+ * @param event event (Event): The event object triggered by the search action.
+ */
+function handleSearch(event) {
+    console.log('handleSearch')
+    event.preventDefault();
+    var searchField = document.getElementById('searchentity')
+    var input = searchField.value;
+    var selectedOption = document.querySelector('.form-select-sm[name="searchOptions"] option:checked');
+    var selectedValue = selectedOption.getAttribute('data-value');
+    console.log(selectedValue)
+
+    // Call the corresponding function based on the selected value
+    if (selectedValue === null) {
+        addWarning('Please select a search option!')
+    } else if (selectedValue === 'id1') {
+        handleIdSearch(input);
+    } else if (selectedValue === 'type1') {
+        handleTypeSearch(input);
+    } else if (selectedValue === 'relationship1') {
+        handleRelationshipSearch(input);
+    } else if (selectedValue === 'name1') {
+        handleNameSearch(input)
     }
-});
+}
 
 /**
  * Function to escape ':' in the id of a node
@@ -649,14 +662,12 @@ function handleIdSearch(inputValue) {
  * @param inputValue (str): input string form search field
  */
 function handleTypeSearch(inputValue) {
-    //var lowerCaseTypes = types.map(function (item) {
-    //    return item.toLowerCase();
-    //});
     if (types.includes(inputValue)) {
         const typeSelector = `.${inputValue}`;
         if (inputValue !== previousInput) {
             clearSearchHighlight(previousInput)
         }
+        console.log('if type_search')
         var newStyle = {
             "selector": typeSelector,
             style: {
@@ -669,6 +680,7 @@ function handleTypeSearch(inputValue) {
         previousInput = inputValue
 
     } else {
+        console.log('else type_searach')
         addWarning('No matching Type found. Perhaps you want to use another search option?')
     }
 }

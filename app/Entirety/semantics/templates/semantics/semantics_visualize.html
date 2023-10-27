@@ -246,18 +246,18 @@
         relcheckboxes.forEach(function (checkbox) {
             checkbox.addEventListener('change', add_rel_legend)
         });
+        var tests = ['Store', 'Shelf', 'Product']
+        autoComplete(document.getElementById('searchentity'));
+
+        var enterSearch = document.getElementById('searchentity');
+        enterSearch.addEventListener("keydown", function (e) {
+            if (e.code === "Enter") {
+                handleSearch(e);
+            }
+        });
+
         var searchButton = document.getElementById('searchButton');
         searchButton.addEventListener('click', handleSearch);
-
-        {#var inputSearchField = document.getElementById('searchentity');#}
-        {#inputSearchField.addEventListener('input', autoComplete)#}
-        var tests = ['Store', 'Shelf', 'Product']
-        autoComplete(document.getElementById('searchentity'), tests);
-
-        {#document.addEventListener("click", function (e) {#}
-        {#    closeAllLists(e.target);#}
-        {#    });#}
-        {#}#}
 
         // Add event listener to dropdown items
         var dropdownItems = document.querySelectorAll('.dropdown-menu.dropdown-menu-right .dropdown-item');
