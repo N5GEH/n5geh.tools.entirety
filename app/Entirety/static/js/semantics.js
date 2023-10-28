@@ -375,7 +375,6 @@ async function getEntity() {
             try {
                 const parsedValue = JSON.parse(entry['Value']);
                 entry['Value'] = JSON.stringify(parsedValue, null, 4).trim();
-                console.log(parsedValue);
             } catch (error) {
                 entry['Value'] = entry['Value'].replace(/'/g, '"');
 
@@ -486,10 +485,7 @@ function autoComplete(event) {
 
         var selectedOption = document.querySelector('.form-select-sm[name="searchOptions"] option:checked');
         var selectedValue = selectedOption.getAttribute('data-value');
-        console.log(selectedValue)
         var arr = getData(selectedValue)
-        console.log(arr)
-        console.log(arr.length)
 
         var a, b, i, val = this.value
         closeAllLists();
@@ -500,6 +496,9 @@ function autoComplete(event) {
         a = document.createElement("DIV")
         a.setAttribute("id", this.id + "autocomplete-list")
         a.setAttribute("class", "autocomplete-items");
+        var inputwidth = document.getElementById('searchentity');
+
+
         this.parentNode.appendChild(a)
         for (i = 0; i < arr.length; i++) {
             if (arr[i].substr(0, val.length).toUpperCase() == val.toUpperCase()) {
@@ -511,6 +510,9 @@ function autoComplete(event) {
                     event.value = this.getElementsByTagName("input")[0].value;
                     closeAllLists();
                 });
+                var container = document.querySelector('.autocomplete-items');
+                container.style.width = inputwidth.offsetWidth + 'px';
+                console.log(inputwidth.offsetWidth + 'px')
                 a.appendChild(b);
             }
         }
@@ -562,15 +564,14 @@ function autoComplete(event) {
     }
 
     function getData(selectedValue) {
-
         if (selectedValue === 'id1') {
-            console.log('id')
+            return entity_ids
         } else if (selectedValue === 'type1') {
             return types
         } else if (selectedValue === 'relationship1') {
-            console.log('rel')
+            return relationships
         } else if (selectedValue === 'name1') {
-            console.log('name')
+            return entity_names
         }
     }
 
@@ -584,13 +585,11 @@ function autoComplete(event) {
  * @param event event (Event): The event object triggered by the search action.
  */
 function handleSearch(event) {
-    console.log('handleSearch')
     event.preventDefault();
     var searchField = document.getElementById('searchentity')
     var input = searchField.value;
     var selectedOption = document.querySelector('.form-select-sm[name="searchOptions"] option:checked');
     var selectedValue = selectedOption.getAttribute('data-value');
-    console.log(selectedValue)
 
     // Call the corresponding function based on the selected value
     if (selectedValue === null) {
@@ -667,7 +666,6 @@ function handleTypeSearch(inputValue) {
         if (inputValue !== previousInput) {
             clearSearchHighlight(previousInput)
         }
-        console.log('if type_search')
         var newStyle = {
             "selector": typeSelector,
             style: {
@@ -680,7 +678,6 @@ function handleTypeSearch(inputValue) {
         previousInput = inputValue
 
     } else {
-        console.log('else type_searach')
         addWarning('No matching Type found. Perhaps you want to use another search option?')
     }
 }

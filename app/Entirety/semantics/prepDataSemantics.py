@@ -101,7 +101,9 @@ class PrepData(ProjectContextMixin):
         for j in cy_edges:
             elements.append(j)
 
-        return elements
+        entity_name_list_unique = list(set(entity_name_list))
+
+        return elements, entity_id_list, entity_name_list_unique
 
     def types(self):
         """

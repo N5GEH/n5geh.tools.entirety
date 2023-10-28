@@ -194,15 +194,6 @@
                 Use <strong>Ctrl + Mouse Wheel</strong> to zoom.
             </div>
         </div>
-        <div id="data" class="graph">
-            {{ elements|safe }}
-        </div>
-        <div id="types" class="graph">
-            {{ types|safe }}
-        </div>
-        <div id="rel" class="graph">
-            {{ relationships|safe }}
-        </div>
 
         <button class="bi bi-arrow-up-circle-fill" id="scrollupoutside" onclick="scrollToMain()"></button>
         <button class="bi bi-arrow-down-circle-fill" id="scrolldownoutside" onclick="scrollToDetail()"></button>
@@ -214,6 +205,10 @@
             {{ types|safe }}
             var relationships =
             {{ relationships|safe }}
+            var entity_ids =
+            {{ entity_ids|safe }}
+            var entity_names =
+            {{ entity_names|safe }}
         </script>
 
 

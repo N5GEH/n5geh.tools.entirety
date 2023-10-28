@@ -15,9 +15,11 @@ class SemanticsVisualizer(ProjectContextMixin, TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         # PrepData.generate_df(self)
-        context['elements'] = PrepData.generate_df(self)
+        context['elements'] = PrepData.generate_df(self)[0]
         context['types'] = PrepData.types(self)
         context['relationships'] = PrepData.relationships(self)
+        context['entity_ids'] = PrepData.generate_df(self)[1]
+        context['entity_names'] = PrepData.generate_df(self)[2]
         return context
 
     def post(self, request, project_id, *args, **kwargs):
