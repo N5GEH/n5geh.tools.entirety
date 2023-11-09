@@ -483,6 +483,7 @@ function autoComplete(event) {
     var currentFocus;
     event.addEventListener("input", function (e) {
 
+
         var selectedOption = document.querySelector('.form-select-sm[name="searchOptions"] option:checked');
         var selectedValue = selectedOption.getAttribute('data-value');
         var arr = getData(selectedValue)
@@ -492,6 +493,11 @@ function autoComplete(event) {
         if (!val) {
             return false;
         }
+        if (val.length <= 3) {
+            return false;
+        }
+        console.log("test")
+        console.log(arr.length)
         currentFocus = -1;
         a = document.createElement("DIV")
         a.setAttribute("id", this.id + "autocomplete-list")
@@ -500,8 +506,41 @@ function autoComplete(event) {
 
 
         this.parentNode.appendChild(a)
+        //     var count = 0;
+        //     for (i = 0; i < arr.length; i++) {
+        //         if (arr[i].substr(0, val.length).toUpperCase() === val.toUpperCase()) {
+        //             b = document.createElement("DIV");
+        //             b.innerHTML = "<strong>" + arr[i].substr(0, val.length) + "</strong>";
+        //             b.innerHTML += arr[i].substr(val.length);
+        //             b.innerHTML += "<input type='hidden' value='" + arr[i] + "'>";
+        //             b.addEventListener("click", function (e) {
+        //                 event.value = this.getElementsByTagName("input")[0].value;
+        //                 closeAllLists();
+        //             });
+        //             var container = document.querySelector('.autocomplete-items');
+        //             container.style.width = inputwidth.offsetWidth + 'px';
+        //             a.appendChild(b);
+        //             count++;
+        //         }
+        //
+        //         if (count > 3) {
+        //             var showMore = document.createElement("DIV");
+        //             showMore.innerHTML = "Mehr Ergebnisse anzeigen...";
+        //             showMore.style.color = "blue";
+        //             showMore.style.cursor = "pointer";
+        //             showMore.addEventListener("click", function (e) {
+        //             });
+        //             a.appendChild(showMore);
+        //             break;
+        //         }
+        //     }
+        var count = 0;
+        var index = 0;
         for (i = 0; i < arr.length; i++) {
-            if (arr[i].substr(0, val.length).toUpperCase() == val.toUpperCase()) {
+            if (arr[i].substr(0, val.length).toUpperCase() === val.toUpperCase()) {
+                if (count >= 3) {
+                    break;
+                }
                 b = document.createElement("DIV");
                 b.innerHTML = "<strong>" + arr[i].substr(0, val.length) + "</strong>";
                 b.innerHTML += arr[i].substr(val.length);
@@ -512,27 +551,63 @@ function autoComplete(event) {
                 });
                 var container = document.querySelector('.autocomplete-items');
                 container.style.width = inputwidth.offsetWidth + 'px';
-                console.log(inputwidth.offsetWidth + 'px')
                 a.appendChild(b);
+                count++;
+                index = i;
             }
         }
+        if (index < arr.length - 1) {
+            var showMore = document.createElement("DIV");
+            showMore.innerHTML = "Mehr Ergebnisse anzeigen...";
+            showMore.style.color = "blue";
+            showMore.style.cursor = "pointer";
+            a.appendChild(showMore);
+            showMore.addEventListener("click", function (e) {
+                while (a.firstChild) {
+                    a.removeChild(a.firstChild);
+                }
+                count = 0;
+                for (i = index + 1; i < arr.length && count < 3; i++) {
+                    if (arr[i].substr(0, val.length).toUpperCase() === val.toUpperCase()) {
+                        b = document.createElement("DIV");
+                        b.innerHTML = "<strong>" + arr[i].substr(0, val.length) + "</strong>";
+                        b.innerHTML += arr[i].substr(val.length);
+                        b.innerHTML += "<input type='hidden' value='" + arr[i] + "'>";
+                        b.addEventListener("click", function (e) {
+                            event.value = this.getElementsByTagName("input")[0].value;
+                            closeAllLists();
+                        });
+                        a.appendChild(b);
+                        count++;
+                        index = i;
+                    }
+                }
+                if (index < arr.length - 1) {
+                    a.appendChild(showMore);
+                }
+            });
+        }
     });
+
     event.addEventListener("keydown", function (e) {
         var x = document.getElementById(this.id + "autocomplete-list");
         if (x) x = x.getElementsByTagName("div");
-        if (e.keyCode == 40) {
+        if (e.keyCode === 40) {
             currentFocus++;
             addActive(x);
-        } else if (e.keyCode == 38) {
+        } else if (e.keyCode === 38) {
             currentFocus--;
             addActive(x);
-        } else if (e.keyCode == 13) {
+        } else if (e.keyCode === 13) {
             e.preventDefault();
             if (currentFocus > -1) {
                 if (x) x[currentFocus].click();
             }
         }
     });
+
+    function generateList(arr) {
+    }
 
     function addActive(x) {
         /*a function to classify an item as "active":*/
@@ -574,6 +649,17 @@ function autoComplete(event) {
             return entity_names
         }
     }
+
+    // document.addEventListener("click", function (e) {
+    //     var target = e.target;
+    //     while (target != null) {
+    //         if (target === showMore) {
+    //             return;
+    //         }
+    //         target = target.parentElement;
+    //     }
+    //     closeAllLists(e.target);
+    // });
 
     document.addEventListener("click", function (e) {
         closeAllLists(e.target);
