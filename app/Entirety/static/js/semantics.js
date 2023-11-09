@@ -501,7 +501,7 @@ function autoComplete(event) {
 
         this.parentNode.appendChild(a)
         for (i = 0; i < arr.length; i++) {
-            if (arr[i].substr(0, val.length).toUpperCase() == val.toUpperCase()) {
+            if (arr[i].substr(0, val.length).toUpperCase() === val.toUpperCase()) {
                 b = document.createElement("DIV");
                 b.innerHTML = "<strong>" + arr[i].substr(0, val.length) + "</strong>";
                 b.innerHTML += arr[i].substr(val.length);
@@ -520,13 +520,13 @@ function autoComplete(event) {
     event.addEventListener("keydown", function (e) {
         var x = document.getElementById(this.id + "autocomplete-list");
         if (x) x = x.getElementsByTagName("div");
-        if (e.keyCode == 40) {
+        if (e.keyCode === 40) {
             currentFocus++;
             addActive(x);
-        } else if (e.keyCode == 38) {
+        } else if (e.keyCode === 38) {
             currentFocus--;
             addActive(x);
-        } else if (e.keyCode == 13) {
+        } else if (e.keyCode === 13) {
             e.preventDefault();
             if (currentFocus > -1) {
                 if (x) x[currentFocus].click();
