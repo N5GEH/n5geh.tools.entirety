@@ -53,8 +53,6 @@ class EntityList(ProjectContextMixin, SingleTableMixin, TemplateView):
         search_option = self.request.GET.get("search-options", default="")
         search_id = ""
         search_type = ""
-        if not search_option and self.request.POST.get("Edit"):
-            return EntityTable.get_query_set(self, "", "", self.project)
         if search_option == "id":
             search_id = self.request.GET.get("search-entity", default="")
         elif search_option == "type":
