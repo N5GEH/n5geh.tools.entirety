@@ -90,9 +90,17 @@ class EntityList(ProjectContextMixin, SingleTableMixin, TemplateView):
                     self.request,
                     "Please select an entity from the table to edit.",
                 )
-                return redirect("projects:entities:list", project_id=self.project.uuid)
-            
-            # TODO: error if more than one selected for edit
+                return redirect("projects:entities:list",
+                                project_id=self.project.uuid)
+
+            # if more than one selected for edit
+            elif len(selected) > 1:
+                messages.warning(
+                    self.request,
+                    "Please select only one entity at a time.",
+                )
+                return redirect("projects:entities:list",
+                                project_id=self.project.uuid)
             return redirect(
                 "projects:entities:update",
                 project_id=self.project.uuid,
