@@ -65,7 +65,6 @@ class EntityList(ProjectContextMixin, SingleTableMixin, TemplateView):
             messages.error(self.request, e)
             return []
 
-
     def get_context_data(self, **kwargs):
         logger.info(
             "Fetching entities for "
