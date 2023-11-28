@@ -81,21 +81,42 @@ class EntityList(ProjectContextMixin, SingleTableMixin, TemplateView):
 
     def post(self, request, *args, **kwargs):
         selected = self.request.POST.getlist("selection")
-        if not selected:
-            messages.warning(
-                self.request,
-                "Please select an entity from the table to edit or delete.",
-            )
-            return redirect("projects:entities:list", project_id=self.project.uuid)
+        
         if self.request.POST.get("Edit"):
-            # TODO: error if more than one selected for edit
+            if not selected:
+                messages.warning(
+                    self.request,
+                    "Please select an entity from the table to edit.",
+                )
+                return redirect("projects:entities:list",
+                                project_id=self.project.uuid)
+
+            # if more than one selected for edit
+            elif len(selected) > 1:
+                messages.warning(
+                    self.request,
+                    "Please select only one entity at a time.",
+                )
+                return redirect("projects:entities:list",
+                                project_id=self.project.uuid)
             return redirect(
                 "projects:entities:update",
                 project_id=self.project.uuid,
                 entity_id=selected[0].split("&")[0],
                 entity_type=selected[0].split("&")[1],
             )
+        
+        if self.request.POST.get("Refresh"):
+            return redirect("projects:entities:list", project_id=self.project.uuid)
+
         if self.request.POST.get("Delete"):
+            if not selected:
+                messages.warning(
+                    self.request,
+                    "Please select an entity from the table to edit.",
+                )
+                return redirect("projects:entities:list", project_id=self.project.uuid)
+                     
             entities = []
             for entity in selected:
                 id = entity.split("&")[0]
