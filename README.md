@@ -110,7 +110,10 @@ See [changelog](./docs/CHANGELOG.md) for detailed overview of changes.
 
 ## License
 
-[![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](LICENSE)
+Entirety is licensed under the GPLv3 license [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](LICENSE).
+
+Furthermore, the authors want to make the following statement:
+>Please note that software derived as a result of modifying the source code of the software in order to fix a bug or incorporate enhancements IS considered a derivative work of the product. Software that merely uses or aggregates (i.e. links to) an otherwise unmodified version of existing software IS NOT considered a derivative work.
 
 ## Further project information
 
