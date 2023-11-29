@@ -7,7 +7,7 @@ Please read our contribution guideline carefully.
 
 We are using [conventional commits](https://www.conventionalcommits.org/)
 for automatic release management and changelog creation.
-Please format your commit messages according to the standard.
+It is mandatory to format your commit messages according to the standard.
 
 Following commit types will affect the version of the next release:
 
