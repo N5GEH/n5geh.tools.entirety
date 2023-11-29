@@ -20,4 +20,4 @@
 
 ![Alt text](image-20.png)
 
- [Entirety GUI](https://github.com/N5GEH/n5geh.tools.entirety/blob/6e8b8ba47611c5a04fe9dae1a21d7852a61b69a7/docs/GUI_TUTORIALS.md)
+ [Entirety GUI](https://github.com/N5GEH/n5geh.tools.entirety/blob/106-documentation-GUI/docs/GUI_TUTORIALS.md)
