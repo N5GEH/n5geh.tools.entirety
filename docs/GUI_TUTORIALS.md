@@ -50,6 +50,6 @@
 -	Apps are developed to interact with FIWARE Generic Enablers (GEs)Entities , currently, Entirety supports interaction with the following Generic Enablers: Orion, IoT Agent-JSON, and QuantumLeap. Accordingly, the Apps "Entities", "Devices", and "Notifications" are developed to communicate with these GEs. Which App shall be loaded can be configured in the .env file at startup of Entirety
 - You can follow the links below to know more about the applications: 
 
-1. [Entities](https://github.com/N5GEH/n5geh.tools.entirety/blob/6e8b8ba47611c5a04fe9dae1a21d7852a61b69a7/docs/GUI_TUTORIALS/ENTITIES.md)
-2.  [Devices](https://github.com/N5GEH/n5geh.tools.entirety/blob/6e8b8ba47611c5a04fe9dae1a21d7852a61b69a7/docs/GUI_TUTORIALS/DEVICES.md)
-3. [Notification ](https://github.com/N5GEH/n5geh.tools.entirety/blob/6e8b8ba47611c5a04fe9dae1a21d7852a61b69a7/docs/GUI_TUTORIALS/NOTIFICATIONS.md)
+1. [Entities](GUI_TUTORIALS/ENTITIES.md)
+2. [Devices](GUI_TUTORIALS/DEVICES.md)
+3. [Notification ](GUI_TUTORIALS/NOTIFICATIONS.md)
