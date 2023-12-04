@@ -165,7 +165,15 @@ class JSONForm(forms.Form):
 
 
 class SmartDataModelEntitiesForm(forms.Form):
-    smart_data_model = forms.ChoiceField()
+    data_model = forms.ChoiceField(
+        label="Data model",
+        widget=forms.TextInput(
+            attrs={
+                "data-bs-toggle": "tooltip",
+                "data-bs-placement": "top",
+                "title": "Select data model to prefill entity form",
+            }
+        ))
 
     def __init__(self, *args, **kwargs):
         super(SmartDataModelEntitiesForm, self).__init__(*args, **kwargs)
@@ -178,6 +186,6 @@ class SmartDataModelEntitiesForm(forms.Form):
                 {"name": set.name, "value": set.name}
             )
         list_of_schemas.append({"name": "..", "value": ".."})
-        self.fields["smart_data_model"] = forms.ChoiceField(
+        self.fields["data_model"] = forms.ChoiceField(
             choices=[(x.get("value"), x.get("name")) for x in list_of_schemas]
         )

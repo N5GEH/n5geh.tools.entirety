@@ -133,79 +133,113 @@ class Create(ProjectContextMixin, TemplateView):
         context = super(Create, self).get_context_data(**kwargs)
         context["basic_info"] = basic_info
         context["attributes"] = attributes
+        context["smart_data_model_form"] = SmartDataModelEntitiesForm()
         return context
 
     def post(self, request, *args, **kwargs):
-        try:
-            entity = ContextEntity(
-                id=self.request.POST.get("id"),
-                type=self.request.POST.get("type"),
+        # load data model
+        if "load" in self.request.POST:
+            entity_json = parser(self.request.POST.get("data_model"))
+            context = super(Create, self).get_context_data(**kwargs)
+            basic_info = EntityForm(
+                self.project,
+                initial={"id": entity_json.get("id"),
+                         "type": entity_json.get("type")},
             )
-            entity_keys = [
-                k for k, v in self.request.POST.items() if re.search(r"attr-\d+", k)
-            ]
-            i = j = 0
-            while i < (len(entity_keys) / 3):
-                keys = [
-                    k
-                    for k, v in self.request.POST.items()
-                    if k in entity_keys and re.search(j.__str__(), k)
+            basic_info.fields["type"].widget.attrs["readonly"] = True
+            initial = []
+            for attr_key, attr_value in entity_json.items():
+                if attr_key not in MANDATORY_ENTITY_FIELDS:
+                    initial.append(
+                        {
+                            "name": attr_key,
+                            "type": attr_value["type"],
+                            "value": attr_value["value"],
+                        }
+                    )
+            attributes_form_set = formset_factory(AttributeForm, max_num=0)
+            attributes = attributes_form_set(prefix="attr", initial=initial)
+            for form in attributes.forms:
+                form.fields["name"].widget.attrs["readonly"] = True
+                form.fields["type"].widget.attrs["readonly"] = True
+            context["basic_info"] = basic_info
+            context["attributes"] = attributes
+            context["smart_data_model_form"] = SmartDataModelEntitiesForm(
+                initial=request.POST
+            )
+            return render(request, self.template_name, context)
+            # create entity
+        elif "submit" in self.request.POST:
+            try:
+                entity = ContextEntity(
+                    id=self.request.POST.get("id"),
+                    type=self.request.POST.get("type"),
+                )
+                entity_keys = [
+                    k for k, v in self.request.POST.items() if re.search(r"attr-\d+", k)
                 ]
-                if any(keys):
-                    attr = ContextAttribute()
-                    attr.value = self.request.POST.get(keys[2])
-                    attr.type = self.request.POST.get(keys[1])
-                    entity.add_attributes({self.request.POST.get(keys[0]): attr})
-                    i = i + 1
-                j = j + 1
-            res = post_entity(self, entity, False, self.project)
+                i = j = 0
+                while i < (len(entity_keys) / 3):
+                    keys = [
+                        k
+                        for k, v in self.request.POST.items()
+                        if k in entity_keys and re.search(j.__str__(), k)
+                    ]
+                    if any(keys):
+                        attr = ContextAttribute()
+                        attr.value = self.request.POST.get(keys[2])
+                        attr.type = self.request.POST.get(keys[1])
+                        entity.add_attributes({self.request.POST.get(keys[0]): attr})
+                        i = i + 1
+                    j = j + 1
+                res = post_entity(self, entity, False, self.project)
+                if res:
+                    messages.error(
+                        self.request,
+                        f"Entity not created. Reason: {res}",
+                    )
+                else:
+                    return redirect("projects:entities:list", project_id=self.project.uuid)
+            # handel the error from server
+            except ValidationError as e:
+                messages.error(request, e.raw_errors[0].exc.__str__())
+            basic_info = EntityForm(initial=request.POST, project=self.project)
+            attributes_form_set = formset_factory(AttributeForm, max_num=0)
+            attributes = attributes_form_set(request.POST, prefix="attr")
+            context = super(Create, self).get_context_data(**kwargs)
+            context["basic_info"] = basic_info
+            context["attributes"] = attributes
             if res:
                 messages.error(
                     self.request,
-                    f"Entity not created. Reason: {res}",
+                    "Entity not created. Reason: "
+                    + json.loads(res.response.text).get("description"),
                 )
+                logger.error(
+                    str(
+                        self.request.user.first_name
+                        if self.request.user.first_name
+                        else self.request.user.username
+                    )
+                    + " tried creating the entity with id "
+                    + entity.id
+                    + " but failed with error "
+                    + json.loads(res.response.text).get("description")
+                    + f" in project {self.project.name}"
+                )
+                return render(request, self.template_name, context)
             else:
+                logger.info(
+                    str(
+                        self.request.user.first_name
+                        if self.request.user.first_name
+                        else self.request.user.username
+                    )
+                    + " has created the entity with id "
+                    + entity.id
+                    + f" in project {self.project.name}"
+                )
                 return redirect("projects:entities:list", project_id=self.project.uuid)
-        # handel the error from server
-        except ValidationError as e:
-            messages.error(request, e.raw_errors[0].exc.__str__())
-        basic_info = EntityForm(initial=request.POST, project=self.project)
-        attributes_form_set = formset_factory(AttributeForm, max_num=0)
-        attributes = attributes_form_set(request.POST, prefix="attr")
-        context = super(Create, self).get_context_data(**kwargs)
-        context["basic_info"] = basic_info
-        context["attributes"] = attributes
-        if res:
-            messages.error(
-                self.request,
-                "Entity not created. Reason: "
-                + json.loads(res.response.text).get("description"),
-            )
-            logger.error(
-                str(
-                    self.request.user.first_name
-                    if self.request.user.first_name
-                    else self.request.user.username
-                )
-                + " tried creating the entity with id "
-                + entity.id
-                + " but failed with error "
-                + json.loads(res.response.text).get("description")
-                + f" in project {self.project.name}"
-            )
-            return render(request, self.template_name, context)
-        else:
-            logger.info(
-                str(
-                    self.request.user.first_name
-                    if self.request.user.first_name
-                    else self.request.user.username
-                )
-                + " has created the entity with id "
-                + entity.id
-                + f" in project {self.project.name}"
-            )
-            return redirect("projects:entities:list", project_id=self.project.uuid)
 
 
 class CreateBatch(ProjectContextMixin, TemplateView):
@@ -246,129 +280,6 @@ class CreateBatch(ProjectContextMixin, TemplateView):
             return redirect("projects:entities:list", project_id=self.project.uuid)
         else:
             return render(request, self.template_name, context)
-
-
-class CreateFromJsonSchemaParser(ProjectContextMixin, TemplateView):
-    # ToDo maybe integrate the template with the normal creation, just
-    #  provide another option
-    template_name = "entities/sdm_parser.html"
-    form_class = EntityForm
-
-    def get_context_data(self, **kwargs):
-        context = super(CreateFromJsonSchemaParser, self).get_context_data(**kwargs)
-        context["smart_data_model_form"] = SmartDataModelEntitiesForm()
-        return context
-
-    def post(self, request, *args, **kwargs):
-        if "load" in self.request.POST:
-            entity_json = parser(self.request.POST.get("smart_data_model"))
-            context = super(CreateFromJsonSchemaParser, self).get_context_data(**kwargs)
-            basic_info = EntityForm(
-                self.project,
-                initial={"id": entity_json.get("id"), "type": entity_json.get("type")},
-            )
-            basic_info.fields["type"].widget.attrs["readonly"] = True
-            initial = []
-            for attr_key, attr_value in entity_json.items():
-                if attr_key not in MANDATORY_ENTITY_FIELDS:
-                    initial.append(
-                        {
-                            "name": attr_key,
-                            "type": attr_value["type"],
-                            "value": attr_value["value"],
-                        }
-                    )
-            attributes_form_set = formset_factory(AttributeForm, max_num=0)
-            attributes = attributes_form_set(prefix="attr", initial=initial)
-            for form in attributes.forms:
-                form.fields["name"].widget.attrs["readonly"] = True
-                form.fields["type"].widget.attrs["readonly"] = True
-            context["basic_info"] = basic_info
-            context["attributes"] = attributes
-            context["smart_data_model_form"] = SmartDataModelEntitiesForm(
-                initial=request.POST
-            )
-            context["load_button"] = True
-            return render(request, self.template_name, context)
-
-        elif "create" in self.request.POST:
-            print("create")
-            try:
-                # TODO duplicate with class Create
-                entity = ContextEntity(
-                    id=self.request.POST.get("id"),
-                    type=self.request.POST.get("type"),
-                )
-                entity_keys = [
-                    k for k, v in self.request.POST.items() if re.search(r"attr-\d+", k)
-                ]
-                i = j = 0
-                while i < (len(entity_keys) / 3):
-                    keys = [
-                        k
-                        for k, v in self.request.POST.items()
-                        if k in entity_keys and re.search(j.__str__(), k)
-                    ]
-                    if any(keys):
-                        attr = ContextAttribute()
-                        attr.value = self.request.POST.get(keys[2])
-                        attr.type = self.request.POST.get(keys[1])
-                        entity.add_attributes({self.request.POST.get(keys[0]): attr})
-                        i = i + 1
-                    j = j + 1
-                res = post_entity(self, entity, False, self.project)
-                if res:
-                    messages.error(
-                        self.request,
-                        f"Entity not created. Reason: {res}",
-                    )
-                else:
-                    return redirect(
-                        "projects:entities:list", project_id=self.project.uuid
-                    )
-            # handel the error from server
-            except ValidationError as e:
-                messages.error(request, e.raw_errors[0].exc.__str__())
-            basic_info = EntityForm(initial=request.POST, project=self.project)
-            attributes_form_set = formset_factory(AttributeForm, max_num=0)
-            attributes = attributes_form_set(request.POST, prefix="attr")
-            context = super(CreateFromJsonSchemaParser, self).get_context_data(**kwargs)
-            context["basic_info"] = basic_info
-            context["attributes"] = attributes
-            context["smart_data_model_form"] = SmartDataModelEntitiesForm(
-                initial=request.POST
-            )
-            context["load_button"] = True
-            if res:
-                # messages.error(
-                #     self.request,
-                #     "Entity not created. Reason: "
-                #     + json.loads(res.response.text).get("description"),
-                # )
-                logger.error(
-                    str(
-                        self.request.user.first_name
-                        if self.request.user.first_name
-                        else self.request.user.username
-                    )
-                    + " tried creating the entity with id "
-                    + entity.id
-                    + f" but failed with error: {res}"
-                    + f" in project {self.project.name}"
-                )
-                return render(request, self.template_name, context)
-            else:
-                logger.info(
-                    str(
-                        self.request.user.first_name
-                        if self.request.user.first_name
-                        else self.request.user.username
-                    )
-                    + " has created the entity with id "
-                    + entity.id
-                    + f" in project {self.project.name}"
-                )
-                return redirect("projects:entities:list", project_id=self.project.uuid)
 
 
 class Update(ProjectContextMixin, TemplateView):

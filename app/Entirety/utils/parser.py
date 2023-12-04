@@ -64,6 +64,7 @@ def parser(schema_name):
 
 
 def extract_id_and_type(model):
+    # TODO generation of ID and Type is not robust
     entity_json = {}
     for key, value in model.__fields__.items():
         if key == "id":
