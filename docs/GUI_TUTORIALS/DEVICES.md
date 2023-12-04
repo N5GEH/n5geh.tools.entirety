@@ -1,4 +1,12 @@
 # *DEVICES MODULE* 
+
+[Introduction](#Introduction)
+
+[Create New Device](#Create_New_Device)
+
+[Delete Device](#Delete_Device)
+
+## *Introduction*
 -	The Devices app is developed to interact with the FIWARE Generic Enabler known as IoT Agent-JSON.
 -	IoT Agents are used to manage devices/servivce and their interactions in the FIWARE ecosystem. The Devices app allows users to handle the registration, update, and removal of devices.
 -	Users working with the Devices app are able to register new devices, update device information, and remove devices from the system. This involves specifying device attributes, protocols, and other relevant details.
@@ -11,6 +19,7 @@
 
 ![Alt text](image-14.png)
 
+## *Create New Device*
 -	Creating a new Device : On clicking the blue + , you can create a new Device by filling in the Device ID , Device Name and the Device Type.
 
 ![Alt text](image-12.png)
@@ -21,6 +30,7 @@
 
 ![Alt text](image-13.png)
 
+## *Delete Device*
 - Deleting a Device : For deleting a Device , you can select the desired Device and click on the *red bin* , this will open a dialog box which prompts ‘Delete the related entity‘ and gives you option for Advanced settings or deleting the device forcefully. 
 
 ![Alt text](image-15.png)
