@@ -1,11 +1,18 @@
 # *NOTIFICATION MODULE*
 
+[Introduction](#Introduction)
+
+[Create New Subscription](#Create_New_Subscription)
+
+
+## *Introduction*
 -	The Notifications app is designed to interact with the FIWARE Generic Enabler called QuantumLeap.
 -	QuantumLeap is often used for managing historical context data and handling subscriptions for changes in data. The Notifications app provides a user interface to manage and view notifications related to changes in context information.
 -	Users utilizing the Notifications app are able to subscribe to changes in specific entities or attributes, view historical context data, and manage notification settings.
 
 ![Alt text](image-17.png)
 
+## *Create New Subscription*
 -	Creating a new Subscription: On clicking the blue + , you can create a new Subscription by filling in the Subscription Name , Description(free text to describe the subscription) , Throttling (Minimum number of seconds that must elapse between two consecutive notifications) and Expiry .
 
 ![Alt text](image-18.png)
