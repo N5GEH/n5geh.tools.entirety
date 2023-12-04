@@ -248,42 +248,21 @@ class CreateBatch(ProjectContextMixin, TemplateView):
             return render(request, self.template_name, context)
 
 
-class CreateSDM(ProjectContextMixin, TemplateView):
-    template_name = "entities/sdm.html"
-
-    def get_context_data(self, **kwargs):
-        form = JSONSchemaForm(
-            schema=None,
-            options={
-                "theme": "bootstrap3",
-                "ajax": True,
-                "show_errors": "change",
-                "display_required_only": False,
-                "disable_array_add": True,
-                "ajaxBase": "https://smart-data-models.github.io",
-                # "max_depth" : 2
-            },
-            ajax=True,
-        )
-        context = super(CreateSDM, self).get_context_data(**kwargs)
-        context["json_form"] = form
-        context["smart_data_model_form"] = SmartDataModelEntitiesForm()
-        return context
-
-
-class CreateSDM_Parser(ProjectContextMixin, TemplateView):
+class CreateFromJsonSchemaParser(ProjectContextMixin, TemplateView):
+    # ToDo maybe integrate the template with the normal creation, just
+    #  provide another option
     template_name = "entities/sdm_parser.html"
     form_class = EntityForm
 
     def get_context_data(self, **kwargs):
-        context = super(CreateSDM_Parser, self).get_context_data(**kwargs)
+        context = super(CreateFromJsonSchemaParser, self).get_context_data(**kwargs)
         context["smart_data_model_form"] = SmartDataModelEntitiesForm()
         return context
 
     def post(self, request, *args, **kwargs):
         if "load" in self.request.POST:
             entity_json = parser(self.request.POST.get("smart_data_model"))
-            context = super(CreateSDM_Parser, self).get_context_data(**kwargs)
+            context = super(CreateFromJsonSchemaParser, self).get_context_data(**kwargs)
             basic_info = EntityForm(
                 self.project,
                 initial={"id": entity_json.get("id"), "type": entity_json.get("type")},
@@ -315,6 +294,7 @@ class CreateSDM_Parser(ProjectContextMixin, TemplateView):
         elif "create" in self.request.POST:
             print("create")
             try:
+                # TODO duplicate with class Create
                 entity = ContextEntity(
                     id=self.request.POST.get("id"),
                     type=self.request.POST.get("type"),
@@ -352,7 +332,7 @@ class CreateSDM_Parser(ProjectContextMixin, TemplateView):
             basic_info = EntityForm(initial=request.POST, project=self.project)
             attributes_form_set = formset_factory(AttributeForm, max_num=0)
             attributes = attributes_form_set(request.POST, prefix="attr")
-            context = super(CreateSDM_Parser, self).get_context_data(**kwargs)
+            context = super(CreateFromJsonSchemaParser, self).get_context_data(**kwargs)
             context["basic_info"] = basic_info
             context["attributes"] = attributes
             context["smart_data_model_form"] = SmartDataModelEntitiesForm(
