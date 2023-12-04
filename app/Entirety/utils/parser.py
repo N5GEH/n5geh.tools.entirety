@@ -5,16 +5,36 @@ import json
 from jsonschemaparser import JsonSchemaParser
 from smartdatamodels.models import SmartDataModel
 from entities.requests import AttributeTypes
+import os
+import glob
 
 MANDATORY_ENTITY_FIELDS: List[str] = ["id", "type"]
 
 
 def save_schema_to_temp_file(json_schema: dict):
-    # TODO check if it is also usable in docker container
     with tempfile.NamedTemporaryFile(delete=False, suffix=".json") as temp_file:
         temp_file.write(json.dumps(json_schema).encode('utf-8'))
         temp_file.flush()
         return temp_file.name
+
+
+def delete_json_files_in_temp():
+    # Get the temporary directory path
+    tmp_directory = tempfile.gettempdir()
+
+    # Define the pattern to find JSON files
+    pattern = os.path.join(tmp_directory, '*.json')
+
+    # Use glob to get a list of all files matching the pattern
+    json_files = glob.glob(pattern)
+
+    # Delete each file
+    for json_file in json_files:
+        try:
+            os.remove(json_file)
+        except Exception as e:
+            print(f"[entirety.parser] Error deleting {json_file}: {e}",
+                  flush=True)
 
 
 def parser(schema_name):
@@ -30,6 +50,9 @@ def parser(schema_name):
     # load json schema
     with JsonSchemaParser() as schema_parser:
         parsed_schema = schema_parser.parse_schema(schema=path)
+
+    # clean up the temporary json files
+    delete_json_files_in_temp()
 
     data_model = parsed_schema.datamodel
     entity_json = extract_id_and_type(data_model)
