@@ -1,4 +1,11 @@
 # *Entities Module*
+[Introduction](#Introduction)
+
+[Create New Entity](#Create_New_Entity)
+
+[Delete an Entity](#Delete_an_Entity)
+
+## *Introduction*
 -	The Entities app is developed to interact with the FIWARE Generic Enabler Orion.
 -	It allows users to manage entities within the context of Orion. Entities, in the FIWARE context, represent the basic building blocks of information in a smart solution, typically corresponding to real-world objects or abstract entities.
 -	Users interacting with the Entities app are able to create, update, retrieve, and delete entities. These operations could involve specifying attributes, location information, and other context data associated with entities.
@@ -6,6 +13,8 @@
 ![Alt text](image-5.png)
 
 -	By clicking on the *blue +* , you can add new entities , by clicking on the *red bin* you can delete a specific entity and by clicking on the *grey pen* you can edit an already existing entity. You can choose which entity to perform actions by selecting the white box.
+
+## *Create New Entity*
 -	Creating a new entity : On clicking the *blue +* , you can create a new entity by filling in the *Entity ID* and the *Entity Type*. 
 - The ID of the entity sould always be a combination of *Entity ID* and *Entity type* in the following manner: 'Type:ID'
 
@@ -15,6 +24,7 @@
 
 ![Alt text](image-7.png)
 
+## *Delete an Entity*
 -	For deleting an entity , you can select the desired entity and click on the *red bin* , this will open a dialog box which prompts ‘Delete the selected entities with either by force deleting or click on Advance Selection to load all its associations before deletion.‘ 
  
 ![Alt text](image-8.png)
