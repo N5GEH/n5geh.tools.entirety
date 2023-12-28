@@ -7,7 +7,8 @@ from devices.views import (
     DeviceEditSubmitView,
     DeviceEditView,
     DeviceDeleteView,
-    DeviceBatchCreateView
+    DeviceBatchCreateView,
+    DeviceCreateViewFromQr
 )
 from devices.views import (
     ServiceGroupListSubmitView,
@@ -22,6 +23,7 @@ app_name = "devices"
 urlpatterns = [
     path("create", DeviceCreateView.as_view(), name="create"),
     path("batchcreate", DeviceBatchCreateView.as_view(), name="batchcreate"),
+    path("create-qr", DeviceCreateViewFromQr.as_view(), name="create-qr"),
     path("edit", DeviceEditView.as_view(), name="edit"),
     path("edit-submit", DeviceEditSubmitView.as_view(), name="edit_submit"),
     path("create-submit", DeviceCreateSubmitView.as_view(), name="create_submit"),

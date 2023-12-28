@@ -1,9 +1,12 @@
+import re
 from django_tables2 import MultiTableMixin
 from django.contrib import messages
 from django.shortcuts import render, redirect
 from django.views.generic import View, TemplateView
 from django.http import HttpRequest
+from django.http import HttpResponse
 import json
+import urllib
 from entirety.utils import pop_data_from_session, add_data_to_session
 from projects.mixins import ProjectContextMixin
 import logging
@@ -27,6 +30,12 @@ from devices.utils import (
 from devices.tables import DevicesTable, GroupsTable
 from requests.exceptions import RequestException
 from pydantic import ValidationError
+from filip.models.ngsi_v2.context import (
+    ContextEntity,
+    ContextAttribute,
+    Update as FilipUpdate,
+)
+from entities.requests import update_entity, post_entity
 
 logger = logging.getLogger(__name__)
 
@@ -162,6 +171,113 @@ class DeviceCreateView(ProjectContextMixin, TemplateView):
         }
         return render(request, "devices/detail.html", context)
 
+class DeviceCreateViewFromQr(ProjectContextMixin,TemplateView):
+    def get(self, request, *args, **kwargs):
+        request_data = request.GET.get('data', None)
+        try:
+            if not request_data:
+                messages.error(request, "Data from Qr Code is Invalid !!")
+                return redirect("projects:devices:list", project_id=self.project.uuid)
+            self.json_data = urllib.parse.unquote(request_data)
+            self.json_data = json.loads(self.json_data)
+        except json.decoder.JSONDecodeError as e:
+            messages.error(request, "Inavlid QR data !!")
+            return redirect("projects:devices:list", project_id=self.project.uuid)
+        data_basic, data_attributes, data_commands = parse_request_data(
+           self.json_data, BasicForm=DeviceBasic
+        )
+        basic_info = DeviceBasic(data=data_basic)
+        attributes = Attributes(data=data_attributes, prefix=prefix_attributes)
+        commands = Commands(data=data_commands, prefix=prefix_commands)
+        if basic_info.is_valid() and attributes.is_valid() and commands.is_valid():
+            try:
+                device = build_device(
+                    data_basic=data_basic,
+                    data_attributes=data_attributes,
+                    data_commands=data_commands,
+                )
+                post_device(device, project=self.project)
+                logger.info(
+                    "Device created by "
+                    + str(
+                        self.request.user.first_name
+                        if self.request.user.first_name
+                        else self.request.user.username
+                    )
+                    + f" in project {self.project.name}"
+                )
+                entity = ContextEntity(
+                id=self.json_data['entity_name'],
+                type=self.json_data['entity_type'],
+                )                
+                entity_keys = [
+                    k for k, v in self.json_data.items() if re.search(r"attributes-\d+", k)
+                ]
+                i = j = 0
+                while i < (len(entity_keys) / 4):   
+                    keys = [
+                        k
+                        for k, v in self.json_data.items()
+                        if k in entity_keys and re.search(j.__str__(), k)
+                    ]
+                    if any(keys):
+                        attr = ContextAttribute()
+                        attr.type = self.json_data.get(keys[1])
+                        if attr.type == "Number" or attr.type == "Integer":
+                            attr.value = int(self.json_data.get(keys[3]))
+                        elif attr.type == "Boolean":
+                            attr.value = self.json_data.get(keys[3]) == "True"
+                        elif attr.type == "Float":
+                            attr.value = float(self.json_data.get(keys[3]))
+                        else:
+                            attr.value = self.json_data.get(keys[3])
+                        entity.add_attributes({self.json_data.get(keys[0]): attr})
+                        i = i + 1
+                    j = j + 1
+                res = post_entity(self, entity, True, self.project)
+                if res:
+                    messages.error(
+                    self.request,
+                    f"Entity not created. Reason: {res}",
+                )                
+                messages.success(self.request,message="Successfully created Device and Entity !!")
+                return redirect("projects:entities:update", project_id=self.project.uuid, entity_id=self.json_data["entity_name"], entity_type=self.json_data["entity_type"])
+            # handel the error from server
+            except RequestException as e:
+                messages.error(request, e.response.content.decode("utf-8"))
+                logger.error(
+                    str(
+                        self.request.user.first_name
+                        if self.request.user.first_name
+                        else self.request.user.username
+                    )
+                    + " tried creating device"
+                    + " but failed with error "
+                    + json.loads(e.response.content.decode("utf-8")).get("message")
+                    + f" in project {self.project.name}"
+                )
+                return redirect("projects:devices:list", project_id=self.project.uuid)
+            except ValidationError as e:
+                messages.error(request, e.raw_errors[0].exc.__str__())
+                return redirect("projects:devices:list", project_id=self.project.uuid)
+            except IndexError as e:
+                messages.error(request, "Cannot update entities !! Check request data in QR code")
+                return redirect("projects:devices:list", project_id=self.project.uuid)
+
+        # get the project context data
+        context: dict = super(DeviceCreateSubmitView, self).get_context_data(**kwargs)
+
+        context = {
+            "basic_info": basic_info,
+            "attributes": attributes,
+            "commands": commands,
+            "action": "Create",
+            **context,
+        }
+        return render(request, "devices/detail.html", context)
+
+
+        ##return redirect("projects:devices:list", project_id=self.project.uuid)
 
 class DeviceBatchCreateView(ProjectContextMixin, TemplateView):
     template_name = "devices/batch.html"
