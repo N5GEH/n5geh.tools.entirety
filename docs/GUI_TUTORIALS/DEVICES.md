@@ -44,6 +44,6 @@ TODO
 
 ![Alt text](images/image-16.png)
 
-Back: [Entirety GUI](https://github.com/N5GEH/n5geh.tools.entirety/blob/106-documentation-GUI/docs/GUI_TUTORIALS.md#modules)
+Back: [Entirety GUI](../GUI_TUTORIALS.md#modules)
 
-Further: [Notification ](GUI_TUTORIALS/NOTIFICATIONS.md)
+Further: [Notification ](NOTIFICATIONS.md)
