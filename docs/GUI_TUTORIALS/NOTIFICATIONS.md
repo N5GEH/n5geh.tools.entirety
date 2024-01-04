@@ -26,6 +26,6 @@ Users utilizing the Notifications app are able to subscribe to changes in specif
 
 ![Alt text](images/image-20.png)
 
-Back: [Entirety GUI](https://github.com/N5GEH/n5geh.tools.entirety/blob/106-documentation-GUI/docs/GUI_TUTORIALS.md/#Modules)
+Back: [Entirety GUI](https://github.com/N5GEH/n5geh.tools.entirety/blob/106-documentation-GUI/docs/GUI_TUTORIALS.md#modules)
 
 Further: [Entirety GUI](https://github.com/N5GEH/n5geh.tools.entirety/blob/106-documentation-GUI/docs/GUI_TUTORIALS.md/#Modules)

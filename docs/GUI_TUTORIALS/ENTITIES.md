@@ -35,6 +35,6 @@ Users are able to create, update, retrieve, and delete entities via "Entities" m
 
 -	This lets you delete the subscriptions, relationships and devices this particular entity is linked with.
 
-Back: [Entirety GUI](https://github.com/N5GEH/n5geh.tools.entirety/blob/106-documentation-GUI/docs/GUI_TUTORIALS.md/#Modules)
+Back: [Entirety GUI](https://github.com/N5GEH/n5geh.tools.entirety/blob/106-documentation-GUI/docs/GUI_TUTORIALS.md#modules)
 
 Further: [Devices](GUI_TUTORIALS/DEVICES.md)
