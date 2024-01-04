@@ -8,8 +8,8 @@ Entities, in the FIWARE context, holds information in a smart solution, typicall
 
 Users are able to create, update, retrieve, and delete entities via "Entities" module. By clicking on the *blue +* , you can add new entities , by clicking on the *red bin* you can delete a specific entity and by clicking on the *grey pen* you can edit an already existing entity. You can choose which entity to perform actions by selecting the white box.
 
-- [Create New Entity](#Create_New_Entity)
-- [Delete an Entity](#Delete_an_Entity)
+- [Create New Entity](#create-new-entity)
+- [Delete an Entity](#delete-an-entity)
 
 
 ## *Create New Entity*

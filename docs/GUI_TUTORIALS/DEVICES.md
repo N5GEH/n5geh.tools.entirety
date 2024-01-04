@@ -11,9 +11,9 @@ You can choose which device to perform actions by selecting the white box.
 
 
 
-- [Create New Device](#Create_New_Device)
-- [Create Multiple Devices](#Create_Multiple_Devices)
-- [Delete Device](#Delete_Device)
+- [Create New Device](#create-new-device)
+- [Create Multiple Devices](#create-multiple-devices)
+- [Delete Device](#delete-device)
 
 ## *Create New Device*
 -	Creating a new Device : On clicking the blue + , you can create a new Device by filling in the Device ID , Device Name and the Device Type.

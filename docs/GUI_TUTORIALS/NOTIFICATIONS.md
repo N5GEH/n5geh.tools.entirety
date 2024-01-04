@@ -9,7 +9,7 @@ Users utilizing the Notifications app are able to subscribe to changes in specif
 
 ![Alt text](images/image-17.png)
 
-- [Create New Subscription](#Create_New_Subscription)
+- [Create New Subscription](#create-new-subscription)
 
 ## *Create New Subscription*
 -	Creating a new Subscription: On clicking the blue + , you can create a new Subscription by filling in the Subscription Name , Description(free text to describe the subscription) , Throttling (Minimum number of seconds that must elapse between two consecutive notifications) and Expiry .
