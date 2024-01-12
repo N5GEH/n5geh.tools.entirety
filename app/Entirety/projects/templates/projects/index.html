@@ -10,7 +10,7 @@
                 <div class="col-md-1">
                     <span class="input-group-btn">
                         <div class="row">
-                            {% if user.is_server_admin or user.is_project_admin %}
+                            {% if user.is_server_admin %}
                                 <a href="{% url 'projects:create' %}" class="btn btn-secondary btn-lg">
                                     <i class="bi-plus-circle"></i>
                                 </a>
