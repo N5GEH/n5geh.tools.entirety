@@ -1,4 +1,4 @@
-# Entirety contribution guidelines
+# Entirety Contribution Guidelines
 
 Thank you for investing your time in contributing to our project!
 Please read our contribution guideline carefully.
