@@ -34,7 +34,8 @@
     {% endif %}
         {% csrf_token %}
             {% include 'accordion.html' %}
-            <button class="btn btn-primary rounded-pill" type="submit">Save</button>
+            <button class="btn btn-primary rounded-pill" type="submit" {% if view_only %}
+                    disabled {% endif %}>Save</button>
         </form>
 
 {% endblock %}

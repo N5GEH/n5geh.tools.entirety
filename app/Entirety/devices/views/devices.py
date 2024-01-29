@@ -5,7 +5,7 @@ from django.views.generic import View, TemplateView
 from django.http import HttpRequest
 import json
 from entirety.utils import pop_data_from_session, add_data_to_session
-from projects.mixins import ProjectContextMixin
+from projects.mixins import ProjectContextMixin, ProjectContextAndViewOnlyMixin
 import logging
 from filip.models.ngsi_v2.iot import Device
 from devices.forms import DeviceBasic, Attributes, Commands, DeviceBatchForm
@@ -22,7 +22,8 @@ from devices.utils import (
     get_device_by_id,
     delete_device,
     pattern_service_groups_filter,
-    pattern_devices_filter, post_devices,
+    pattern_devices_filter,
+    post_devices,
 )
 from devices.tables import DevicesTable, GroupsTable
 from requests.exceptions import RequestException
@@ -32,7 +33,7 @@ logger = logging.getLogger(__name__)
 
 
 # Devices list
-class DeviceListView(ProjectContextMixin, MultiTableMixin, TemplateView):
+class DeviceListView(ProjectContextAndViewOnlyMixin, MultiTableMixin, TemplateView):
     # TemplateView.as_view() will render the template. Do not need to invoke render function
     template_name = "devices/list.html"
     # table_class = DevicesTable
@@ -84,6 +85,14 @@ class DeviceListView(ProjectContextMixin, MultiTableMixin, TemplateView):
         context["project"] = self.project
         if self.request.GET.get("search-pattern-groups", default=""):
             context["to_servicegroup"] = True
+        context["view_only"] = (
+            True
+            if self.request.user in self.project.viewers.all()
+            and self.request.user not in self.project.maintainers.all()
+            and self.request.user not in self.project.users.all()
+            and self.request.user is not self.project.owner
+            else False
+        )
         return context
 
 
@@ -124,10 +133,7 @@ class DeviceListSubmitView(ProjectContextMixin, View):
 
             # redirect to entity app
             add_data_to_session(request, "entities", entities)
-            return redirect(
-                "projects:entities:delete",
-                project_id=self.project.uuid
-            )
+            return redirect("projects:entities:delete", project_id=self.project.uuid)
 
         # press create button
         elif request.POST.get("Create"):
@@ -135,7 +141,9 @@ class DeviceListSubmitView(ProjectContextMixin, View):
 
         # press batch create button
         elif request.POST.get("BatchCreate"):
-            return redirect("projects:devices:batchcreate", project_id=self.project.uuid)
+            return redirect(
+                "projects:devices:batchcreate", project_id=self.project.uuid
+            )
 
         # press edit button
         elif request.POST.get("Edit"):
@@ -180,11 +188,10 @@ class DeviceBatchCreateView(ProjectContextMixin, TemplateView):
         if form.is_valid():
             devices_json = json.loads(self.request.POST.get("device_json"))
             try:
-                devices = [Device(**device_dict) for device_dict in devices_json["devices"]]
-                post_devices(
-                    devices,
-                    project=self.project
-                )
+                devices = [
+                    Device(**device_dict) for device_dict in devices_json["devices"]
+                ]
+                post_devices(devices, project=self.project)
                 logger.info(
                     "Devices created by "
                     + str(
@@ -254,7 +261,9 @@ class DeviceCreateSubmitView(ProjectContextMixin, TemplateView):
                 if "DUPLICATE_DEVICE_ID" in e.response.content.decode("utf-8"):
                     device_id = device.device_id
                     add_data_to_session(request, "search-pattern", device_id)
-                    return redirect("projects:devices:list", project_id=self.project.uuid)
+                    return redirect(
+                        "projects:devices:list", project_id=self.project.uuid
+                    )
                 logger.error(
                     str(
                         self.request.user.first_name
@@ -283,7 +292,7 @@ class DeviceCreateSubmitView(ProjectContextMixin, TemplateView):
 
 
 # Edit devices
-class DeviceEditView(ProjectContextMixin, TemplateView):
+class DeviceEditView(ProjectContextAndViewOnlyMixin, TemplateView):
     def get(self, request: HttpRequest, *args, **kwargs):
         context = super(DeviceEditView, self).get_context_data()
 
@@ -319,7 +328,14 @@ class DeviceEditView(ProjectContextMixin, TemplateView):
             commands = Commands(initial=device_dict["commands"], prefix=prefix_commands)
         else:
             commands = Commands(prefix=prefix_commands)
-
+        context["view_only"] = (
+            True
+            if self.request.user in self.project.viewers.all()
+            and self.request.user not in self.project.maintainers.all()
+            and self.request.user not in self.project.users.all()
+            and self.request.user is not self.project.owner
+            else False
+        )
         context = {
             "basic_info": basic_info,
             "attributes": attributes,
@@ -404,7 +420,9 @@ class DeviceDeleteView(ProjectContextMixin, View):
         for device_id in devices_id:
             try:
                 delete_device(
-                    project=self.project, device_id=device_id, delete_entity=delete_entity
+                    project=self.project,
+                    device_id=device_id,
+                    delete_entity=delete_entity,
                 )
                 logger.info(
                     "Device deleted by "
