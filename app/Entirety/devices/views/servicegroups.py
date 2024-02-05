@@ -25,7 +25,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 
-class ServiceGroupListSubmitView(ProjectContextMixin, View):
+class ServiceGroupListSubmitView(ProjectContextAndViewOnlyMixin, View):
     # Redirect the request to corresponding view
     def post(self, request, *args, **kwargs):
         # press delete button
@@ -169,7 +169,14 @@ class ServiceGroupEditView(ProjectContextAndViewOnlyMixin, TemplateView):
             )
         else:
             attributes = Attributes(prefix=prefix_attributes)
-
+        context["view_only"] = (
+            True
+            if self.request.user in self.project.viewers.all()
+            and self.request.user not in self.project.maintainers.all()
+            and self.request.user not in self.project.users.all()
+            and self.request.user is not self.project.owner
+            else False
+        )
         context = {
             "basic_info": basic_info,
             "attributes": attributes,

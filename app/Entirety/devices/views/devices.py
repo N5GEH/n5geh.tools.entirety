@@ -96,7 +96,7 @@ class DeviceListView(ProjectContextAndViewOnlyMixin, MultiTableMixin, TemplateVi
         return context
 
 
-class DeviceListSubmitView(ProjectContextMixin, View):
+class DeviceListSubmitView(ProjectContextAndViewOnlyMixin, View):
     # Redirect the request to corresponding view
     def post(self, request, *args, **kwargs):
         # press delete button
