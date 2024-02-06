@@ -1,6 +1,12 @@
 from django.urls import path
 
-from entities.views import EntityList, Update, Create, Delete, CreateBatch
+from entities.views import (
+    EntityList,
+    Update,
+    Create,
+    Delete,
+    CreateBatch,
+)
 
 app_name = "entities"
 urlpatterns = [

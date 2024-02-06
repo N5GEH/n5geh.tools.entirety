@@ -1,0 +1,29 @@
+{% extends '_base.html' %}
+{% load static %}
+{% load compress %}
+{% load crispy_forms_tags %}
+
+
+{% block title %}Create device or service group from data model {% endblock %}
+
+{% block content %}
+{#    <span class="h3">Create Device</span>#}
+    <form action="{% url 'projects:devices:create_submit_group_datamodel' project.uuid %}" method="post" novalidate>
+        {% crispy smart_data_model_form %}
+        <button class="btn btn-primary rounded-pill" type="submit">Confirm</button>
+    </form>
+{#    <form method="post" action="" id="jsonForm" {% if form_submitted %}class="was-validated" {% endif %}>#}
+{#        <div>#}
+{#            {% csrf_token %}#}
+{#            {{ json_form.media }}#}
+{#            {{ json_form }}#}
+{#            <button class="btn btn-warning rounded-pill" type="submit">Create</button>#}
+{#        </div>#}
+{#    </form>#}
+
+{#    {% compress js %}#}
+{#        <script src="{% static 'js/jsoneditor.js' %}"></script>#}
+{#    {% endcompress %}#}
+
+
+{% endblock %}
