@@ -24,10 +24,16 @@
     {% endif %}
 
     {% if action == "Create" %}
+        <form method="post" action="">
+            <button class="btn btn-success rounded-pill" type="submit" name="load">Load</button>
+        </form>
         <form action="{% url 'projects:devices:create_submit' project.uuid %}" method="post" novalidate>
     {% elif action == "Edit" %}
         <form action="{% url 'projects:devices:edit_submit' project.uuid %}" method="post" novalidate>
     {% elif action == "Create_Group" %}
+        <form method="post" action="">
+            <button class="btn btn-success rounded-pill" type="submit" name="load">Load</button>
+        </form>
         <form action="{% url 'projects:devices:create_submit_group' project.uuid %}" method="post" novalidate>
     {% elif action == "Edit_Group" %}
         <form action="{% url 'projects:devices:edit_submit_group' project.uuid %}" method="post" novalidate>
