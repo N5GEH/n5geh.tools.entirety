@@ -43,7 +43,7 @@ from entities.requests import (
 from entities.tables import EntityTable
 from projects.mixins import ProjectContextMixin
 from utils.parser import parser
-
+import uuid
 logger = logging.getLogger(__name__)
 
 
@@ -130,16 +130,21 @@ class Create(ProjectContextMixin, TemplateView):
         basic_info = EntityForm(self.project)
         attributes_form_set = formset_factory(AttributeForm, max_num=0)
         attributes = attributes_form_set(prefix="attr")
+        smart_data_model_form = SmartDataModelEntitiesForm(initial={'data_model': '..'})
+
         context = super(Create, self).get_context_data(**kwargs)
         context["basic_info"] = basic_info
         context["attributes"] = attributes
-        context["smart_data_model_form"] = SmartDataModelEntitiesForm()
+        context["smart_data_model_form"] = smart_data_model_form
         return context
 
     def post(self, request, *args, **kwargs):
         # load data model
         if "load" in self.request.POST:
-            entity_json = parser(self.request.POST.get("data_model"))
+            if self.request.POST.get("data_model") == "..":
+                entity_json = {}
+            else:
+                entity_json = parser(self.request.POST.get("data_model"))
             context = super(Create, self).get_context_data(**kwargs)
             basic_info = EntityForm(
                 self.project,
