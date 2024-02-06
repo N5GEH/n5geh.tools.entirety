@@ -33,6 +33,13 @@ class Create(ProjectContextMixin, CreateView):
         )
 
 
+
+
+
+    def get(self, request, *args, **kwargs):
+        self.object = None
+        form = self.get_form()
+        return self.render_to_response(self.get_context_data(form=form))
 class Update(ProjectContextMixin, UpdateView):
     template_name = "smartdatamodels/update.html"
     model = SmartDataModel
@@ -49,6 +56,10 @@ class Update(ProjectContextMixin, UpdateView):
             "projects:smartdatamodels:list", kwargs={"project_id": self.project.uuid}
         )
 
+    def get(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        form = self.get_form()
+        return self.render_to_response(self.get_context_data(form=form))
 
 class Delete(ProjectContextMixin, DeleteView):
     template_name = "smartdatamodels/smartdatamodels_list.html"
