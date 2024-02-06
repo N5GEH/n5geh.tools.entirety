@@ -26,11 +26,42 @@ from devices.utils import (
 from devices.tables import DevicesTable, GroupsTable
 from requests.exceptions import RequestException
 from pydantic import ValidationError
+from requests.exceptions import RequestException
+import logging
+from django.shortcuts import render, redirect
+from django.views.generic import TemplateView
+from django.contrib import messages
+from entities.forms import (
+    EntityForm,
+    AttributeForm,
+    SubscriptionForm,
+    RelationshipForm,
+    SelectionForm,
+    DeviceForm,
+    JSONForm,
+    SmartDataModelEntitiesForm,
+)
+from entities.requests import (
+    get_entity,
+    post_entity,
+    update_entity,
+    get_relationships,
+    #get_devices,
+    get_subscriptions,
+    delete_subscription,
+    delete_relationship,
+    #delete_device,
+    delete_entity,
+    delete_entities,
+)
+from entities.tables import EntityTable
+from projects.mixins import ProjectContextMixin
+from utils.parser import parser
 
 logger = logging.getLogger(__name__)
-
-
 # Devices list
+
+
 class DeviceListView(ProjectContextMixin, MultiTableMixin, TemplateView):
     # TemplateView.as_view() will render the template. Do not need to invoke render function
     template_name = "devices/list.html"
@@ -154,6 +185,19 @@ class DeviceCreateView(ProjectContextMixin, TemplateView):
         }
         return render(request, "devices/detail.html", context)
 
+    def post(self, request, *args, **kwargs):
+        # Load data model
+        if "load" in self.request.POST:
+            if self.request.POST.get("data_model") == "..":
+                entity_json = {}
+            else:
+                entity_json = parser(self.request.POST.get("data_model"))
+
+            # Load device data model
+            if self.request.POST.get("device_data_model") == "..":
+                device_json = {}
+            else:
+                device_json = parse_device(self.request.POST.get("device_data_model"))
 
 class DeviceCreateSubmitView(ProjectContextMixin, TemplateView):
     def post(self, request: HttpRequest, **kwargs):
@@ -352,3 +396,51 @@ class DeviceDeleteView(ProjectContextMixin, View):
 
         # if success, redirect to devices list view
         return redirect("projects:devices:list", project_id=self.project.uuid)
+
+
+class DeviceCreateBatchView(ProjectContextMixin, TemplateView):
+    template_name = "devices/batch.html"
+    form_class = JSONForm
+
+    def get_context_data(self, **kwargs):
+        json_form = self.form_class()
+        context = super(DeviceCreateBatchView, self).get_context_data(**kwargs)
+        context["json_form"] = json_form
+        return context
+
+    def post(self, request, *args, **kwargs):
+        form = self.form_class(request.POST)
+        context = super(DeviceCreateBatchView, self).get_context_data(**kwargs)
+        context["json_form"] = form
+        if form.is_valid():
+            devices_json = json.loads(self.request.POST.get("device_json"))
+            devices_to_add = [DeviceBasic(**device_json) for device_json in devices_json]
+
+            try:
+                post_device(devices_to_add, project=self.project)
+                logger.info(
+                    "Batch of devices created by "
+                    + str(
+                        self.request.user.first_name
+                        if self.request.user.first_name
+                        else self.request.user.username
+                    )
+                    + f" in project {self.project.name}"
+                )
+                return redirect("projects:devices:list", project_id=self.project.uuid)
+            except RequestException as e:
+                messages.error(self.request, e.response.content.decode("utf-8"))
+                logger.error(
+                    str(
+                        self.request.user.first_name
+                        if self.request.user.first_name
+                        else self.request.user.username
+                    )
+                    + f" tried creating a batch of devices but failed with error "
+                    + json.loads(e.response.content.decode("utf-8")).get("message")
+                    + f" in project {self.project.name}"
+                )
+            except ValidationError as e:
+                messages.error(self.request, e.raw_errors[0].exc.__str__())
+        else:
+            return render(request, self.template_name, context)
