@@ -7,7 +7,7 @@ from smartdatamodels.models import SmartDataModel
 from entities.requests import AttributeTypes
 import os
 import glob
-
+import uuid
 MANDATORY_ENTITY_FIELDS: List[str] = ["id", "type"]
 
 
@@ -50,6 +50,13 @@ def parser(schema_name):
     # load json schema
     with JsonSchemaParser() as schema_parser:
         parsed_schema = schema_parser.parse_schema(schema=path)
+        # TODO return a parsed_schema object
+
+# TODO def parse_entity(schema_name):
+#           parsed_schema = parser(schema_name)
+#           ...
+# TODO def parse_device
+# TODO def parse_service_group
 
     # clean up the temporary json files
     delete_json_files_in_temp()
@@ -63,16 +70,38 @@ def parser(schema_name):
     return entity_json
 
 
+def parse_device(schema_name):
+    # get data model object
+    data_model = SmartDataModel.objects.get(name=schema_name)
+    # check if schema link or json model
+    if data_model.jsonschema:
+        path = save_schema_to_temp_file(data_model.jsonschema)
+    elif data_model.schema_link:
+        path = data_model.schema_link
+    else:
+        raise NotImplementedError("Data model parser only accepts json schema or URL/path to access json schema")
+
+    # load json schema
+    with JsonSchemaParser() as schema_parser:
+        parsed_schema = schema_parser.parse_schema(schema=path)
+
+    # clean up the temporary json files
+    delete_json_files_in_temp()
+
+    data_model = parsed_schema.datamodel
+    device_json = extract_id_and_type(data_model)
+    for key, value in data_model.__fields__.items():
+        device_json[key] = {"type": type_mapping(value), "value": value.default}
+
+    return device_json
+
 def extract_id_and_type(model):
     # TODO generation of ID and Type is not robust
     entity_json = {}
     for key, value in model.__fields__.items():
         if key == "id":
-            entity_json["id"] = (
-                value.default
-                if value.default is not None
-                else (model.__name__ + ":001")
-            )
+            unique_id = str(uuid.uuid4())[:4]  # Truncate to the first 4 characters
+            entity_json["id"] = f"{model.__name__}:{unique_id}"
         elif key == "type":
             entity_json["type"] = model.__name__
     return entity_json
