@@ -1,13 +1,14 @@
-from django_tables2 import SingleTableMixin, MultiTableMixin
+from django_tables2 import MultiTableMixin
 from django.contrib import messages
 from django.shortcuts import render, redirect
 from django.views.generic import View, TemplateView
 from django.http import HttpRequest
 import json
-from entirety.utils import pop_data_from_session
+from entirety.utils import pop_data_from_session, add_data_to_session
 from projects.mixins import ProjectContextMixin
 import logging
-from devices.forms import DeviceBasic, Attributes, Commands
+from filip.models.ngsi_v2.iot import Device
+from devices.forms import DeviceBasic, Attributes, Commands, DeviceBatchForm
 from devices.models import _ServiceGroup
 from devices.utils import (
     get_devices,
@@ -21,7 +22,7 @@ from devices.utils import (
     get_device_by_id,
     delete_device,
     pattern_service_groups_filter,
-    pattern_devices_filter,
+    pattern_devices_filter, post_devices,
 )
 from devices.tables import DevicesTable, GroupsTable
 from requests.exceptions import RequestException
@@ -39,6 +40,9 @@ class DeviceListView(ProjectContextMixin, MultiTableMixin, TemplateView):
 
     def get_devices_data(self):
         pattern = self.request.GET.get("search-pattern", default="")
+        if not pattern:
+            pattern = pop_data_from_session(request=self.request, key="search-pattern")
+            pattern = "" if not pattern else pattern
         devices = get_devices(self.project)
         # The filtering is now based on a general pattern
         return pattern_devices_filter(devices, pattern)
@@ -80,8 +84,6 @@ class DeviceListView(ProjectContextMixin, MultiTableMixin, TemplateView):
         context["project"] = self.project
         if self.request.GET.get("search-pattern-groups", default=""):
             context["to_servicegroup"] = True
-        context["table_devices"] = DeviceListView.get_tables(self)[0]
-        context["table_groups"] = DeviceListView.get_tables(self)[1]
         return context
 
 
@@ -90,12 +92,12 @@ class DeviceListSubmitView(ProjectContextMixin, View):
     def post(self, request, *args, **kwargs):
         # press delete button
         if request.POST.get("Delete"):
-            if not request.POST.get("selection"):
+            if not request.POST.getlist("selection"):
                 messages.error(request, "Please select one device")
                 return redirect("projects:devices:list", project_id=self.project.uuid)
             else:
                 # use session to cache the selected devices
-                request.session["devices"] = request.POST.get("selection")
+                request.session["devices"] = request.POST.getlist("selection")
                 request.session["delete_entity"] = (
                     True if request.POST.get("delete_entity") else False
                 )
@@ -104,30 +106,36 @@ class DeviceListSubmitView(ProjectContextMixin, View):
         # press advanced delete button
         elif request.POST.get("AdvancedDelete"):
             # get the selected devices from session
-            device_id = request.POST.get("selection")
+            devices_id = request.POST.getlist("selection")
             subscriptions = True if request.POST.get("subscriptions") else False
             relationships = True if request.POST.get("relationships") else False
 
             # get the entity id and type
-            device = get_device_by_id(project=self.project, device_id=device_id)
-            entity_id = device.entity_name
-            entity_type = device.entity_type
+            entities = []
+            for device_id in devices_id:
+                device = get_device_by_id(project=self.project, device_id=device_id)
+                entity_id = device.entity_name
+                entity_type = device.entity_type
+                entities.append(f"{entity_id}&{entity_type}")
 
             request.session["subscriptions"] = subscriptions
             request.session["relationships"] = relationships
             request.session["devices"] = True
 
             # redirect to entity app
+            add_data_to_session(request, "entities", entities)
             return redirect(
                 "projects:entities:delete",
-                project_id=self.project.uuid,
-                entity_id=entity_id,
-                entity_type=entity_type,
+                project_id=self.project.uuid
             )
 
         # press create button
         elif request.POST.get("Create"):
             return redirect("projects:devices:create", project_id=self.project.uuid)
+
+        # press batch create button
+        elif request.POST.get("BatchCreate"):
+            return redirect("projects:devices:batchcreate", project_id=self.project.uuid)
 
         # press edit button
         elif request.POST.get("Edit"):
@@ -153,6 +161,61 @@ class DeviceCreateView(ProjectContextMixin, TemplateView):
             **context,
         }
         return render(request, "devices/detail.html", context)
+
+
+class DeviceBatchCreateView(ProjectContextMixin, TemplateView):
+    template_name = "devices/batch.html"
+    form_class = DeviceBatchForm
+
+    def get_context_data(self, **kwargs):
+        json_form = DeviceBatchForm()
+        context = super(DeviceBatchCreateView, self).get_context_data(**kwargs)
+        context["json_form"] = json_form
+        return context
+
+    def post(self, request, *args, **kwargs):
+        form = DeviceBatchForm(request.POST)
+        context = super(DeviceBatchCreateView, self).get_context_data(**kwargs)
+        context["json_form"] = form
+        if form.is_valid():
+            devices_json = json.loads(self.request.POST.get("device_json"))
+            try:
+                devices = [Device(**device_dict) for device_dict in devices_json["devices"]]
+                post_devices(
+                    devices,
+                    project=self.project
+                )
+                logger.info(
+                    "Devices created by "
+                    + str(
+                        self.request.user.first_name
+                        if self.request.user.first_name
+                        else self.request.user.username
+                    )
+                    + f" in project {self.project.name}"
+                )
+                return redirect("projects:devices:list", project_id=self.project.uuid)
+            # handel the error from server
+            except RequestException as e:
+                messages.error(request, e.response.content.decode("utf-8"))
+                logger.error(
+                    str(
+                        self.request.user.first_name
+                        if self.request.user.first_name
+                        else self.request.user.username
+                    )
+                    + " tried creating device"
+                    + " but failed with error "
+                    + json.loads(e.response.content.decode("utf-8")).get("message")
+                    + f" in project {self.project.name}"
+                )
+            except ValidationError as e:
+                messages.error(request, e.raw_errors[0].exc.__str__())
+        # get the project context data
+        json_form = DeviceBatchForm()
+        context: dict = super(DeviceBatchCreateView, self).get_context_data(**kwargs)
+        context["json_form"] = json_form
+        return render(request, "devices/batch.html", context)
 
 
 class DeviceCreateSubmitView(ProjectContextMixin, TemplateView):
@@ -188,6 +251,10 @@ class DeviceCreateSubmitView(ProjectContextMixin, TemplateView):
             # handel the error from server
             except RequestException as e:
                 messages.error(request, e.response.content.decode("utf-8"))
+                if "DUPLICATE_DEVICE_ID" in e.response.content.decode("utf-8"):
+                    device_id = device.device_id
+                    add_data_to_session(request, "search-pattern", device_id)
+                    return redirect("projects:devices:list", project_id=self.project.uuid)
                 logger.error(
                     str(
                         self.request.user.first_name
@@ -330,25 +397,26 @@ class DeviceEditSubmitView(ProjectContextMixin, TemplateView):
 class DeviceDeleteView(ProjectContextMixin, View):
     def get(self, request: HttpRequest, *args, **kwargs):
         # get the selected devices from session
-        device_id = pop_data_from_session(request, "devices")
+        devices_id = pop_data_from_session(request, "devices")
         delete_entity = bool(pop_data_from_session(request, "delete_entity"))
 
         # delete the device and entity?
-        try:
-            delete_device(
-                project=self.project, device_id=device_id, delete_entity=delete_entity
-            )
-            logger.info(
-                "Device deleted by "
-                + str(
-                    self.request.user.first_name
-                    if self.request.user.first_name
-                    else self.request.user.username
+        for device_id in devices_id:
+            try:
+                delete_device(
+                    project=self.project, device_id=device_id, delete_entity=delete_entity
                 )
-                + f" in project {self.project.name}"
-            )
-        except RequestException as e:
-            messages.error(request, e.response.content.decode("utf-8"))
+                logger.info(
+                    "Device deleted by "
+                    + str(
+                        self.request.user.first_name
+                        if self.request.user.first_name
+                        else self.request.user.username
+                    )
+                    + f" in project {self.project.name}"
+                )
+            except RequestException as e:
+                messages.error(request, e.response.content.decode("utf-8"))
 
         # if success, redirect to devices list view
         return redirect("projects:devices:list", project_id=self.project.uuid)

@@ -11,7 +11,7 @@
                 <div class="col-md-1">
                     <span class="input-group-btn">
                         <div class="row">
-                            {% if user.is_server_admin or user.is_project_admin %}
+                            {% if user.is_server_admin %}
                                 <a href="{% url 'projects:create' %}" class="btn btn-secondary btn-lg">
                                     <i class="bi-plus-circle"></i>
                                 </a>
@@ -54,7 +54,7 @@
                             {% if project.logo.url|length > 0 %}
                                 <img src="{{ project.logo.url }}" class="card-img-top w-100" alt="{{ project.name }}">
                             {% else %}
-                                <img src="{% static "/img/n5geh.png" %}" class="card-img-top" alt="{{ project.name }}">
+                                <img src="{% static "/img/blank.png" %}" class="card-img-top" alt="{{ project.name }}">
                             {% endif %}
                         </a>
 

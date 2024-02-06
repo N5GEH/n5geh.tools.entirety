@@ -1,6 +1,6 @@
 from django.conf import settings
 from django.forms import Form
-from typing import Type
+from typing import Type, List
 from projects.models import Project
 from filip.clients.ngsi_v2 import IoTAClient
 from filip.models import FiwareHeader
@@ -80,6 +80,20 @@ def post_device(device: Device, project: Project):
         iota_client.post_device(device=device)
 
 
+def post_devices(devices: List[Device], project: Project):
+    """
+    Post the device to IoTAgent
+    """
+    with IoTAClient(
+        url=settings.IOTA_URL,
+        fiware_header=FiwareHeader(
+            service=project.fiware_service,
+            service_path=project.fiware_service_path,
+        ),
+    ) as iota_client:
+        iota_client.post_devices(devices=devices)
+
+
 def update_device(device: Device, project: Project):
     """
     Update the device to IoTAgent
@@ -105,7 +119,9 @@ def delete_device(project: Project, device_id, **kwargs):
                 service_path=project.fiware_service_path,
             ),
     ) as iota_client:
-        iota_client.delete_device(device_id=device_id, **kwargs)
+        iota_client.delete_device(device_id=device_id,
+                                  cb_url=settings.CB_URL,
+                                  **kwargs)
 
 
 # no use right now

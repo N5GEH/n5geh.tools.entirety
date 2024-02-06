@@ -1,4 +1,5 @@
 from django_tables2 import tables
+from entirety.utils import django_table2_limit_text_length
 
 
 class CheckBoxColumnWithName(tables.columns.CheckBoxColumn):
@@ -15,7 +16,7 @@ class GroupsTable(tables.Table):
         attrs={
             "td__input": {
                 "value": lambda record: f"{record.resource};{record.apikey}",
-                "type": "radio",
+                "type": "checkbox",
             },
         },
         orderable=False,
@@ -24,3 +25,13 @@ class GroupsTable(tables.Table):
     apikey = tables.columns.Column()
     entity_type = tables.columns.Column()
     id = tables.columns.Column(visible=False)
+    length_limit = 30
+
+    def render_resource(self, value):
+        return django_table2_limit_text_length(value, length=self.length_limit)
+
+    def render_apikey(self, value):
+        return django_table2_limit_text_length(value, length=self.length_limit)
+
+    def render_entity_type(self, value):
+        return django_table2_limit_text_length(value, length=self.length_limit)

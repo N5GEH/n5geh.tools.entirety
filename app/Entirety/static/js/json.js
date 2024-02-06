@@ -1,8 +1,8 @@
-function prettyJSON(elementId) {
-    var ugly = document.getElementById(elementId).value;
+function prettyJSON(element_id) {
+    var ugly = document.getElementById(element_id).value;
     var obj = JSON.parse(ugly);
     var pretty = JSON.stringify(obj, undefined, 4);
-    document.getElementById(elementId).value = pretty;
+    document.getElementById(element_id).value = pretty;
 }
 
 function loadSchema(elementId, linkId) {
@@ -14,4 +14,5 @@ function loadSchema(elementId, linkId) {
     }).fail(function () {
         alert("Error - could not get json data from service. Use, for example, a raw json github link.");
     });
+    document.getElementById(element_id).value = pretty;
 }

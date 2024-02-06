@@ -59,6 +59,10 @@
                     title="Create Device" value="True" name="Create">
                         <i class="bi bi-plus"></i>
             </button>
+            <button type="submit" class="btn btn-primary mb-1 ms-auto" data-toggle="tooltip" data-placement="bottom"
+                    title="Create Multiple Device" value="True" name="BatchCreate">
+                        <i class="bi bi-file-earmark-plus"></i>
+            </button>
             <button type="button" class="btn btn-danger mb-1" data-toggle="tooltip" data-placement="bottom"
                     title="Delete Device" data-bs-toggle="modal" data-bs-target="#deleteModal">
                         <i class="bi bi-trash"></i>
@@ -69,7 +73,7 @@
             </button>
          </div>
 
-            {% render_table table_devices %}
+            {% render_table tables.0 %}
 
         <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
             <div class="modal-dialog">
@@ -182,7 +186,7 @@
             </button>
          </div>
 
-            {% render_table table_groups %}
+            {% render_table tables.1 %}
 
         <div class="modal fade" id="deleteModal_group" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
             <div class="modal-dialog">
