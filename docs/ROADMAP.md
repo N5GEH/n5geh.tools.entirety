@@ -51,7 +51,7 @@ Depending on the necessity, difficulty, and our internal capacity, the features 
 
 | Short Name                     | Descriptions                                                | Short-Term  | Long-Term |
 |--------------------------------|-------------------------------------------------------------|-------------|-----------|
-| Expression builder             | Expressions can be created from the app.                    | x     |           |
+| Expression builder             | Expressions can be created from the app.                    | o     |           |
 | Auto-load available attributes | Load available attributes on matching entities.             | &check; |           |
 | Load Subscriptions             | Synchronize existing subscriptions with the context broker. |             | x   |
 
