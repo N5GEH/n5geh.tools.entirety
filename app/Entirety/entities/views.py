@@ -342,6 +342,8 @@ class Update(ProjectContextAndViewOnlyMixin, TemplateView):
         attributes_form_set = formset_factory(AttributeForm, max_num=0)
         attributes = attributes_form_set(request.POST, prefix="attr")
         context = super(Update, self).get_context_data(**kwargs)
+        if context["view_only"] is True:
+            raise PermissionError
         context["basic_info"] = basic_info
         context["attributes"] = attributes
         context["update_entity"] = entity.id

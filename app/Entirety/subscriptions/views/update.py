@@ -135,6 +135,8 @@ class Update(ProjectContextAndViewOnlyMixin, UpdateView):
         self.object = self.get_object()
         form = self.get_form(forms.SubscriptionForm)
         context = self.get_context_data()
+        if context["view_only"] is True:
+            raise PermissionError
         entities_set = context["entities"]
         attributes = context["attributes"]
 
