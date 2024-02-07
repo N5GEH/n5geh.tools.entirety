@@ -56,20 +56,23 @@
         {% csrf_token %}
         <div>
             <button type="submit" class="btn btn-primary mb-1 ms-auto" data-toggle="tooltip" data-placement="bottom"
-                    title="Create Device" value="True" name="Create">
+                    title="Create Device" value="True" name="Create"  {% if view_only %}
+                    disabled {% endif %}>
                         <i class="bi bi-plus"></i>
             </button>
             <button type="submit" class="btn btn-primary mb-1 ms-auto" data-toggle="tooltip" data-placement="bottom"
-                    title="Create Multiple Device" value="True" name="BatchCreate">
+                    title="Create Multiple Device" value="True" name="BatchCreate"  {% if view_only %}
+                    disabled {% endif %}>
                         <i class="bi bi-file-earmark-plus"></i>
             </button>
             <button type="button" class="btn btn-danger mb-1" data-toggle="tooltip" data-placement="bottom"
-                    title="Delete Device" data-bs-toggle="modal" data-bs-target="#deleteModal">
+                    title="Delete Device" data-bs-toggle="modal"  {% if not view_only %} data-bs-target="#deleteModal" {% endif %} {% if view_only %}
+                    disabled {% endif %}>
                         <i class="bi bi-trash"></i>
             </button>
             <button type="submit" class="btn btn-secondary mb-1" data-toggle="tooltip" data-placement="bottom"
-                    title="Edit Device" value="True" name="Edit">
-                        <i class="bi bi-pen"></i>
+                    title="Inspect Device" value="True" name="Edit">
+                        <i class="bi bi-eye"></i>
             </button>
          </div>
 
@@ -169,16 +172,19 @@
         {% csrf_token %}
         <div>
             <button type="submit" class="btn btn-primary mb-1 ms-auto" data-toggle="tooltip" data-placement="bottom"
-                    title="Create Service Group" value="True" name="Create_Group">
+                    title="Create Service Group" value="True" name="Create_Group" {% if view_only %}
+                    disabled {% endif %}>
                         <i class="bi bi-plus"></i>
             </button>
             <button type="button" class="btn btn-danger mb-1" data-toggle="tooltip" data-placement="bottom"
-                    title="Delete Service Group" data-bs-toggle="modal" data-bs-target="#deleteModal_group">
+                    title="Delete Service Group" data-bs-toggle="modal"  {% if not view_only %}
+                    data-bs-target="#deleteModal_group" {% endif %} {% if view_only %}
+                    disabled {% endif %}>
                         <i class="bi bi-trash"></i>
             </button>
             <button type="submit" class="btn btn-secondary mb-1" data-toggle="tooltip" data-placement="bottom"
-                    title="Edit Service Group" value="True" name="Edit_Group">
-                        <i class="bi bi-pen"></i>
+                    title="Inspect Service Group" value="True" name="Edit_Group">
+                        <i class="bi bi-eye"></i>
             </button>
          </div>
 

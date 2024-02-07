@@ -36,27 +36,52 @@ class Index(LoginRequiredMixin, ListView):
             )
         elif self.request.user.is_project_admin:
             return (
-                Project.objects.order_by("date_modified").filter(
+                Project.objects.order_by("date_modified")
+                .filter(
                     name__icontains=self.request.GET.get("search", default=""),
                     owner=self.request.user,
                 )
-                | Project.objects.order_by("date_modified").filter(
+                .distinct()
+                | Project.objects.order_by("date_modified")
+                .filter(
                     name__icontains=self.request.GET.get("search", default=""),
                     users=self.request.user,
                 )
-                | Project.objects.order_by("date_modified").filter(
+                .distinct()
+                | Project.objects.order_by("date_modified")
+                .filter(
                     name__icontains=self.request.GET.get("search", default=""),
                     maintainers=self.request.user,
                 )
+                .distinct()
+                | Project.objects.order_by("date_modified")
+                .filter(
+                    name__icontains=self.request.GET.get("search", default=""),
+                    viewers=self.request.user,
+                )
+                .distinct()
             )
 
         else:
-            return Project.objects.order_by("date_modified").filter(
-                name__icontains=self.request.GET.get("search", default=""),
-                users=self.request.user,
-            ) | Project.objects.order_by("date_modified").filter(
-                name__icontains=self.request.GET.get("search", default=""),
-                maintainers=self.request.user,
+            return (
+                Project.objects.order_by("date_modified")
+                .filter(
+                    name__icontains=self.request.GET.get("search", default=""),
+                    users=self.request.user,
+                )
+                .distinct()
+                | Project.objects.order_by("date_modified")
+                .filter(
+                    name__icontains=self.request.GET.get("search", default=""),
+                    maintainers=self.request.user,
+                )
+                .distinct()
+                | Project.objects.order_by("date_modified")
+                .filter(
+                    name__icontains=self.request.GET.get("search", default=""),
+                    viewers=self.request.user,
+                )
+                .distinct()
             )
 
 
@@ -82,6 +107,7 @@ class Detail(ProjectBaseMixin, DetailView):
             accessed_project.is_owner(user=self.request.user)
             or accessed_project.is_user(user=self.request.user)
             or accessed_project.is_maintainer(user=self.request.user)
+            or accessed_project.is_viewer(user=self.request.user)
             or self.request.user.is_server_admin
         )
 

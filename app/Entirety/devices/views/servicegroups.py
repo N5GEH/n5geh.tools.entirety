@@ -5,7 +5,7 @@ from django.views.generic import View, TemplateView
 from django.http import HttpRequest
 import json
 from entirety.utils import add_data_to_session, pop_data_from_session
-from projects.mixins import ProjectContextMixin
+from projects.mixins import ProjectContextMixin, ProjectContextAndViewOnlyMixin
 from devices.forms import ServiceGroupBasic, Attributes, Commands
 from devices.utils import (
     prefix_attributes,
@@ -25,7 +25,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 
-class ServiceGroupListSubmitView(ProjectContextMixin, View):
+class ServiceGroupListSubmitView(ProjectContextAndViewOnlyMixin, View):
     # Redirect the request to corresponding view
     def post(self, request, *args, **kwargs):
         # press delete button
@@ -137,7 +137,7 @@ class ServiceGroupCreateSubmitView(ProjectContextMixin, TemplateView):
 
 
 # Edit service group
-class ServiceGroupEditView(ProjectContextMixin, TemplateView):
+class ServiceGroupEditView(ProjectContextAndViewOnlyMixin, TemplateView):
     def get(self, request: HttpRequest, *args, **kwargs):
         context = super(ServiceGroupEditView, self).get_context_data()
 
@@ -169,7 +169,14 @@ class ServiceGroupEditView(ProjectContextMixin, TemplateView):
             )
         else:
             attributes = Attributes(prefix=prefix_attributes)
-
+        context["view_only"] = (
+            True
+            if self.request.user in self.project.viewers.all()
+            and self.request.user not in self.project.maintainers.all()
+            and self.request.user not in self.project.users.all()
+            and self.request.user is not self.project.owner
+            else False
+        )
         context = {
             "basic_info": basic_info,
             "attributes": attributes,
@@ -245,7 +252,9 @@ class ServiceGroupDeleteView(ProjectContextMixin, View):
         for service in services:
             resource, apikey = service.split(";")
             try:
-                delete_service_group(project=self.project, resource=resource, apikey=apikey)
+                delete_service_group(
+                    project=self.project, resource=resource, apikey=apikey
+                )
                 logger.info(
                     "Service group deleted by "
                     + str(

@@ -20,7 +20,7 @@ Depending on the necessity, difficulty, and our internal capacity, the features 
 
 | Short Name       | Descriptions                                                                                                        | Short-Term | Long-Term |
 |------------------|---------------------------------------------------------------------------------------------------------------------|------------|-----------|
-|           Search bar       | Adapt the search bar for the entity, devices and semantics app to be the same. Default search option is "ID".                                                               |    o        |           |
+|           Search bar       | Adapt the search bar for the entity, devices and semantics app to be the same. Default search option is "ID".                                                               | &check;    |           |
 
 
 ### User Management
@@ -34,16 +34,17 @@ Depending on the necessity, difficulty, and our internal capacity, the features 
 
 ### Projects App
 | Short Name                   | Descriptions                                                                                                                                                        | Short-Term | Long-Term |
-|------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------|------------|-----------|
-| Introduce project maintainer | A new role, e.g. project maintainer, will be introduced as a buffer between project admin and normal users. A project maintainer can manage the users of a project. | o    |           |
-| Add project users            | Allow regular users access to the project. For now, only server admins and project owners can access projects.                                                      | o    |           |
+|------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------|----------|-----------|
+| Introduce project maintainer | A new role, e.g. project maintainer, will be introduced as a buffer between project admin and normal users. A project maintainer can manage the users of a project. | &check;   |           |
+| Add project users            | Allow regular users access to the project. For now, only server admins and project owners can access projects.                                                      | &check;   |           |
+| Add project viewers          | Allow viewers to inspect the project, but can not modify.                                                                                                           | &check;   |           |
 
 ### Entities App
 | Short Name         | Descriptions                                                                               | Short-Term  | Long-Term |
 |--------------------|--------------------------------------------------------------------------------------------|-------------|-----------|
 | Batch Create       | User can create multiple entities with similar entity attributes.                          | &check; |           |
 | Batch Delete       | User can delete multiple selected entities with a special view for all the associations.   | &check; |           |
-| Data Model Support | Allow user to create entities based on the predefined data model from the `Data Model App` |             | o   |
+| Data Model Support | Allow user to create entities based on the predefined data model from the `Data Model App` | o            |    |
 | Change of Relationships | Currently, FiLiP prevents us from updating a relationship attribute. In order to adjust relationships this needs to be fixed or another function of FiLiP needs to be used. |             | x   |
 
 ### Notifications App
@@ -62,6 +63,7 @@ Depending on the necessity, difficulty, and our internal capacity, the features 
 | Batch Delete         | User can delete the devices matching the filter, or delete multiple selected devices.                                                                              | &check;     |           |
 | Multi-Entity Support | User can use the Multi-Entity feature as described [here](https://iotagent-node-lib.readthedocs.io/en/latest/advanced-topics.html#multientity-plugin-multientity). |             | x   |
 | Service Group CRUD   | CRUD operations of service group                                                                                                                                   | &check; |           |
+| Data Model Support | Allow user to create entities based on the predefined data model from the `Data Model App` | o            |    |
 
 ### Data Model App
 
@@ -74,7 +76,7 @@ Depending on the necessity, difficulty, and our internal capacity, the features 
 ### Semantic App
 
 | Short Name           | Descriptions                                             | Short-Term | Long-Term |
-|----------------------|----------------------------------------------------------|------------|-----------|
-| Implementation  | Implementation of the current working solution after a complete re-work | o    |           |
-| Context menu  | Enable context menu via right click and offer some actions, e. g. create entity, link entity, etc. | o    |           |
-| Adjust table view  | Adjust the appearance of the table when presenting nested data. The table appears when clicking on a node. | o    |           |
+|----------------------|----------------------------------------------------------|----------|-----------|
+| Implementation  | Implementation of the current working solution after a complete re-work | &check;  |           |
+| Context menu  | Enable context menu via right click and offer some actions, e. g. create entity, link entity, etc. | &check;         |           |
+| Adjust table view  | Adjust the appearance of the table when presenting nested data. The table appears when clicking on a node. | &check;         |           |

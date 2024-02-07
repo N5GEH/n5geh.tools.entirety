@@ -34,6 +34,7 @@ class PostgresSettings(BaseSettings):
 
 
 class Databases(DatabaseSettings):
+
     ps = PostgresSettings()
     default: DatabaseDsn = Field(
         default=f"postgres://{ps.DATABASE_USER}:{ps.DATABASE_PASSWORD}@{ps.DATABASE_HOST}:{ps.DATABASE_PORT}/postgres"
@@ -81,6 +82,7 @@ class AppLoadSettings(BaseSettings):
     ENTITIES_LOAD: bool = Field(default=True, env="ENTITIES_LOAD")
     DEVICES_LOAD: bool = Field(default=True, env="DEVICES_LOAD")
     NOTIFICATIONS_LOAD: bool = Field(default=True, env="NOTIFICATIONS_LOAD")
+    SEMANTICS_LOAD: bool = Field(default=True, env="SEMANTICS_LOAD")
 
     class Config:
         case_sensitive = False
@@ -119,6 +121,7 @@ class Settings(PydanticSettings):
     ]
 
     CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
+
 
     CRISPY_TEMPLATE_PACK = "bootstrap5"
 
@@ -308,6 +311,9 @@ class Settings(PydanticSettings):
 
     IOTA_URL: AnyUrl = Field(default="http://localhost:4041", env="IOTA_URL")
 
+    # CSRF
+    CSRF_TRUSTED_ORIGINS: list = Field(default=[], env="CSRF_TRUSTED_ORIGINS ")
+
     # Database
     # https://docs.djangoproject.com/en/4.0/ref/settings/#databases
     DATABASES: Databases = Field({})
@@ -374,6 +380,9 @@ class Settings(PydanticSettings):
         INSTALLED_APPS.append("devices")
     if APP_LOAD.NOTIFICATIONS_LOAD is True:
         INSTALLED_APPS.append("subscriptions")
+    if APP_LOAD.SEMANTICS_LOAD is True:
+
+        INSTALLED_APPS.append("semantics")
 
     class Config:
         case_sensitive = False

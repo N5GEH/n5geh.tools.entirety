@@ -64,7 +64,7 @@
                                 <div id="acc_c_entities" class="accordion-collapse collapse show"
                                      aria-labelledby="acc_h_entities">
                                     <div class="accordion-body">
-                                        <a type="button" class="add-entity btn btn-success rounded-pill btn-sm"
+                                        <a type="button" class="add-entity btn btn-success rounded-pill btn-sm {% if view_only %} pe-none {% endif %}"
                                            hx-post="{% url "projects:subscriptions:entities" project_id=project.uuid %}"
                                            hx-target="#div_entities">
                                             <i class="bi bi-plus"></i>
@@ -139,7 +139,8 @@
         <div>
             <button type="submit" form="f_subscription"
                     class="btn btn-warning rounded-pill" data-bs-toggle="tooltip" data-bs-placement="bottom"
-                    title="Save">
+                    title="Save" {% if view_only %}
+                        disabled {% endif %}>
                 {% if subscription.name %} Update {% else %} Create {% endif %}
             </button>
         </div>

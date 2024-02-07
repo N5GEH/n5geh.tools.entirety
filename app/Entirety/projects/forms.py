@@ -18,6 +18,7 @@ class ProjectForm(forms.ModelForm):
         if not user.is_server_admin:
             self.fields["owner"].disabled = True
             self.fields["owner"].required = False
+            self.fields["fiware_service"].disabled = True
 
         else:
             self.fields["owner"].queryset = User.objects.filter(
@@ -63,6 +64,18 @@ class ProjectForm(forms.ModelForm):
                 & User.objects.exclude(id=user.id)
             ).filter(is_server_admin=False)
 
+        self.fields["viewers"].widget = forms.CheckboxSelectMultiple(
+            attrs={
+                "data-bs-toggle": "tooltip",
+                "data-bs-placement": "left",
+                "title": "Include or exclude viewers into project",
+            }
+        )
+        self.fields["viewers"].queryset = (
+            User.objects.exclude(id=self.instance.owner_id)
+            & User.objects.exclude(id=user.id)
+        ).filter(is_server_admin=False)
+
         self.helper.layout.append(Submit(name="save", value="Save"))
 
         self.fields["logo"].required = False
@@ -87,6 +100,7 @@ class ProjectForm(forms.ModelForm):
             "owner",
             "maintainers",
             "users",
+            "viewers",
         ]
         widgets = {
             "name": forms.TextInput(
