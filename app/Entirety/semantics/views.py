@@ -3,43 +3,52 @@ from django.shortcuts import redirect
 from projects.models import Project
 from django.http import JsonResponse
 import json
-from projects.mixins import ProjectContextMixin
+from projects.mixins import ProjectContextMixin, ProjectContextAndViewOnlyMixin
 from semantics.prepDataSemantics import PrepData
 from django.shortcuts import render
 from entities.requests import get_entity
 
 
-class SemanticsVisualizer(ProjectContextMixin, TemplateView):
+class SemanticsVisualizer(ProjectContextAndViewOnlyMixin, TemplateView):
     template_name = "semantics/semantics_visualize.html"
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         elements, entity_ids, entity_names = PrepData.generate_df(self)
-        context['elements'] = elements
-        context['types'] = PrepData.types(self)
-        context['relationships'] = PrepData.relationships(self)
-        context['entity_ids'] = entity_ids
-        context['entity_names'] = entity_names
+        context["elements"] = elements
+        context["types"] = PrepData.types(self)
+        context["relationships"] = PrepData.relationships(self)
+        context["entity_ids"] = entity_ids
+        context["entity_names"] = entity_names
         return context
 
     def post(self, request, project_id, *args, **kwargs):
         data = json.loads(request.body)
-        entityID = (data['nodeID'])
+        entityID = data["nodeID"]
         entity = get_entity(self, entityID, "", self.project)
         entity_json = json.loads(entity.json())
         table_data = []
         for key, value in entity_json.items():
             if isinstance(value, dict):
-                val_type = value.get('type', '-')
-                val_value = json.dumps(value.get('value', '-'))
-                val_metadata = json.dumps(value.get('metadata', '-'))
-                table_data.append({"Name": key, "Value": val_value, "Type": val_type, "Metadata": val_metadata})
+                val_type = value.get("type", "-")
+                val_value = json.dumps(value.get("value", "-"))
+                val_metadata = json.dumps(value.get("metadata", "-"))
+                table_data.append(
+                    {
+                        "Name": key,
+                        "Value": val_value,
+                        "Type": val_type,
+                        "Metadata": val_metadata,
+                    }
+                )
             else:
-                table_data.append({"Name": key, "Value": value, "Type": "-", "Metadata": "-"})
+                table_data.append(
+                    {"Name": key, "Value": value, "Type": "-", "Metadata": "-"}
+                )
 
-        return JsonResponse({'entity': table_data})
+        return JsonResponse({"entity": table_data})
 
-    def all_values(self, dict_obj, parent_key=''):
+    def all_values(self, dict_obj, parent_key=""):
         """
         Recursively yields all keys and values in a nested dictionary.
 
@@ -79,5 +88,5 @@ class SemanticsVisualizer(ProjectContextMixin, TemplateView):
                 yield current_key, value
 
 
-class LdVisualizer(ProjectContextMixin, TemplateView):
+class LdVisualizer(ProjectContextAndViewOnlyMixin, TemplateView):
     templet_name = "semantics/semantics_LdVisualize.html"

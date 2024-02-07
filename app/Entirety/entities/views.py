@@ -38,12 +38,12 @@ from entities.requests import (
     delete_entities,
 )
 from entities.tables import EntityTable
-from projects.mixins import ProjectContextMixin
+from projects.mixins import ProjectContextMixin, ProjectContextAndViewOnlyMixin
 
 logger = logging.getLogger(__name__)
 
 
-class EntityList(ProjectContextMixin, SingleTableMixin, TemplateView):
+class EntityList(ProjectContextAndViewOnlyMixin, SingleTableMixin, TemplateView):
     template_name = "entities/entity_list.html"
     table_class = EntityTable
     table_pagination = {"per_page": 15}
@@ -77,19 +77,26 @@ class EntityList(ProjectContextMixin, SingleTableMixin, TemplateView):
         context["project"] = self.project
         context["table"] = EntityList.get_table(self)
         context["selection_form"] = SelectionForm
+        context["view_only"] = (
+            True
+            if self.request.user in self.project.viewers.all()
+            and self.request.user not in self.project.maintainers.all()
+            and self.request.user not in self.project.users.all()
+            and self.request.user is not self.project.owner
+            else False
+        )
         return context
 
     def post(self, request, *args, **kwargs):
         selected = self.request.POST.getlist("selection")
-        
+
         if self.request.POST.get("Edit"):
             if not selected:
                 messages.warning(
                     self.request,
                     "Please select an entity from the table to edit.",
                 )
-                return redirect("projects:entities:list",
-                                project_id=self.project.uuid)
+                return redirect("projects:entities:list", project_id=self.project.uuid)
 
             # if more than one selected for edit
             elif len(selected) > 1:
@@ -97,15 +104,14 @@ class EntityList(ProjectContextMixin, SingleTableMixin, TemplateView):
                     self.request,
                     "Please select only one entity at a time.",
                 )
-                return redirect("projects:entities:list",
-                                project_id=self.project.uuid)
+                return redirect("projects:entities:list", project_id=self.project.uuid)
             return redirect(
                 "projects:entities:update",
                 project_id=self.project.uuid,
                 entity_id=selected[0].split("&")[0],
                 entity_type=selected[0].split("&")[1],
             )
-        
+
         if self.request.POST.get("Refresh"):
             return redirect("projects:entities:list", project_id=self.project.uuid)
 
@@ -116,7 +122,7 @@ class EntityList(ProjectContextMixin, SingleTableMixin, TemplateView):
                     "Please select an entity from the table to edit.",
                 )
                 return redirect("projects:entities:list", project_id=self.project.uuid)
-                     
+
             entities = []
             for entity in selected:
                 id = entity.split("&")[0]
@@ -284,7 +290,7 @@ class CreateBatch(ProjectContextMixin, TemplateView):
             return render(request, self.template_name, context)
 
 
-class Update(ProjectContextMixin, TemplateView):
+class Update(ProjectContextAndViewOnlyMixin, TemplateView):
     template_name = "entities/update.html"
     form_class = EntityForm
 
@@ -315,6 +321,14 @@ class Update(ProjectContextMixin, TemplateView):
         context["basic_info"] = basic_info
         context["attributes"] = attributes
         context["update_entity"] = entity.id
+        context["view_only"] = (
+            True
+            if self.request.user in self.project.viewers.all()
+            and self.request.user not in self.project.maintainers.all()
+            and self.request.user not in self.project.users.all()
+            and self.request.user is not self.project.owner
+            else False
+        )
         return context
 
     def post(self, request, *args, **kwargs):
@@ -328,6 +342,8 @@ class Update(ProjectContextMixin, TemplateView):
         attributes_form_set = formset_factory(AttributeForm, max_num=0)
         attributes = attributes_form_set(request.POST, prefix="attr")
         context = super(Update, self).get_context_data(**kwargs)
+        if context["view_only"] is True:
+            raise PermissionError
         context["basic_info"] = basic_info
         context["attributes"] = attributes
         context["update_entity"] = entity.id
