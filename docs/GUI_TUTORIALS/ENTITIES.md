@@ -2,11 +2,11 @@
 
 The Entities app is developed to interact with the Orion Context Broker (CB).
 It allows users to manage entities within the CB.
-Entities, in the FIWARE context, holds information in a smart solution, typically corresponding to real-world objects or abstract entities.
+Entities, in the FIWARE context, hold information in a smart solution, typically corresponding to real-world objects or abstract entities.
 
 ![Alt text](images/image-5.png)
 
-Users are able to create, update, retrieve, and delete entities via "Entities" module. By clicking on the *blue +* , you can add new entities , by clicking on the *red bin* you can delete a specific entity and by clicking on the *grey pen* you can edit an already existing entity. You can choose which entity to perform actions by selecting the white box.
+Users are able to create, update, retrieve, and delete entities via the "Entities" module. By clicking on the *blue +* , you can add new entities , by clicking on the *red bin* you can delete a specific entity and by clicking on the *grey pen* you can edit an already existing entity. You can choose which entity to perform actions on by selecting the white box.
 
 - [Create New Entity](#create-new-entity)
 - [Delete an Entity](#delete-an-entity)
@@ -23,17 +23,16 @@ Users are able to create, update, retrieve, and delete entities via "Entities" m
 ![Alt text](images/image-7.png)
 
 ## *Delete an Entity*
--	For deleting an entity , you can select the desired entity and click on the *red bin* , this will open a dialog box which prompts ‘Delete the selected entities with either by force deleting or click on Advance Selection to load all its associations before deletion.‘ 
+-	To delete an entity, you can select the desired entity and click on the *red bin*, this will open a dialog box with different options as described below.
  
 ![Alt text](images/image-8.png)
 
--	With this option you can either force delete an entity without deleting their associations or click on the advanced selection and delete the associations.
--	On clicking the advanced selection , it will open another dialog box which has three options to choose from for deleting the associations.
--	They are as follows :  *1. Subscriptions 2. Relationships 3.Devices*
+-	Force Delete: delete an entity without deleting their associations
+-	Advanced selection: this option will open another dialog box which offers three options for deleting the associations of the entity which are: *1. Subscriptions 2. Relationships 3.Devices*
 
 ![Alt text](images/image-10.png)
 
--	This lets you delete the subscriptions, relationships and devices this particular entity is linked with.
+-	The advanced selection for deleting an entity lets you delete the subscriptions, relationships and devices that this particular entity is linked with.
 
 Back: [Entirety GUI](../GUI_TUTORIALS.md#modules)
 
