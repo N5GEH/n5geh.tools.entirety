@@ -1,6 +1,6 @@
 # Entirety GUI Tutorials
 
-Entirety is web-based tool developed to facilitate the work with dedicated FIWARE APIs. It is structured into different modules that are designed to interact with specific FIWARE Generic Enablers (GEs). This tutorial will guide you through the basics of Entirety GUI and then through the usage of every module.
+Entirety is a web-based tool developed to facilitate the work with dedicated FIWARE APIs. It is structured into different modules that are designed to interact with specific FIWARE Generic Enablers (GEs). This tutorial will guide you through the basics of the Entirety GUI and then through the usage of every module.
 
 
 ##	*LOGIN*
@@ -20,7 +20,7 @@ Entirety is web-based tool developed to facilitate the work with dedicated FIWAR
 
 Entirety uses the concept of projects to separate the database into independent data spaces. Each project is bound to specific "fiware-service" headers, following FIWARE's approach to multi-tenancy. This ensures that projects can only access and manipulate data that they created and are authorized for.
 -	Click on Projects on the top left corner to see the current projects.
--	You can only add a new project if you have the roll `project_admin` or `admin`.
+-	You can only add a new project if you have the role `project_admin` or `admin`.
 
 ![Alt text](GUI_TUTORIALS/images/image-1.png)
 
@@ -42,7 +42,7 @@ Entirety uses the concept of projects to separate the database into independent 
 
 
 ## *Modules*
-Modules are developed to interact with FIWARE Generic Enablers (GEs)Entities , currently, Entirety supports interaction with the following Generic Enablers: Orion, IoT Agent-JSON, and QuantumLeap. Accordingly, the Apps "Entities", "Devices", and "Notifications" are developed to communicate with these GEs.
+Modules are developed to interact with FIWARE Generic Enablers (GEs). Currently, Entirety supports interaction with the following Generic Enablers: Orion, IoT Agent-JSON, and QuantumLeap. Accordingly, the Apps "Entities", "Devices", and "Notifications" are developed to communicate with these GEs.
 The following pages will guide you through each module.
 
 1. [Entities](GUI_TUTORIALS/ENTITIES.md)
