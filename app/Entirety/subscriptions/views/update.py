@@ -17,7 +17,7 @@ from filip.models.ngsi_v2.subscriptions import (
     Mqtt,
 )
 
-from projects.mixins import ProjectContextMixin
+from projects.mixins import ProjectContextAndViewOnlyMixin
 from subscriptions.models import Subscription
 from subscriptions import utils
 from subscriptions import forms
@@ -25,7 +25,7 @@ from subscriptions import forms
 logger = logging.getLogger("subscriptions.views")
 
 
-class Update(ProjectContextMixin, UpdateView):
+class Update(ProjectContextAndViewOnlyMixin, UpdateView):
     """
     View class used to update a subscription
     """
@@ -121,7 +121,14 @@ class Update(ProjectContextMixin, UpdateView):
                     choices=attr_choices,
                     initial={"attributes": cb_sub.subject.condition.attrs},
                 )
-
+        context["view_only"] = (
+            True
+            if self.request.user in self.project.viewers.all()
+            and self.request.user not in self.project.maintainers.all()
+            and self.request.user not in self.project.users.all()
+            and self.request.user is not self.project.owner
+            else False
+        )
         return context
 
     def post(self, request, *args, **kwargs):

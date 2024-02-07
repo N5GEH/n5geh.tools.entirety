@@ -24,9 +24,8 @@
                 <i class="bi bi-trash "></i>
             </a>
              <a href="{% url "projects:subscriptions:update" project_id=project.uuid pk=subscription.uuid %}"
-               data-bs-toggle="tooltip" data-bs-placement="bottom" title="Edit {{ subscription.name }}" {% if view_only %}
-                        class="pe-none" {% endif %}>
-                <i class="bi bi-gear"></i>
+               data-bs-toggle="tooltip" data-bs-placement="bottom" title="Inspect {{ subscription.name }}">
+                <i class="bi bi-eye"></i>
             </a>
         </div>
     </div>
