@@ -1,0 +1,158 @@
+{% load static %}
+{% load compress %}
+{% load crispy_forms_tags %}
+
+<div class="accordion mt-3" id="accordionPanelsStayOpenExample">
+    {% if basic_info is not None %}
+    <div class="accordion-item">
+        <h2 class="accordion-header" id="panelsStayOpen-headingOne">
+            <button class="accordion-button" type="button" data-bs-toggle="collapse"
+                    data-bs-target="#panelsStayOpen-collapseOne" aria-expanded="true"
+                    aria-controls="panelsStayOpen-collapseOne">
+                <i class="bi bi-info-circle me-2"></i>
+                Basic Information
+            </button>
+        </h2>
+        <div id="panelsStayOpen-collapseOne" class="accordion-collapse collapse show"
+             aria-labelledby="panelsStayOpen-headingOne">
+            <div class="accordion-body">
+                {% crispy basic_info %}
+            </div>
+        </div>
+    </div>
+    {%  endif %}
+    {% if attributes is not None %}
+    <div class="accordion-item">
+        <h2 class="accordion-header" id="panelsStayOpen-headingTwo">
+            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                    data-bs-target="#panelsStayOpen-collapseTwo" aria-expanded="false"
+                    aria-controls="panelsStayOpen-collapseTwo">
+                <i class="bi bi-braces-asterisk me-2"></i>
+                Attributes
+            </button>
+        </h2>
+        <div id="panelsStayOpen-collapseTwo" class="accordion-collapse collapse"
+             aria-labelledby="panelsStayOpen-headingTwo">
+            <div class="accordion-body">
+                <div class="empty_form d-none">
+                    {{ attributes.empty_form|crispy }}
+                </div>
+                <div class="container d-flex flex-wrap row mb-3">
+                    <div class="col">
+                        <button class="add-form btn btn-success rounded-pill btn-sm"><i class="bi bi-plus"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="form-container container d-flex flex-wrap row g-5">
+                    {% crispy attributes attributes.form.helper %}
+                </div>
+            </div>
+        </div>
+    </div>
+    {%  endif %}
+    {% if commands is not None %}
+        <div class="accordion-item">
+        <h2 class="accordion-header" id="panelsStayOpen-headingThree">
+          <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#panelsStayOpen-collapseThree" aria-expanded="false" aria-controls="panelsStayOpen-collapseThree">
+            <i class="bi bi-command me-2"></i>
+              Commands
+          </button>
+        </h2>
+        <div id="panelsStayOpen-collapseThree" class="accordion-collapse collapse" aria-labelledby="panelsStayOpen-headingThree">
+          <div class="accordion-body">
+                <div class="empty_form d-none">
+                    {{ commands.empty_form|crispy }}
+                </div>
+                <div class="container d-flex flex-wrap row mb-3">
+                    <div class="col">
+                        <button class="add-form btn btn-success rounded-pill btn-sm"><i class="bi bi-plus"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="form-container container d-flex flex-wrap row g-5">
+                    {% crispy commands commands.form.helper %}
+                </div>
+          </div>
+        </div>
+      </div>
+    {%  endif %}
+    {% for template_set in template_form_set %}
+        <div class="container-fluid pb-5">
+            <div class="h4"><i class="bi bi-server"></i> {{ template_set.entity_id }}</div>
+            {% if template_set.subscriptions is not None %}
+                <div class="accordion-item">
+                    <h2 class="accordion-header" id="panelsStayOpen-headingFour_{{ forloop.counter }}">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                                data-bs-target="#panelsStayOpen-collapseFour_{{ forloop.counter }}" aria-expanded="false"
+                                aria-controls="panelsStayOpen-collapseFour_{{ forloop.counter }}">
+                            <i class="bi bi-braces-asterisk me-2"></i>
+                            Subscriptions
+                        </button>
+                    </h2>
+                    <div id="panelsStayOpen-collapseFour_{{ forloop.counter }}" class="accordion-collapse collapse"
+                         aria-labelledby="panelsStayOpen-headingFour_{{ forloop.counter }}">
+                        <div class="accordion-body">
+                            <div class="empty_form d-none">
+                                {{ template_set.subscriptions.empty_form|crispy }}
+                            </div>
+                            <div class="form-container container d-flex flex-wrap row g-5">
+                                {% crispy template_set.subscriptions template_set.subscriptions.form.helper %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {%  endif %}
+                {% if template_set.devices is not None %}
+                <div class="accordion-item">
+                    <h2 class="accordion-header" id="panelsStayOpen-headingFive_{{ forloop.counter }}">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                                data-bs-target="#panelsStayOpen-collapseFive_{{ forloop.counter }}" aria-expanded="false"
+                                aria-controls="panelsStayOpen-collapseFive_{{ forloop.counter }}">
+                            <i class="bi bi-braces-asterisk me-2"></i>
+                            Devices
+                        </button>
+                    </h2>
+                    <div id="panelsStayOpen-collapseFive_{{ forloop.counter }}" class="accordion-collapse collapse"
+                         aria-labelledby="panelsStayOpen-headingFive_{{ forloop.counter }}">
+                        <div class="accordion-body">
+                            <div class="empty_form d-none">
+                                {{ template_set.devices.empty_form|crispy }}
+                            </div>
+                            <div class="form-container container d-flex flex-wrap row g-5">
+                                {% crispy template_set.devices template_set.devices.form.helper %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {%  endif %}
+                {% if template_set.relationships is not None %}
+                <div class="accordion-item">
+                    <h2 class="accordion-header" id="panelsStayOpen-headingSix_{{ forloop.counter }}">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                                data-bs-target="#panelsStayOpen-collapseSix_{{ forloop.counter }}" aria-expanded="false"
+                                aria-controls="panelsStayOpen-collapseSix_{{ forloop.counter }}">
+                            <i class="bi bi-braces-asterisk me-2"></i>
+                            Relationships
+                        </button>
+                    </h2>
+                    <div id="panelsStayOpen-collapseSix_{{ forloop.counter }}" class="accordion-collapse collapse"
+                         aria-labelledby="panelsStayOpen-headingSix_{{ forloop.counter }}">
+                        <div class="accordion-body">
+                            <div class="empty_form d-none">
+                                {{ template_set.relationships.empty_form|crispy }}
+                            </div>
+                            <div class="form-container container d-flex flex-wrap row g-5">
+                                {% crispy template_set.relationships template_set.relationships.form.helper %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {%  endif %}
+        </div>
+    {% endfor %}
+</div>
+
+
+{% compress js %}
+    <script src="{% static 'js/accordion.js' %}"></script>
+{% endcompress %}
