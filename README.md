@@ -123,6 +123,5 @@ We gratefully acknowledge the financial support of the Federal Ministry <br />
 for Economic Affairs and Climate Action (BMWK), promotional references 
 03EN1030B and 03ET1561B.
 
-
 <a href="https://www.bmwi.de/Navigation/EN/Home/home.html"> <img alt="BMWK" 
 src="https://raw.githubusercontent.com/N5GEH/n5geh.platform/master/docs/logos/BMWK-logo_en.png" height="100"> </a>
