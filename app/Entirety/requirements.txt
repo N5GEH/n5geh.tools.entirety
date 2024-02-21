@@ -14,4 +14,4 @@ pydantic>=1.10.13,<2.*
 crispy-bootstrap5==0.7
 pre-commit==2.20.0
 psycopg2==2.9.4
-Pillow==9.3.0
+Pillow==10.0.1
