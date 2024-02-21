@@ -50,6 +50,7 @@ class EntityList(ProjectContextAndViewOnlyMixin, SingleTableMixin, TemplateView)
     form_class = SelectionForm
 
     def get_table_data(self):
+        print("release")
         search_option = self.request.GET.get("search-options", default="")
         search_id = ""
         search_type = ""
