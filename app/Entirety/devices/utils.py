@@ -22,6 +22,7 @@ def get_device_by_id(project: Project, device_id):
     Returns:
         filip.models.ngsi_v2.iot.Device
     """
+    print("release")
     with IoTAClient(
         url=settings.IOTA_URL,
         fiware_header=FiwareHeader(
