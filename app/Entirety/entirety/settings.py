@@ -2,58 +2,46 @@ import os
 import logging.config as LOG
 
 from pathlib import Path
-from typing import List, Any, Optional, Sequence, Union
+from typing import List, Any, Optional, Sequence, Union, Dict
 from mimetypes import add_type
 
 import django_loki
 import dj_database_url
-from pydantic import BaseSettings, Field, AnyUrl, validator, DirectoryPath
-from pydantic_settings import PydanticSettings
-from pydantic_settings.database import DatabaseDsn
-from pydantic_settings.settings import (
-    DatabaseSettings,
-    PydanticSettings,
-    TemplateBackendModel,
-)
+from pydantic_settings import BaseSettings, SettingsConfigDict
+from pydantic import Field, AnyUrl, validator, \
+    DirectoryPath, field_validator, PostgresDsn
+from pydjantic import BaseDBConfig, to_django
 from utils.generators import generate_secret_key
 from django.contrib.messages import constants as messages
 
-__version__ = "0.4.0"
+__version__ = "1.1.0"
+
+# Build paths inside the project like this: BASE_DIR / 'subdir'.
+CUR_DIR = Path(__file__).resolve().parent
+BASE_DIR = CUR_DIR.parent
 
 
-class PostgresSettings(BaseSettings):
-    DATABASE_USER = Field(env="DATABASE_USER", default="postgres")
-    DATABASE_PASSWORD = Field(env="DATABASE_PASSWORD", default="postgrespw")
-    DATABASE_HOST = Field(env="DATABASE_HOST", default="localhost")
-    DATABASE_PORT = Field(env="DATABASE_PORT", default="5432")
+class PostgresDB(BaseSettings):
+    ENGINE: str = 'django.db.backends.postgresql'
+    HOST: str = Field(default='localhost', env='DATABASE_HOST')
+    # TODO may need to add a new variable
+    NAME: str = Field(default='postgres', env='DATABASE_NAME')
+    PASSWORD: str = Field(default='postgrespw', env='DATABASE_PASSWORD')
+    PORT: int = Field(default=5432, env='DATABASE_PORT')
+    USER: str = Field(default='postgres', env='DATABASE_USER')
+    OPTIONS: dict = Field(default={}, env='DATABASE_OPTIONS')
+    # TODO need to check
+    CONN_MAX_AGE: int = Field(default=0, env='DATABASE_CONN_MAX_AGE')
 
-    class Config:
-        case_sensitive = False
-        env_file = ".env"
-        env_file_encoding = "utf-8"
 
-
-class Databases(DatabaseSettings):
-
-    ps = PostgresSettings()
-    default: DatabaseDsn = Field(
-        default=f"postgres://{ps.DATABASE_USER}:{ps.DATABASE_PASSWORD}@{ps.DATABASE_HOST}:{ps.DATABASE_PORT}/postgres"
-    )
-
-    @validator("*")
-    def format_database_settings(cls, v):
-        if isinstance(v, PostgresSettings):
-            return {}
-        else:
-            return super(Databases, cls).format_database_settings(v)
-
-    class Config:
-        case_sensitive = False
-        env_file = ".env"
-        env_file_encoding = "utf-8"
+class Databases(BaseDBConfig):
+    default: PostgresDB = PostgresDB()
 
 
 class LokiSettings(BaseSettings):
+    model_config = SettingsConfigDict(extra='ignore', case_sensitive=False,
+                                      env_file='.env',
+                                      env_file_encoding='utf-8')
     LOKI_ENABLE: bool = Field(default=False, env="LOKI_ENABLE")
     LOKI_LEVEL: str = Field(default="INFO", env="LOKI_LEVEL")
     LOKI_PORT: int = Field(default=3100, env="LOKI_PORT")
@@ -63,44 +51,39 @@ class LokiSettings(BaseSettings):
     LOKI_TIMEZONE: str = Field(default="Europe/Berlin", env="LOKI_TIMEZONE")
     LOKI_HOST: str = Field(default="localhost", env="LOKI_HOST")
 
-    class Config:
-        case_sensitive = False
-        env_file = ".env"
-        env_file_encoding = "utf-8"
-
 
 class AuthenticationSettings(BaseSettings):
-    LOCAL_AUTH = Field(default=True, env="LOCAL_AUTH")
-
-    class Config:
-        case_sensitive = False
-        env_file = ".env"
-        env_file_encoding = "utf-8"
+    model_config = SettingsConfigDict(extra='ignore', case_sensitive=False,
+                                      env_file='.env',
+                                      env_file_encoding='utf-8')
+    LOCAL_AUTH: str = Field(default=True, env="LOCAL_AUTH")
 
 
 class AppLoadSettings(BaseSettings):
+    model_config = SettingsConfigDict(extra='ignore', case_sensitive=False,
+                                      env_file='.env',
+                                      env_file_encoding='utf-8')
+
     ENTITIES_LOAD: bool = Field(default=True, env="ENTITIES_LOAD")
     DEVICES_LOAD: bool = Field(default=True, env="DEVICES_LOAD")
     NOTIFICATIONS_LOAD: bool = Field(default=True, env="NOTIFICATIONS_LOAD")
     SEMANTICS_LOAD: bool = Field(default=True, env="SEMANTICS_LOAD")
 
-    class Config:
-        case_sensitive = False
-        env_file = ".env"
-        env_file_encoding = "utf-8"
 
-
-class Settings(PydanticSettings):
+class Settings(BaseSettings):
+    model_config = SettingsConfigDict(extra='ignore', case_sensitive=False,
+                                      env_file='.env',
+                                      env_file_encoding='utf-8')
     add_type("text/css", ".css", True)
     __auth = AuthenticationSettings()
-    LOCAL_AUTH = __auth.LOCAL_AUTH
-    LOKI = LokiSettings()
-    APP_LOAD = AppLoadSettings()
+    LOCAL_AUTH: str = __auth.LOCAL_AUTH
+    LOKI: LokiSettings = LokiSettings()
+    APP_LOAD: AppLoadSettings = AppLoadSettings()
 
     # Build paths inside the project like this: BASE_DIR / 'subdir'.
     BASE_DIR: DirectoryPath = Path(__file__).resolve().parent.parent
 
-    VERSION = __version__
+    VERSION: str = __version__
 
     # Application definition
     INSTALLED_APPS: List[str] = [
@@ -119,11 +102,14 @@ class Settings(PydanticSettings):
         "examples",
         "users",
     ]
-
-    CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
-
-
-    CRISPY_TEMPLATE_PACK = "bootstrap5"
+    # TODO how to define constant variable
+    # CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
+    CRISPY_ALLOWED_TEMPLATE_PACKS: str = "bootstrap5"
+    CRISPY_TEMPLATE_PACK: str = "bootstrap5"
+    # CRISPY_TEMPLATE_PACK: Optional[str] = Field(
+    #     default="bootstrap5",
+    #     frozen=True
+    # )
 
     MIDDLEWARE: List[str] = [
         "django.middleware.security.SecurityMiddleware",
@@ -135,7 +121,7 @@ class Settings(PydanticSettings):
         "django.middleware.clickjacking.XFrameOptionsMiddleware",
     ]
 
-    MESSAGE_TAGS = {
+    MESSAGE_TAGS: dict = {
         messages.DEBUG: "alert-info",
         messages.INFO: "alert-info",
         messages.SUCCESS: "alert-success",
@@ -143,9 +129,9 @@ class Settings(PydanticSettings):
         messages.ERROR: "alert-danger",
     }
 
-    ROOT_URLCONF = "entirety.urls"
-    FORM_RENDERER = "django.forms.renderers.TemplatesSetting"
-    TEMPLATES: List[TemplateBackendModel] = [
+    ROOT_URLCONF: str = "entirety.urls"
+    FORM_RENDERER: str = "django.forms.renderers.TemplatesSetting"
+    TEMPLATES: List[Dict] = [
         {
             "BACKEND": "django.template.backends.django.DjangoTemplates",
             "DIRS": ["templates"],
@@ -161,7 +147,7 @@ class Settings(PydanticSettings):
         },
     ]
 
-    WSGI_APPLICATION = "entirety.wsgi.application"
+    WSGI_APPLICATION: str = "entirety.wsgi.application"
 
     # Password validation
     # https://docs.djangoproject.com/en/4.0/ref/settings/#auth-password-validators
@@ -181,16 +167,16 @@ class Settings(PydanticSettings):
         },
     ]
 
-    AUTH_USER_MODEL = "users.User"
+    AUTH_USER_MODEL: str = "users.User"
 
-    USE_I18N = True
+    USE_I18N: bool = True
 
-    USE_TZ = True
+    USE_TZ: bool = True
 
     # Static files (CSS, JavaScript, Images)
     # https://docs.djangoproject.com/en/4.0/howto/static-files/
 
-    STATIC_URL = "static/"
+    STATIC_URL: str = "static/"
 
     STATICFILES_DIRS: List[DirectoryPath] = [
         os.path.join(BASE_DIR, "static"),
@@ -202,16 +188,18 @@ class Settings(PydanticSettings):
         "compressor.finders.CompressorFinder",
     ]
 
-    COMPRESS_PRECOMPILERS = (("text/x-scss", "django_libsass.SassCompiler"),)
+    COMPRESS_PRECOMPILERS: tuple = \
+        (("text/x-scss", "django_libsass.SassCompiler"),)
 
     # Default primary key field type
     # https://docs.djangoproject.com/en/4.0/ref/settings/#default-auto-field
 
-    DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+    DEFAULT_AUTO_FIELD: str = "django.db.models.BigAutoField"
 
     LOGGING_CONFIG: Union[str, None] = None
 
-    LOGGERS = {
+    # TODO more structured annotation
+    LOGGERS: dict = {
         "projects.views": {
             "propagate": False,
             "level": "INFO",
@@ -241,56 +229,60 @@ class Settings(PydanticSettings):
             "level": "INFO",
         },
     }
-
-    if LOKI.LOKI_ENABLE is True:
-        for LOGGER in LOGGERS:
-            LOGGERS[LOGGER]["handlers"] = ["loki"]
-        HANDLER = {
-            "loki": {
-                "level": "DEBUG",
-                "class": "logging.handlers.RotatingFileHandler",
-                "filename": os.path.join(BASE_DIR, "logs/entirety_logs.log"),
-                "maxBytes": 1 * 1024 * 1024,
-                "backupCount": 2,
-                "formatter": "default",
-            }
-        }
-    else:
-        for LOGGER in LOGGERS:
-            LOGGERS[LOGGER]["handlers"] = ["console"]
-        HANDLER = {
-            "console": {
-                "class": "logging.StreamHandler",
-                "level": "DEBUG",
-                "formatter": "default",
-            }
-        }
-
-    LOGGING = {
-        "version": 1,
-        "disable_existing_loggers": True,
-        "formatters": {
-            "default": {
-                "format": "[%(asctime)s] %(levelname)s [%(name)s:%(lineno)s] "
-                "[%(funcName)s] %(message)s",
-                "datefmt": "%Y-%m-%d %H:%M:%S",
-            },
-        },
-        "handlers": HANDLER,
-        "loggers": LOGGERS,
-    }
-
-    LOG.dictConfig(LOGGING)
+    # TODO need to be reconsidered @sba
+    #
+    # if LOKI.LOKI_ENABLE is True:
+    #     for LOGGER in LOGGERS:
+    #         LOGGERS[LOGGER]["handlers"] = ["loki"]
+    #     HANDLER = {
+    #         "loki": {
+    #             "level": "DEBUG",
+    #             "class": "logging.handlers.RotatingFileHandler",
+    #             "filename": os.path.join(BASE_DIR, "logs/entirety_logs.log"),
+    #             "maxBytes": 1 * 1024 * 1024,
+    #             "backupCount": 2,
+    #             "formatter": "default",
+    #         }
+    #     }
+    # else:
+    #     for LOGGER in LOGGERS:
+    #         LOGGERS[LOGGER]["handlers"] = ["console"]
+    #     HANDLER = {
+    #         "console": {
+    #             "class": "logging.StreamHandler",
+    #             "level": "DEBUG",
+    #             "formatter": "default",
+    #         }
+    #     }
+    #
+    # LOGGING: dict = {
+    #     "version": 1,
+    #     "disable_existing_loggers": True,
+    #     "formatters": {
+    #         "default": {
+    #             "format": "[%(asctime)s] %(levelname)s [%(name)s:%(lineno)s] "
+    #             "[%(funcName)s] %(message)s",
+    #             "datefmt": "%Y-%m-%d %H:%M:%S",
+    #         },
+    #     },
+    #     "handlers": HANDLER,
+    #     "loggers": LOGGERS,
+    # }
+    #
+    # LOG.dictConfig(LOGGING)
+    # TODO
 
     # Media location
     # https://docs.djangoproject.com/en/4.0/howto/static-files/#serving-files
     # -uploaded-by-a-user-during-development
-    MEDIA_URL = "/media/"
+    MEDIA_URL: str = "/media/"
 
     # Settings provided by environment
-    SECRET_KEY: str = Field(default=generate_secret_key(), env="DJANGO_SECRET_KEY")
+    SECRET_KEY: str = Field(default=generate_secret_key(),
+                            env="DJANGO_SECRET_KEY")
 
-    @validator("SECRET_KEY")
+    @field_validator("SECRET_KEY")
+    @classmethod
     def secret_key_not_empty(cls, v) -> str:
         v_cleaned = v.strip()
         if not v_cleaned:
@@ -316,7 +308,7 @@ class Settings(PydanticSettings):
 
     # Database
     # https://docs.djangoproject.com/en/4.0/ref/settings/#databases
-    DATABASES: Databases = Field({})
+    DATABASES: Databases = Databases()
 
     LOGOUT_REDIRECT_URL: str = Field(default="/", env="LOGOUT_REDIRECT_URL")
 
@@ -354,7 +346,8 @@ class Settings(PydanticSettings):
             default="project_admin", env="OIDC_PROJECT_ADMIN_ROLE"
         )
         OIDC_USER_ROLE: str = Field(default="user", env="OIDC_USER_ROLE")
-        OIDC_TOKEN_ROLE_FIELD: str = Field(default="roles", env="OIDC_TOKEN_ROLE_FIELD")
+        OIDC_TOKEN_ROLE_FIELD: str = Field(default="roles",
+                                           env="OIDC_TOKEN_ROLE_FIELD")
 
     # Internationalization
     # https://docs.djangoproject.com/en/4.0/topics/i18n/
@@ -372,7 +365,7 @@ class Settings(PydanticSettings):
 
     COMPRESS_ENABLED: bool = Field(default=not DEBUG, env="COMPRESS_ENABLED")
 
-    DJANGO_TABLES2_TEMPLATE = "django_tables2/bootstrap4.html"
+    DJANGO_TABLES2_TEMPLATE: str = "django_tables2/bootstrap4.html"
 
     if APP_LOAD.ENTITIES_LOAD is True:
         INSTALLED_APPS.append("entities")
@@ -384,7 +377,5 @@ class Settings(PydanticSettings):
 
         INSTALLED_APPS.append("semantics")
 
-    class Config:
-        case_sensitive = False
-        env_file = ".env"
-        env_file_encoding = "utf-8"
+
+to_django(settings=Settings())
