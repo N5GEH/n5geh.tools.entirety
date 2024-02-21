@@ -22,6 +22,7 @@ class Index(LoginRequiredMixin, ListView):
     template_name = "projects/index.html"
 
     def get_queryset(self):
+        print("release")
         logger.info(
             "Fetching projects for "
             + str(
