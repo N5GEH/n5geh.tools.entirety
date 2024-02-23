@@ -20,6 +20,37 @@ jobs:
       uses: relekang/python-semantic-release@v8.0.8
       with:
         github_token: ${{ secrets.GITHUB_TOKEN  }}
+        plugins:  |
+      [
+        '@semantic-release/commit-analyzer',
+        [
+          "@semantic-release/release-notes-generator",
+          {
+            "preset": "conventionalcommits",
+            "presetConfig": {
+              "types": [
+                { type: 'feat', section: 'Features', hidden: false },
+                { type: 'fix', section: 'Bug Fixes', hidden: false },
+                { type: 'perf', section: 'Performance Improvements', hidden: false },
+                { type: 'revert', section: 'Reverts', hidden: false },
+                { type: 'docs', section: 'Other Updates', hidden: false },
+                { type: 'style', section: 'Other Updates', hidden: false },
+                { type: 'chore', section: 'Other Updates', hidden: false },
+                { type: 'refactor', section: 'Other Updates', hidden: false },
+                { type: 'test', section: 'Other Updates', hidden: false },
+                { type: 'build', section: 'Other Updates', hidden: false },
+                { type: 'ci', section: 'Other Updates', hidden: false }
+              ]
+            },
+            "writerOpts": {
+              "commitsSort": ["subject", "scope"]
+            }
+          }
+        ],
+        '@semantic-release/npm',
+        '@semantic-release/github'
+      ]
+
 
     - name: Publish package distributions to GitHub Releases
       uses: python-semantic-release/upload-to-gh-release@main
