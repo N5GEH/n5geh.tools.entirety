@@ -18,6 +18,7 @@ class ProjectForm(forms.ModelForm):
         if not user.is_server_admin:
             self.fields["owner"].disabled = True
             self.fields["owner"].required = False
+            self.fields["fiware_service"].disabled = True
 
         else:
             self.fields["owner"].queryset = User.objects.filter(
