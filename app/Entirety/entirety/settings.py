@@ -8,8 +8,14 @@ from mimetypes import add_type
 import django_loki
 import dj_database_url
 from pydantic_settings import BaseSettings, SettingsConfigDict
-from pydantic import Field, AnyUrl, validator, \
-    DirectoryPath, field_validator, PostgresDsn
+from pydantic import (
+    Field,
+    AnyUrl,
+    validator,
+    DirectoryPath,
+    field_validator,
+    PostgresDsn,
+)
 from pydjantic import BaseDBConfig, to_django
 from utils.generators import generate_secret_key
 from django.contrib.messages import constants as messages
@@ -20,18 +26,21 @@ __version__ = "1.1.0"
 CUR_DIR = Path(__file__).resolve().parent
 BASE_DIR = CUR_DIR.parent
 
+# MIME type issue
+add_type("text/css", ".css", False)
+
 
 class PostgresDB(BaseSettings):
-    ENGINE: str = 'django.db.backends.postgresql'
-    HOST: str = Field(default='localhost', env='DATABASE_HOST')
+    ENGINE: str = "django.db.backends.postgresql"
+    HOST: str = Field(default="localhost", env="DATABASE_HOST")
     # TODO may need to add a new variable
-    NAME: str = Field(default='postgres', env='DATABASE_NAME')
-    PASSWORD: str = Field(default='postgrespw', env='DATABASE_PASSWORD')
-    PORT: int = Field(default=5432, env='DATABASE_PORT')
-    USER: str = Field(default='postgres', env='DATABASE_USER')
-    OPTIONS: dict = Field(default={}, env='DATABASE_OPTIONS')
+    NAME: str = Field(default="postgres", env="DATABASE_NAME")
+    PASSWORD: str = Field(default="postgrespw", env="DATABASE_PASSWORD")
+    PORT: int = Field(default=5432, env="DATABASE_PORT")
+    USER: str = Field(default="postgres", env="DATABASE_USER")
+    OPTIONS: dict = Field(default={}, env="DATABASE_OPTIONS")
     # TODO need to check
-    CONN_MAX_AGE: int = Field(default=0, env='DATABASE_CONN_MAX_AGE')
+    CONN_MAX_AGE: int = Field(default=0, env="DATABASE_CONN_MAX_AGE")
 
 
 class Databases(BaseDBConfig):
@@ -39,9 +48,9 @@ class Databases(BaseDBConfig):
 
 
 class LokiSettings(BaseSettings):
-    model_config = SettingsConfigDict(extra='ignore', case_sensitive=False,
-                                      env_file='.env',
-                                      env_file_encoding='utf-8')
+    model_config = SettingsConfigDict(
+        extra="ignore", case_sensitive=False, env_file=".env", env_file_encoding="utf-8"
+    )
     LOKI_ENABLE: bool = Field(default=False, env="LOKI_ENABLE")
     LOKI_LEVEL: str = Field(default="INFO", env="LOKI_LEVEL")
     LOKI_PORT: int = Field(default=3100, env="LOKI_PORT")
@@ -53,16 +62,16 @@ class LokiSettings(BaseSettings):
 
 
 class AuthenticationSettings(BaseSettings):
-    model_config = SettingsConfigDict(extra='ignore', case_sensitive=False,
-                                      env_file='.env',
-                                      env_file_encoding='utf-8')
-    LOCAL_AUTH: str = Field(default=True, env="LOCAL_AUTH")
+    model_config = SettingsConfigDict(
+        extra="ignore", case_sensitive=False, env_file=".env", env_file_encoding="utf-8"
+    )
+    LOCAL_AUTH: bool = Field(default=True, env="LOCAL_AUTH")
 
 
 class AppLoadSettings(BaseSettings):
-    model_config = SettingsConfigDict(extra='ignore', case_sensitive=False,
-                                      env_file='.env',
-                                      env_file_encoding='utf-8')
+    model_config = SettingsConfigDict(
+        extra="ignore", case_sensitive=False, env_file=".env", env_file_encoding="utf-8"
+    )
 
     ENTITIES_LOAD: bool = Field(default=True, env="ENTITIES_LOAD")
     DEVICES_LOAD: bool = Field(default=True, env="DEVICES_LOAD")
@@ -71,12 +80,11 @@ class AppLoadSettings(BaseSettings):
 
 
 class Settings(BaseSettings):
-    model_config = SettingsConfigDict(extra='ignore', case_sensitive=False,
-                                      env_file='.env',
-                                      env_file_encoding='utf-8')
-    add_type("text/css", ".css", True)
+    model_config = SettingsConfigDict(
+        extra="ignore", case_sensitive=False, env_file=".env", env_file_encoding="utf-8"
+    )
     __auth = AuthenticationSettings()
-    LOCAL_AUTH: str = __auth.LOCAL_AUTH
+    LOCAL_AUTH: bool = __auth.LOCAL_AUTH
     LOKI: LokiSettings = LokiSettings()
     APP_LOAD: AppLoadSettings = AppLoadSettings()
 
@@ -103,13 +111,8 @@ class Settings(BaseSettings):
         "users",
     ]
     # TODO how to define constant variable
-    # CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
     CRISPY_ALLOWED_TEMPLATE_PACKS: str = "bootstrap5"
     CRISPY_TEMPLATE_PACK: str = "bootstrap5"
-    # CRISPY_TEMPLATE_PACK: Optional[str] = Field(
-    #     default="bootstrap5",
-    #     frozen=True
-    # )
 
     MIDDLEWARE: List[str] = [
         "django.middleware.security.SecurityMiddleware",
@@ -188,8 +191,7 @@ class Settings(BaseSettings):
         "compressor.finders.CompressorFinder",
     ]
 
-    COMPRESS_PRECOMPILERS: tuple = \
-        (("text/x-scss", "django_libsass.SassCompiler"),)
+    COMPRESS_PRECOMPILERS: tuple = (("text/x-scss", "django_libsass.SassCompiler"),)
 
     # Default primary key field type
     # https://docs.djangoproject.com/en/4.0/ref/settings/#default-auto-field
@@ -278,8 +280,7 @@ class Settings(BaseSettings):
     MEDIA_URL: str = "/media/"
 
     # Settings provided by environment
-    SECRET_KEY: str = Field(default=generate_secret_key(),
-                            env="DJANGO_SECRET_KEY")
+    SECRET_KEY: str = Field(default=generate_secret_key(), env="DJANGO_SECRET_KEY")
 
     @field_validator("SECRET_KEY")
     @classmethod
@@ -346,8 +347,7 @@ class Settings(BaseSettings):
             default="project_admin", env="OIDC_PROJECT_ADMIN_ROLE"
         )
         OIDC_USER_ROLE: str = Field(default="user", env="OIDC_USER_ROLE")
-        OIDC_TOKEN_ROLE_FIELD: str = Field(default="roles",
-                                           env="OIDC_TOKEN_ROLE_FIELD")
+        OIDC_TOKEN_ROLE_FIELD: str = Field(default="roles", env="OIDC_TOKEN_ROLE_FIELD")
 
     # Internationalization
     # https://docs.djangoproject.com/en/4.0/topics/i18n/
