@@ -23,8 +23,7 @@ from django.contrib.messages import constants as messages
 __version__ = "1.1.0"
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
-CUR_DIR = Path(__file__).resolve().parent
-BASE_DIR = CUR_DIR.parent
+BASE_DIR: DirectoryPath = Path(__file__).resolve().parent.parent
 
 # MIME type issue
 add_type("text/css", ".css", False)
@@ -87,9 +86,6 @@ class Settings(BaseSettings):
     LOCAL_AUTH: bool = __auth.LOCAL_AUTH
     LOKI: LokiSettings = LokiSettings()
     APP_LOAD: AppLoadSettings = AppLoadSettings()
-
-    # Build paths inside the project like this: BASE_DIR / 'subdir'.
-    BASE_DIR: DirectoryPath = Path(__file__).resolve().parent.parent
 
     VERSION: str = __version__
 
