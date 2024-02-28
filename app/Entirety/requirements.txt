@@ -8,6 +8,7 @@ django_tables2==2.4.1
 django-compressor~=4.1
 django-libsass==0.9
 filip~=0.3.0
+pydjantic~=1.1.0
 mozilla_django_oidc==2.0.0
 crispy-bootstrap5==0.7
 pre-commit==2.20.0
