@@ -16,366 +16,194 @@ from pydantic import (
     field_validator,
     PostgresDsn,
 )
-from pydjantic import BaseDBConfig, to_django
+from entirety.settings_pydantic import entirety_settings
 from utils.generators import generate_secret_key
 from django.contrib.messages import constants as messages
+
 
 __version__ = "1.1.0"
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
-CUR_DIR = Path(__file__).resolve().parent
-BASE_DIR = CUR_DIR.parent
+BASE_DIR: DirectoryPath = Path(__file__).resolve().parent.parent
 
-# MIME type issue
-add_type("text/css", ".css", False)
+add_type("text/css", ".css", True)
 
+LOCAL_AUTH = entirety_settings.LOCAL_AUTH
+LOKI = entirety_settings.LOKI.model_dump()
+APP_LOAD = entirety_settings.APP_LOAD.model_dump()
 
-class PostgresDB(BaseSettings):
-    ENGINE: str = "django.db.backends.postgresql"
-    HOST: str = Field(default="localhost", env="DATABASE_HOST")
-    # TODO may need to add a new variable
-    NAME: str = Field(default="postgres", env="DATABASE_NAME")
-    PASSWORD: str = Field(default="postgrespw", env="DATABASE_PASSWORD")
-    PORT: int = Field(default=5432, env="DATABASE_PORT")
-    USER: str = Field(default="postgres", env="DATABASE_USER")
-    OPTIONS: dict = Field(default={}, env="DATABASE_OPTIONS")
-    # TODO need to check
-    CONN_MAX_AGE: int = Field(default=0, env="DATABASE_CONN_MAX_AGE")
+VERSION = __version__
 
+# Application definition
+INSTALLED_APPS: List[str] = entirety_settings.INSTALLED_APPS
 
-class Databases(BaseDBConfig):
-    default: PostgresDB = PostgresDB()
+CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
 
+CRISPY_TEMPLATE_PACK = "bootstrap5"
 
-class LokiSettings(BaseSettings):
-    model_config = SettingsConfigDict(
-        extra="ignore", case_sensitive=False, env_file=".env", env_file_encoding="utf-8"
-    )
-    LOKI_ENABLE: bool = Field(default=False, env="LOKI_ENABLE")
-    LOKI_LEVEL: str = Field(default="INFO", env="LOKI_LEVEL")
-    LOKI_PORT: int = Field(default=3100, env="LOKI_PORT")
-    LOKI_TIMEOUT: float = Field(default=0.5, env="LOKI_TIMEOUT")
-    LOKI_PROTOCOL: str = Field(default="http", env="LOKI_PROTOCOL")
-    LOKI_SRC_HOST: str = Field(default="entirety", env="LOKI_SRC_HOST")
-    LOKI_TIMEZONE: str = Field(default="Europe/Berlin", env="LOKI_TIMEZONE")
-    LOKI_HOST: str = Field(default="localhost", env="LOKI_HOST")
+MIDDLEWARE: List[str] = entirety_settings.MIDDLEWARE
 
+MESSAGE_TAGS = {
+    messages.DEBUG: "alert-info",
+    messages.INFO: "alert-info",
+    messages.SUCCESS: "alert-success",
+    messages.WARNING: "alert-warning",
+    messages.ERROR: "alert-danger",
+}
 
-class AuthenticationSettings(BaseSettings):
-    model_config = SettingsConfigDict(
-        extra="ignore", case_sensitive=False, env_file=".env", env_file_encoding="utf-8"
-    )
-    LOCAL_AUTH: bool = Field(default=True, env="LOCAL_AUTH")
-
-
-class AppLoadSettings(BaseSettings):
-    model_config = SettingsConfigDict(
-        extra="ignore", case_sensitive=False, env_file=".env", env_file_encoding="utf-8"
-    )
-
-    ENTITIES_LOAD: bool = Field(default=True, env="ENTITIES_LOAD")
-    DEVICES_LOAD: bool = Field(default=True, env="DEVICES_LOAD")
-    NOTIFICATIONS_LOAD: bool = Field(default=True, env="NOTIFICATIONS_LOAD")
-    SEMANTICS_LOAD: bool = Field(default=True, env="SEMANTICS_LOAD")
-
-
-class Settings(BaseSettings):
-    model_config = SettingsConfigDict(
-        extra="ignore", case_sensitive=False, env_file=".env", env_file_encoding="utf-8"
-    )
-    __auth = AuthenticationSettings()
-    LOCAL_AUTH: bool = __auth.LOCAL_AUTH
-    LOKI: LokiSettings = LokiSettings()
-    APP_LOAD: AppLoadSettings = AppLoadSettings()
-
-    # Build paths inside the project like this: BASE_DIR / 'subdir'.
-    BASE_DIR: DirectoryPath = Path(__file__).resolve().parent.parent
-
-    VERSION: str = __version__
-
-    # Application definition
-    INSTALLED_APPS: List[str] = [
-        "django.contrib.admin",
-        "django.contrib.auth",
-        "django.contrib.contenttypes",
-        "django.contrib.sessions",
-        "django.contrib.messages",
-        "django.contrib.staticfiles",
-        "django.forms",
-        "django_tables2",
-        "compressor",
-        "crispy_forms",
-        "crispy_bootstrap5",
-        "projects",
-        "examples",
-        "users",
-    ]
-    # TODO how to define constant variable
-    CRISPY_ALLOWED_TEMPLATE_PACKS: str = "bootstrap5"
-    CRISPY_TEMPLATE_PACK: str = "bootstrap5"
-
-    MIDDLEWARE: List[str] = [
-        "django.middleware.security.SecurityMiddleware",
-        "django.contrib.sessions.middleware.SessionMiddleware",
-        "django.middleware.common.CommonMiddleware",
-        "django.middleware.csrf.CsrfViewMiddleware",
-        "django.contrib.auth.middleware.AuthenticationMiddleware",
-        "django.contrib.messages.middleware.MessageMiddleware",
-        "django.middleware.clickjacking.XFrameOptionsMiddleware",
-    ]
-
-    MESSAGE_TAGS: dict = {
-        messages.DEBUG: "alert-info",
-        messages.INFO: "alert-info",
-        messages.SUCCESS: "alert-success",
-        messages.WARNING: "alert-warning",
-        messages.ERROR: "alert-danger",
-    }
-
-    ROOT_URLCONF: str = "entirety.urls"
-    FORM_RENDERER: str = "django.forms.renderers.TemplatesSetting"
-    TEMPLATES: List[Dict] = [
-        {
-            "BACKEND": "django.template.backends.django.DjangoTemplates",
-            "DIRS": ["templates"],
-            "APP_DIRS": True,
-            "OPTIONS": {
-                "context_processors": [
-                    "django.template.context_processors.debug",
-                    "django.template.context_processors.request",
-                    "django.contrib.auth.context_processors.auth",
-                    "django.contrib.messages.context_processors.messages",
-                ],
-            },
-        },
-    ]
-
-    WSGI_APPLICATION: str = "entirety.wsgi.application"
-
-    # Password validation
-    # https://docs.djangoproject.com/en/4.0/ref/settings/#auth-password-validators
-
-    AUTH_PASSWORD_VALIDATORS: List[dict] = [
-        {
-            "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator",
-        },
-        {
-            "NAME": "django.contrib.auth.password_validation.MinimumLengthValidator",
-        },
-        {
-            "NAME": "django.contrib.auth.password_validation.CommonPasswordValidator",
-        },
-        {
-            "NAME": "django.contrib.auth.password_validation.NumericPasswordValidator",
-        },
-    ]
-
-    AUTH_USER_MODEL: str = "users.User"
-
-    USE_I18N: bool = True
-
-    USE_TZ: bool = True
-
-    # Static files (CSS, JavaScript, Images)
-    # https://docs.djangoproject.com/en/4.0/howto/static-files/
-
-    STATIC_URL: str = "static/"
-
-    STATICFILES_DIRS: List[DirectoryPath] = [
-        os.path.join(BASE_DIR, "static"),
-    ]
-
-    STATICFILES_FINDERS: List[str] = [
-        "django.contrib.staticfiles.finders.FileSystemFinder",
-        "django.contrib.staticfiles.finders.AppDirectoriesFinder",
-        "compressor.finders.CompressorFinder",
-    ]
-
-    COMPRESS_PRECOMPILERS: tuple = (("text/x-scss", "django_libsass.SassCompiler"),)
-
-    # Default primary key field type
-    # https://docs.djangoproject.com/en/4.0/ref/settings/#default-auto-field
-
-    DEFAULT_AUTO_FIELD: str = "django.db.models.BigAutoField"
-
-    LOGGING_CONFIG: Union[str, None] = None
-
-    # TODO more structured annotation
-    LOGGERS: dict = {
-        "projects.views": {
-            "propagate": False,
-            "level": "INFO",
-        },
-        "filip": {
-            "propagate": False,
-            "level": "INFO",
-        },
-        "entirety.oidc": {
-            "propagate": False,
-            "level": "INFO",
-        },
-        "entities.views": {
-            "propagate": False,
-            "level": "INFO",
-        },
-        "django.server": {
-            "propagate": False,
-            "level": "INFO",
-        },
-        "devices.views": {
-            "propagate": False,
-            "level": "INFO",
-        },
-        "subscriptions.views": {
-            "propagate": False,
-            "level": "INFO",
+ROOT_URLCONF = "entirety.urls"
+FORM_RENDERER = "django.forms.renderers.TemplatesSetting"
+TEMPLATES: List[dict] = [
+    {
+        "BACKEND": "django.template.backends.django.DjangoTemplates",
+        "DIRS": ["templates"],
+        "APP_DIRS": True,
+        "OPTIONS": {
+            "context_processors": [
+                "django.template.context_processors.debug",
+                "django.template.context_processors.request",
+                "django.contrib.auth.context_processors.auth",
+                "django.contrib.messages.context_processors.messages",
+            ],
         },
     }
-    # TODO need to be reconsidered @sba
-    #
-    # if LOKI.LOKI_ENABLE is True:
-    #     for LOGGER in LOGGERS:
-    #         LOGGERS[LOGGER]["handlers"] = ["loki"]
-    #     HANDLER = {
-    #         "loki": {
-    #             "level": "DEBUG",
-    #             "class": "logging.handlers.RotatingFileHandler",
-    #             "filename": os.path.join(BASE_DIR, "logs/entirety_logs.log"),
-    #             "maxBytes": 1 * 1024 * 1024,
-    #             "backupCount": 2,
-    #             "formatter": "default",
-    #         }
-    #     }
-    # else:
-    #     for LOGGER in LOGGERS:
-    #         LOGGERS[LOGGER]["handlers"] = ["console"]
-    #     HANDLER = {
-    #         "console": {
-    #             "class": "logging.StreamHandler",
-    #             "level": "DEBUG",
-    #             "formatter": "default",
-    #         }
-    #     }
-    #
-    # LOGGING: dict = {
-    #     "version": 1,
-    #     "disable_existing_loggers": True,
-    #     "formatters": {
-    #         "default": {
-    #             "format": "[%(asctime)s] %(levelname)s [%(name)s:%(lineno)s] "
-    #             "[%(funcName)s] %(message)s",
-    #             "datefmt": "%Y-%m-%d %H:%M:%S",
-    #         },
-    #     },
-    #     "handlers": HANDLER,
-    #     "loggers": LOGGERS,
-    # }
-    #
-    # LOG.dictConfig(LOGGING)
-    # TODO
+]
 
-    # Media location
-    # https://docs.djangoproject.com/en/4.0/howto/static-files/#serving-files
-    # -uploaded-by-a-user-during-development
-    MEDIA_URL: str = "/media/"
+WSGI_APPLICATION = "entirety.wsgi.application"
 
-    # Settings provided by environment
-    SECRET_KEY: str = Field(default=generate_secret_key(), env="DJANGO_SECRET_KEY")
+# Password validation
+# https://docs.djangoproject.com/en/4.0/ref/settings/#auth-password-validators
 
-    @field_validator("SECRET_KEY")
-    @classmethod
-    def secret_key_not_empty(cls, v) -> str:
-        v_cleaned = v.strip()
-        if not v_cleaned:
-            v_cleaned = generate_secret_key()
-        elif len(v_cleaned) < 32:
-            raise ValueError("Django secret should be at least 32 characters long")
-        return v_cleaned
+AUTH_PASSWORD_VALIDATORS: List[dict] = [
+    {
+        "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator",
+    },
+    {
+        "NAME": "django.contrib.auth.password_validation.MinimumLengthValidator",
+    },
+    {
+        "NAME": "django.contrib.auth.password_validation.CommonPasswordValidator",
+    },
+    {
+        "NAME": "django.contrib.auth.password_validation.NumericPasswordValidator",
+    },
+]
 
-    # SECURITY WARNING: don't run with debug turned on in production!
-    DEBUG: bool = Field(default=False, env="DJANGO_DEBUG")
+AUTH_USER_MODEL = "users.User"
 
-    ALLOWED_HOSTS: List = Field(default=["*"], env="ALLOWED_HOSTS")
+USE_I18N = True
 
-    CB_URL: AnyUrl = Field(default="http://localhost:1026", env="CB_URL")
-    MQTT_BASE_TOPIC: str = Field(default="/Entirety", env="MQTT_BASE_TOPIC")
+USE_TZ = True
 
-    QL_URL: AnyUrl = Field(default="http://localhost:8668", env="QL_URL")
+# Static files (CSS, JavaScript, Images)
+# https://docs.djangoproject.com/en/4.0/howto/static-files/
 
-    IOTA_URL: AnyUrl = Field(default="http://localhost:4041", env="IOTA_URL")
+STATIC_URL = "static/"
 
-    # CSRF
-    CSRF_TRUSTED_ORIGINS: list = Field(default=[], env="CSRF_TRUSTED_ORIGINS ")
+STATICFILES_DIRS: List[DirectoryPath] = [
+    os.path.join(BASE_DIR, "static"),
+]
 
-    # Database
-    # https://docs.djangoproject.com/en/4.0/ref/settings/#databases
-    DATABASES: Databases = Databases()
+STATICFILES_FINDERS: List[str] = [
+    "django.contrib.staticfiles.finders.FileSystemFinder",
+    "django.contrib.staticfiles.finders.AppDirectoriesFinder",
+    "compressor.finders.CompressorFinder",
+]
 
-    LOGOUT_REDIRECT_URL: str = Field(default="/", env="LOGOUT_REDIRECT_URL")
+COMPRESS_PRECOMPILERS = (("text/x-scss", "django_libsass.SassCompiler"),)
 
-    if __auth.LOCAL_AUTH:
-        LOGIN_REDIRECT_URL: str = Field(default="/", env="LOGIN_REDIRECT_URL")
-    else:
-        INSTALLED_APPS.append("mozilla_django_oidc")
-        MIDDLEWARE.append("mozilla_django_oidc.middleware.SessionRefresh")
-        AUTHENTICATION_BACKENDS: Sequence[str] = ("entirety.oidc.CustomOIDCAB",)
+# Default primary key field type
+# https://docs.djangoproject.com/en/4.0/ref/settings/#default-auto-field
 
-        LOGIN_URL: str = Field(default="/oidc/authenticate", env="LOGIN_URL")
+DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
-        LOGIN_REDIRECT_URL: str = Field(
-            default="/oidc/callback/", env="LOGIN_REDIRECT_URL"
-        )
+LOGGING_CONFIG: Union[str, None] = None
 
-        OIDC_RP_SIGN_ALGO: str = Field(default="RS256", env="OIDC_RP_SIGN_ALGO")
-        OIDC_OP_JWKS_ENDPOINT: str = Field(env="OIDC_OP_JWKS_ENDPOINT")
+LOGGERS = entirety_settings.LOGGERS
+HANDLER = entirety_settings.HANDLER
 
-        OIDC_RP_CLIENT_ID: str = Field(env="OIDC_RP_CLIENT_ID")
-        OIDC_RP_CLIENT_SECRET: str = Field(env="OIDC_RP_CLIENT_SECRET")
-        OIDC_OP_AUTHORIZATION_ENDPOINT: str = Field(
-            env="OIDC_OP_AUTHORIZATION_ENDPOINT"
-        )
-        OIDC_OP_TOKEN_ENDPOINT: str = Field(env="OIDC_OP_TOKEN_ENDPOINT")
-        OIDC_OP_USER_ENDPOINT: str = Field(env="OIDC_OP_USER_ENDPOINT")
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": True,
+    "formatters": {
+        "default": {
+            "format": "[%(asctime)s] %(levelname)s [%(name)s:%(lineno)s] "
+            "[%(funcName)s] %(message)s",
+            "datefmt": "%Y-%m-%d %H:%M:%S",
+        },
+    },
+    "handlers": HANDLER,
+    "loggers": LOGGERS,
+}
 
-        OIDC_SUPER_ADMIN_ROLE: str = Field(
-            default="super_admin", env="OIDC_SUPER_ADMIN_ROLE"
-        )
-        OIDC_SERVER_ADMIN_ROLE: str = Field(
-            default="server_admin", env="OIDC_SERVER_ADMIN_ROLE"
-        )
-        OIDC_PROJECT_ADMIN_ROLE: str = Field(
-            default="project_admin", env="OIDC_PROJECT_ADMIN_ROLE"
-        )
-        OIDC_USER_ROLE: str = Field(default="user", env="OIDC_USER_ROLE")
-        OIDC_TOKEN_ROLE_FIELD: str = Field(default="roles", env="OIDC_TOKEN_ROLE_FIELD")
+LOG.dictConfig(LOGGING)
 
-    # Internationalization
-    # https://docs.djangoproject.com/en/4.0/topics/i18n/
+# Media location
+# https://docs.djangoproject.com/en/4.0/howto/static-files/#serving-files
+# -uploaded-by-a-user-during-development
+MEDIA_URL = "/media/"
 
-    LANGUAGE_CODE: str = Field(default="en-us", env="LANGUAGE_CODE")
+# Settings provided by environment
+SECRET_KEY: str = entirety_settings.SECRET_KEY
 
-    STATIC_ROOT: DirectoryPath = Field(
-        default=os.path.join(BASE_DIR, "cache/"), env="STATIC_ROOT"
+# SECURITY WARNING: don't run with debug turned on in production!
+DEBUG: bool = entirety_settings.DEBUG
+
+ALLOWED_HOSTS: List = entirety_settings.ALLOWED_HOSTS
+
+CB_URL: AnyUrl = entirety_settings.CB_URL
+MQTT_BASE_TOPIC: str = entirety_settings.MQTT_BASE_TOPIC
+
+QL_URL: AnyUrl = entirety_settings.QL_URL
+
+IOTA_URL: AnyUrl = entirety_settings.IOTA_URL
+
+# CSRF
+CSRF_TRUSTED_ORIGINS: list = entirety_settings.CSRF_TRUSTED_ORIGINS
+
+# Database
+# https://docs.djangoproject.com/en/4.0/ref/settings/#databases
+DATABASES = entirety_settings.DATABASES.model_dump()
+
+# TODO double check
+if entirety_settings.LOCAL_AUTH:
+    LOGIN_REDIRECT_URL: str = entirety_settings.LOGIN_REDIRECT_URL
+else:
+    # INSTALLED_APPS.append("mozilla_django_oidc")  # remove
+    # MIDDLEWARE.append("mozilla_django_oidc.middleware.SessionRefresh")  # remove
+    AUTHENTICATION_BACKENDS: Sequence[str] = ("entirety.oidc.CustomOIDCAB",)
+
+    LOGIN_URL: str = entirety_settings.LOGIN_URL
+
+    LOGIN_REDIRECT_URL: str = entirety_settings.LOGIN_REDIRECT_URL
+
+    OIDC_RP_SIGN_ALGO: str = entirety_settings.OIDC_RP_SIGN_ALGO
+    OIDC_OP_JWKS_ENDPOINT: str = entirety_settings.OIDC_OP_JWKS_ENDPOINT
+
+    OIDC_RP_CLIENT_ID: str = entirety_settings.OIDC_RP_CLIENT_ID
+    OIDC_RP_CLIENT_SECRET: str = entirety_settings.OIDC_RP_CLIENT_SECRET
+    OIDC_OP_AUTHORIZATION_ENDPOINT: str = (
+        entirety_settings.OIDC_OP_AUTHORIZATION_ENDPOINT
     )
-    MEDIA_ROOT: DirectoryPath = Field(
-        default=os.path.join(BASE_DIR, "media/"), env="MEDIA_ROOT"
-    )
+    OIDC_OP_TOKEN_ENDPOINT: str = entirety_settings.OIDC_OP_TOKEN_ENDPOINT
+    OIDC_OP_USER_ENDPOINT: str = entirety_settings.OIDC_OP_USER_ENDPOINT
 
-    TIME_ZONE: str = Field(default="Europe/Berlin", env="TIME_ZONE")
+    OIDC_SUPER_ADMIN_ROLE: str = entirety_settings.OIDC_SUPER_ADMIN_ROLE
+    OIDC_SERVER_ADMIN_ROLE: str = entirety_settings.OIDC_SERVER_ADMIN_ROLE
+    OIDC_PROJECT_ADMIN_ROLE: str = entirety_settings.OIDC_PROJECT_ADMIN_ROLE
+    OIDC_USER_ROLE: str = entirety_settings.OIDC_USER_ROLE
+    OIDC_TOKEN_ROLE_FIELD: str = entirety_settings.OIDC_TOKEN_ROLE_FIELD
 
-    COMPRESS_ENABLED: bool = Field(default=not DEBUG, env="COMPRESS_ENABLED")
+# Internationalization
+# https://docs.djangoproject.com/en/4.0/topics/i18n/
 
-    DJANGO_TABLES2_TEMPLATE: str = "django_tables2/bootstrap4.html"
+LANGUAGE_CODE: str = entirety_settings.LANGUAGE_CODE
 
-    if APP_LOAD.ENTITIES_LOAD is True:
-        INSTALLED_APPS.append("entities")
-    if APP_LOAD.DEVICES_LOAD is True:
-        INSTALLED_APPS.append("devices")
-    if APP_LOAD.NOTIFICATIONS_LOAD is True:
-        INSTALLED_APPS.append("subscriptions")
-    if APP_LOAD.SEMANTICS_LOAD is True:
+STATIC_ROOT: DirectoryPath = entirety_settings.STATIC_ROOT
+MEDIA_ROOT: DirectoryPath = entirety_settings.MEDIA_ROOT
 
-        INSTALLED_APPS.append("semantics")
+TIME_ZONE: str = entirety_settings.TIME_ZONE
 
+COMPRESS_ENABLED: bool = entirety_settings.COMPRESS_ENABLED
 
-to_django(settings=Settings())
+DJANGO_TABLES2_TEMPLATE = "django_tables2/bootstrap4.html"
