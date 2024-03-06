@@ -40,6 +40,6 @@ Following commit types will affect the version of the next release:
 4. Make changes to that branch.
 5. Open a Pull Request from the new branch to development branch.
 6. Assign reviewer from the list of Reviewers.
-7. Once the Pull Request is approved by at least one reviewer, merge the branch to development, test if development
-branch is working as expected and delete the old branch.
-8. Updated development docker image will be automatically pushed to package registry when development branch will be updated.
+7. Once the Pull Request is approved by at least one reviewer, merge the branch to development with the option **`squash and merge`** and leave meaningful message following the convention [above](#conventional-commits).
+8. Test if development branch is working as expected and delete the old branch.
+9. Updated development docker image will be automatically pushed to package registry when development branch will be updated.
