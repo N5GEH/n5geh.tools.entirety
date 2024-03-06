@@ -9,6 +9,8 @@
 - Bootstrap 5.2
 - htmx 1.8.2
 
+## Roadmap
+Have a look at our [roadmap](./docs/ROADMAP.md) to see what features we plan to work on in the short and long run. We kindly invite you to participate in [discussions](https://github.com/N5GEH/n5geh.tools.entirety/discussions) about possible features as well.
 ## Deployment
 
 To deploy the application please refer to
@@ -104,8 +106,22 @@ See [changelog](./docs/CHANGELOG.md) for detailed overview of changes.
 
 [@djs0109](https://github.com/djs0109)
 
-[@dnikolay-ebc](https://github.com/dnikolay-ebc)
+[@mwr-ebc](https://github.com/mwr-ebc)
 
 ## License
 
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](LICENSE)
+
+## Further project information
+
+<a href="https://n5geh.de/"> <img alt="National 5G Energy Hub" 
+src="https://raw.githubusercontent.com/N5GEH/n5geh.platform/master/docs/logos/n5geh-logo.png" height="100"></a>
+
+## Acknowledgments
+
+We gratefully acknowledge the financial support of the Federal Ministry <br /> 
+for Economic Affairs and Climate Action (BMWK), promotional references 
+03EN1030B and 03ET1561B.
+
+<a href="https://www.bmwi.de/Navigation/EN/Home/home.html"> <img alt="BMWK" 
+src="https://raw.githubusercontent.com/N5GEH/n5geh.platform/master/docs/logos/BMWK-logo_en.png" height="100"> </a>

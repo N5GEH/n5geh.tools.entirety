@@ -46,7 +46,7 @@ addButton.forEach(function (elem) {
 function addTooltipEvent(elems) {
     var tooltipTriggerList = elems.querySelectorAll('[data-bs-toggle="tooltip"]');
     tooltipTriggerList.forEach(function (elem) {
-        bootstrap.Tooltip.getOrCreateInstance(elem, {title:elem.getAttribute('aria-label')})
+        bootstrap.Tooltip.getOrCreateInstance(elem, {title:elem.getAttribute('data-bs-original-title')})
     })
 
 }

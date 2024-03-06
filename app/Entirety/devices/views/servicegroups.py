@@ -31,15 +31,12 @@ class ServiceGroupListSubmitView(ProjectContextMixin, View):
     def post(self, request, *args, **kwargs):
         # press delete button
         if request.POST.get("Delete_Group"):
-            if not request.POST.get("selection"):
+            if not request.POST.getlist("selection"):
                 messages.error(request, "Please select one service group")
                 return redirect("projects:devices:list", project_id=self.project.uuid)
             else:
                 # use session to cache the selected service group
-                (
-                    request.session["resource"],
-                    request.session["apikey"],
-                ) = request.POST.get("selection").split(";")
+                request.session["services"] = request.POST.getlist("selection")
                 return redirect(
                     "projects:devices:delete_group", project_id=self.project.uuid
                 )
@@ -281,23 +278,24 @@ class ServiceGroupEditSubmitView(ProjectContextMixin, TemplateView):
 class ServiceGroupDeleteView(ProjectContextMixin, View):
     def get(self, request: HttpRequest, *args, **kwargs):
         # get the selected service group from session
-        resource = pop_data_from_session(request, "resource")
-        apikey = pop_data_from_session(request, "apikey")
+        services = pop_data_from_session(request, "services")
 
         # delete the servicegroup and entity?
-        try:
-            delete_service_group(project=self.project, resource=resource, apikey=apikey)
-            logger.info(
-                "Service group deleted by "
-                + str(
-                    self.request.user.first_name
-                    if self.request.user.first_name
-                    else self.request.user.username
+        for service in services:
+            resource, apikey = service.split(";")
+            try:
+                delete_service_group(project=self.project, resource=resource, apikey=apikey)
+                logger.info(
+                    "Service group deleted by "
+                    + str(
+                        self.request.user.first_name
+                        if self.request.user.first_name
+                        else self.request.user.username
+                    )
+                    + f" in project {self.project.name}"
                 )
-                + f" in project {self.project.name}"
-            )
-        except RequestException as e:
-            messages.error(request, e.response.content.decode("utf-8"))
+            except RequestException as e:
+                messages.error(request, e.response.content.decode("utf-8"))
 
         # if success, redirect to service group list view
         add_data_to_session(request, "to_servicegroup", True)

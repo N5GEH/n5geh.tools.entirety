@@ -18,6 +18,7 @@ class ProjectForm(forms.ModelForm):
         if not user.is_server_admin:
             self.fields["owner"].disabled = True
             self.fields["owner"].required = False
+            self.fields["fiware_service"].disabled = True
 
         else:
             self.fields["owner"].queryset = User.objects.filter(
@@ -64,6 +65,9 @@ class ProjectForm(forms.ModelForm):
             ).filter(is_server_admin=False)
 
         self.helper.layout.append(Submit(name="save", value="Save"))
+
+        self.fields["logo"].required = False
+        self.fields["webpage_url"].required = False
 
     def clean(self):
         cleaned_data = super().clean()

@@ -2,6 +2,8 @@
 
 python manage.py makemigrations
 python manage.py migrate
+export DJANGO_SUPERUSER_PASSWORD=admin
+python manage.py createsuperuser --username admin --email admin@admin.com --noinput 
 
 # Getting static files
 python manage.py collectstatic --noinput

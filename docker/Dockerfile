@@ -21,6 +21,8 @@ EXPOSE 8000
 RUN python -m pip install --upgrade pip
 RUN pip install uwsgi
 RUN pip install --no-cache-dir -r ./requirements.txt
+RUN pip uninstall -y pydantic
+RUN pip install pydantic[dotenv]==1.7.2
 
 # Runner script here
 RUN chmod +x ./runner.sh

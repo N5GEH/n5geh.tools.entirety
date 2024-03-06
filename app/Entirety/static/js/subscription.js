@@ -5,6 +5,77 @@ htmx.on("htmx:afterSwap", (e) => {
     }
 })
 
+function hideElement(id) {
+    let element=document.getElementById(id);
+    if (element) {
+        // type element is not removed, so try
+        // to work with that first
+        if (element.hasAttribute("type")) {
+            element.setAttribute("type", "hidden");
+            element.value = "---";
+        }
+        else {
+            element.setAttribute("hidden", "hidden");
+            element.selectedIndex = -1;
+        }
+    }
+    else {
+        console.error("Failed to get element with id: ", id);
+    }
+}
+
+function showElement(id) {
+    let element=document.getElementById(id);
+    if (element) {
+        // type element is not removed, so try
+        // to work with that first
+        if (element.hasAttribute("type")) {
+            element.setAttribute("type", "text");
+            if (element.value == "---") {
+                element.value = "";
+            }
+        }
+        else if (element.hasAttribute("hidden")) {
+            element.removeAttribute("hidden");
+        }
+        else console.error("Failed to show element with id: ", id);
+    }
+    else {
+        console.error("Failed to get element with id: ", id);
+    }
+}
+
+function workAroundInconsistentNamingConvention(name) {
+    if (name == "type") {
+        return "entity_type";
+    }
+    if (name == "entity") {
+        return "entity_id";
+    }
+    console.error("don't recognise name: ", name);
+    return "";
+}
+
+function updateEntityList(value, id) {
+    parts  = id.split('-');
+    prefix = "id_entity-" + parts[1];
+    name = parts[2].slice(0, -9);
+    element0 = prefix + "-" + workAroundInconsistentNamingConvention(name) + "_0";
+    element1 = prefix + "-" + workAroundInconsistentNamingConvention(name) + "_1";
+    if (value == "id" || value == "type") {
+        showElement(element0);
+        hideElement(element1);
+    }
+    else if (value == "id_pattern" || value == "type_pattern") {
+        showElement(element1);
+        hideElement(element0);
+    }
+    else {
+        console.error("I don't know how to update entity list element: ",
+                      elementId0, " with value: ", value, " and id: ", id);
+    }
+}
+
 updateRemoveListeners();
 
 function updateRemoveListeners() {
