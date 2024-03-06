@@ -30,6 +30,13 @@ add_type("text/css", ".css", False)
 
 
 class PostgresDB(BaseSettings):
+    model_config = SettingsConfigDict(
+        extra="ignore",
+        case_sensitive=False,
+        env_file=".env",
+        env_file_encoding="utf-8",
+        env_prefix="DATABASE_",
+    )
     ENGINE: str = "django.db.backends.postgresql"
     HOST: str = Field(default="localhost", env="DATABASE_HOST")
     # TODO may need to add a new variable
