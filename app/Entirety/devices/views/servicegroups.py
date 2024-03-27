@@ -5,7 +5,7 @@ from django.views.generic import View, TemplateView
 from django.http import HttpRequest
 import json
 from entirety.utils import add_data_to_session, pop_data_from_session
-from entities.forms import SmartDataModelEntitiesForm
+from smartdatamodels.forms import SmartDataModelQueryForm
 from utils.json_schema_parser import EntiretyJsonSchemaParser
 from projects.mixins import ProjectContextMixin
 from devices.forms import (
@@ -89,7 +89,7 @@ class ServiceGroupCreateView(ProjectContextMixin, TemplateView):
         #     )
         #     basic_info = ServiceGroupBasic(initial={"resource": service_group_template.resource,
         #                                             "entity_type": service_group_template.entity_type})
-        smart_data_model_form = SmartDataModelEntitiesForm(initial={"data_model": ".."})
+        smart_data_model_form = SmartDataModelQueryForm(initial={"data_model": ".."})
         attributes = Attributes(prefix=prefix_attributes)
         basic_info = ServiceGroupBasic(initial={"resource": "/iot/json"})
         context: dict = super(ServiceGroupCreateView, self).get_context_data(**kwargs)
@@ -169,7 +169,7 @@ class ServiceGroupDataModelCreateView(ProjectContextMixin, TemplateView):
         context = super(ServiceGroupDataModelCreateView, self).get_context_data(
             **kwargs
         )
-        context["smart_data_model_form"] = SmartDataModelEntitiesForm()
+        context["smart_data_model_form"] = SmartDataModelQueryForm()
         return context
 
 

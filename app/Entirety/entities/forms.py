@@ -1,12 +1,9 @@
-import json
-
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Div, HTML
 from django import forms
 
 from entirety.widgets import ListTextWidget
 from entities.requests import AttributeTypes, get_entities_types
-from smartdatamodels.models import SmartDataModel
 
 
 class EntityForm(forms.Form):
@@ -176,30 +173,3 @@ class JSONForm(forms.Form):
             ],
         },
     )
-
-
-class SmartDataModelEntitiesForm(forms.Form):
-    data_model = forms.ChoiceField(
-        label="Data model",
-        widget=forms.TextInput(
-            attrs={
-                "data-bs-toggle": "tooltip",
-                "data-bs-placement": "top",
-                "title": "Select data model to prefill entity form",
-            }
-        ))
-
-    def __init__(self, *args, **kwargs):
-        super(SmartDataModelEntitiesForm, self).__init__(*args, **kwargs)
-        self.helper = FormHelper(self)
-        self.helper.form_tag = False
-        qs = SmartDataModel.objects.all()
-        list_of_schemas = []
-        for set in qs:
-            list_of_schemas.append(
-                {"name": set.name, "value": set.name}
-            )
-        list_of_schemas.append({"name": "..", "value": ".."})
-        self.fields["data_model"] = forms.ChoiceField(
-            choices=[(x.get("value"), x.get("name")) for x in list_of_schemas]
-        )
