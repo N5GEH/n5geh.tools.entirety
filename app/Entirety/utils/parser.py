@@ -8,12 +8,13 @@ from entities.requests import AttributeTypes
 import os
 import glob
 import uuid
+
 MANDATORY_ENTITY_FIELDS: List[str] = ["id", "type"]
 
 
 def save_schema_to_temp_file(json_schema: dict):
     with tempfile.NamedTemporaryFile(delete=False, suffix=".json") as temp_file:
-        temp_file.write(json.dumps(json_schema).encode('utf-8'))
+        temp_file.write(json.dumps(json_schema).encode("utf-8"))
         temp_file.flush()
         return temp_file.name
 
@@ -23,7 +24,7 @@ def delete_json_files_in_temp():
     tmp_directory = tempfile.gettempdir()
 
     # Define the pattern to find JSON files
-    pattern = os.path.join(tmp_directory, '*.json')
+    pattern = os.path.join(tmp_directory, "*.json")
 
     # Use glob to get a list of all files matching the pattern
     json_files = glob.glob(pattern)
@@ -33,8 +34,7 @@ def delete_json_files_in_temp():
         try:
             os.remove(json_file)
         except Exception as e:
-            print(f"[entirety.parser] Error deleting {json_file}: {e}",
-                  flush=True)
+            print(f"[entirety.parser] Error deleting {json_file}: {e}", flush=True)
 
 
 def parser(schema_name):
@@ -46,21 +46,19 @@ def parser(schema_name):
     elif data_model.schema_link:
         path = data_model.schema_link
     else:
-        raise NotImplementedError("Data model parser only accept json schema or url/path to access json schema")
+        raise NotImplementedError(
+            "Data model parser only accept json schema or url/path to access json schema"
+        )
     # load json schema
     with JsonSchemaParser() as schema_parser:
         parsed_schema = schema_parser.parse_schema(schema=path)
-        # TODO return a parsed_schema object
+        delete_json_files_in_temp()
+        return parsed_schema
 
-# TODO def parse_entity(schema_name):
-#           parsed_schema = parser(schema_name)
-#           ...
-# TODO def parse_device
-# TODO def parse_service_group
 
+def parse_entity(schema_name):
+    parsed_schema = parser(schema_name)
     # clean up the temporary json files
-    delete_json_files_in_temp()
-
     data_model = parsed_schema.datamodel
     entity_json = extract_id_and_type(data_model)
     for key, value in data_model.__fields__.items():
@@ -71,29 +69,36 @@ def parser(schema_name):
 
 
 def parse_device(schema_name):
-    # get data model object
-    data_model = SmartDataModel.objects.get(name=schema_name)
-    # check if schema link or json model
-    if data_model.jsonschema:
-        path = save_schema_to_temp_file(data_model.jsonschema)
-    elif data_model.schema_link:
-        path = data_model.schema_link
-    else:
-        raise NotImplementedError("Data model parser only accepts json schema or URL/path to access json schema")
-
-    # load json schema
-    with JsonSchemaParser() as schema_parser:
-        parsed_schema = schema_parser.parse_schema(schema=path)
-
+    parsed_schema = parser(schema_name)
     # clean up the temporary json files
-    delete_json_files_in_temp()
-
     data_model = parsed_schema.datamodel
-    device_json = extract_id_and_type(data_model)
+    entity_json = extract_id_and_type(data_model)
+    device_json = {
+        "entity_name": entity_json["id"],
+        "entity_type": entity_json["type"],
+        "device_id": None,
+    }
     for key, value in data_model.__fields__.items():
-        device_json[key] = {"type": type_mapping(value), "value": value.default}
-
+        device_json["attributes"] = []
+        if key not in MANDATORY_ENTITY_FIELDS:
+            device_json["attributes"].append(
+                {"type": type_mapping(value), "name": key, "object_id": None}
+            )
     return device_json
+
+
+# TODO def parse_service_group
+# def parse_service_group(schema_name):
+#     parsed_schema = parser(schema_name)
+#     # clean up the temporary json files
+#     data_model = parsed_schema.datamodel
+#     entity_json = extract_id_and_type(data_model)
+#     for key, value in data_model.__fields__.items():
+#         # check for id and type
+#         if key not in MANDATORY_ENTITY_FIELDS:
+#             entity_json[key] = {"type": type_mapping(value), "value": value.default}
+#     return entity_json
+
 
 def extract_id_and_type(model):
     # TODO generation of ID and Type is not robust
