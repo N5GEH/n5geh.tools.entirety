@@ -1,4 +1,7 @@
 {% extends '_base.html' %}
+{% load crispy_forms_tags %}
+{% load compress %}
+{% load static %}
 
 {% block title %}
     {% if action == "Create" %}
@@ -25,6 +28,7 @@
 
     {% if action == "Create" %}
         <form method="post" action="">
+            {% crispy smart_data_model_form %}
             <button class="btn btn-success rounded-pill" type="submit" name="load">Load</button>
         </form>
         <form action="{% url 'projects:devices:create_submit' project.uuid %}" method="post" novalidate>
@@ -32,6 +36,7 @@
         <form action="{% url 'projects:devices:edit_submit' project.uuid %}" method="post" novalidate>
     {% elif action == "Create_Group" %}
         <form method="post" action="">
+            {% crispy smart_data_model_form %}
             <button class="btn btn-success rounded-pill" type="submit" name="load">Load</button>
         </form>
         <form action="{% url 'projects:devices:create_submit_group' project.uuid %}" method="post" novalidate>

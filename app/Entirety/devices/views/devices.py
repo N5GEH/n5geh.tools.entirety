@@ -22,7 +22,8 @@ from devices.utils import (
     get_device_by_id,
     delete_device,
     pattern_service_groups_filter,
-    pattern_devices_filter, post_devices,
+    pattern_devices_filter,
+    post_devices,
 )
 from devices.tables import DevicesTable, GroupsTable
 from requests.exceptions import RequestException
@@ -47,17 +48,17 @@ from entities.requests import (
     post_entity,
     update_entity,
     get_relationships,
-    #get_devices,
+    # get_devices,
     get_subscriptions,
     delete_subscription,
     delete_relationship,
-    #delete_device,
+    # delete_device,
     delete_entity,
     delete_entities,
 )
 from entities.tables import EntityTable
 from projects.mixins import ProjectContextMixin
-from utils.parser import parser
+from utils.parser import parser, parse_device
 
 logger = logging.getLogger(__name__)
 # Devices list
@@ -155,10 +156,7 @@ class DeviceListSubmitView(ProjectContextMixin, View):
 
             # redirect to entity app
             add_data_to_session(request, "entities", entities)
-            return redirect(
-                "projects:entities:delete",
-                project_id=self.project.uuid
-            )
+            return redirect("projects:entities:delete", project_id=self.project.uuid)
 
         # press create button
         elif request.POST.get("Create"):
@@ -166,7 +164,9 @@ class DeviceListSubmitView(ProjectContextMixin, View):
 
         # press batch create button
         elif request.POST.get("BatchCreate"):
-            return redirect("projects:devices:batchcreate", project_id=self.project.uuid)
+            return redirect(
+                "projects:devices:batchcreate", project_id=self.project.uuid
+            )
 
         # press edit button
         elif request.POST.get("Edit"):
@@ -184,11 +184,13 @@ class DeviceCreateView(ProjectContextMixin, TemplateView):
         attributes = Attributes(prefix=prefix_attributes)
         commands = Commands(prefix=prefix_commands)
         context: dict = super(DeviceCreateView, self).get_context_data(**kwargs)
+        smart_data_model_form = SmartDataModelEntitiesForm(initial={"data_model": ".."})
         context = {
             "basic_info": basic_info,
             "attributes": attributes,
             "commands": commands,
             "action": "Create",
+            "smart_data_model_form": smart_data_model_form,
             **context,
         }
         return render(request, "devices/detail.html", context)
@@ -207,6 +209,7 @@ class DeviceCreateView(ProjectContextMixin, TemplateView):
             else:
                 device_json = parse_device(self.request.POST.get("device_data_model"))
 
+
 class DeviceBatchCreateView(ProjectContextMixin, TemplateView):
     template_name = "devices/batch.html"
     form_class = DeviceBatchForm
@@ -224,11 +227,10 @@ class DeviceBatchCreateView(ProjectContextMixin, TemplateView):
         if form.is_valid():
             devices_json = json.loads(self.request.POST.get("device_json"))
             try:
-                devices = [Device(**device_dict) for device_dict in devices_json["devices"]]
-                post_devices(
-                    devices,
-                    project=self.project
-                )
+                devices = [
+                    Device(**device_dict) for device_dict in devices_json["devices"]
+                ]
+                post_devices(devices, project=self.project)
                 logger.info(
                     "Devices created by "
                     + str(
@@ -298,7 +300,9 @@ class DeviceCreateSubmitView(ProjectContextMixin, TemplateView):
                 if "DUPLICATE_DEVICE_ID" in e.response.content.decode("utf-8"):
                     device_id = device.device_id
                     add_data_to_session(request, "search-pattern", device_id)
-                    return redirect("projects:devices:list", project_id=self.project.uuid)
+                    return redirect(
+                        "projects:devices:list", project_id=self.project.uuid
+                    )
                 logger.error(
                     str(
                         self.request.user.first_name
@@ -448,7 +452,9 @@ class DeviceDeleteView(ProjectContextMixin, View):
         for device_id in devices_id:
             try:
                 delete_device(
-                    project=self.project, device_id=device_id, delete_entity=delete_entity
+                    project=self.project,
+                    device_id=device_id,
+                    delete_entity=delete_entity,
                 )
                 logger.info(
                     "Device deleted by "
@@ -482,7 +488,9 @@ class DeviceCreateBatchView(ProjectContextMixin, TemplateView):
         context["json_form"] = form
         if form.is_valid():
             devices_json = json.loads(self.request.POST.get("device_json"))
-            devices_to_add = [DeviceBasic(**device_json) for device_json in devices_json]
+            devices_to_add = [
+                DeviceBasic(**device_json) for device_json in devices_json
+            ]
 
             try:
                 post_device(devices_to_add, project=self.project)

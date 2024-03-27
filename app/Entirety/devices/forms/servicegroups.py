@@ -12,7 +12,7 @@ class ServiceGroupBasic(forms.Form):
             attrs={
                 "data-bs-toggle": "tooltip",
                 "title": "A string representing the southbound resource "
-                         "that will be used to provision a device, e.g. /iot/json",
+                "that will be used to provision a device, e.g. /iot/json",
             }
         ),
     )
@@ -37,8 +37,12 @@ class ServiceGroupBasic(forms.Form):
             }
         ),
     )
-    explicit_attrs = forms.BooleanField(label="Explicit Attributes", required=False, initial=False)
-    autoprovision = forms.BooleanField(label="Auto Provision", required=False, initial=True)
+    explicit_attrs = forms.BooleanField(
+        label="Explicit Attributes", required=False, initial=False
+    )
+    autoprovision = forms.BooleanField(
+        label="Auto Provision", required=False, initial=True
+    )
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -46,12 +50,14 @@ class ServiceGroupBasic(forms.Form):
         self.helper.form_tag = False
 
 
-class SmartDataModelEntitiesForm(forms.Form):
+class SmartDataModelServicesForm(forms.Form):
     select_data_model = forms.ChoiceField(label="Select a Data Model", required=True)
-    only_required_attrs = forms.BooleanField(label="Only use required attributes", required=False, initial=False)
+    only_required_attrs = forms.BooleanField(
+        label="Only use required attributes", required=False, initial=False
+    )
 
     def __init__(self, *args, **kwargs):
-        super(SmartDataModelEntitiesForm, self).__init__(*args, **kwargs)
+        super(SmartDataModelServicesForm, self).__init__(*args, **kwargs)
         qs = SmartDataModel.objects.all()
         list_of_schemas = []
         for set in qs:
