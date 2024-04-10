@@ -354,7 +354,7 @@ class Settings(PydanticSettings):
             default="project_admin", env="OIDC_PROJECT_ADMIN_ROLE"
         )
         OIDC_USER_ROLE: str = Field(default="user", env="OIDC_USER_ROLE")
-        OIDC_TOKEN_ROLE_FIELD: str = Field(default="roles", env="OIDC_TOKEN_ROLE_FIELD")
+        OIDC_TOKEN_ROLE_PATH: str = Field(default="$.entirety.roles", env="OIDC_TOKEN_ROLE_PATH")
 
     # Internationalization
     # https://docs.djangoproject.com/en/4.0/topics/i18n/
