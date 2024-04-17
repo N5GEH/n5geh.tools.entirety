@@ -7,7 +7,7 @@ from django.forms import formset_factory
 from django.shortcuts import render, redirect
 from django.views.generic import TemplateView
 from django_jsonforms.forms import JSONSchemaForm
-from jsonschemaparser import MANDATORY_ENTITY_FIELDS
+from utils.parser import MANDATORY_ENTITY_FIELDS
 from django_tables2 import SingleTableMixin
 from filip.models.ngsi_v2.context import (
     ContextEntity,
