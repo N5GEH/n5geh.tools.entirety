@@ -267,7 +267,7 @@ class DeviceCreateSubmitView(ProjectContextMixin, TemplateView):
             # pass the json to devices form
             basic_info = DeviceBasic(initial=device_dict)
             attributes = Attributes(
-                initial=device_dict["attributes"], prefix=prefix_attributes
+                initial=device_dict.get("attributes"), prefix=prefix_attributes
             )
             commands = Commands(prefix=prefix_commands)
 
@@ -339,6 +339,9 @@ class DeviceCreateSubmitView(ProjectContextMixin, TemplateView):
             # get the project context data
             context: dict = super(DeviceCreateSubmitView, self).get_context_data(
                 **kwargs
+            )
+            context["smart_data_model_form"] = SmartDataModelQueryForm(
+                initial=request.POST
             )
 
             context = {
