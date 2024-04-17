@@ -115,7 +115,7 @@ class ServiceGroupCreateSubmitView(ProjectContextMixin, TemplateView):
                 device_dict = {}
             else:
                 device_dict = parse_device(self.request.POST.get("data_model"))
-
+            device_dict.update({"resource": "/iot/json"})
             basic_info = ServiceGroupBasic(initial=device_dict)
             attributes = Attributes(
                 initial=device_dict.get("attributes"), prefix=prefix_attributes
