@@ -5,7 +5,7 @@ from django.views.generic import View, TemplateView
 from django.http import HttpRequest
 import json
 from entirety.utils import pop_data_from_session, add_data_to_session
-from projects.mixins import ProjectContextMixin
+from projects.mixins import ProjectContextMixin, ProjectContextAndViewOnlyMixin
 import logging
 from filip.models.ngsi_v2.iot import Device
 from devices.forms import DeviceBasic, Attributes, Commands, DeviceBatchForm
@@ -61,10 +61,10 @@ from projects.mixins import ProjectContextMixin
 from utils.parser import parser, parse_entity, parse_device
 
 logger = logging.getLogger(__name__)
+
+
 # Devices list
-
-
-class DeviceListView(ProjectContextMixin, MultiTableMixin, TemplateView):
+class DeviceListView(ProjectContextAndViewOnlyMixin, MultiTableMixin, TemplateView):
     # TemplateView.as_view() will render the template. Do not need to invoke render function
     template_name = "devices/list.html"
     # table_class = DevicesTable
@@ -116,10 +116,18 @@ class DeviceListView(ProjectContextMixin, MultiTableMixin, TemplateView):
         context["project"] = self.project
         if self.request.GET.get("search-pattern-groups", default=""):
             context["to_servicegroup"] = True
+        context["view_only"] = (
+            True
+            if self.request.user in self.project.viewers.all()
+            and self.request.user not in self.project.maintainers.all()
+            and self.request.user not in self.project.users.all()
+            and self.request.user is not self.project.owner
+            else False
+        )
         return context
 
 
-class DeviceListSubmitView(ProjectContextMixin, View):
+class DeviceListSubmitView(ProjectContextAndViewOnlyMixin, View):
     # Redirect the request to corresponding view
     def post(self, request, *args, **kwargs):
         # press delete button
@@ -357,7 +365,7 @@ class DeviceCreateSubmitView(ProjectContextMixin, TemplateView):
 
 
 # Edit devices
-class DeviceEditView(ProjectContextMixin, TemplateView):
+class DeviceEditView(ProjectContextAndViewOnlyMixin, TemplateView):
     def get(self, request: HttpRequest, *args, **kwargs):
         context = super(DeviceEditView, self).get_context_data()
 
@@ -393,7 +401,14 @@ class DeviceEditView(ProjectContextMixin, TemplateView):
             commands = Commands(initial=device_dict["commands"], prefix=prefix_commands)
         else:
             commands = Commands(prefix=prefix_commands)
-
+        context["view_only"] = (
+            True
+            if self.request.user in self.project.viewers.all()
+            and self.request.user not in self.project.maintainers.all()
+            and self.request.user not in self.project.users.all()
+            and self.request.user is not self.project.owner
+            else False
+        )
         context = {
             "basic_info": basic_info,
             "attributes": attributes,

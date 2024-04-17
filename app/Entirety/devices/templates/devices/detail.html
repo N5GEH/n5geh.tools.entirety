@@ -1,7 +1,6 @@
 {% extends '_base.html' %}
 {% load crispy_forms_tags %}
-{% load compress %}
-{% load static %}
+
 
 {% block title %}
     {% if action == "Create" %}
@@ -41,7 +40,8 @@
     {% endif %}
         {% csrf_token %}
             {% include 'accordion.html' %}
-            <button class="btn btn-primary rounded-pill" type="submit" name="submit">Save</button>
+            <button class="btn btn-primary rounded-pill" type="submit" name="submit" {% if view_only %}
+                    disabled {% endif %}>Save</button>
         </form>
 
 {% endblock %}

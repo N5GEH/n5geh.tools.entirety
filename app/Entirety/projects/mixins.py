@@ -70,6 +70,12 @@ class ProjectSelfMixin(ProjectBaseMixin):
         )
 
 
+class ProjectContextAndViewOnlyMixin(ProjectContextMixin):
+    def test_func(self):
+        super_test_func = super().test_func()
+        return super_test_func, self.project.is_viewer(self.request.user)
+
+
 class ProjectCreateMixin(ProjectBaseMixin):
     def test_func(self):
         return self.request.user.is_project_admin or self.request.user.is_server_admin

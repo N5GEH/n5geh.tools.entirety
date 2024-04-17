@@ -22,7 +22,7 @@
                     </div>
                     <div class="input-group-append">
                         <button type="submit"
-                                class="btn btn bi-search rounded-pill bg-primary" 
+                                class="btn btn bi-search rounded-pill bg-primary"
                                 data-bs-toggle="tooltip"
                                 title="Start Search"
                                 id="search-button"
@@ -39,32 +39,38 @@
         <div class="btn-group dropup">
             <span data-bs-toggle="dropdown" aria-expanded="false">
                 <button type="button" class="btn btn-primary mb-1 ms-auto dropdown-toggle"
-                        data-bs-toggle="tooltip" data-bs-placement="bottom"  title="Create Entity">
+                        data-bs-toggle="tooltip" data-bs-placement="bottom" title="Create Entity" {% if view_only %}
+                        disabled {% endif %}>
                     <i class="bi bi-plus"></i>
                 </button>
             </span>
             <ul class="dropdown-menu dropdown-menu-dark">
-                <li><a class="dropdown-item" href="{% url "projects:entities:create" project_id=project.uuid %}">Create
+                <li><a class="dropdown-item {% if view_only %}
+                        disabled {% endif %}" href="{% url "projects:entities:create" project_id=project.uuid %}">Create
                     Entity</a></li>
-                <li><a class="dropdown-item" href="{% url "projects:entities:create_batch" project_id=project.uuid %}">Create
+                <li><a class="dropdown-item {% if view_only %}
+                        disabled {% endif %}" href="{% url "projects:entities:create_batch" project_id=project.uuid %}">Create
                     Multiple Entities</a></li>
             </ul>
         </div>
 
         {% csrf_token %}
-        <span data-bs-toggle="modal" data-bs-target="#deleteConfirmModal">
-            <button type="button" class="btn btn-danger mb-1"  data-bs-toggle="tooltip" data-bs-placement="bottom" title="Delete Entity" >
+        <span data-bs-toggle="modal" {% if not view_only %}
+              data-bs-target="#deleteConfirmModal" {% endif %}>
+            <button type="button" class="btn btn-danger mb-1" data-bs-toggle="tooltip" data-bs-placement="bottom"
+                    title="Delete Entity" {% if view_only %}
+                    disabled {% endif %}>
                 <i class="bi bi-trash"></i>
             </button>
         </span>
         <button type="submit" class="btn btn-secondary mb-1" data-bs-toggle="tooltip" data-bs-placement="bottom"
-                title="Edit Entity" name="Edit" value="Edit">
-            <i class="bi bi-pen"></i>
+                title="Inspect Entity" name="Edit" value="Edit">
+            <i class="bi bi-eye"></i>
         </button>
         <button class="btn btn-primary bi-arrow-clockwise" href="{% url 'projects:entities:list' project_id=project.uuid %}"
                 data-bs-toggle="tooltip" id="refreshEntitiesList" name="Refresh" value="Refresh" title="Restore Entity Table" style="float: right">
         </button>
-        
+
 
         {% csrf_token %}
         {% render_table table %}
@@ -129,7 +135,7 @@
         </div>
 
     </form>
-    
+
     <script>
         /**
          * The search button is activated by pressing enter
@@ -145,5 +151,5 @@
             });
         });
     </script>
-    
+
 {% endblock %}

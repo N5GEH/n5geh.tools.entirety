@@ -4,11 +4,11 @@ from django.views.generic import ListView
 from filip.clients.ngsi_v2.cb import ContextBrokerClient
 from filip.models import FiwareHeader
 
-from projects.mixins import ProjectContextMixin
+from projects.mixins import ProjectContextAndViewOnlyMixin
 from subscriptions.models import Subscription
 
 
-class List(ProjectContextMixin, ListView):
+class List(ProjectContextAndViewOnlyMixin, ListView):
     """
     View class used to list subscriptions linked to project
     """
@@ -33,3 +33,15 @@ class List(ProjectContextMixin, ListView):
                 sub.status = cb_sub.status
                 data.append(sub)
         return data
+
+    def get_context_data(self, **kwargs):
+        context = super(ProjectContextAndViewOnlyMixin, self).get_context_data(**kwargs)
+        context["view_only"] = (
+            True
+            if self.request.user in self.project.viewers.all()
+            and self.request.user not in self.project.maintainers.all()
+            and self.request.user not in self.project.users.all()
+            and self.request.user is not self.project.owner
+            else False
+        )
+        return context

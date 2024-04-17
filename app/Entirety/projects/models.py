@@ -22,6 +22,7 @@ class Project(models.Model):
     owner = models.ForeignKey(User, on_delete=models.CASCADE)
     users = models.ManyToManyField(User, related_name="users", blank=True)
     maintainers = models.ManyToManyField(User, related_name="maintainers", blank=True)
+    viewers = models.ManyToManyField(User, related_name="viewers", blank=True)
 
     def is_owner(self, user: User):
         return self.owner == user
@@ -31,6 +32,9 @@ class Project(models.Model):
 
     def is_maintainer(self, user: User):
         return user in self.maintainers.all()
+
+    def is_viewer(self, user: User):
+        return user in self.viewers.all()
 
     def __str__(self):
         return self.name

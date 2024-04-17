@@ -25,17 +25,18 @@
 </ul>
 
 <div class="tab-content">
-    <br>
-    <div {% if to_servicegroup %} class="tab-pane container fade"
-         {% else %} class="tab-pane container active"
-         {% endif %}
-         id="devices">
-        <h3>Devices</h3>
-        <form action="" method="GET">
+  <br>
+
+  <div {% if to_servicegroup %} class="tab-pane container fade"
+       {% else %} class="tab-pane container active"
+       {% endif %}
+  id="devices">
+    <h3>Devices</h3>
+    <form action="" method="GET" >
             {% csrf_token %}
-            <div class="row justify-content-center">
-                <div class="col-8">
-                    <div class="p-3 border border-light rounded-pill bg-light">
+         <div class="row justify-content-center">
+             <div class="col-8">
+                <div class="p-3 border border-light rounded-pill bg-light">
                         <div class="input-group border-0 shadow-none">
                             <input name="search-pattern" type="text" class="form-control border-light rounded-pill"
                                    placeholder="Filter devices ..."/>
@@ -46,19 +47,20 @@
                                 </button>
                             </span>
                         </div>
-                    </div>
                 </div>
-            </div>
-        </form>
+             </div>
+         </div>
+    </form>
 
         <form action="{% url 'projects:devices:list_submit' project.uuid %}" method="POST">
             {% csrf_token %}
             <div>
                 <!-- Dropdown button for creating devices -->
                 <div class="btn-group">
-                    <button type="button" class="btn btn-primary mb-1 ms-auto dropdown-toggle"
+                    <button type="submit" class="btn btn-primary mb-1 ms-auto dropdown-toggle"
                             data-bs-toggle="dropdown" aria-expanded="false" data-toggle="tooltip"
-                            data-placement="bottom" title="Create Device">
+                            data-placement="bottom" title="Create Device"value="True" name="Create"
+                            {% if view_only %} disabled {% endif %}>
                         <i class="bi bi-plus"></i>
                     </button>
                     <ul class="dropdown-menu">
@@ -69,12 +71,13 @@
                 </div>
 
                 <button type="button" class="btn btn-danger mb-1" data-toggle="tooltip" data-placement="bottom"
-                        title="Delete Device" data-bs-toggle="modal" data-bs-target="#deleteModal">
+                        title="Delete Device" data-bs-toggle="modal" {% if not view_only %} data-bs-target="#deleteModal" {% endif %} {% if view_only %}
+                    disabled {% endif %}>
                     <i class="bi bi-trash"></i>
                 </button>
                 <button type="submit" class="btn btn-secondary mb-1" data-toggle="tooltip" data-placement="bottom"
-                        title="Edit Device" value="True" name="Edit">
-                    <i class="bi bi-pen"></i>
+                        title="Inspect Device" value="True" name="Edit">
+                    <i class="bi bi-eye"></i>
                 </button>
             </div>
 
@@ -177,7 +180,8 @@
                 <div class="btn-group">
                     <button type="button" class="btn btn-primary mb-1 ms-auto dropdown-toggle"
                             data-bs-toggle="dropdown" aria-expanded="false" data-toggle="tooltip"
-                            data-placement="bottom" title="Create Service Group">
+                            data-placement="bottom" title="Create Service Group"value="True" name="Create_Group" {% if view_only %}
+                    disabled {% endif %}>
                         <i class="bi bi-plus"></i>
                     </button>
                     <ul class="dropdown-menu">
@@ -187,12 +191,14 @@
                 </div>
 
                 <button type="button" class="btn btn-danger mb-1" data-toggle="tooltip" data-placement="bottom"
-                        title="Delete Service Group" data-bs-toggle="modal" data-bs-target="#deleteModal_group">
+                        title="Delete Service Group" data-bs-toggle="modal"  {% if not view_only %}
+                    data-bs-target="#deleteModal_group" {% endif %} {% if view_only %}
+                    disabled {% endif %}>
                     <i class="bi bi-trash"></i>
                 </button>
                 <button type="submit" class="btn btn-secondary mb-1" data-toggle="tooltip" data-placement="bottom"
-                        title="Edit Service Group" value="True" name="Edit_Group">
-                    <i class="bi bi-pen"></i>
+                        title="Inspect Service Group" value="True" name="Edit_Group">
+                    <i class="bi bi-eye"></i>
                 </button>
             </div>
 
