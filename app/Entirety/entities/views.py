@@ -42,7 +42,7 @@ from entities.requests import (
 )
 from entities.tables import EntityTable
 from projects.mixins import ProjectContextMixin
-from utils.parser import parser
+from utils.parser import parser, parse_entity
 import uuid
 
 logger = logging.getLogger(__name__)
@@ -169,7 +169,7 @@ class Create(ProjectContextMixin, TemplateView):
             if self.request.POST.get("data_model") == "..":
                 entity_json = {}
             else:
-                entity_json = parser(self.request.POST.get("data_model"))
+                entity_json = parse_entity(self.request.POST.get("data_model"))
             context = super(Create, self).get_context_data(**kwargs)
             basic_info = EntityForm(
                 self.project,
