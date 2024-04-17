@@ -11,9 +11,11 @@
                 <div class="col-md-1">
                     <span class="input-group-btn">
                         <div class="row">
+                            {% if not view_only %}
                                 <a href="{% url 'projects:smartdatamodels:create' project.uuid  %}" class="btn btn-secondary btn-lg">
                                     <i class="bi-plus-circle"></i>
                                 </a>
+                            {% endif %}
                         </div>
                     </span>
                 </div>
@@ -57,7 +59,7 @@
                                 <a href="{% url 'projects:smartdatamodels:update' project.uuid model.uuid %}"
                                    class="btn btn-primary rounded-pill btn-sm">Edit</a>
                                 <button type="button" class="btn btn-danger rounded-pill btn-sm" data-bs-toggle="modal"
-                                        data-bs-target="#deleteModal"
+                                        data-bs-target="#deleteModal" {% if view_only %} disabled {% endif %}
                                         data-bs-url={% url 'projects:smartdatamodels:delete' project.uuid model.uuid %}>
                                     Delete
                                 </button>

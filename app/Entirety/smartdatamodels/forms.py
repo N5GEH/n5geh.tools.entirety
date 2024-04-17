@@ -9,12 +9,13 @@ class SmartDataModelForm(forms.ModelForm):
     schema_link = forms.URLField(required=False)
     jsonschema = forms.JSONField(required=False)
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, view_only: bool = True, *args, **kwargs):
         super(SmartDataModelForm, self).__init__(*args, **kwargs)
 
         self.helper = FormHelper(self)
 
-        self.helper.layout.append(Submit(name="save", value="Save"))
+        if not view_only:
+            self.helper.layout.append(Submit(name="save", value="Save"))
         self.helper.form_tag = False
 
     class Meta:

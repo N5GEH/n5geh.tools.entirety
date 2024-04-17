@@ -1,14 +1,26 @@
 from django.urls import reverse_lazy
 from django.views.generic import ListView, CreateView, UpdateView, DeleteView
 
-from projects.mixins import ProjectContextMixin
+from projects.mixins import ProjectContextMixin, ProjectContextAndViewOnlyMixin
 from smartdatamodels.forms import SmartDataModelForm
 from smartdatamodels.models import SmartDataModel
 
 
-class SmartDataModelsList(ProjectContextMixin, ListView):
+class SmartDataModelsList(ProjectContextAndViewOnlyMixin, ListView):
     template_name = "smartdatamodels/smartdatamodels_list.html"
     model = SmartDataModel
+
+    def get_context_data(self, **kwargs):
+        context = super(SmartDataModelsList, self).get_context_data(**kwargs)
+        context["view_only"] = (
+            True
+            if self.request.user in self.project.viewers.all()
+            and self.request.user not in self.project.maintainers.all()
+            and self.request.user not in self.project.users.all()
+            and self.request.user is not self.project.owner
+            else False
+        )
+        return context
 
     def get_queryset(self):
         return SmartDataModel.objects.order_by("date_modified").filter(
@@ -32,15 +44,13 @@ class Create(ProjectContextMixin, CreateView):
             "projects:smartdatamodels:list", kwargs={"project_id": self.project.uuid}
         )
 
-
-
-
-
     def get(self, request, *args, **kwargs):
         self.object = None
         form = self.get_form()
         return self.render_to_response(self.get_context_data(form=form))
-class Update(ProjectContextMixin, UpdateView):
+
+
+class Update(ProjectContextAndViewOnlyMixin, UpdateView):
     template_name = "smartdatamodels/update.html"
     model = SmartDataModel
     context_object_name = "update_model"
@@ -56,10 +66,19 @@ class Update(ProjectContextMixin, UpdateView):
             "projects:smartdatamodels:list", kwargs={"project_id": self.project.uuid}
         )
 
-    def get(self, request, *args, **kwargs):
-        self.object = self.get_object()
-        form = self.get_form()
-        return self.render_to_response(self.get_context_data(form=form))
+    def get_form_kwargs(self):
+        kwargs = super(Update, self).get_form_kwargs()
+        view_only = (
+            True
+            if self.request.user in self.project.viewers.all()
+            and self.request.user not in self.project.maintainers.all()
+            and self.request.user not in self.project.users.all()
+            and self.request.user is not self.project.owner
+            else False
+        )
+        kwargs["view_only"] = view_only
+        return kwargs
+
 
 class Delete(ProjectContextMixin, DeleteView):
     template_name = "smartdatamodels/smartdatamodels_list.html"
