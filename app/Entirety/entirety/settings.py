@@ -2,7 +2,7 @@ import os
 import logging.config as LOG
 
 from pathlib import Path
-from typing import List, Any, Optional, Sequence, Union, Dict
+from typing import List, Any, Optional, Sequence, Union, Dict, ClassVar
 from mimetypes import add_type
 
 import django_loki
@@ -87,7 +87,11 @@ class AppLoadSettings(BaseSettings):
 
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(
-        extra="ignore", case_sensitive=False, env_file=".env", env_file_encoding="utf-8"
+        extra="ignore",
+        case_sensitive=False,
+        env_file=".env",
+        env_file_encoding="utf-8",
+        # ignored_types=["ClassVar"]
     )
     __auth = AuthenticationSettings()
     LOCAL_AUTH: bool = __auth.LOCAL_AUTH
@@ -236,45 +240,45 @@ class Settings(BaseSettings):
     }
     # TODO need to be reconsidered @sba
     #
-    # if LOKI.LOKI_ENABLE is True:
-    #     for LOGGER in LOGGERS:
-    #         LOGGERS[LOGGER]["handlers"] = ["loki"]
-    #     HANDLER = {
-    #         "loki": {
-    #             "level": "DEBUG",
-    #             "class": "logging.handlers.RotatingFileHandler",
-    #             "filename": os.path.join(BASE_DIR, "logs/entirety_logs.log"),
-    #             "maxBytes": 1 * 1024 * 1024,
-    #             "backupCount": 2,
-    #             "formatter": "default",
-    #         }
-    #     }
-    # else:
-    #     for LOGGER in LOGGERS:
-    #         LOGGERS[LOGGER]["handlers"] = ["console"]
-    #     HANDLER = {
-    #         "console": {
-    #             "class": "logging.StreamHandler",
-    #             "level": "DEBUG",
-    #             "formatter": "default",
-    #         }
-    #     }
-    #
-    # LOGGING: dict = {
-    #     "version": 1,
-    #     "disable_existing_loggers": True,
-    #     "formatters": {
-    #         "default": {
-    #             "format": "[%(asctime)s] %(levelname)s [%(name)s:%(lineno)s] "
-    #             "[%(funcName)s] %(message)s",
-    #             "datefmt": "%Y-%m-%d %H:%M:%S",
-    #         },
-    #     },
-    #     "handlers": HANDLER,
-    #     "loggers": LOGGERS,
-    # }
-    #
-    # LOG.dictConfig(LOGGING)
+    if LOKI.LOKI_ENABLE is True:
+        for LOGGER in LOGGERS:
+            LOGGERS[LOGGER]["handlers"] = ["loki"]
+        HANDLER = {
+            "loki": {
+                "level": "DEBUG",
+                "class": "logging.handlers.RotatingFileHandler",
+                "filename": os.path.join(BASE_DIR, "logs/entirety_logs.log"),
+                "maxBytes": 1 * 1024 * 1024,
+                "backupCount": 2,
+                "formatter": "default",
+            }
+        }
+    else:
+        for LOGGER in LOGGERS:
+            LOGGERS[LOGGER]["handlers"] = ["console"]
+        HANDLER = {
+            "console": {
+                "class": "logging.StreamHandler",
+                "level": "DEBUG",
+                "formatter": "default",
+            }
+        }
+
+    LOGGING: dict = {
+        "version": 1,
+        "disable_existing_loggers": True,
+        "formatters": {
+            "default": {
+                "format": "[%(asctime)s] %(levelname)s [%(name)s:%(lineno)s] "
+                "[%(funcName)s] %(message)s",
+                "datefmt": "%Y-%m-%d %H:%M:%S",
+            },
+        },
+        "handlers": HANDLER,
+        "loggers": LOGGERS,
+    }
+
+    LOG.dictConfig(LOGGING)
     # TODO
 
     # Media location
