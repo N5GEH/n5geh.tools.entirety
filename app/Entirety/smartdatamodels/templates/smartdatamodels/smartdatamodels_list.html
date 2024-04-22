@@ -57,7 +57,7 @@
                         </div>
                             <div class="ms-3 mb-3">
                                 <a href="{% url 'projects:smartdatamodels:update' project.uuid model.uuid %}"
-                                   class="btn btn-primary rounded-pill btn-sm">Edit</a>
+                                   class="btn btn-secondary mb-1">Inspect</a>
                                 <button type="button" class="btn btn-danger rounded-pill btn-sm" data-bs-toggle="modal"
                                         data-bs-target="#deleteModal" {% if view_only %} disabled {% endif %}
                                         data-bs-url={% url 'projects:smartdatamodels:delete' project.uuid model.uuid %}>
