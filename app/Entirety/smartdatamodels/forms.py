@@ -24,17 +24,6 @@ class SmartDataModelForm(forms.ModelForm):
 
 
 class SmartDataModelQueryForm(forms.Form):
-    data_model = forms.ChoiceField(
-        label="Data model",
-        widget=forms.TextInput(
-            attrs={
-                "data-bs-toggle": "tooltip",
-                "data-bs-placement": "top",
-                "title": "Select data model to prefill entity form",
-            }
-        ),
-    )
-
     def __init__(self, *args, **kwargs):
         super(SmartDataModelQueryForm, self).__init__(*args, **kwargs)
         self.helper = FormHelper(self)
@@ -45,5 +34,14 @@ class SmartDataModelQueryForm(forms.Form):
             list_of_schemas.append({"name": set.name, "value": set.name})
         list_of_schemas.append({"name": "..", "value": ".."})
         self.fields["data_model"] = forms.ChoiceField(
-            choices=[(x.get("value"), x.get("name")) for x in list_of_schemas]
+            label="Load data model",
+            choices=[(x.get("value"), x.get("name")) for x in list_of_schemas],
+            widget=forms.Select(
+                attrs={
+                    "style": "width: 400px;",
+                    "data-bs-toggle": "tooltip",
+                    "data-bs-placement": "top",
+                    "title": "Select data model to prefill entity form",
+                }
+            ),
         )
