@@ -44,10 +44,18 @@ class Create(ProjectContextMixin, CreateView):
             "projects:smartdatamodels:list", kwargs={"project_id": self.project.uuid}
         )
 
-    def get(self, request, *args, **kwargs):
-        self.object = None
-        form = self.get_form()
-        return self.render_to_response(self.get_context_data(form=form))
+    def get_form_kwargs(self):
+        kwargs = super(Create, self).get_form_kwargs()
+        view_only = (
+            True
+            if self.request.user in self.project.viewers.all()
+            and self.request.user not in self.project.maintainers.all()
+            and self.request.user not in self.project.users.all()
+            and self.request.user is not self.project.owner
+            else False
+        )
+        kwargs["view_only"] = view_only
+        return kwargs
 
 
 class Update(ProjectContextAndViewOnlyMixin, UpdateView):
