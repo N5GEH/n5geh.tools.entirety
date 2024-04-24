@@ -3,11 +3,10 @@
 {% load compress %}
 {% load crispy_forms_tags %}
 
-
-{% block title %}Create Batch Devices {% endblock %}
+{% block title %}Create Batch Devices{% endblock %}
 
 {% block content %}
-    <span class="h3">Create Batch Devices </span>
+    <span class="h3">Create Batch Devices</span>
     <form method="post" action="" id="jsonForm" {% if form_submitted %}class="was-validated" {% endif %}>
         <div>
             {% csrf_token %}
@@ -15,13 +14,11 @@
             <button class="btn btn-primary rounded-pill" onclick="prettyJSON('id_device_json')" type="button">
                 <i class="bi bi-braces"></i> Beautify Json
             </button>
-            <button class="btn btn-warning rounded-pill" type="submit">Create</button>
+            <button class="btn btn-primary rounded-pill" type="submit">Create</button>
         </div>
     </form>
 
     {% compress js %}
         <script src="{% static 'js/json.js' %}"></script>
     {% endcompress %}
-
-
 {% endblock %}
