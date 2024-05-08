@@ -1,0 +1,114 @@
+<div class="d-flex flex-column col-auto">
+    <div id="sidebar" class="sidebar collapse collapse-horizontal show border-end">
+        <div class="sidebar-nav bg-grey">
+            <ul class="nav nav-flush flex-column flex-nowrap text-center text-md-start">
+                {% if user.is_authenticated %}
+                    {% if project %}
+                        {% if user.is_server_admin or project.owner == user or user in project.maintainers.all %}
+                        <li class="nav-item border-bottom d-inline-flex">
+                            <a href="{% url 'projects:update' project.uuid %}" class="nav-link btn-sidebar py-md-2"
+                               data-bs-toggle="tooltip" data-bs-placement="right" data-bs-custom-class="d-md-none"
+                               title="{{ project }}">
+                                <i class="bi bi-pencil-square"></i>
+                                <span class="d-none d-md-inline-flex">{{ project }}</span>
+                            </a>
+                        </li>
+                        {%  endif %}
+                        {% if entities_load %}
+                        <li class="nav-item border-bottom d-inline-flex">
+                            <a href="{% url "projects:entities:list" project_id=project.uuid %}" class="nav-link btn-sidebar py-md-2"
+                               data-bs-toggle="tooltip" data-bs-placement="right" data-bs-custom-class="d-md-none"
+                               title="Entities">
+                                <i class="bi bi-server"></i>
+                                <span class="d-none d-md-inline-flex">Entities</span>
+                            </a>
+                        </li>
+                        {% endif %}
+                        {% if devices_load %}
+                        <li class="nav-item border-bottom d-inline-flex">
+                            <a href="{% url "projects:devices:list" project_id=project.uuid %}" class="nav-link btn-sidebar py-md-2"
+                               data-bs-toggle="tooltip" data-bs-placement="right" data-bs-custom-class="d-md-none"
+                               title="Devices">
+                                <i class="bi bi-server"></i>
+                                <span class="d-none d-md-inline-flex">Devices</span>
+                            </a>
+                        </li>
+                        {% endif %}
+                        {% if notifications_load %}
+                        <li class="nav-item border-bottom d-inline-flex">
+                            <a href="{% url "projects:subscriptions:list" project_id=project.uuid %}"
+                               class="nav-link btn-sidebar py-md-2"
+                               data-bs-toggle="tooltip" data-bs-placement="right" data-bs-custom-class="d-md-none"
+                               title="Notifications">
+                                <i class="bi bi-alarm"></i>
+                                <span class="d-none d-md-inline-flex">Notifications</span>
+                            </a>
+                        </li>
+                        {% endif %}
+                        {% if smart_datamodels_load %}
+                        <li class="nav-item border-bottom d-inline-flex">
+                            <a href="{% url "projects:smartdatamodels:list" project_id=project.uuid %}"
+                               class="nav-link btn-sidebar py-md-2"
+                               data-bs-toggle="tooltip" data-bs-placement="right" data-bs-custom-class="d-md-none"
+                               title="Data Models">
+                                <i class="bi bi-file-earmark"></i>
+                                <span class="d-none d-md-inline-flex">Data Models</span>
+                            </a>
+                        </li>
+                        {% endif %}
+                        {% if semantics_load %}
+                        <li class="nav-item border-bottom d-inline-flex">
+                            <a href="{% url "projects:semantics:visualize" project_id=project.uuid %}" class="nav-link btn-sidebar py-md-2"
+                               data-bs-toggle="tooltip" data-bs-placement="right" data-bs-custom-class="d-md-none"
+                               title="Semantics">
+                                <i class="bi bi-diagram-3"></i>
+                                <span class="d-none d-md-inline-flex">Semantics</span>
+                            </a>
+                        </li>
+                        {% endif %}
+                    {% endif %}
+                {% endif %}
+
+                <li class="nav-item  d-inline-flex {% if project %} border-top order-4 {% else %} border-bottom order-0 {% endif %}">
+                    <a href="{% url "projects:index" %}" class="nav-link btn-sidebar py-md-2 hi-ignore"
+                       data-bs-toggle="tooltip" data-bs-placement="right" data-bs-custom-class="d-md-none"
+                       title="Projects">
+                        <i class="bi {% if project %}bi-arrow-left{% else %}bi-kanban{% endif %}"></i>
+                        <span class="d-none d-md-inline-flex">Projects</span>
+                    </a>
+                </li>
+                <li class="nav-item border-bottom d-inline-flex order-0 {% if project %} mt-auto border-top {% else %} border-bottom  {% endif %}">
+                    <a hx-get="{% url "projects:broker" %}" hx-target="#broker_health"
+                       class="nav-link btn-sidebar py-md-2"
+                       data-bs-toggle="tooltip" data-bs-placement="right" data-bs-custom-class="d-md-none"
+                       title="Orion Broker" hx-trigger="load, every 30s">
+                        <span id="broker_health"><i class="small bi bi-record"></i></span>
+                        <small class="d-none d-md-inline-flex">Orion Broker</small>
+                    </a>
+                </li>
+                <li class="nav-item border-bottom d-inline-flex order-2 ">
+                    <a hx-get="{% url "projects:ql" %}" hx-target="#ql_health"
+                       class="nav-link btn-sidebar py-md-2"
+                       data-bs-toggle="tooltip" data-bs-placement="right" data-bs-custom-class="d-md-none"
+                       title="Quantum Leap" hx-trigger="load, every 30s">
+                        <span id="ql_health"><i class="small bi bi-record"></i></span>
+                        <small class="d-none d-md-inline-flex">Quantum Leap</small>
+                    </a>
+                </li>
+                <li class="nav-item border-bottom d-inline-flex order-3">
+                        <a hx-get="{% url "projects:iota" %}" hx-target="#iota_health"
+                            class="nav-link btn-sidebar py-md-2"
+                           data-bs-toggle="tooltip" data-bs-placement="right" data-bs-custom-class="d-md-none"
+                           title="IOT Agent" hx-trigger="load, every 30s">
+                            <span id="iota_health"><i class="small bi bi-record"></i></span>
+                            <small class="d-none d-md-inline-flex">IOT Agent</small>
+                        </a>
+                </li>
+
+                <li class="nav-item border-top d-inline-flex order-last {% if not project %} mt-auto {% endif %}d-sm-none dropend">
+                    {% include "auth.html" %}
+                </li>
+            </ul>
+        </div>
+    </div>
+</div>

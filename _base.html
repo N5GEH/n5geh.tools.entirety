@@ -1,0 +1,79 @@
+{% load static %}
+{% load compress %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link rel="shortcut icon" type="image/x-icon" href="{% static 'img/favicon.ico' %}">
+    <title>Entirety - {% block title %}(Title){% endblock %}</title>
+
+
+    {% compress css %}
+        <link type="text/x-scss" href="{% static 'scss/style.scss' %}" rel="stylesheet" media="screen">
+        <link type="text/x-scss" href="{% static 'bootstrap-icons/scss/bootstrap-icons.scss' %}" rel="stylesheet"
+              media="screen">
+    {% endcompress %}
+</head>
+<body>
+<nav class="navbar navbar-dark bg-dark sticky-top">
+    <div class="container-fluid">
+        <div>
+            <button class="navbar-toggler me-2" type="button" data-bs-toggle="collapse" data-bs-target="#sidebar"
+                    aria-controls="sidebar" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <a class="navbar-brand" href="{% url "home" %}">
+                <img src="{% static 'img/n5geh.png' %}" alt="project logo" height="30"
+                     class="d-inline-block align-text-top">
+                <img src="{% static 'img/fiware.gif' %}" alt="fiware" height="30"
+                     class="d-inline-block align-text-top">
+{#                <img src="{% static 'img/Entirety-logo.png' %}" alt="fiware" height="30"#}
+{#                     class="d-inline-block align-text-top">#}
+            </a>
+        </div>
+        <div class="d-none d-sm-flex">
+            {% include 'auth.html' %}
+        </div>
+
+    </div>
+</nav>
+
+<script src="{% static 'jquery/jquery.min.js' %}" type="text/javascript"></script>
+<script src="{% static 'jsoneditor/jsoneditor.min.js' %}" type="text/javascript"></script>
+
+<div class="container-fluid ps-0 d-flex">
+    {% include 'sidebar.html' %}
+    <main class="d-flex flex-column flex-fill ps-4 pe-3 py-3">
+        {% include 'messages.html' %}
+        {% block content %}(no content - should not be here) {% endblock %}
+    </main>
+    {% include 'modal.html' %}
+    {% include 'toast.html' %}
+</div>
+
+
+<script src="{% static 'bootstrap/js/bootstrap.bundle.min.js' %}" type="text/javascript"></script>
+<script src="{% static 'htmx/js/htmx.min.js' %}" type="text/javascript"></script>
+
+{% compress js %}
+    <script>
+        document.body.addEventListener('htmx:configRequest', (event) => {
+            event.detail.headers['X-CSRFToken'] = '{{ csrf_token }}';
+        })
+    </script>
+    <script src="{% static 'js/main.js' %}"></script>
+    <script src="{% static 'js/dialog.js' %}"></script>
+    <script src="{% static 'js/toast.js' %}"></script>
+    <script src="{% static 'js/modal.js' %}"></script>
+{% endcompress %}
+
+{% compress js %}
+    {% block scripts %}
+
+    {% endblock %}
+{% endcompress %}
+
+</body>
