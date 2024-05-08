@@ -45,6 +45,17 @@
                             </a>
                         </li>
                         {% endif %}
+                        {% if smart_datamodels_load %}
+                        <li class="nav-item border-bottom d-inline-flex">
+                            <a href="{% url "projects:smartdatamodels:list" project_id=project.uuid %}"
+                               class="nav-link btn-sidebar py-md-2"
+                               data-bs-toggle="tooltip" data-bs-placement="right" data-bs-custom-class="d-md-none"
+                               title="Data Models">
+                                <i class="bi bi-file-earmark"></i>
+                                <span class="d-none d-md-inline-flex">Data Models</span>
+                            </a>
+                        </li>
+                        {% endif %}
                         {% if semantics_load %}
                         <li class="nav-item border-bottom d-inline-flex">
                             <a href="{% url "projects:semantics:visualize" project_id=project.uuid %}" class="nav-link btn-sidebar py-md-2"

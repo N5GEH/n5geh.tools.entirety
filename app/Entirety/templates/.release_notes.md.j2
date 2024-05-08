@@ -1,0 +1,12 @@
+## What's Changed
+# {{ version.as_tag() }} ({{ release.tagged_date.strftime("%Y-%m-%d") }})
+{% for type_, commits in release["elements"] | dictsort %}
+## {{ type_ | capitalize }}
+{% for commit in commits %}
+{% if commit.scope is not none %}
+* <b>{{ commit.scope | capitalize }}</b>: {{ commit.descriptions[0] }} ([`{{ commit.short_hash }}`]({{ commit.hexsha | commit_hash_url }}))
+{% else %}
+* {{ commit.descriptions[0] }} ([`{{ commit.short_hash }}`]({{ commit.hexsha | commit_hash_url }}))
+{% endif %}
+{% endfor %}
+{% endfor %}

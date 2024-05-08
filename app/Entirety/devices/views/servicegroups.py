@@ -7,6 +7,15 @@ import json
 from entirety.utils import add_data_to_session, pop_data_from_session
 from projects.mixins import ProjectContextMixin, ProjectContextAndViewOnlyMixin
 from devices.forms import ServiceGroupBasic, Attributes, Commands
+from smartdatamodels.forms import SmartDataModelQueryForm
+from utils.json_schema_parser import EntiretyJsonSchemaParser
+from projects.mixins import ProjectContextMixin
+from devices.forms import (
+    ServiceGroupBasic,
+    Attributes,
+    Commands,
+    SmartDataModelServicesForm,
+)
 from devices.utils import (
     prefix_attributes,
     prefix_commands,
@@ -21,6 +30,8 @@ from devices.tables import GroupsTable
 from requests.exceptions import RequestException
 from pydantic import ValidationError
 import logging
+
+from utils.parser import parse_device
 
 logger = logging.getLogger(__name__)
 
@@ -46,6 +57,12 @@ class ServiceGroupListSubmitView(ProjectContextAndViewOnlyMixin, View):
                 "projects:devices:create_group", project_id=self.project.uuid
             )
 
+        # press create from data model button
+        elif request.POST.get("Create_Group_Data_Model"):
+            return redirect(
+                "projects:devices:create_group_datamodel", project_id=self.project.uuid
+            )
+
         # press edit button
         elif request.POST.get("Edit_Group"):
             if not request.POST.get("selection"):
@@ -65,13 +82,26 @@ class ServiceGroupListSubmitView(ProjectContextAndViewOnlyMixin, View):
 # Create service group
 class ServiceGroupCreateView(ProjectContextMixin, TemplateView):
     def get(self, request, *args, **kwargs):
-        basic_info = ServiceGroupBasic(initial={"resource": "/iot/json"})
+        # if data_model:
+        #     json_schema_parser = EntiretyJsonSchemaParser(data_model=data_model)
+        #     only_required_attrs = pop_data_from_session(request, "only_required_attrs")
+        #     service_group_template = json_schema_parser.parse_to_service_group(
+        #         only_required_attrs=only_required_attrs)
+        #     attributes_model = [attr.dict() for attr in service_group_template.attributes]
+        #     attributes = Attributes(
+        #         initial=attributes_model, prefix=prefix_attributes
+        #     )
+        #     basic_info = ServiceGroupBasic(initial={"resource": service_group_template.resource,
+        #                                             "entity_type": service_group_template.entity_type})
+        smart_data_model_form = SmartDataModelQueryForm(initial={"data_model": ".."})
         attributes = Attributes(prefix=prefix_attributes)
+        basic_info = ServiceGroupBasic(initial={"resource": "/iot/json"})
         context: dict = super(ServiceGroupCreateView, self).get_context_data(**kwargs)
         context = {
             "basic_info": basic_info,
             "attributes": attributes,
             "action": "Create_Group",
+            "smart_data_model_form": smart_data_model_form,
             **context,
         }
         return render(request, "devices/detail.html", context)
@@ -79,61 +109,114 @@ class ServiceGroupCreateView(ProjectContextMixin, TemplateView):
 
 class ServiceGroupCreateSubmitView(ProjectContextMixin, TemplateView):
     def post(self, request: HttpRequest, **kwargs):
-        # preprocess the request query data
-        data_basic, data_attributes, _ = parse_request_data(
-            request.POST, BasicForm=ServiceGroupBasic
-        )
+        if "load" in self.request.POST:
+            # Load device data model
+            if self.request.POST.get("data_model") == "..":
+                device_dict = {}
+            else:
+                device_dict = parse_device(self.request.POST.get("data_model"))
+            device_dict.update({"resource": "/iot/json"})
+            basic_info = ServiceGroupBasic(initial=device_dict)
+            attributes = Attributes(
+                initial=device_dict.get("attributes"), prefix=prefix_attributes
+            )
 
-        # create forms from query data
-        basic_info = ServiceGroupBasic(data=data_basic)
-        attributes = Attributes(data=data_attributes, prefix=prefix_attributes)
+            # get the project context data
+            context: dict = super(ServiceGroupCreateSubmitView, self).get_context_data(
+                **kwargs
+            )
+            context["smart_data_model_form"] = SmartDataModelQueryForm(
+                initial=request.POST
+            )
+            context = {
+                "basic_info": basic_info,
+                "attributes": attributes,
+                "action": "Create_Group",
+                **context,
+            }
+            return render(request, "devices/detail.html", context)
+        elif "submit" in self.request.POST:
+            # preprocess the request query data
+            data_basic, data_attributes, _ = parse_request_data(
+                request.POST, BasicForm=ServiceGroupBasic
+            )
 
-        if basic_info.is_valid() and attributes.is_valid():
-            try:
-                service_group = build_service_group(
-                    data_basic=data_basic, data_attributes=data_attributes
-                )
-                post_service_group(service_group, project=self.project)
-                add_data_to_session(request, "to_servicegroup", True)
-                logger.info(
-                    "Service group created by "
-                    + str(
-                        self.request.user.first_name
-                        if self.request.user.first_name
-                        else self.request.user.username
+            # create forms from query data
+            basic_info = ServiceGroupBasic(data=data_basic)
+            attributes = Attributes(data=data_attributes, prefix=prefix_attributes)
+
+            if basic_info.is_valid() and attributes.is_valid():
+                try:
+                    service_group = build_service_group(
+                        data_basic=data_basic, data_attributes=data_attributes
                     )
-                    + f" in project {self.project.name}"
-                )
-                return redirect("projects:devices:list", project_id=self.project.uuid)
-            # handel the error from server
-            except RequestException as e:
-                messages.error(request, e.response.content.decode("utf-8"))
-                logger.error(
-                    str(
-                        self.request.user.first_name
-                        if self.request.user.first_name
-                        else self.request.user.username
+                    post_service_group(service_group, project=self.project)
+                    add_data_to_session(request, "to_servicegroup", True)
+                    logger.info(
+                        "Service group created by "
+                        + str(
+                            self.request.user.first_name
+                            if self.request.user.first_name
+                            else self.request.user.username
+                        )
+                        + f" in project {self.project.name}"
                     )
-                    + " tried creating service group"
-                    + " but failed with error "
-                    + json.loads(e.response.content.decode("utf-8")).get("message")
-                    + f" in project {self.project.name}"
-                )
-            except ValidationError as e:
-                messages.error(request, e.raw_errors[0].exc.__str__())
+                    return redirect(
+                        "projects:devices:list", project_id=self.project.uuid
+                    )
+                # handel the error from server
+                except RequestException as e:
+                    messages.error(request, e.response.content.decode("utf-8"))
+                    logger.error(
+                        str(
+                            self.request.user.first_name
+                            if self.request.user.first_name
+                            else self.request.user.username
+                        )
+                        + " tried creating service group"
+                        + " but failed with error "
+                        + json.loads(e.response.content.decode("utf-8")).get("message")
+                        + f" in project {self.project.name}"
+                    )
+                except ValidationError as e:
+                    messages.error(request, e.raw_errors[0].exc.__str__())
 
-        # get the project context data
-        context: dict = super(ServiceGroupCreateSubmitView, self).get_context_data(
+            # get the project context data
+            context: dict = super(ServiceGroupCreateSubmitView, self).get_context_data(
+                **kwargs
+            )
+            context["smart_data_model_form"] = SmartDataModelQueryForm(
+                initial=request.POST
+            )
+            context = {
+                "basic_info": basic_info,
+                "attributes": attributes,
+                "action": "Create_Group",
+                **context,
+            }
+            return render(request, "devices/detail.html", context)
+        else:
+            raise NotImplementedError
+
+
+class ServiceGroupDataModelCreateView(ProjectContextMixin, TemplateView):
+    template_name = "devices/datamodels.html"
+
+    def get_context_data(self, **kwargs):
+        context = super(ServiceGroupDataModelCreateView, self).get_context_data(
             **kwargs
         )
+        context["smart_data_model_form"] = SmartDataModelQueryForm()
+        return context
 
-        context = {
-            "basic_info": basic_info,
-            "attributes": attributes,
-            "action": "Create_Group",
-            **context,
-        }
-        return render(request, "devices/detail.html", context)
+
+class ServiceGroupDataModelCreateSubmitView(ProjectContextMixin, TemplateView):
+    def post(self, request: HttpRequest, **kwargs):
+        data_model = json.loads(request.POST.get(key="select_data_model"))
+        only_required_attrs = bool(request.POST.get(key="only_required_attrs"))
+        add_data_to_session(request, "data_model", data_model)
+        add_data_to_session(request, "only_required_attrs", only_required_attrs)
+        return redirect("projects:devices:create_group", project_id=self.project.uuid)
 
 
 # Edit service group

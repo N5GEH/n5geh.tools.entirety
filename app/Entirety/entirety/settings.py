@@ -111,13 +111,16 @@ class Settings(PydanticSettings):
         "django.contrib.messages",
         "django.contrib.staticfiles",
         "django.forms",
+        "django_jsonforms",
         "django_tables2",
         "compressor",
+        "corsheaders",
         "crispy_forms",
         "crispy_bootstrap5",
         "projects",
         "examples",
         "users",
+        "smartdatamodels",
     ]
 
     CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
@@ -126,6 +129,7 @@ class Settings(PydanticSettings):
     CRISPY_TEMPLATE_PACK = "bootstrap5"
 
     MIDDLEWARE: List[str] = [
+        "corsheaders.middleware.CorsMiddleware",
         "django.middleware.security.SecurityMiddleware",
         "django.contrib.sessions.middleware.SessionMiddleware",
         "django.middleware.common.CommonMiddleware",
@@ -134,6 +138,8 @@ class Settings(PydanticSettings):
         "django.contrib.messages.middleware.MessageMiddleware",
         "django.middleware.clickjacking.XFrameOptionsMiddleware",
     ]
+
+    CORS_ORIGIN_ALLOW_ALL = True
 
     MESSAGE_TAGS = {
         messages.DEBUG: "alert-info",
