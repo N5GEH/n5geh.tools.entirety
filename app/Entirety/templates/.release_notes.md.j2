@@ -3,10 +3,10 @@
 {% for type_, commits in release["elements"] | dictsort %}
 ## {{ type_ | capitalize }}
 {% for commit in commits %}
-{% if type_ != "unknown" %}
-* {{ commit.scope | capitalize }}: {{ commit.descriptions[0] }} ([`{{ commit.short_hash }}`]({{ commit.hexsha | commit_hash_url }}))
+{% if commit.scope is not none %}
+* <b>{{ commit.scope | capitalize }}</b>: {{ commit.descriptions[0] }} ([`{{ commit.short_hash }}`]({{ commit.hexsha | commit_hash_url }}))
 {% else %}
-* {{ commit.scope | capitalize }}: {{ commit.descriptions[0] }} ([`{{ commit.short_hash }}`]({{ commit.hexsha | commit_hash_url }}))
+* {{ commit.descriptions[0] }} ([`{{ commit.short_hash }}`]({{ commit.hexsha | commit_hash_url }}))
 {% endif %}
 {% endfor %}
 {% endfor %}
