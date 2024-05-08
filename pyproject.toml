@@ -14,6 +14,7 @@ prerelease = false
 [tool.semantic_release.changelog]
 changelog_file = "./docs/CHANGELOG.md"
 exclude_commit_patterns = []
+template_dir = "app/Entirety/templates"
 
 [tool.semantic_release.changelog.environment]
 block_start_string = "{%"
@@ -49,4 +50,3 @@ env = "GH_TOKEN"
 [tool.semantic_release.publish]
 dist_glob_patterns = ["dist/*"]
 upload_to_vcs_release = true
-
