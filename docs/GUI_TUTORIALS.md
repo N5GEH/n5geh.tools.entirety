@@ -11,6 +11,7 @@ Entirety is a web-based tool developed to facilitate the work with dedicated FIW
     1. Admin : Admin has all the admin rights like adding of projects , assigning owners to a project and adding/removing user.
     2. Project Admin : Project admin can manage the different projects by creating new projects , assigning users and maintainers to a project and editing projects.
     3. User : Users are only allowed to edit a particular project which is assigned to them.
+    4. Viewers: Viewers are only allowed to view the existing contents of a particular project.
 
 ![Alt text](GUI_TUTORIALS/images/image.png)
 
@@ -18,7 +19,7 @@ Entirety is a web-based tool developed to facilitate the work with dedicated FIW
 
 ## *PROJECTS*
 
-Entirety uses the concept of projects to separate the database into independent data spaces. Each project is bound to specific "fiware-service" headers, following FIWARE's approach to multi-tenancy. This ensures that projects can only access and manipulate data that they created and are authorized for.
+Entirety uses the concept of projects to separate the database into independent data spaces. Each project is bound to specific "fiware-service" headers, following FIWARE's approach to [multi-tenancy](https://fiware-orion.readthedocs.io/en/latest/orion-api.html#multi-tenancy). This ensures that projects can only access and manipulate data that they created and are authorized for.
 -	Click on Projects on the top left corner to see the current projects.
 -	You can only add a new project if you have the role `project_admin` or `admin`.
 
