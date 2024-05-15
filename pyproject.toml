@@ -14,7 +14,7 @@ prerelease = false
 [tool.semantic_release.changelog]
 changelog_file = "./docs/CHANGELOG.md"
 exclude_commit_patterns = []
-template_dir = "app/Entirety/templates"
+template_dir = "semantic-release-templates"
 
 [tool.semantic_release.changelog.environment]
 block_start_string = "{%"
