@@ -8,6 +8,7 @@
 - Django 4.1
 - Bootstrap 5.2
 - htmx 1.8.2
+- Python 3.8/3.9
 
 ## Roadmap
 Have a look at our [roadmap](./docs/ROADMAP.md) to see what features we plan to work on in the short and long run. We kindly invite you to participate in [discussions](https://github.com/N5GEH/n5geh.tools.entirety/discussions) about possible features as well.
@@ -114,14 +115,14 @@ See [changelog](./docs/CHANGELOG.md) for detailed overview of changes.
 
 ## Further project information
 
-<a href="https://n5geh.de/"> <img alt="National 5G Energy Hub" 
+<a href="https://n5geh.de/"> <img alt="National 5G Energy Hub"
 src="https://raw.githubusercontent.com/N5GEH/n5geh.platform/master/docs/logos/n5geh-logo.png" height="100"></a>
 
 ## Acknowledgments
 
-We gratefully acknowledge the financial support of the Federal Ministry <br /> 
-for Economic Affairs and Climate Action (BMWK), promotional references 
+We gratefully acknowledge the financial support of the Federal Ministry <br />
+for Economic Affairs and Climate Action (BMWK), promotional references
 03EN1030B and 03ET1561B.
 
-<a href="https://www.bmwi.de/Navigation/EN/Home/home.html"> <img alt="BMWK" 
+<a href="https://www.bmwi.de/Navigation/EN/Home/home.html"> <img alt="BMWK"
 src="https://raw.githubusercontent.com/N5GEH/n5geh.platform/master/docs/logos/BMWK-logo_en.png" height="100"> </a>
