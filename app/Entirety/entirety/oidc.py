@@ -18,7 +18,7 @@ class CustomOIDCAB(OIDCAuthenticationBackend):
 
     def __set_user_values(self, user, claims):
 
-        path = settings.OIDC_TOKEN_ROLE_FIELD
+        path = settings.OIDC_TOKEN_ROLE_PATH
         parsed_result = parse(path).find(
             claims)
         if len(parsed_result) > 0:
@@ -48,11 +48,13 @@ class CustomOIDCAB(OIDCAuthenticationBackend):
     def verify_claims(self, claims):
         logger.info(claims.get("given_name") + " is verifying claim")
         verified = super(CustomOIDCAB, self).verify_claims(claims)
-        path = settings.OIDC_TOKEN_ROLE_FIELD
+        path = settings.OIDC_TOKEN_ROLE_PATH
         parsed_result = parse(path).find(
             claims)
         if len(parsed_result) > 0:
             value = parsed_result[0].value
+        else:
+            value = []
         is_user = settings.OIDC_USER_ROLE in value
 
         return verified and is_user
