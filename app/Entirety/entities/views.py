@@ -161,8 +161,24 @@ class Create(ProjectContextMixin, TemplateView):
 
     def get_context_data(self, **kwargs):
         basic_info = EntityForm(self.project)
+
+        # Extract query parameters for the attributes formset
+        attributes_data = self.request.GET.getlist("attributes", [])
+        attributes_initial_data = []
+        for attribute in attributes_data:
+            attr_parts = attribute.split(";")
+            if len(attr_parts) == 4:
+                attributes_initial_data.append(
+                    {
+                        "name": attr_parts[0],
+                        "type": attr_parts[1],
+                        "value": attr_parts[2],
+                        # 'metadata': attr_parts[3],
+                    }
+                )
+
         attributes_form_set = formset_factory(AttributeForm, max_num=0)
-        attributes = attributes_form_set(prefix="attr")
+        attributes = attributes_form_set(prefix="attr", initial=attributes_initial_data)
         smart_data_model_form = SmartDataModelQueryForm(initial={"data_model": ".."})
 
         context = super(Create, self).get_context_data(**kwargs)
