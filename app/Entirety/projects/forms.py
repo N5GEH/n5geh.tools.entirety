@@ -81,7 +81,7 @@ class ProjectForm(forms.ModelForm):
             raise ValidationError(e)
 
     def save(self, commit=True):
-        instance = super().save(commit=False)
+        instance = super().save(commit=True)
 
         instance.viewers.set(self.cleaned_data["viewers"])
         instance.users.set(self.cleaned_data["users"])
