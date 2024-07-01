@@ -14,6 +14,74 @@
               {% if form_submitted %}class="was-validated" {% endif %}>
             {% csrf_token %}
             {% crispy form %}
+            <div class="btn-toolbar">
+                <div class="dropdown">
+                    <button class="btn btn-outline-secondary dropdown-toggle" type="button" id="dropdownMenuButton"
+                            data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="bi bi-people"></i>
+                        Viewers
+                    </button>
+                    <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                        <div class="px-3 py-2">
+                            {% for viewer in form.viewers.field.queryset %}
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="viewers"
+                                           id="viewer_{{ viewer.id }}" value="{{ viewer.id }}"
+                                           {% if viewer.id in form.viewers.value %}checked{% endif %}>
+                                    <label class="form-check-label" for="viewer_{{ viewer.id }}">
+                                        {{ viewer.username }}
+                                    </label>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="dropdown">
+                    <button class="btn btn-outline-secondary dropdown-toggle ms-4" type="button" id="dropdownMenuButton"
+                            data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="bi bi-people"></i>
+                        Users
+                    </button>
+                    <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                        <div class="px-3 py-2">
+                            {% for user in form.users.field.queryset %}
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="users"
+                                           id="user_{{ viewer.id }}"
+                                           value="{{ user.id }}" {% if user.id in form.users.value %}checked{% endif %}>
+                                    <label class="form-check-label" for="user_{{ user.id }}">
+                                        {{ user.username }}
+                                    </label>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="dropdown">
+                    <button class="btn btn-outline-secondary dropdown-toggle ms-4" type="button" id="dropdownMenuButton"
+                            data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="bi bi-people"></i>
+                        Maintainers
+                    </button>
+                    <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                        <div class="px-3 py-2">
+                            {% for maintainer in form.maintainers.field.queryset %}
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="maintainers"
+                                           id="maintainer_{{ maintainer.id }}" value="{{ maintainer.id }}"
+                                           {% if maintainer.id in form.maintainers.value %}checked{% endif %}>
+                                    <label class="form-check-label" for="viewer_{{ maintainer.id }}">
+                                        {{ maintainer.username }}
+                                    </label>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <input class="btn btn-primary mt-2" name="save" value="Save" type="submit" id="submit-id-save">
         </form>
     </div>
 
