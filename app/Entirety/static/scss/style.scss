@@ -10,3 +10,12 @@
 h1{
   color: $primary
 }
+
+.dropdown-scrollable {
+    max-height: 150px;
+    overflow-y: auto;
+}
+
+.form-check[aria-hidden="false"] {
+    display: block;
+}

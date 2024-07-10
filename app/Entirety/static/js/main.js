@@ -16,3 +16,60 @@
         }
     })
 })()
+
+document.addEventListener('DOMContentLoaded', function() {
+    const viewerSearch = document.getElementById('viewerSearch');
+    const viewerList = document.getElementById('viewerList');
+
+    viewerSearch.addEventListener('input', function() {
+        const query = this.value.toLowerCase();
+        const checkboxes = viewerList.querySelectorAll('.form-check');
+
+        checkboxes.forEach(function(checkbox) {
+            const label = checkbox.querySelector('label').textContent.toLowerCase();
+            if (label.includes(query)) {
+                checkbox.style.display = 'block';
+            } else {
+                checkbox.style.display = 'none';
+            }
+        });
+    });
+});
+
+document.addEventListener('DOMContentLoaded', function() {
+    const viewerSearch = document.getElementById('userSearch');
+    const viewerList = document.getElementById('userList');
+
+    viewerSearch.addEventListener('input', function() {
+        const query = this.value.toLowerCase();
+        const checkboxes = viewerList.querySelectorAll('.form-check');
+
+        checkboxes.forEach(function(checkbox) {
+            const label = checkbox.querySelector('label').textContent.toLowerCase();
+            if (label.includes(query)) {
+                checkbox.style.display = 'block';
+            } else {
+                checkbox.style.display = 'none';
+            }
+        });
+    });
+});
+
+document.addEventListener('DOMContentLoaded', function() {
+    const viewerSearch = document.getElementById('maintainerSearch');
+    const viewerList = document.getElementById('maintainerList');
+
+    viewerSearch.addEventListener('input', function() {
+        const query = this.value.toLowerCase();
+        const checkboxes = viewerList.querySelectorAll('.form-check');
+
+        checkboxes.forEach(function(checkbox) {
+            const label = checkbox.querySelector('label').textContent.toLowerCase();
+            if (label.includes(query)) {
+                checkbox.style.display = 'block';
+            } else {
+                checkbox.style.display = 'none';
+            }
+        });
+    });
+});
