@@ -970,7 +970,7 @@ var selectionmenu = {
 
                 let attributes = [
                     {
-                        name: ele.id(),
+                        name: 'refEntity (replace it with relationship name)',
                         type: 'Relationship',
                         value: ele.id(),
                         // metadata: {}
