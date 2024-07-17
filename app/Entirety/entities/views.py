@@ -226,7 +226,7 @@ class Create(ProjectContextMixin, TemplateView):
             basic_info = EntityForm(initial=request.POST, project=self.project)
             attributes_form_set = formset_factory(AttributeForm, max_num=0)
             attributes = attributes_form_set(request.POST, prefix="attr")
-            context = super(Create, self).get_context_data(**kwargs)
+            context = self.get_context_data(**kwargs)
             context["basic_info"] = basic_info
             context["attributes"] = attributes
             try:
@@ -264,23 +264,13 @@ class Create(ProjectContextMixin, TemplateView):
                         i = i + 1
                     j = j + 1
                 res = post_entity(self, entity, False, self.project)
-                if res:
-                    messages.error(
-                        self.request,
-                        f"Entity not created. Reason: {res}",
-                    )
-                else:
-                    return redirect(
-                        "projects:entities:list", project_id=self.project.uuid
-                    )
             # handel the error from server
             except ValidationError as e:
                 messages.error(request, e.raw_errors[0].exc.__str__())
             if res:
                 messages.error(
                     self.request,
-                    "Entity not created. Reason: "
-                    + json.loads(res.response.text).get("description"),
+                    "Entity not created. Reason: " + res,
                 )
                 logger.error(
                     str(
@@ -291,7 +281,7 @@ class Create(ProjectContextMixin, TemplateView):
                     + " tried creating the entity with id "
                     + entity.id
                     + " but failed with error "
-                    + json.loads(res.response.text).get("description")
+                    + res
                     + f" in project {self.project.name}"
                 )
                 return render(request, self.template_name, context)
