@@ -161,8 +161,24 @@ class Create(ProjectContextMixin, TemplateView):
 
     def get_context_data(self, **kwargs):
         basic_info = EntityForm(self.project)
+
+        # Extract query parameters for the attributes formset
+        attributes_data = self.request.GET.getlist("attributes", [])
+        attributes_initial_data = []
+        for attribute in attributes_data:
+            attr_parts = attribute.split(";")
+            if len(attr_parts) == 4:
+                attributes_initial_data.append(
+                    {
+                        "name": attr_parts[0],
+                        "type": attr_parts[1],
+                        "value": attr_parts[2],
+                        # 'metadata': attr_parts[3],
+                    }
+                )
+
         attributes_form_set = formset_factory(AttributeForm, max_num=0)
-        attributes = attributes_form_set(prefix="attr")
+        attributes = attributes_form_set(prefix="attr", initial=attributes_initial_data)
         smart_data_model_form = SmartDataModelQueryForm(initial={"data_model": ".."})
 
         context = super(Create, self).get_context_data(**kwargs)
@@ -210,7 +226,7 @@ class Create(ProjectContextMixin, TemplateView):
             basic_info = EntityForm(initial=request.POST, project=self.project)
             attributes_form_set = formset_factory(AttributeForm, max_num=0)
             attributes = attributes_form_set(request.POST, prefix="attr")
-            context = super(Create, self).get_context_data(**kwargs)
+            context = self.get_context_data(**kwargs)
             context["basic_info"] = basic_info
             context["attributes"] = attributes
             try:
@@ -248,23 +264,13 @@ class Create(ProjectContextMixin, TemplateView):
                         i = i + 1
                     j = j + 1
                 res = post_entity(self, entity, False, self.project)
-                if res:
-                    messages.error(
-                        self.request,
-                        f"Entity not created. Reason: {res}",
-                    )
-                else:
-                    return redirect(
-                        "projects:entities:list", project_id=self.project.uuid
-                    )
             # handel the error from server
             except ValidationError as e:
                 messages.error(request, e.raw_errors[0].exc.__str__())
             if res:
                 messages.error(
                     self.request,
-                    "Entity not created. Reason: "
-                    + json.loads(res.response.text).get("description"),
+                    "Entity not created. Reason: " + res,
                 )
                 logger.error(
                     str(
@@ -275,7 +281,7 @@ class Create(ProjectContextMixin, TemplateView):
                     + " tried creating the entity with id "
                     + entity.id
                     + " but failed with error "
-                    + json.loads(res.response.text).get("description")
+                    + res
                     + f" in project {self.project.name}"
                 )
                 return render(request, self.template_name, context)
