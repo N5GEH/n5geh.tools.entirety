@@ -19,7 +19,7 @@ class List(ProjectContextAndViewOnlyMixin, ListView):
     def get_queryset(self):
         # Use queryset not in the way it's intended
         data = []
-        qs = super().get_queryset().filter(project_id=self.project.uuid)
+        Subscription.objects.all().delete()
         with ContextBrokerClient(
             url=settings.CB_URL,
             fiware_header=FiwareHeader(
@@ -27,10 +27,13 @@ class List(ProjectContextAndViewOnlyMixin, ListView):
                 service_path=self.project.fiware_service_path,
             ),
         ) as cb_client:
-            for sub in qs:
-                cb_sub = cb_client.get_subscription(sub.uuid)
-                sub.description = cb_sub.description
-                sub.status = cb_sub.status
+            subs_cb = cb_client.get_subscription_list()
+            for sub_cb in subs_cb:
+                sub = Subscription(uuid=sub_cb.id)
+                sub.description = sub_cb.description
+                sub.status = sub_cb.status
+                sub.project = self.project
+                sub.save()
                 data.append(sub)
         return data
 

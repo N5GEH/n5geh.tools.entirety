@@ -84,12 +84,12 @@ class Update(ProjectContextAndViewOnlyMixin, UpdateView):
                 #     if cb_sub.notification.exceptAttrs
                 #     else None
                 # )
-                form.initial[
-                    "attributes_format"
-                ] = cb_sub.notification.attrsFormat.value
-                form.initial[
-                    "only_changed_attributes"
-                ] = cb_sub.notification.onlyChangedAttrs
+                form.initial["attributes_format"] = (
+                    cb_sub.notification.attrsFormat.value
+                )
+                form.initial["only_changed_attributes"] = (
+                    cb_sub.notification.onlyChangedAttrs
+                )
                 form.initial["project"] = self.project
                 context["form"] = form
 
@@ -97,18 +97,22 @@ class Update(ProjectContextAndViewOnlyMixin, UpdateView):
                 for entity in cb_sub.subject.entities:
                     entities_initial.append(
                         {
-                            "entity_selector": "id_pattern"
-                            if entity.idPattern
-                            else "id",
-                            "entity_id": entity.idPattern.pattern
-                            if entity.idPattern
-                            else entity.id,
-                            "type_selector": "type_pattern"
-                            if entity.typePattern
-                            else "type",
-                            "entity_type": entity.typePattern.pattern
-                            if entity.typePattern
-                            else entity.type,
+                            "entity_selector": (
+                                "id_pattern" if entity.idPattern else "id"
+                            ),
+                            "entity_id": (
+                                entity.idPattern.pattern
+                                if entity.idPattern
+                                else entity.id
+                            ),
+                            "type_selector": (
+                                "type_pattern" if entity.typePattern else "type"
+                            ),
+                            "entity_type": (
+                                entity.typePattern.pattern
+                                if entity.typePattern
+                                else entity.type
+                            ),
                         }
                     )
                 context["entities"] = forms.Entities(
@@ -157,21 +161,27 @@ class Update(ProjectContextAndViewOnlyMixin, UpdateView):
                         entity_selector = entity_form.cleaned_data["entity_selector"]
                         type_selector = entity_form.cleaned_data["type_selector"]
                         pattern = EntityPattern(
-                            id=entity_form.cleaned_data["entity_id"]
-                            if entity_selector == "id"
-                            else None,
-                            idPattern=re.compile(entity_form.cleaned_data["entity_id"])
-                            if entity_selector == "id_pattern"
-                            else None,
-                            type=entity_form.cleaned_data["entity_type"]
-                            if entity_form.cleaned_data["entity_type"]
-                            and type_selector == "type"
-                            else None,
-                            typePattern=re.compile(
+                            id=(
+                                entity_form.cleaned_data["entity_id"]
+                                if entity_selector == "id"
+                                else None
+                            ),
+                            idPattern=(
+                                re.compile(entity_form.cleaned_data["entity_id"])
+                                if entity_selector == "id_pattern"
+                                else None
+                            ),
+                            type=(
                                 entity_form.cleaned_data["entity_type"]
-                            )
-                            if type_selector == "type_pattern"
-                            else None,
+                                if entity_form.cleaned_data["entity_type"]
+                                and type_selector == "type"
+                                else None
+                            ),
+                            typePattern=(
+                                re.compile(entity_form.cleaned_data["entity_type"])
+                                if type_selector == "type_pattern"
+                                else None
+                            ),
                         )
                         entities.append(pattern)
 
@@ -193,18 +203,24 @@ class Update(ProjectContextAndViewOnlyMixin, UpdateView):
                         ),
                     )
                     cb_sub.notification = Notification(
-                        http=Http(url=form.cleaned_data["http"])
-                        if form.cleaned_data["http"]
-                        else None,
-                        mqtt=Mqtt(
-                            url=form.cleaned_data["mqtt"],
-                            topic=f"{settings.MQTT_BASE_TOPIC}/{self.project.uuid}",
-                        )
-                        if form.cleaned_data["mqtt"]
-                        else None,
-                        metadata=form.cleaned_data["metadata"].split(",")
-                        if form.cleaned_data["metadata"]
-                        else None,
+                        http=(
+                            Http(url=form.cleaned_data["http"])
+                            if form.cleaned_data["http"]
+                            else None
+                        ),
+                        mqtt=(
+                            Mqtt(
+                                url=form.cleaned_data["mqtt"],
+                                topic=f"{settings.MQTT_BASE_TOPIC}/{self.project.uuid}",
+                            )
+                            if form.cleaned_data["mqtt"]
+                            else None
+                        ),
+                        metadata=(
+                            form.cleaned_data["metadata"].split(",")
+                            if form.cleaned_data["metadata"]
+                            else None
+                        ),
                         # attrs=form.cleaned_data["n_attributes"].split(",")
                         # if form.cleaned_data["n_attributes"]
                         # else None,
@@ -223,7 +239,7 @@ class Update(ProjectContextAndViewOnlyMixin, UpdateView):
                         else self.request.user.username
                     )
                     + " has updated the subscription with name "
-                    + self.object.name
+                    + self.object.uuid
                     + f" in project {self.project.name}"
                 )
                 return self.form_valid(form)
@@ -234,8 +250,8 @@ class Update(ProjectContextAndViewOnlyMixin, UpdateView):
                 if self.request.user.first_name
                 else self.request.user.username
             )
-            + " tried updating the subscription with name"
-            + self.object.name
+            + " tried updating the subscription with name "
+            + self.object.uuid
             + " but failed "
             f" in project {self.project.name}"
         )
