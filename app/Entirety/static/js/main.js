@@ -18,58 +18,24 @@
 })()
 
 document.addEventListener('DOMContentLoaded', function() {
-    const viewerSearch = document.getElementById('viewerSearch');
-    const viewerList = document.getElementById('viewerList');
+    const searchListPairs = [
+        { search: 'viewerSearch', list: 'viewerList' },
+        { search: 'userSearch', list: 'userList' },
+        { search: 'maintainerSearch', list: 'maintainerList' }
+    ];
 
-    viewerSearch.addEventListener('input', function() {
-        const query = this.value.toLowerCase();
-        const checkboxes = viewerList.querySelectorAll('.form-check');
+    searchListPairs.forEach(function(pair) {
+        const searchElement = document.getElementById(pair.search);
+        const listElement = document.getElementById(pair.list);
 
-        checkboxes.forEach(function(checkbox) {
-            const label = checkbox.querySelector('label').textContent.toLowerCase();
-            if (label.includes(query)) {
-                checkbox.style.display = 'block';
-            } else {
-                checkbox.style.display = 'none';
-            }
-        });
-    });
-});
+        searchElement.addEventListener('input', function() {
+            const query = this.value.toLowerCase();
+            const checkboxes = listElement.querySelectorAll('.form-check');
 
-document.addEventListener('DOMContentLoaded', function() {
-    const viewerSearch = document.getElementById('userSearch');
-    const viewerList = document.getElementById('userList');
-
-    viewerSearch.addEventListener('input', function() {
-        const query = this.value.toLowerCase();
-        const checkboxes = viewerList.querySelectorAll('.form-check');
-
-        checkboxes.forEach(function(checkbox) {
-            const label = checkbox.querySelector('label').textContent.toLowerCase();
-            if (label.includes(query)) {
-                checkbox.style.display = 'block';
-            } else {
-                checkbox.style.display = 'none';
-            }
-        });
-    });
-});
-
-document.addEventListener('DOMContentLoaded', function() {
-    const viewerSearch = document.getElementById('maintainerSearch');
-    const viewerList = document.getElementById('maintainerList');
-
-    viewerSearch.addEventListener('input', function() {
-        const query = this.value.toLowerCase();
-        const checkboxes = viewerList.querySelectorAll('.form-check');
-
-        checkboxes.forEach(function(checkbox) {
-            const label = checkbox.querySelector('label').textContent.toLowerCase();
-            if (label.includes(query)) {
-                checkbox.style.display = 'block';
-            } else {
-                checkbox.style.display = 'none';
-            }
+            checkboxes.forEach(function(checkbox) {
+                const label = checkbox.querySelector('label').textContent.toLowerCase();
+                checkbox.style.display = label.includes(query) ? 'block' : 'none';
+            });
         });
     });
 });

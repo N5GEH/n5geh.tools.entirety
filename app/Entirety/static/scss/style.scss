@@ -11,7 +11,8 @@ h1{
   color: $primary
 }
 
-.dropdown-scrollable {
+.dropdown-scrollable-checkboxes {
+    @extend .dropdown-scrollable;
     max-height: 150px;
     overflow-y: auto;
 }
