@@ -79,6 +79,7 @@ class ProjectForm(forms.ModelForm):
             FiwareHeader(service=service)
         except Exception as e:
             raise ValidationError(e)
+        # TODO: error handling for empty values in dropdowns
 
     def save(self, commit=True):
         instance = super().save(commit=True)

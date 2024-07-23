@@ -12,7 +12,7 @@ h1{
 }
 
 .dropdown-scrollable-checkboxes {
-    @extend .dropdown-scrollable;
+    @extend .dropdown-scrollable !optional;
     max-height: 150px;
     overflow-y: auto;
 }
