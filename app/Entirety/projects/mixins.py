@@ -15,6 +15,10 @@ class ApplicationLoadMixin:
         context["devices_load"] = apps.is_installed("devices")
         context["notifications_load"] = apps.is_installed("subscriptions")
         context["semantics_load"] = apps.is_installed("semantics")
+        # TODO change the tag if data model module
+        context["smart_datamodels_load"] = apps.is_installed(
+            "devices"
+        ) or apps.is_installed("entities")
 
         return context
 
@@ -64,6 +68,12 @@ class ProjectSelfMixin(ProjectBaseMixin):
             or self.request.user.is_server_admin
             or obj.is_maintainer(self.request.user)
         )
+
+
+class ProjectContextAndViewOnlyMixin(ProjectContextMixin):
+    def test_func(self):
+        super_test_func = super().test_func()
+        return super_test_func, self.project.is_viewer(self.request.user)
 
 
 class ProjectCreateMixin(ProjectBaseMixin):

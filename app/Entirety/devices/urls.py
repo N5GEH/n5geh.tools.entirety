@@ -7,7 +7,7 @@ from devices.views import (
     DeviceEditSubmitView,
     DeviceEditView,
     DeviceDeleteView,
-    DeviceBatchCreateView
+    DeviceCreateBatchView
 )
 from devices.views import (
     ServiceGroupListSubmitView,
@@ -15,13 +15,15 @@ from devices.views import (
     ServiceGroupCreateSubmitView,
     ServiceGroupEditView,
     ServiceGroupEditSubmitView,
-    ServiceGroupDeleteView
+    ServiceGroupDeleteView,
+    ServiceGroupDataModelCreateView,
+    ServiceGroupDataModelCreateSubmitView
 )
 
 app_name = "devices"
 urlpatterns = [
     path("create", DeviceCreateView.as_view(), name="create"),
-    path("batchcreate", DeviceBatchCreateView.as_view(), name="batchcreate"),
+    path("create/batch", DeviceCreateBatchView.as_view(), name="create_batch"),
     path("edit", DeviceEditView.as_view(), name="edit"),
     path("edit-submit", DeviceEditSubmitView.as_view(), name="edit_submit"),
     path("create-submit", DeviceCreateSubmitView.as_view(), name="create_submit"),
@@ -34,4 +36,7 @@ urlpatterns = [
     path("create-submit-group", ServiceGroupCreateSubmitView.as_view(), name="create_submit_group"),
     path("list-submit-group", ServiceGroupListSubmitView.as_view(), name="list_submit_group"),
     path("delete-group", ServiceGroupDeleteView.as_view(), name="delete_group"),
+    path("create-group-datamodel", ServiceGroupDataModelCreateView.as_view(), name="create_group_datamodel"),
+    path("create-submit-group-datamodel", ServiceGroupDataModelCreateSubmitView.as_view(),
+         name="create_submit_group_datamodel")
 ]

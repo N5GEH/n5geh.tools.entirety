@@ -5,7 +5,7 @@ from django.views.generic import View, TemplateView
 from django.http import HttpRequest
 import json
 from entirety.utils import pop_data_from_session, add_data_to_session
-from projects.mixins import ProjectContextMixin
+from projects.mixins import ProjectContextMixin, ProjectContextAndViewOnlyMixin
 import logging
 from filip.models.ngsi_v2.iot import Device
 from devices.forms import DeviceBasic, Attributes, Commands, DeviceBatchForm
@@ -22,17 +22,49 @@ from devices.utils import (
     get_device_by_id,
     delete_device,
     pattern_service_groups_filter,
-    pattern_devices_filter, post_devices,
+    pattern_devices_filter,
+    post_devices,
 )
 from devices.tables import DevicesTable, GroupsTable
 from requests.exceptions import RequestException
 from pydantic import ValidationError
+from requests.exceptions import RequestException
+import logging
+from django.shortcuts import render, redirect
+from django.views.generic import TemplateView
+from django.contrib import messages
+from entities.forms import (
+    EntityForm,
+    AttributeForm,
+    SubscriptionForm,
+    RelationshipForm,
+    SelectionForm,
+    DeviceForm,
+    JSONForm,
+)
+from smartdatamodels.forms import SmartDataModelQueryForm
+from entities.requests import (
+    get_entity,
+    post_entity,
+    update_entity,
+    get_relationships,
+    # get_devices,
+    get_subscriptions,
+    delete_subscription,
+    delete_relationship,
+    # delete_device,
+    delete_entity,
+    delete_entities,
+)
+from entities.tables import EntityTable
+from projects.mixins import ProjectContextMixin
+from utils.parser import parser, parse_entity, parse_device
 
 logger = logging.getLogger(__name__)
 
 
 # Devices list
-class DeviceListView(ProjectContextMixin, MultiTableMixin, TemplateView):
+class DeviceListView(ProjectContextAndViewOnlyMixin, MultiTableMixin, TemplateView):
     # TemplateView.as_view() will render the template. Do not need to invoke render function
     template_name = "devices/list.html"
     # table_class = DevicesTable
@@ -84,10 +116,18 @@ class DeviceListView(ProjectContextMixin, MultiTableMixin, TemplateView):
         context["project"] = self.project
         if self.request.GET.get("search-pattern-groups", default=""):
             context["to_servicegroup"] = True
+        context["view_only"] = (
+            True
+            if self.request.user in self.project.viewers.all()
+            and self.request.user not in self.project.maintainers.all()
+            and self.request.user not in self.project.users.all()
+            and self.request.user is not self.project.owner
+            else False
+        )
         return context
 
 
-class DeviceListSubmitView(ProjectContextMixin, View):
+class DeviceListSubmitView(ProjectContextAndViewOnlyMixin, View):
     # Redirect the request to corresponding view
     def post(self, request, *args, **kwargs):
         # press delete button
@@ -124,10 +164,7 @@ class DeviceListSubmitView(ProjectContextMixin, View):
 
             # redirect to entity app
             add_data_to_session(request, "entities", entities)
-            return redirect(
-                "projects:entities:delete",
-                project_id=self.project.uuid
-            )
+            return redirect("projects:entities:delete", project_id=self.project.uuid)
 
         # press create button
         elif request.POST.get("Create"):
@@ -135,7 +172,9 @@ class DeviceListSubmitView(ProjectContextMixin, View):
 
         # press batch create button
         elif request.POST.get("BatchCreate"):
-            return redirect("projects:devices:batchcreate", project_id=self.project.uuid)
+            return redirect(
+                "projects:devices:batchcreate", project_id=self.project.uuid
+            )
 
         # press edit button
         elif request.POST.get("Edit"):
@@ -153,11 +192,13 @@ class DeviceCreateView(ProjectContextMixin, TemplateView):
         attributes = Attributes(prefix=prefix_attributes)
         commands = Commands(prefix=prefix_commands)
         context: dict = super(DeviceCreateView, self).get_context_data(**kwargs)
+        smart_data_model_form = SmartDataModelQueryForm(initial={"data_model": ".."})
         context = {
             "basic_info": basic_info,
             "attributes": attributes,
             "commands": commands,
             "action": "Create",
+            "smart_data_model_form": smart_data_model_form,
             **context,
         }
         return render(request, "devices/detail.html", context)
@@ -180,11 +221,10 @@ class DeviceBatchCreateView(ProjectContextMixin, TemplateView):
         if form.is_valid():
             devices_json = json.loads(self.request.POST.get("device_json"))
             try:
-                devices = [Device(**device_dict) for device_dict in devices_json["devices"]]
-                post_devices(
-                    devices,
-                    project=self.project
-                )
+                devices = [
+                    Device(**device_dict) for device_dict in devices_json["devices"]
+                ]
+                post_devices(devices, project=self.project)
                 logger.info(
                     "Devices created by "
                     + str(
@@ -220,70 +260,112 @@ class DeviceBatchCreateView(ProjectContextMixin, TemplateView):
 
 class DeviceCreateSubmitView(ProjectContextMixin, TemplateView):
     def post(self, request: HttpRequest, **kwargs):
-        # preprocess the request query data
-        data_basic, data_attributes, data_commands = parse_request_data(
-            request.POST, BasicForm=DeviceBasic
-        )
+        # Load data model
+        if "load" in self.request.POST:
+            # Load device data model
+            if self.request.POST.get("data_model") == "..":
+                device_dict = {}
+            else:
+                device_dict = parse_device(self.request.POST.get("data_model"))
+            # get the project context data
+            context: dict = super(DeviceCreateSubmitView, self).get_context_data(
+                **kwargs
+            )
 
-        # create forms from query data
-        basic_info = DeviceBasic(data=data_basic)
-        attributes = Attributes(data=data_attributes, prefix=prefix_attributes)
-        commands = Commands(data=data_commands, prefix=prefix_commands)
+            # pass the json to devices form
+            basic_info = DeviceBasic(initial=device_dict)
+            attributes = Attributes(
+                initial=device_dict.get("attributes"), prefix=prefix_attributes
+            )
+            commands = Commands(prefix=prefix_commands)
 
-        if basic_info.is_valid() and attributes.is_valid() and commands.is_valid():
-            try:
-                device = build_device(
-                    data_basic=data_basic,
-                    data_attributes=data_attributes,
-                    data_commands=data_commands,
-                )
-                post_device(device, project=self.project)
-                logger.info(
-                    "Device created by "
-                    + str(
-                        self.request.user.first_name
-                        if self.request.user.first_name
-                        else self.request.user.username
+            context["smart_data_model_form"] = SmartDataModelQueryForm(
+                initial=request.POST
+            )
+            context = {
+                "basic_info": basic_info,
+                "attributes": attributes,
+                "commands": commands,
+                "action": "Create",
+                **context,
+            }
+            return render(request, "devices/detail.html", context)
+        elif "submit" in self.request.POST:
+            # preprocess the request query data
+            data_basic, data_attributes, data_commands = parse_request_data(
+                request.POST, BasicForm=DeviceBasic
+            )
+
+            # create forms from query data
+            basic_info = DeviceBasic(data=data_basic)
+            attributes = Attributes(data=data_attributes, prefix=prefix_attributes)
+            commands = Commands(data=data_commands, prefix=prefix_commands)
+
+            if basic_info.is_valid() and attributes.is_valid() and commands.is_valid():
+                try:
+                    device = build_device(
+                        data_basic=data_basic,
+                        data_attributes=data_attributes,
+                        data_commands=data_commands,
                     )
-                    + f" in project {self.project.name}"
-                )
-                return redirect("projects:devices:list", project_id=self.project.uuid)
-            # handel the error from server
-            except RequestException as e:
-                messages.error(request, e.response.content.decode("utf-8"))
-                if "DUPLICATE_DEVICE_ID" in e.response.content.decode("utf-8"):
-                    device_id = device.device_id
-                    add_data_to_session(request, "search-pattern", device_id)
-                    return redirect("projects:devices:list", project_id=self.project.uuid)
-                logger.error(
-                    str(
-                        self.request.user.first_name
-                        if self.request.user.first_name
-                        else self.request.user.username
+                    post_device(device, project=self.project)
+                    logger.info(
+                        "Device created by "
+                        + str(
+                            self.request.user.first_name
+                            if self.request.user.first_name
+                            else self.request.user.username
+                        )
+                        + f" in project {self.project.name}"
                     )
-                    + " tried creating device"
-                    + " but failed with error "
-                    + json.loads(e.response.content.decode("utf-8")).get("message")
-                    + f" in project {self.project.name}"
-                )
-            except ValidationError as e:
-                messages.error(request, e.raw_errors[0].exc.__str__())
+                    return redirect(
+                        "projects:devices:list", project_id=self.project.uuid
+                    )
+                # handel the error from server
+                except RequestException as e:
+                    messages.error(request, e.response.content.decode("utf-8"))
+                    if "DUPLICATE_DEVICE_ID" in e.response.content.decode("utf-8"):
+                        device_id = device.device_id
+                        add_data_to_session(request, "search-pattern", device_id)
+                        return redirect(
+                            "projects:devices:list", project_id=self.project.uuid
+                        )
+                    logger.error(
+                        str(
+                            self.request.user.first_name
+                            if self.request.user.first_name
+                            else self.request.user.username
+                        )
+                        + " tried creating device"
+                        + " but failed with error "
+                        + json.loads(e.response.content.decode("utf-8")).get("message")
+                        + f" in project {self.project.name}"
+                    )
+                except ValidationError as e:
+                    messages.error(request, e.raw_errors[0].exc.__str__())
 
-        # get the project context data
-        context: dict = super(DeviceCreateSubmitView, self).get_context_data(**kwargs)
+            # get the project context data
+            context: dict = super(DeviceCreateSubmitView, self).get_context_data(
+                **kwargs
+            )
+            context["smart_data_model_form"] = SmartDataModelQueryForm(
+                initial=request.POST
+            )
 
-        context = {
-            "basic_info": basic_info,
-            "attributes": attributes,
-            "commands": commands,
-            "action": "Create",
-            **context,
-        }
-        return render(request, "devices/detail.html", context)
+            context = {
+                "basic_info": basic_info,
+                "attributes": attributes,
+                "commands": commands,
+                "action": "Create",
+                **context,
+            }
+            return render(request, "devices/detail.html", context)
+        else:
+            raise NotImplementedError
 
 
 # Edit devices
-class DeviceEditView(ProjectContextMixin, TemplateView):
+class DeviceEditView(ProjectContextAndViewOnlyMixin, TemplateView):
     def get(self, request: HttpRequest, *args, **kwargs):
         context = super(DeviceEditView, self).get_context_data()
 
@@ -319,7 +401,14 @@ class DeviceEditView(ProjectContextMixin, TemplateView):
             commands = Commands(initial=device_dict["commands"], prefix=prefix_commands)
         else:
             commands = Commands(prefix=prefix_commands)
-
+        context["view_only"] = (
+            True
+            if self.request.user in self.project.viewers.all()
+            and self.request.user not in self.project.maintainers.all()
+            and self.request.user not in self.project.users.all()
+            and self.request.user is not self.project.owner
+            else False
+        )
         context = {
             "basic_info": basic_info,
             "attributes": attributes,
@@ -404,7 +493,9 @@ class DeviceDeleteView(ProjectContextMixin, View):
         for device_id in devices_id:
             try:
                 delete_device(
-                    project=self.project, device_id=device_id, delete_entity=delete_entity
+                    project=self.project,
+                    device_id=device_id,
+                    delete_entity=delete_entity,
                 )
                 logger.info(
                     "Device deleted by "
@@ -420,3 +511,53 @@ class DeviceDeleteView(ProjectContextMixin, View):
 
         # if success, redirect to devices list view
         return redirect("projects:devices:list", project_id=self.project.uuid)
+
+
+class DeviceCreateBatchView(ProjectContextMixin, TemplateView):
+    template_name = "devices/batch.html"
+    form_class = JSONForm
+
+    def get_context_data(self, **kwargs):
+        json_form = self.form_class()
+        context = super(DeviceCreateBatchView, self).get_context_data(**kwargs)
+        context["json_form"] = json_form
+        return context
+
+    def post(self, request, *args, **kwargs):
+        form = self.form_class(request.POST)
+        context = super(DeviceCreateBatchView, self).get_context_data(**kwargs)
+        context["json_form"] = form
+        if form.is_valid():
+            devices_json = json.loads(self.request.POST.get("device_json"))
+            devices_to_add = [
+                DeviceBasic(**device_json) for device_json in devices_json
+            ]
+
+            try:
+                post_device(devices_to_add, project=self.project)
+                logger.info(
+                    "Batch of devices created by "
+                    + str(
+                        self.request.user.first_name
+                        if self.request.user.first_name
+                        else self.request.user.username
+                    )
+                    + f" in project {self.project.name}"
+                )
+                return redirect("projects:devices:list", project_id=self.project.uuid)
+            except RequestException as e:
+                messages.error(self.request, e.response.content.decode("utf-8"))
+                logger.error(
+                    str(
+                        self.request.user.first_name
+                        if self.request.user.first_name
+                        else self.request.user.username
+                    )
+                    + f" tried creating a batch of devices but failed with error "
+                    + json.loads(e.response.content.decode("utf-8")).get("message")
+                    + f" in project {self.project.name}"
+                )
+            except ValidationError as e:
+                messages.error(self.request, e.raw_errors[0].exc.__str__())
+        else:
+            return render(request, self.template_name, context)

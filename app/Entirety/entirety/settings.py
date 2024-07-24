@@ -109,19 +109,23 @@ class Settings(BaseSettings):
         "django.contrib.messages",
         "django.contrib.staticfiles",
         "django.forms",
+        "django_jsonforms",
         "django_tables2",
         "compressor",
+        "corsheaders",
         "crispy_forms",
         "crispy_bootstrap5",
         "projects",
         "examples",
         "users",
+        "smartdatamodels",
     ]
     # TODO how to define constant variable
     CRISPY_ALLOWED_TEMPLATE_PACKS: str = "bootstrap5"
     CRISPY_TEMPLATE_PACK: str = "bootstrap5"
 
     MIDDLEWARE: List[str] = [
+        "corsheaders.middleware.CorsMiddleware",
         "django.middleware.security.SecurityMiddleware",
         "django.contrib.sessions.middleware.SessionMiddleware",
         "django.middleware.common.CommonMiddleware",
@@ -281,7 +285,6 @@ class Settings(BaseSettings):
     }
 
     LOG.dictConfig(LOGGING)
-    # TODO
 
     # Media location
     # https://docs.djangoproject.com/en/4.0/howto/static-files/#serving-files
@@ -356,8 +359,8 @@ class Settings(BaseSettings):
             default="project_admin", alias="OIDC_PROJECT_ADMIN_ROLE"
         )
         OIDC_USER_ROLE: str = Field(default="user", alias="OIDC_USER_ROLE")
-        OIDC_TOKEN_ROLE_FIELD: str = Field(
-            default="roles", alias="OIDC_TOKEN_ROLE_FIELD"
+        OIDC_TOKEN_ROLE_PATH: str = Field(
+            default="$.entirety.roles", alias="OIDC_TOKEN_ROLE_PATH"
         )
 
     # Internationalization
