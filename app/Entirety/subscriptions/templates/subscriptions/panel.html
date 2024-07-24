@@ -28,7 +28,10 @@
                 <span><strong>Entity Type</strong>: {{ subscription.entity_type_pattern }}</span>
             {% endif %}
             {% if subscription.notification_endpoint %}
-                <span><strong>Notification</strong>: {{ subscription.notification_endpoint|slice:":10" }}...</span>
+                <span>
+                    <strong>Notification</strong>:
+                    <span data-bs-toggle="tooltip" style="max-width: 500px;" title="{{ subscription.notification_endpoint }}">{{ subscription.notification_endpoint|slice:":10" }}...</span>
+                </span>
             {% endif %}
         </div>
         <div class="card-footer d-flex justify-content-between align-items-center">
