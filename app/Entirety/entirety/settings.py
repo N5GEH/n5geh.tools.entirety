@@ -238,8 +238,10 @@ class Settings(BaseSettings):
             "level": "INFO",
         },
     }
-    # TODO need to be reconsidered @sba
-    #
+
+    LOGGER: ClassVar
+    HANDLER: ClassVar
+
     if LOKI.LOKI_ENABLE is True:
         for LOGGER in LOGGERS:
             LOGGERS[LOGGER]["handlers"] = ["loki"]
