@@ -67,10 +67,28 @@ class ProjectForm(forms.ModelForm):
             )
 
         self.helper.form_tag = False
-        if self.instance.pk:
-            self.fields["viewers"].initial = self.instance.viewers.all()
-            self.fields["users"].initial = self.instance.users.all()
-            self.fields["maintainers"].initial = self.instance.maintainers.all()
+
+        if self.is_bound:
+            self.fields["viewers"].initial = [
+                int(id) for id in self.data.getlist("viewers")
+            ]
+            self.fields["users"].initial = [
+                int(id) for id in self.data.getlist("users")
+            ]
+            self.fields["maintainers"].initial = [
+                int(id) for id in self.data.getlist("maintainers")
+            ]
+        else:
+            if self.instance.pk:
+                self.fields["viewers"].initial = list(
+                    self.instance.viewers.values_list("id", flat=True)
+                )
+                self.fields["users"].initial = list(
+                    self.instance.users.values_list("id", flat=True)
+                )
+                self.fields["maintainers"].initial = list(
+                    self.instance.maintainers.values_list("id", flat=True)
+                )
 
     def clean(self):
         cleaned_data = super().clean()
@@ -79,7 +97,18 @@ class ProjectForm(forms.ModelForm):
             FiwareHeader(service=service)
         except Exception as e:
             raise ValidationError(e)
-        # TODO: error handling for empty values in dropdowns
+        try:
+            cleaned_data["viewers"]
+        except Exception as e:
+            raise ValidationError("At least one viewer must be selected.")
+        try:
+            cleaned_data["users"]
+        except Exception as e:
+            raise ValidationError("At least one user must be selected.")
+        try:
+            cleaned_data["maintainers"]
+        except Exception as e:
+            raise ValidationError("At least one maintainer must be selected.")
 
     def save(self, commit=True):
         instance = super().save(commit=True)
