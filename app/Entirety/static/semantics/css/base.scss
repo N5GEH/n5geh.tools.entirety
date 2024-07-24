@@ -114,13 +114,13 @@
   cursor: pointer;
 }
 
-* {
-  box-sizing: border-box;
-}
-
-body {
-  font: 16px Arial;
-}
+//* {
+//  box-sizing: border-box;
+//}
+//
+//body {
+//  font: 16px Arial;
+//}
 
 .autocomplete {
   /*the container must be positioned relative:*/
@@ -161,4 +161,3 @@ body {
   background-color: #297797 !important;
   color: #ffffff;
 }
-

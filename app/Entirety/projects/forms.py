@@ -28,7 +28,7 @@ class ProjectForm(forms.ModelForm):
         self.fields["owner"].widget.attrs["data-bs-placement"] = "left"
         self.fields["owner"].widget.attrs[
             "title"
-        ] = "Owner is assigned automatically on project creation. It can only be updated by admin."
+        ] = "The owner is assigned automatically on project creation. It can only be updated by a server admin."
 
         self.fields["users"].widget = forms.CheckboxSelectMultiple(
             attrs={
