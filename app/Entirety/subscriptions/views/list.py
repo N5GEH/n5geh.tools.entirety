@@ -52,11 +52,13 @@ class List(ProjectContextAndViewOnlyMixin, ListView):
                 if sub_cb.subject.entities[0].id:
                     sub.entity_id = sub_cb.subject.entities[0].id
                 if sub_cb.subject.entities[0].idPattern:
-                    sub.entity_id_pattern = sub_cb.subject.entities[0].idPattern
+                    sub.entity_id_pattern = sub_cb.subject.entities[0].idPattern.pattern
                 if sub_cb.subject.entities[0].type:
                     sub.entity_type = sub_cb.subject.entities[0].type
                 if sub_cb.subject.entities[0].typePattern:
-                    sub.entity_type_pattern = sub_cb.subject.entities[0].typePattern
+                    sub.entity_type_pattern = sub_cb.subject.entities[
+                        0
+                    ].typePattern.pattern
                 # get url
                 url = self.get_notification_url(sub_cb)
                 sub.notification_endpoint = url
