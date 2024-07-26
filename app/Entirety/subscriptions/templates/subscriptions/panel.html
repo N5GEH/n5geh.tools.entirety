@@ -1,16 +1,23 @@
 <div id="div_subscription_{{ subscription.uuid }}" class="col-6 col-xl-3 pe-3">
     <div class="card">
         <div class="card-header d-flex justify-content-center align-items-center">
-            <a type="button"
-               hx-post="{% url "projects:subscriptions:status" project_id=project.uuid pk=subscription.uuid %}"
-               hx-target="#div_subscription_{{ subscription.uuid }}"
-               hx-swap="outerHTML"
-               data-bs-toggle="tooltip" data-bs-placement="bottom"
-               title="{{ subscription.status.value }}" {% if view_only %}
-                        class="pe-none" {% endif %}>
-                <i class="bi bi-power h3 mb-0 {{ subscription.status.value }}">
-                </i>
-            </a>
+            <form action="{% url 'projects:subscriptions:status' project_id=project.uuid pk=subscription.uuid %}"
+                  method="post">
+                {% csrf_token %}
+                <button type="submit"
+                        style="background: none; border: none; padding: 0;
+                                {% if subscription.status.value == 'active' %}
+                                    color: green;
+                                {% else %}color: red;
+                                {% endif %}"
+                        data-bs-toggle="tooltip" data-bs-placement="bottom"
+                        title="{{ subscription.status.value }}" {% if view_only %}
+                            class="pe-none" {% endif %}>
+                    <span class="icon-wrapper">
+                        <i class="bi bi-power h3 mb-0 {{ subscription.status.value }}"></i>
+                    </span>
+                </button>
+            </form>
         </div>
         <div class="card-body d-flex flex-column">
             <span class="h5" data-bs-toggle="tooltip" title="{{ subscription.description }}">

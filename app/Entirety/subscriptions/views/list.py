@@ -48,7 +48,6 @@ class List(ProjectContextAndViewOnlyMixin, ListView):
                 sub.description = sub_cb.description
                 sub.status = sub_cb.status
                 sub.project = self.project
-                # TODO now only support/display one entity
                 if sub_cb.subject.entities[0].id:
                     sub.entity_id = sub_cb.subject.entities[0].id
                 if sub_cb.subject.entities[0].idPattern:
