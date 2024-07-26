@@ -81,7 +81,7 @@ class AuthenticationSettings(BaseSettings):
 class AppLoadSettings(BaseSettings):
     ENTITIES_LOAD: bool = Field(default=True, env="ENTITIES_LOAD")
     DEVICES_LOAD: bool = Field(default=True, env="DEVICES_LOAD")
-    NOTIFICATIONS_LOAD: bool = Field(default=True, env="NOTIFICATIONS_LOAD")
+    SUBSCRIPTIONS_LOAD: bool = Field(default=True, env="SUBSCRIPTIONS_LOAD")
     SEMANTICS_LOAD: bool = Field(default=True, env="SEMANTICS_LOAD")
 
     class Config:
@@ -124,7 +124,6 @@ class Settings(PydanticSettings):
     ]
 
     CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
-
 
     CRISPY_TEMPLATE_PACK = "bootstrap5"
 
@@ -360,7 +359,9 @@ class Settings(PydanticSettings):
             default="project_admin", env="OIDC_PROJECT_ADMIN_ROLE"
         )
         OIDC_USER_ROLE: str = Field(default="user", env="OIDC_USER_ROLE")
-        OIDC_TOKEN_ROLE_PATH: str = Field(default="$.entirety.roles", env="OIDC_TOKEN_ROLE_PATH")
+        OIDC_TOKEN_ROLE_PATH: str = Field(
+            default="$.entirety.roles", env="OIDC_TOKEN_ROLE_PATH"
+        )
 
     # Internationalization
     # https://docs.djangoproject.com/en/4.0/topics/i18n/
@@ -384,7 +385,7 @@ class Settings(PydanticSettings):
         INSTALLED_APPS.append("entities")
     if APP_LOAD.DEVICES_LOAD is True:
         INSTALLED_APPS.append("devices")
-    if APP_LOAD.NOTIFICATIONS_LOAD is True:
+    if APP_LOAD.SUBSCRIPTIONS_LOAD is True:
         INSTALLED_APPS.append("subscriptions")
     if APP_LOAD.SEMANTICS_LOAD is True:
 
