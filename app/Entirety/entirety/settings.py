@@ -349,6 +349,9 @@ class Settings(PydanticSettings):
         )
         OIDC_OP_TOKEN_ENDPOINT: str = Field(env="OIDC_OP_TOKEN_ENDPOINT")
         OIDC_OP_USER_ENDPOINT: str = Field(env="OIDC_OP_USER_ENDPOINT")
+        OIDC_OP_LOGOUT_URL: str = Field(env="OIDC_OP_LOGOUT_URL")
+        OIDC_OP_LOGOUT_URL_METHOD: str = Field(env="OIDC_OP_LOGOUT_URL_METHOD")
+        LOGOUT_REDIRECT_URL: str = Field(env="OIDC_OP_LOGOUT_REDIRECT_URL")
 
         OIDC_SUPER_ADMIN_ROLE: str = Field(
             default="super_admin", env="OIDC_SUPER_ADMIN_ROLE"
