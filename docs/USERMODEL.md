@@ -1,7 +1,7 @@
 # Description of the user model of Entirety
 
 Entirety comes with two different ways to assign permissions to users: Roles and Groups.
-Rules come with a set of permissions that are application-wide while groups grand project-wide permissions.
+Roles come with a set of permissions that are application-wide while groups grant project-wide permissions.
 Both, roles and groups, follow a hierarchical approach, meaning that a user with a higher role or group can do everything a user with a lower role or group can do.
 In the following, first, the different roles and groups are described, starting with the highest set of permissions.
 Second, the different ways of how to create users and assign roles for both, local authentication and OIDC authentication mode, are described.
