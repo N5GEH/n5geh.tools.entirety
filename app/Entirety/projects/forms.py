@@ -38,6 +38,7 @@ class ProjectForm(forms.ModelForm):
                 & User.objects.exclude(id=user.id)
             ).filter(is_server_admin=False),
             widget=forms.CheckboxSelectMultiple,
+            required=False,
         )
 
         self.fields["users"] = forms.ModelMultipleChoiceField(
@@ -46,6 +47,7 @@ class ProjectForm(forms.ModelForm):
                 User.objects.exclude(id=self.instance.owner_id)
                 & User.objects.exclude(id=user.id)
             ).filter(is_server_admin=False),
+            required=False,
         )
 
         if user in self.instance.maintainers.all():
@@ -64,6 +66,7 @@ class ProjectForm(forms.ModelForm):
                     & User.objects.exclude(id=user.id)
                 ).filter(is_server_admin=False),
                 widget=forms.CheckboxSelectMultiple,
+                required=False,
             )
 
         self.helper.form_tag = False
@@ -97,18 +100,6 @@ class ProjectForm(forms.ModelForm):
             FiwareHeader(service=service)
         except Exception as e:
             raise ValidationError(e)
-        try:
-            cleaned_data["viewers"]
-        except Exception as e:
-            raise ValidationError("At least one viewer must be selected.")
-        try:
-            cleaned_data["users"]
-        except Exception as e:
-            raise ValidationError("At least one user must be selected.")
-        try:
-            cleaned_data["maintainers"]
-        except Exception as e:
-            raise ValidationError("At least one maintainer must be selected.")
 
     def save(self, commit=True):
         instance = super().save(commit=True)
