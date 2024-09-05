@@ -12,7 +12,7 @@ Second, the different ways of how to create users and assign roles for both, loc
 
 ### Server Admin
 * Create / edit / delete all projects
-  * Note: Only server admins can edit the _fiware-service_. In a case where Entirety is connected with a FIWARE cluster directly (not through a PEP proxy), this means they can see all data within the platform!  
+  * Note: Only server admins can edit the _fiware-service_. In a case where Entirety is connected with a FIWARE cluster directly (not through a PEP proxy), this means Server Admins  can see all data within the platform!  
 * Assign / change _project owner_ to projects
   * Note: By default, the project creator is first assigned as _project owner_.
 
@@ -26,7 +26,7 @@ Second, the different ways of how to create users and assign roles for both, loc
 ### User
 
 * Access to Entirety
-  * Note: Only relevant for OIDC authentication. Local authentication users are always assigned _user_ role implicitly. 
+  * Note: Only relevant for OIDC authentication. In local authentication mode, users are always assigned _user_ role implicitly. 
 * Eligible to be assigned as _project maintainer_, _project user_ or _project viewer_ for projects
 
 ## Groups
@@ -56,7 +56,7 @@ Second, the different ways of how to create users and assign roles for both, loc
 # How to create users and assign roles and groups
 
 There are two ways to create users and assign roles depending on the authentication mode: Local authentication and OIDC authentication.
-Which mode is active, can be set in the [settings file of Entirety](https://github.com/N5GEH/n5geh.tools.entirety/blob/development/docs/SETTINGS.md#local_auth).
+The authentication mode can be set in the [Entirety settings file](https://github.com/N5GEH/n5geh.tools.entirety/blob/development/docs/SETTINGS.md#local_auth).
 
 ## Local Authentication
 
@@ -69,6 +69,6 @@ Roles can be assigned to users in the user's edit page.
 
 In OIDC authentication mode, users are created and managed in the OIDC provider. Only users with the _user_ role assigned are able to login to Entirety.
 Check your OIDC provider documentation for further details. 
-In case you are using keycloak as OIDC provider, we provide a short tutorial with the necessary steps the [Entirety step-by-step guide](https://github.com/N5GEH/n5geh.tutorials.entirety_step_by_step?tab=readme-ov-file#configure-oidc-provider-oidc-auth-only).
+In case you are using keycloak as OIDC provider, we provide a short tutorial with the necessary steps in the [Entirety step-by-step guide](https://github.com/N5GEH/n5geh.tutorials.entirety_step_by_step?tab=readme-ov-file#configure-oidc-provider-oidc-auth-only).
 
 
