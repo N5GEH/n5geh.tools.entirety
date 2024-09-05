@@ -94,6 +94,10 @@ provide following settings in your env file.
 
 For a full list of settings see [settings](./docs/SETTINGS.md).
 
+## User and permissions model 
+
+The user and permissions model of _Entirety_ is described in the [user model documentation](./docs/USERMODEL.md).
+
 ## Changelog
 
 See [changelog](./docs/CHANGELOG.md) for detailed overview of changes.
