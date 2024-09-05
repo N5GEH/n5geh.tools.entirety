@@ -125,7 +125,6 @@ class Settings(PydanticSettings):
 
     CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
 
-
     CRISPY_TEMPLATE_PACK = "bootstrap5"
 
     MIDDLEWARE: List[str] = [
@@ -349,9 +348,6 @@ class Settings(PydanticSettings):
         )
         OIDC_OP_TOKEN_ENDPOINT: str = Field(env="OIDC_OP_TOKEN_ENDPOINT")
         OIDC_OP_USER_ENDPOINT: str = Field(env="OIDC_OP_USER_ENDPOINT")
-        OIDC_OP_LOGOUT_URL: str = Field(env="OIDC_OP_LOGOUT_URL")
-        OIDC_OP_LOGOUT_URL_METHOD: str = Field(env="OIDC_OP_LOGOUT_URL_METHOD")
-        LOGOUT_REDIRECT_URL: str = Field(env="OIDC_OP_LOGOUT_REDIRECT_URL")
 
         OIDC_SUPER_ADMIN_ROLE: str = Field(
             default="super_admin", env="OIDC_SUPER_ADMIN_ROLE"
@@ -363,7 +359,9 @@ class Settings(PydanticSettings):
             default="project_admin", env="OIDC_PROJECT_ADMIN_ROLE"
         )
         OIDC_USER_ROLE: str = Field(default="user", env="OIDC_USER_ROLE")
-        OIDC_TOKEN_ROLE_PATH: str = Field(default="$.entirety.roles", env="OIDC_TOKEN_ROLE_PATH")
+        OIDC_TOKEN_ROLE_PATH: str = Field(
+            default="$.entirety.roles", env="OIDC_TOKEN_ROLE_PATH"
+        )
 
     # Internationalization
     # https://docs.djangoproject.com/en/4.0/topics/i18n/
