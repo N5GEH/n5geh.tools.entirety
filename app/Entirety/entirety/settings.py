@@ -323,20 +323,27 @@ class Settings(PydanticSettings):
     # https://docs.djangoproject.com/en/4.0/ref/settings/#databases
     DATABASES: Databases = Field({})
 
+    LOGIN_REDIRECT_URL: str = Field(default="/", env="LOGIN_REDIRECT_URL")
+    LOGIN_URL: str = Field(default="/login", env="LOGIN_URL")
     LOGOUT_REDIRECT_URL: str = Field(default="/", env="LOGOUT_REDIRECT_URL")
 
-    if __auth.LOCAL_AUTH:
-        LOGIN_REDIRECT_URL: str = Field(default="/", env="LOGIN_REDIRECT_URL")
-    else:
+    if not __auth.LOCAL_AUTH:
         INSTALLED_APPS.append("mozilla_django_oidc")
         MIDDLEWARE.append("mozilla_django_oidc.middleware.SessionRefresh")
         AUTHENTICATION_BACKENDS: Sequence[str] = ("entirety.oidc.CustomOIDCAB",)
 
-        LOGIN_URL: str = Field(default="/oidc/authenticate", env="LOGIN_URL")
+        OIDC_LOGIN_URL: str = Field(default="/oidc/authenticate", env="OIDC_LOGIN_URL")
+        LOGIN_URL = OIDC_LOGIN_URL
 
-        LOGIN_REDIRECT_URL: str = Field(
-            default="/oidc/callback/", env="LOGIN_REDIRECT_URL"
+        OIDC_LOGIN_REDIRECT_URL: str = Field(
+            default="/oidc/callback/", env="OIDC_LOGIN_REDIRECT_URL"
         )
+        LOGIN_REDIRECT_URL = OIDC_LOGIN_REDIRECT_URL
+
+        OIDC_LOGOUT_REDIRECT_URL: str = Field(
+            default="/", env="OIDC_LOGOUT_REDIRECT_URL"
+        )
+        LOGOUT_REDIRECT_URL = OIDC_LOGOUT_REDIRECT_URL
 
         OIDC_RP_SIGN_ALGO: str = Field(default="RS256", env="OIDC_RP_SIGN_ALGO")
         OIDC_OP_JWKS_ENDPOINT: str = Field(env="OIDC_OP_JWKS_ENDPOINT")
