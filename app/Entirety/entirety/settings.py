@@ -125,7 +125,6 @@ class Settings(PydanticSettings):
 
     CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
 
-
     CRISPY_TEMPLATE_PACK = "bootstrap5"
 
     MIDDLEWARE: List[str] = [
@@ -324,20 +323,27 @@ class Settings(PydanticSettings):
     # https://docs.djangoproject.com/en/4.0/ref/settings/#databases
     DATABASES: Databases = Field({})
 
+    LOGIN_REDIRECT_URL: str = Field(default="/", env="LOGIN_REDIRECT_URL")
+    LOGIN_URL: str = Field(default="/", env="LOGIN_URL")
     LOGOUT_REDIRECT_URL: str = Field(default="/", env="LOGOUT_REDIRECT_URL")
 
-    if __auth.LOCAL_AUTH:
-        LOGIN_REDIRECT_URL: str = Field(default="/", env="LOGIN_REDIRECT_URL")
-    else:
+    if not __auth.LOCAL_AUTH:
         INSTALLED_APPS.append("mozilla_django_oidc")
         MIDDLEWARE.append("mozilla_django_oidc.middleware.SessionRefresh")
         AUTHENTICATION_BACKENDS: Sequence[str] = ("entirety.oidc.CustomOIDCAB",)
 
-        LOGIN_URL: str = Field(default="/oidc/authenticate", env="LOGIN_URL")
+        OIDC_LOGIN_URL: str = Field(default="/oidc/authenticate", env="OIDC_LOGIN_URL")
+        LOGIN_URL = OIDC_LOGIN_URL
 
-        LOGIN_REDIRECT_URL: str = Field(
-            default="/oidc/callback/", env="LOGIN_REDIRECT_URL"
+        OIDC_LOGIN_REDIRECT_URL: str = Field(
+            default="/oidc/callback/", env="OIDC_LOGIN_REDIRECT_URL"
         )
+        LOGIN_REDIRECT_URL = OIDC_LOGIN_REDIRECT_URL
+
+        OIDC_LOGOUT_REDIRECT_URL: str = Field(
+            default="/", env="OIDC_LOGOUT_REDIRECT_URL"
+        )
+        LOGOUT_REDIRECT_URL = OIDC_LOGOUT_REDIRECT_URL
 
         OIDC_RP_SIGN_ALGO: str = Field(default="RS256", env="OIDC_RP_SIGN_ALGO")
         OIDC_OP_JWKS_ENDPOINT: str = Field(env="OIDC_OP_JWKS_ENDPOINT")
@@ -349,6 +355,11 @@ class Settings(PydanticSettings):
         )
         OIDC_OP_TOKEN_ENDPOINT: str = Field(env="OIDC_OP_TOKEN_ENDPOINT")
         OIDC_OP_USER_ENDPOINT: str = Field(env="OIDC_OP_USER_ENDPOINT")
+        OIDC_OP_LOGOUT_ENDPOINT: str = Field(env="OIDC_OP_LOGOUT_ENDPOINT")
+        OIDC_OP_LOGOUT_URL_METHOD: str = Field(
+            default="users.views.provider_logout", env="OIDC_OP_LOGOUT_URL_METHOD"
+        )
+        OIDC_STORE_ID_TOKEN: bool = Field(default=True, env="OIDC_STORE_ID_TOKEN")
 
         OIDC_SUPER_ADMIN_ROLE: str = Field(
             default="super_admin", env="OIDC_SUPER_ADMIN_ROLE"
@@ -360,7 +371,9 @@ class Settings(PydanticSettings):
             default="project_admin", env="OIDC_PROJECT_ADMIN_ROLE"
         )
         OIDC_USER_ROLE: str = Field(default="user", env="OIDC_USER_ROLE")
-        OIDC_TOKEN_ROLE_PATH: str = Field(default="$.entirety.roles", env="OIDC_TOKEN_ROLE_PATH")
+        OIDC_TOKEN_ROLE_PATH: str = Field(
+            default="$.entirety.roles", env="OIDC_TOKEN_ROLE_PATH"
+        )
 
     # Internationalization
     # https://docs.djangoproject.com/en/4.0/topics/i18n/
