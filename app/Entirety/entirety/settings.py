@@ -324,7 +324,7 @@ class Settings(PydanticSettings):
     DATABASES: Databases = Field({})
 
     LOGIN_REDIRECT_URL: str = Field(default="/", env="LOGIN_REDIRECT_URL")
-    LOGIN_URL: str = Field(default="/login", env="LOGIN_URL")
+    LOGIN_URL: str = Field(default="/", env="LOGIN_URL")
     LOGOUT_REDIRECT_URL: str = Field(default="/", env="LOGOUT_REDIRECT_URL")
 
     if not __auth.LOCAL_AUTH:
