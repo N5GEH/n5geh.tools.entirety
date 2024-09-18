@@ -13,7 +13,7 @@ class ApplicationLoadMixin:
 
         context["entities_load"] = apps.is_installed("entities")
         context["devices_load"] = apps.is_installed("devices")
-        context["notifications_load"] = apps.is_installed("subscriptions")
+        context["subscriptions_load"] = apps.is_installed("subscriptions")
         context["semantics_load"] = apps.is_installed("semantics")
         # TODO change the tag if data model module
         context["smart_datamodels_load"] = apps.is_installed(

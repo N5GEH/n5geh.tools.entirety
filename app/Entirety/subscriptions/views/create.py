@@ -83,21 +83,27 @@ class Create(ProjectContextMixin, CreateView):
                         entity_selector = entity_form.cleaned_data["entity_selector"]
                         type_selector = entity_form.cleaned_data["type_selector"]
                         pattern = EntityPattern(
-                            id=entity_form.cleaned_data["entity_id"]
-                            if entity_selector == "id"
-                            else None,
-                            idPattern=re.compile(entity_form.cleaned_data["entity_id"])
-                            if entity_selector == "id_pattern"
-                            else None,
-                            type=entity_form.cleaned_data["entity_type"]
-                            if entity_form.cleaned_data["entity_type"]
-                            and type_selector == "type"
-                            else None,
-                            typePattern=re.compile(
+                            id=(
+                                entity_form.cleaned_data["entity_id"]
+                                if entity_selector == "id"
+                                else None
+                            ),
+                            idPattern=(
+                                re.compile(entity_form.cleaned_data["entity_id"])
+                                if entity_selector == "id_pattern"
+                                else None
+                            ),
+                            type=(
                                 entity_form.cleaned_data["entity_type"]
-                            )
-                            if type_selector == "type_pattern"
-                            else None,
+                                if entity_form.cleaned_data["entity_type"]
+                                and type_selector == "type"
+                                else None
+                            ),
+                            typePattern=(
+                                re.compile(entity_form.cleaned_data["entity_type"])
+                                if type_selector == "type_pattern"
+                                else None
+                            ),
                         )
                         entities.append(pattern)
             with ContextBrokerClient(
@@ -118,18 +124,24 @@ class Create(ProjectContextMixin, CreateView):
                         ),
                     ),
                     notification=Notification(
-                        http=Http(url=form.cleaned_data["http"])
-                        if form.cleaned_data["http"]
-                        else None,
-                        mqtt=Mqtt(
-                            url=form.cleaned_data["mqtt"],
-                            topic=f"{settings.MQTT_BASE_TOPIC}/{self.project.uuid}",
-                        )
-                        if form.cleaned_data["mqtt"]
-                        else None,
-                        metadata=form.cleaned_data["metadata"].split(",")
-                        if form.cleaned_data["metadata"]
-                        else None,
+                        http=(
+                            Http(url=form.cleaned_data["http"])
+                            if form.cleaned_data["http"]
+                            else None
+                        ),
+                        mqtt=(
+                            Mqtt(
+                                url=form.cleaned_data["mqtt"],
+                                topic=f"{settings.MQTT_BASE_TOPIC}/{self.project.uuid}",
+                            )
+                            if form.cleaned_data["mqtt"]
+                            else None
+                        ),
+                        metadata=(
+                            form.cleaned_data["metadata"].split(",")
+                            if form.cleaned_data["metadata"]
+                            else None
+                        ),
                         # attrs=form.cleaned_data["n_attributes"].split(",")
                         # if form.cleaned_data["n_attributes"]
                         # else None,
@@ -150,8 +162,8 @@ class Create(ProjectContextMixin, CreateView):
                         if self.request.user.first_name
                         else self.request.user.username
                     )
-                    + " has created the subscription with name "
-                    + instance.name
+                    + " has created the subscription with uuid "
+                    + cb_uuid
                     + f" in project {self.project.name}"
                 )
                 return self.form_valid(form)

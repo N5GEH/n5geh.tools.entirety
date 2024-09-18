@@ -81,7 +81,7 @@ class AuthenticationSettings(BaseSettings):
 class AppLoadSettings(BaseSettings):
     ENTITIES_LOAD: bool = Field(default=True, env="ENTITIES_LOAD")
     DEVICES_LOAD: bool = Field(default=True, env="DEVICES_LOAD")
-    NOTIFICATIONS_LOAD: bool = Field(default=True, env="NOTIFICATIONS_LOAD")
+    SUBSCRIPTIONS_LOAD: bool = Field(default=True, env="SUBSCRIPTIONS_LOAD")
     SEMANTICS_LOAD: bool = Field(default=True, env="SEMANTICS_LOAD")
 
     class Config:
@@ -397,7 +397,7 @@ class Settings(PydanticSettings):
         INSTALLED_APPS.append("entities")
     if APP_LOAD.DEVICES_LOAD is True:
         INSTALLED_APPS.append("devices")
-    if APP_LOAD.NOTIFICATIONS_LOAD is True:
+    if APP_LOAD.SUBSCRIPTIONS_LOAD is True:
         INSTALLED_APPS.append("subscriptions")
     if APP_LOAD.SEMANTICS_LOAD is True:
 
