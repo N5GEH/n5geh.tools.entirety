@@ -25,6 +25,7 @@ from entities.forms import (
     SelectionForm,
     DeviceForm,
     JSONForm,
+    QRCodeForm,
 )
 from smartdatamodels.forms import SmartDataModelQueryForm
 from entities.requests import (
@@ -185,9 +186,48 @@ class Create(ProjectContextMixin, TemplateView):
         context["basic_info"] = basic_info
         context["attributes"] = attributes
         context["smart_data_model_form"] = smart_data_model_form
+        context["qr_form"] = QRCodeForm()
         return context
 
     def post(self, request, *args, **kwargs):
+        if "qr" in self.request.POST:
+            data = request.POST.get("qr_data", "")
+            json_entity_data = json.loads(data)
+            context = super(Create, self).get_context_data(**kwargs)
+            basic_info = EntityForm(
+                self.project,
+                initial={
+                    "id": json_entity_data.get("id"),
+                    "type": json_entity_data.get("type"),
+                },
+            )
+            basic_info.fields["type"].widget.attrs["readonly"] = True
+            initial = []
+            for attr_key, attr_value in json_entity_data.items():
+                if attr_key not in MANDATORY_ENTITY_FIELDS:
+                    initial.append(
+                        {
+                            "name": attr_key,
+                            "type": attr_value["type"],
+                            "value": attr_value["value"],
+                        }
+                    )
+            attributes_form_set = formset_factory(AttributeForm, max_num=0)
+            attributes = attributes_form_set(prefix="attr", initial=initial)
+            for form in attributes.forms:
+                form.fields["name"].widget.attrs["readonly"] = True
+                form.fields["type"].widget.attrs["readonly"] = True
+
+            smart_data_model_form = SmartDataModelQueryForm(
+                initial={"data_model": ".."}
+            )
+
+            context["basic_info"] = basic_info
+            context["attributes"] = attributes
+            context["smart_data_model_form"] = smart_data_model_form
+            context["qr_form"] = QRCodeForm()
+
+            return render(request, self.template_name, context)
         # load data model
         if "load" in self.request.POST:
             if self.request.POST.get("data_model") == "..":
@@ -220,6 +260,7 @@ class Create(ProjectContextMixin, TemplateView):
             context["smart_data_model_form"] = SmartDataModelQueryForm(
                 initial=request.POST
             )
+            context["qr_form"] = QRCodeForm()
             return render(request, self.template_name, context)
             # create entity
         elif "submit" in self.request.POST:
