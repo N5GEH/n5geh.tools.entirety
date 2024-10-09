@@ -122,6 +122,7 @@ class Settings(BaseSettings):
     ]
     # TODO how to define constant variable
     CRISPY_ALLOWED_TEMPLATE_PACKS: str = "bootstrap5"
+
     CRISPY_TEMPLATE_PACK: str = "bootstrap5"
 
     MIDDLEWARE: List[str] = [
@@ -323,20 +324,29 @@ class Settings(BaseSettings):
     # https://docs.djangoproject.com/en/4.0/ref/settings/#databases
     DATABASES: Databases = Databases()
 
+    LOGIN_REDIRECT_URL: str = Field(default="/", alias="LOGIN_REDIRECT_URL")
+    LOGIN_URL: str = Field(default="/", alias="LOGIN_URL")
     LOGOUT_REDIRECT_URL: str = Field(default="/", alias="LOGOUT_REDIRECT_URL")
 
-    if __auth.LOCAL_AUTH:
-        LOGIN_REDIRECT_URL: str = Field(default="/", alias="LOGIN_REDIRECT_URL")
-    else:
+    if not __auth.LOCAL_AUTH:
         INSTALLED_APPS.append("mozilla_django_oidc")
         MIDDLEWARE.append("mozilla_django_oidc.middleware.SessionRefresh")
         AUTHENTICATION_BACKENDS: Sequence[str] = ("entirety.oidc.CustomOIDCAB",)
 
-        LOGIN_URL: str = Field(default="/oidc/authenticate", alias="LOGIN_URL")
-
-        LOGIN_REDIRECT_URL: str = Field(
-            default="/oidc/callback/", alias="LOGIN_REDIRECT_URL"
+        OIDC_LOGIN_URL: str = Field(
+            default="/oidc/authenticate", alias="OIDC_LOGIN_URL"
         )
+        LOGIN_URL = OIDC_LOGIN_URL
+
+        OIDC_LOGIN_REDIRECT_URL: str = Field(
+            default="/oidc/callback/", alias="OIDC_LOGIN_REDIRECT_URL"
+        )
+        LOGIN_REDIRECT_URL = OIDC_LOGIN_REDIRECT_URL
+
+        OIDC_LOGOUT_REDIRECT_URL: str = Field(
+            default="/", alias="OIDC_LOGOUT_REDIRECT_URL"
+        )
+        LOGOUT_REDIRECT_URL = OIDC_LOGOUT_REDIRECT_URL
 
         OIDC_RP_SIGN_ALGO: str = Field(default="RS256", alias="OIDC_RP_SIGN_ALGO")
         OIDC_OP_JWKS_ENDPOINT: str = Field(alias="OIDC_OP_JWKS_ENDPOINT")
@@ -348,6 +358,11 @@ class Settings(BaseSettings):
         )
         OIDC_OP_TOKEN_ENDPOINT: str = Field(alias="OIDC_OP_TOKEN_ENDPOINT")
         OIDC_OP_USER_ENDPOINT: str = Field(alias="OIDC_OP_USER_ENDPOINT")
+        OIDC_OP_LOGOUT_ENDPOINT: str = Field(alias="OIDC_OP_LOGOUT_ENDPOINT")
+        OIDC_OP_LOGOUT_URL_METHOD: str = Field(
+            default="users.views.provider_logout", alias="OIDC_OP_LOGOUT_URL_METHOD"
+        )
+        OIDC_STORE_ID_TOKEN: bool = Field(default=True, alias="OIDC_STORE_ID_TOKEN")
 
         OIDC_SUPER_ADMIN_ROLE: str = Field(
             default="super_admin", alias="OIDC_SUPER_ADMIN_ROLE"
