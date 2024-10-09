@@ -71,7 +71,7 @@ def parse_entity(schema_name):
         if key not in MANDATORY_ENTITY_FIELDS:
             entity_json[key] = {
                 "type": type_mapping(value.annotation),
-                "value": value.description,
+                "value": value.default,
             }
     return entity_json
 
