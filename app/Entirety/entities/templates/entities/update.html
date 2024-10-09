@@ -6,23 +6,102 @@
 {% block title %}{% if update_entity %} Update Entity {% else %} Create New Entity {% endif %}{% endblock %}
 
 {% block content %}
-    <span class="h3">{% if update_entity %} Update Entity {{ update_entity }} {% else %} Create New Entity {% endif %}</span>
+    <script src="{% static 'js/qr.min.js' %}" type="text/javascript"></script>
+    <span class="h3">{% if update_entity %} Update Entity {{ update_entity }} {% else %} Create New
+        Entity {% endif %}</span>
     {% if update_entity %}
     {% else %}
-        <form method="post" action="">
-            {% crispy smart_data_model_form %}
-            <button class="btn btn-success bi bi-file-earmark-arrow-down rounded-pill" type="submit" name="load">Load</button>
-        </form>
+
+        <div class="container mt-5">
+            <h2 class="text-center mb-4">You can choose any option to load an entity</h2>
+            <div class="row">
+                <!-- First Card: Smart Data Model Form -->
+                <div class="col-md-6 mb-4">
+                    <div class="card h-100">
+                        <div class="card-header bg-primary text-white">
+                            <h5 class="card-title mb-0"><i class="bi bi-pencil-square"></i> Smart Data Form</h5>
+                        </div>
+                        <div class="card-body">
+                            <form method="post" action="">
+                                {% csrf_token %}
+                                {% crispy smart_data_model_form %}
+                                <button class="btn btn-primary bi bi-file-earmark-arrow-down rounded-pill mt-3"
+                                        type="submit" name="load">
+                                    Load Data model
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Second Card: QR Code Scanner and Form -->
+                <div class="col-md-6 mb-4">
+                    <div class="card h-100">
+                        <div class="card-header bg-success text-white">
+                            <h5 class="card-title mb-0"><i class="bi bi-qr-code-scan"></i> QR Code Scanner</h5>
+                        </div>
+                        <div class="card-body">
+                            <div id="qr-reader"></div>
+                            <div id="qr-result">No QR code scanned yet.</div>
+
+                            <form method="post" action="" id="qr-form">
+                                {% csrf_token %}
+                                {% crispy qr_form %}
+                                <!-- Add other form fields here if necessary -->
+                                <button class="btn btn-success bi bi-file-earmark-arrow-down rounded-pill mt-3"
+                                        type="submit" name="qr">Load QR Data
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <script>
+            function onScanSuccess(decodedText, decodedResult) {
+                console.log(`QR Code detected: ${decodedText}`, decodedResult);
+                document.getElementById('qr-result').innerText = `Scanned QR Code Data: ${decodedText}`;
+                document.getElementById('id_qr_data').value = decodedText
+            }
+
+            function onScanFailure(error) {
+                // Handle scan failure, e.g., camera not available or no QR code in sight
+                console.warn(`Code scan error = ${error}`);
+            }
+
+            const html5QrCodeScanner = new Html5QrcodeScanner(
+                "qr-reader", {fps: 20, qrbox: 250}, true);
+
+            // Start scanning
+            html5QrCodeScanner.render(onScanSuccess, onScanFailure);
+
+            // Function to retrieve CSRF token from cookies
+            function getCookie(name) {
+                let cookieValue = null;
+                if (document.cookie && document.cookie !== '') {
+                    const cookies = document.cookie.split(';');
+                    for (let i = 0; i < cookies.length; i++) {
+                        const cookie = cookies[i].trim();
+                        if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                            break;
+                        }
+                    }
+                }
+                return cookieValue;
+            }
+        </script>
     {% endif %}
     <form method="post" action="">
         <div>
             {% include 'accordion.html' %}
             <button class="btn btn-warning rounded-pill" type="submit" name="submit" {% if view_only %}
-                disabled {% endif %}>{% if update_entity %} Update {% else %} Create {% endif %}</button>
+                    disabled {% endif %}>{% if update_entity %} Update {% else %} Create {% endif %}</button>
         </div>
     </form>
 
     {% compress js %}
         <script src="{% static 'js/json.js' %}"></script>
     {% endcompress %}
+
 {% endblock %}

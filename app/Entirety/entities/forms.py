@@ -173,3 +173,15 @@ class JSONForm(forms.Form):
             ],
         },
     )
+
+
+class QRCodeForm(forms.Form):
+    qr_data = forms.CharField(
+        widget=forms.HiddenInput(), required=False, label="QR Code Data"
+    )
+
+    def __init__(self, *args, **kwargs):
+        super(QRCodeForm, self).__init__(*args, **kwargs)
+
+        self.helper = FormHelper(self)
+        self.helper.form_tag = False
