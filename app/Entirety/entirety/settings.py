@@ -325,7 +325,7 @@ class Settings(BaseSettings):
     DATABASES: Databases = Databases()
 
     LOGIN_REDIRECT_URL: str = Field(default="/", alias="LOGIN_REDIRECT_URL")
-    LOGIN_URL: str = Field(default="/", alias="LOGIN_URL")
+    LOGIN_URL: str = Field(default="/accounts/login", alias="LOGIN_URL")
     LOGOUT_REDIRECT_URL: str = Field(default="/", alias="LOGOUT_REDIRECT_URL")
 
     if not __auth.LOCAL_AUTH:
