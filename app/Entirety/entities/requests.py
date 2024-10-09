@@ -1,6 +1,7 @@
 import json
 from enum import Enum
 import pydantic
+from pydantic import ConfigDict
 import requests
 from django.conf import settings
 from django.core.exceptions import ValidationError
@@ -28,6 +29,7 @@ class EntityTableItem(pydantic.BaseModel):
     Temporary class to store entity data for the table
     """
 
+    model_config = ConfigDict(extra="allow")
     id: str
     type: str
     attrs: int
@@ -49,6 +51,7 @@ def get_entities_list(self, id_pattern, type_pattern, project):
                     id=entity.id,
                     type=entity.type,
                     attrs=len(entity.model_dump(exclude={"id", "type"})),
+                    **entity.model_dump(exclude={"id", "type"})
                 )
                 data.append(entity_to_add)
         except requests.RequestException as err:
