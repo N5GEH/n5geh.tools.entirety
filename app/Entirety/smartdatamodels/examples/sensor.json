@@ -18,11 +18,11 @@
         },
         "modelName": {
             "type": "string",
-            "description": "Sensor's model name."
+            "description": "Sensor model name."
         },
         "manufacturer": {
             "type": "string",
-            "description": "Sensor's manufacturer name."
+            "description": "Sensor manufacturer name."
         },
         "documentation": {
             "type": "string",
