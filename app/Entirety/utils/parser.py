@@ -9,6 +9,9 @@ from entities.requests import AttributeTypes
 import os
 import glob
 import uuid
+from pydantic import AwareDatetime
+from pydantic_core import PydanticUndefinedType
+
 
 MANDATORY_ENTITY_FIELDS: List[str] = ["id", "type"]
 
@@ -71,7 +74,11 @@ def parse_entity(schema_name):
         if key not in MANDATORY_ENTITY_FIELDS:
             entity_json[key] = {
                 "type": type_mapping(value.annotation),
-                "value": value.default,
+                "value": (
+                    None
+                    if isinstance(value.default, PydanticUndefinedType)
+                    else value.default
+                ),
             }
     return entity_json
 
@@ -119,7 +126,10 @@ def extract_id_and_type(model, name):
 
 
 def type_mapping(value):
-    if value == (datetime.datetime or Optional[datetime.datetime]):
+    if (
+        value == (datetime.datetime or Optional[datetime.datetime])
+        or value == Optional[AwareDatetime]
+    ):
         return AttributeTypes.DATETIME.value
     elif value == (str or Optional[str]):
         return AttributeTypes.STRING.value
