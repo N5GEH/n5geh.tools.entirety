@@ -30,8 +30,12 @@ pip
 
 ```bash
   cd ./app/Entirety
+  pip install -e git+https://jugit.fz-juelich.de/iek-10/public/ict-platform/fiware-applications/jsonschemaparser@v0.6.2#egg=jsonschemaparser
   pip install -r requirements.txt
 ```
+> **Note:** The jsonschemaparser is a package from a repository.
+> It might cause conflicts with other libs. Therefore, we install it separately.
+> Please ignore the relevant ERROR message.
 
 pre-commit
 
@@ -94,7 +98,7 @@ provide following settings in your env file.
 
 For a full list of settings see [settings](./docs/SETTINGS.md).
 
-## User and permissions model 
+## User and permissions model
 
 The user and permissions model of _Entirety_ is described in the [user model documentation](./docs/USERMODEL.md).
 
@@ -118,14 +122,14 @@ See [changelog](./docs/CHANGELOG.md) for detailed overview of changes.
 
 ## Further project information
 
-<a href="https://n5geh.de/"> <img alt="National 5G Energy Hub" 
+<a href="https://n5geh.de/"> <img alt="National 5G Energy Hub"
 src="https://raw.githubusercontent.com/N5GEH/n5geh.platform/master/docs/logos/n5geh-logo.png" height="100"></a>
 
 ## Acknowledgments
 
-We gratefully acknowledge the financial support of the Federal Ministry <br /> 
-for Economic Affairs and Climate Action (BMWK), promotional references 
+We gratefully acknowledge the financial support of the Federal Ministry <br />
+for Economic Affairs and Climate Action (BMWK), promotional references
 03EN1030B and 03ET1561B.
 
-<a href="https://www.bmwi.de/Navigation/EN/Home/home.html"> <img alt="BMWK" 
+<a href="https://www.bmwi.de/Navigation/EN/Home/home.html"> <img alt="BMWK"
 src="https://raw.githubusercontent.com/N5GEH/n5geh.platform/master/docs/logos/BMWK-logo_en.png" height="100"> </a>
