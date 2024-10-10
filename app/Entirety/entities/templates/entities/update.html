@@ -62,6 +62,14 @@
                 console.log(`QR Code detected: ${decodedText}`, decodedResult);
                 document.getElementById('qr-result').innerText = `Scanned QR Code Data: ${decodedText}`;
                 document.getElementById('id_qr_data').value = decodedText
+
+                html5QrCodeScanner.clear().then(_ => {
+                    console.log("Scanning stopped.");
+
+                    {#document.getElementById('qr-form').submit();#}
+                }).catch(error => {
+                    console.error(`Failed to stop scanning: ${error}`);
+                });
             }
 
             function onScanFailure(error) {
