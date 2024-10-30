@@ -2,105 +2,103 @@ import os
 import logging.config as LOG
 
 from pathlib import Path
-from typing import List, Any, Optional, Sequence, Union
+from typing import List, Any, Optional, Sequence, Union, Dict, ClassVar
 from mimetypes import add_type
 
 import django_loki
 import dj_database_url
-from pydantic import BaseSettings, Field, AnyUrl, validator, DirectoryPath
-from pydantic_settings import PydanticSettings
-from pydantic_settings.database import DatabaseDsn
-from pydantic_settings.settings import (
-    DatabaseSettings,
-    PydanticSettings,
-    TemplateBackendModel,
+from pydantic_settings import BaseSettings, SettingsConfigDict
+from pydantic import (
+    Field,
+    AnyUrl,
+    validator,
+    DirectoryPath,
+    field_validator,
+    PostgresDsn,
 )
+from pydjantic import BaseDBConfig, to_django
 from utils.generators import generate_secret_key
 from django.contrib.messages import constants as messages
 
-__version__ = "0.4.0"
+__version__ = "1.1.0"
+
+# Build paths inside the project like this: BASE_DIR / 'subdir'.
+BASE_DIR: DirectoryPath = Path(__file__).resolve().parent.parent
+
+# MIME type issue
+add_type("text/css", ".css", False)
 
 
-class PostgresSettings(BaseSettings):
-    DATABASE_USER = Field(env="DATABASE_USER", default="postgres")
-    DATABASE_PASSWORD = Field(env="DATABASE_PASSWORD", default="postgrespw")
-    DATABASE_HOST = Field(env="DATABASE_HOST", default="localhost")
-    DATABASE_PORT = Field(env="DATABASE_PORT", default="5432")
-
-    class Config:
-        case_sensitive = False
-        env_file = ".env"
-        env_file_encoding = "utf-8"
-
-
-class Databases(DatabaseSettings):
-
-    ps = PostgresSettings()
-    default: DatabaseDsn = Field(
-        default=f"postgres://{ps.DATABASE_USER}:{ps.DATABASE_PASSWORD}@{ps.DATABASE_HOST}:{ps.DATABASE_PORT}/postgres"
+class PostgresDB(BaseSettings):
+    model_config = SettingsConfigDict(
+        extra="ignore",
+        case_sensitive=False,
+        env_file=".env",
+        env_file_encoding="utf-8",
+        env_prefix="DATABASE_",
     )
+    ENGINE: str = "django.db.backends.postgresql"
+    HOST: str = Field(default="localhost", alias="DATABASE_HOST")
+    # TODO may need to add a new variable
+    NAME: str = Field(default="postgres", alias="DATABASE_NAME")
+    PASSWORD: str = Field(default="postgrespw", alias="DATABASE_PASSWORD")
+    PORT: int = Field(default=5432, alias="DATABASE_PORT")
+    USER: str = Field(default="postgres", alias="DATABASE_USER")
+    OPTIONS: dict = Field(default={}, alias="DATABASE_OPTIONS")
+    # TODO need to check
+    CONN_MAX_AGE: int = Field(default=0, alias="DATABASE_CONN_MAX_AGE")
 
-    @validator("*")
-    def format_database_settings(cls, v):
-        if isinstance(v, PostgresSettings):
-            return {}
-        else:
-            return super(Databases, cls).format_database_settings(v)
 
-    class Config:
-        case_sensitive = False
-        env_file = ".env"
-        env_file_encoding = "utf-8"
+class Databases(BaseDBConfig):
+    default: PostgresDB = PostgresDB()
 
 
 class LokiSettings(BaseSettings):
-    LOKI_ENABLE: bool = Field(default=False, env="LOKI_ENABLE")
-    LOKI_LEVEL: str = Field(default="INFO", env="LOKI_LEVEL")
-    LOKI_PORT: int = Field(default=3100, env="LOKI_PORT")
-    LOKI_TIMEOUT: float = Field(default=0.5, env="LOKI_TIMEOUT")
-    LOKI_PROTOCOL: str = Field(default="http", env="LOKI_PROTOCOL")
-    LOKI_SRC_HOST: str = Field(default="entirety", env="LOKI_SRC_HOST")
-    LOKI_TIMEZONE: str = Field(default="Europe/Berlin", env="LOKI_TIMEZONE")
-    LOKI_HOST: str = Field(default="localhost", env="LOKI_HOST")
-
-    class Config:
-        case_sensitive = False
-        env_file = ".env"
-        env_file_encoding = "utf-8"
+    model_config = SettingsConfigDict(
+        extra="ignore", case_sensitive=False, env_file=".env", env_file_encoding="utf-8"
+    )
+    LOKI_ENABLE: bool = Field(default=False, alias="LOKI_ENABLE")
+    LOKI_LEVEL: str = Field(default="INFO", alias="LOKI_LEVEL")
+    LOKI_PORT: int = Field(default=3100, alias="LOKI_PORT")
+    LOKI_TIMEOUT: float = Field(default=0.5, alias="LOKI_TIMEOUT")
+    LOKI_PROTOCOL: str = Field(default="http", alias="LOKI_PROTOCOL")
+    LOKI_SRC_HOST: str = Field(default="entirety", alias="LOKI_SRC_HOST")
+    LOKI_TIMEZONE: str = Field(default="Europe/Berlin", alias="LOKI_TIMEZONE")
+    LOKI_HOST: str = Field(default="localhost", alias="LOKI_HOST")
 
 
 class AuthenticationSettings(BaseSettings):
-    LOCAL_AUTH = Field(default=True, env="LOCAL_AUTH")
-
-    class Config:
-        case_sensitive = False
-        env_file = ".env"
-        env_file_encoding = "utf-8"
+    model_config = SettingsConfigDict(
+        extra="ignore", case_sensitive=False, env_file=".env", env_file_encoding="utf-8"
+    )
+    LOCAL_AUTH: bool = Field(default=True, alias="LOCAL_AUTH")
 
 
 class AppLoadSettings(BaseSettings):
-    ENTITIES_LOAD: bool = Field(default=True, env="ENTITIES_LOAD")
-    DEVICES_LOAD: bool = Field(default=True, env="DEVICES_LOAD")
-    SUBSCRIPTIONS_LOAD: bool = Field(default=True, env="SUBSCRIPTIONS_LOAD")
-    SEMANTICS_LOAD: bool = Field(default=True, env="SEMANTICS_LOAD")
+    model_config = SettingsConfigDict(
+        extra="ignore", case_sensitive=False, env_file=".env", env_file_encoding="utf-8"
+    )
 
-    class Config:
-        case_sensitive = False
-        env_file = ".env"
-        env_file_encoding = "utf-8"
+    ENTITIES_LOAD: bool = Field(default=True, alias="ENTITIES_LOAD")
+    DEVICES_LOAD: bool = Field(default=True, alias="DEVICES_LOAD")
+    NOTIFICATIONS_LOAD: bool = Field(default=True, alias="NOTIFICATIONS_LOAD")
+    SEMANTICS_LOAD: bool = Field(default=True, alias="SEMANTICS_LOAD")
 
 
-class Settings(PydanticSettings):
-    add_type("text/css", ".css", True)
+class Settings(BaseSettings):
+    model_config = SettingsConfigDict(
+        extra="ignore",
+        case_sensitive=False,
+        env_file=".env",
+        env_file_encoding="utf-8",
+        # ignored_types=["ClassVar"]
+    )
     __auth = AuthenticationSettings()
-    LOCAL_AUTH = __auth.LOCAL_AUTH
-    LOKI = LokiSettings()
-    APP_LOAD = AppLoadSettings()
+    LOCAL_AUTH: bool = __auth.LOCAL_AUTH
+    LOKI: LokiSettings = LokiSettings()
+    APP_LOAD: AppLoadSettings = AppLoadSettings()
 
-    # Build paths inside the project like this: BASE_DIR / 'subdir'.
-    BASE_DIR: DirectoryPath = Path(__file__).resolve().parent.parent
-
-    VERSION = __version__
+    VERSION: str = __version__
 
     # Application definition
     INSTALLED_APPS: List[str] = [
@@ -122,10 +120,10 @@ class Settings(PydanticSettings):
         "users",
         "smartdatamodels",
     ]
+    # TODO how to define constant variable
+    CRISPY_ALLOWED_TEMPLATE_PACKS: str = "bootstrap5"
 
-    CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
-
-    CRISPY_TEMPLATE_PACK = "bootstrap5"
+    CRISPY_TEMPLATE_PACK: str = "bootstrap5"
 
     MIDDLEWARE: List[str] = [
         "corsheaders.middleware.CorsMiddleware",
@@ -138,9 +136,7 @@ class Settings(PydanticSettings):
         "django.middleware.clickjacking.XFrameOptionsMiddleware",
     ]
 
-    CORS_ORIGIN_ALLOW_ALL = True
-
-    MESSAGE_TAGS = {
+    MESSAGE_TAGS: dict = {
         messages.DEBUG: "alert-info",
         messages.INFO: "alert-info",
         messages.SUCCESS: "alert-success",
@@ -148,9 +144,9 @@ class Settings(PydanticSettings):
         messages.ERROR: "alert-danger",
     }
 
-    ROOT_URLCONF = "entirety.urls"
-    FORM_RENDERER = "django.forms.renderers.TemplatesSetting"
-    TEMPLATES: List[TemplateBackendModel] = [
+    ROOT_URLCONF: str = "entirety.urls"
+    FORM_RENDERER: str = "django.forms.renderers.TemplatesSetting"
+    TEMPLATES: List[Dict] = [
         {
             "BACKEND": "django.template.backends.django.DjangoTemplates",
             "DIRS": ["templates"],
@@ -166,7 +162,7 @@ class Settings(PydanticSettings):
         },
     ]
 
-    WSGI_APPLICATION = "entirety.wsgi.application"
+    WSGI_APPLICATION: str = "entirety.wsgi.application"
 
     # Password validation
     # https://docs.djangoproject.com/en/4.0/ref/settings/#auth-password-validators
@@ -186,16 +182,16 @@ class Settings(PydanticSettings):
         },
     ]
 
-    AUTH_USER_MODEL = "users.User"
+    AUTH_USER_MODEL: str = "users.User"
 
-    USE_I18N = True
+    USE_I18N: bool = True
 
-    USE_TZ = True
+    USE_TZ: bool = True
 
     # Static files (CSS, JavaScript, Images)
     # https://docs.djangoproject.com/en/4.0/howto/static-files/
 
-    STATIC_URL = "static/"
+    STATIC_URL: str = "static/"
 
     STATICFILES_DIRS: List[DirectoryPath] = [
         os.path.join(BASE_DIR, "static"),
@@ -207,16 +203,17 @@ class Settings(PydanticSettings):
         "compressor.finders.CompressorFinder",
     ]
 
-    COMPRESS_PRECOMPILERS = (("text/x-scss", "django_libsass.SassCompiler"),)
+    COMPRESS_PRECOMPILERS: tuple = (("text/x-scss", "django_libsass.SassCompiler"),)
 
     # Default primary key field type
     # https://docs.djangoproject.com/en/4.0/ref/settings/#default-auto-field
 
-    DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+    DEFAULT_AUTO_FIELD: str = "django.db.models.BigAutoField"
 
     LOGGING_CONFIG: Union[str, None] = None
 
-    LOGGERS = {
+    # TODO more structured annotation
+    LOGGERS: dict = {
         "projects.views": {
             "propagate": False,
             "level": "INFO",
@@ -247,6 +244,9 @@ class Settings(PydanticSettings):
         },
     }
 
+    LOGGER: ClassVar
+    HANDLER: ClassVar
+
     if LOKI.LOKI_ENABLE is True:
         for LOGGER in LOGGERS:
             LOGGERS[LOGGER]["handlers"] = ["loki"]
@@ -271,7 +271,7 @@ class Settings(PydanticSettings):
             }
         }
 
-    LOGGING = {
+    LOGGING: dict = {
         "version": 1,
         "disable_existing_loggers": True,
         "formatters": {
@@ -290,12 +290,13 @@ class Settings(PydanticSettings):
     # Media location
     # https://docs.djangoproject.com/en/4.0/howto/static-files/#serving-files
     # -uploaded-by-a-user-during-development
-    MEDIA_URL = "/media/"
+    MEDIA_URL: str = "/media/"
 
     # Settings provided by environment
-    SECRET_KEY: str = Field(default=generate_secret_key(), env="DJANGO_SECRET_KEY")
+    SECRET_KEY: str = Field(default=generate_secret_key(), alias="DJANGO_SECRET_KEY")
 
-    @validator("SECRET_KEY")
+    @field_validator("SECRET_KEY")
+    @classmethod
     def secret_key_not_empty(cls, v) -> str:
         v_cleaned = v.strip()
         if not v_cleaned:
@@ -305,93 +306,105 @@ class Settings(PydanticSettings):
         return v_cleaned
 
     # SECURITY WARNING: don't run with debug turned on in production!
-    DEBUG: bool = Field(default=False, env="DJANGO_DEBUG")
+    DEBUG: bool = Field(default=False, alias="DJANGO_DEBUG")
 
-    ALLOWED_HOSTS: List = Field(default=["*"], env="ALLOWED_HOSTS")
+    ALLOWED_HOSTS: List = Field(default=["*"], alias="ALLOWED_HOSTS")
 
-    CB_URL: AnyUrl = Field(default="http://localhost:1026", env="CB_URL")
-    MQTT_BASE_TOPIC: str = Field(default="/Entirety", env="MQTT_BASE_TOPIC")
+    CB_URL: AnyUrl = Field(default="http://localhost:1026", alias="CB_URL")
+    MQTT_BASE_TOPIC: str = Field(default="/Entirety", alias="MQTT_BASE_TOPIC")
 
-    QL_URL: AnyUrl = Field(default="http://localhost:8668", env="QL_URL")
+    QL_URL: AnyUrl = Field(default="http://localhost:8668", alias="QL_URL")
 
-    IOTA_URL: AnyUrl = Field(default="http://localhost:4041", env="IOTA_URL")
+    IOTA_URL: AnyUrl = Field(default="http://localhost:4041", alias="IOTA_URL")
 
     # CSRF
-    CSRF_TRUSTED_ORIGINS: list = Field(default=[], env="CSRF_TRUSTED_ORIGINS ")
+    CSRF_TRUSTED_ORIGINS: list = Field(default=[], alias="CSRF_TRUSTED_ORIGINS ")
 
     # Database
     # https://docs.djangoproject.com/en/4.0/ref/settings/#databases
-    DATABASES: Databases = Field({})
+    DATABASES: Databases = Databases()
 
-    LOGOUT_REDIRECT_URL: str = Field(default="/", env="LOGOUT_REDIRECT_URL")
+    LOGIN_REDIRECT_URL: str = Field(default="/", alias="LOGIN_REDIRECT_URL")
+    LOGIN_URL: str = Field(default="/accounts/login", alias="LOGIN_URL")
+    LOGOUT_REDIRECT_URL: str = Field(default="/", alias="LOGOUT_REDIRECT_URL")
 
-    if __auth.LOCAL_AUTH:
-        LOGIN_REDIRECT_URL: str = Field(default="/", env="LOGIN_REDIRECT_URL")
-    else:
+    if not __auth.LOCAL_AUTH:
         INSTALLED_APPS.append("mozilla_django_oidc")
         MIDDLEWARE.append("mozilla_django_oidc.middleware.SessionRefresh")
         AUTHENTICATION_BACKENDS: Sequence[str] = ("entirety.oidc.CustomOIDCAB",)
 
-        LOGIN_URL: str = Field(default="/oidc/authenticate", env="LOGIN_URL")
-
-        LOGIN_REDIRECT_URL: str = Field(
-            default="/oidc/callback/", env="LOGIN_REDIRECT_URL"
+        OIDC_LOGIN_URL: str = Field(
+            default="/oidc/authenticate", alias="OIDC_LOGIN_URL"
         )
+        LOGIN_URL = OIDC_LOGIN_URL
 
-        OIDC_RP_SIGN_ALGO: str = Field(default="RS256", env="OIDC_RP_SIGN_ALGO")
-        OIDC_OP_JWKS_ENDPOINT: str = Field(env="OIDC_OP_JWKS_ENDPOINT")
+        OIDC_LOGIN_REDIRECT_URL: str = Field(
+            default="/oidc/callback/", alias="OIDC_LOGIN_REDIRECT_URL"
+        )
+        LOGIN_REDIRECT_URL = OIDC_LOGIN_REDIRECT_URL
 
-        OIDC_RP_CLIENT_ID: str = Field(env="OIDC_RP_CLIENT_ID")
-        OIDC_RP_CLIENT_SECRET: str = Field(env="OIDC_RP_CLIENT_SECRET")
+        OIDC_LOGOUT_REDIRECT_URL: str = Field(
+            default="/", alias="OIDC_LOGOUT_REDIRECT_URL"
+        )
+        LOGOUT_REDIRECT_URL = OIDC_LOGOUT_REDIRECT_URL
+
+        OIDC_RP_SIGN_ALGO: str = Field(default="RS256", alias="OIDC_RP_SIGN_ALGO")
+        OIDC_OP_JWKS_ENDPOINT: str = Field(alias="OIDC_OP_JWKS_ENDPOINT")
+
+        OIDC_RP_CLIENT_ID: str = Field(alias="OIDC_RP_CLIENT_ID")
+        OIDC_RP_CLIENT_SECRET: str = Field(alias="OIDC_RP_CLIENT_SECRET")
         OIDC_OP_AUTHORIZATION_ENDPOINT: str = Field(
-            env="OIDC_OP_AUTHORIZATION_ENDPOINT"
+            alias="OIDC_OP_AUTHORIZATION_ENDPOINT"
         )
-        OIDC_OP_TOKEN_ENDPOINT: str = Field(env="OIDC_OP_TOKEN_ENDPOINT")
-        OIDC_OP_USER_ENDPOINT: str = Field(env="OIDC_OP_USER_ENDPOINT")
+        OIDC_OP_TOKEN_ENDPOINT: str = Field(alias="OIDC_OP_TOKEN_ENDPOINT")
+        OIDC_OP_USER_ENDPOINT: str = Field(alias="OIDC_OP_USER_ENDPOINT")
+        OIDC_OP_LOGOUT_ENDPOINT: str = Field(alias="OIDC_OP_LOGOUT_ENDPOINT")
+        OIDC_OP_LOGOUT_URL_METHOD: str = Field(
+            default="users.views.provider_logout", alias="OIDC_OP_LOGOUT_URL_METHOD"
+        )
+        OIDC_STORE_ID_TOKEN: bool = Field(default=True, alias="OIDC_STORE_ID_TOKEN")
 
         OIDC_SUPER_ADMIN_ROLE: str = Field(
-            default="super_admin", env="OIDC_SUPER_ADMIN_ROLE"
+            default="super_admin", alias="OIDC_SUPER_ADMIN_ROLE"
         )
         OIDC_SERVER_ADMIN_ROLE: str = Field(
-            default="server_admin", env="OIDC_SERVER_ADMIN_ROLE"
+            default="server_admin", alias="OIDC_SERVER_ADMIN_ROLE"
         )
         OIDC_PROJECT_ADMIN_ROLE: str = Field(
-            default="project_admin", env="OIDC_PROJECT_ADMIN_ROLE"
+            default="project_admin", alias="OIDC_PROJECT_ADMIN_ROLE"
         )
-        OIDC_USER_ROLE: str = Field(default="user", env="OIDC_USER_ROLE")
+        OIDC_USER_ROLE: str = Field(default="user", alias="OIDC_USER_ROLE")
         OIDC_TOKEN_ROLE_PATH: str = Field(
-            default="$.entirety.roles", env="OIDC_TOKEN_ROLE_PATH"
+            default="$.entirety.roles", alias="OIDC_TOKEN_ROLE_PATH"
         )
 
     # Internationalization
     # https://docs.djangoproject.com/en/4.0/topics/i18n/
 
-    LANGUAGE_CODE: str = Field(default="en-us", env="LANGUAGE_CODE")
+    LANGUAGE_CODE: str = Field(default="en-us", alias="LANGUAGE_CODE")
 
     STATIC_ROOT: DirectoryPath = Field(
-        default=os.path.join(BASE_DIR, "cache/"), env="STATIC_ROOT"
+        default=os.path.join(BASE_DIR, "cache/"), alias="STATIC_ROOT"
     )
     MEDIA_ROOT: DirectoryPath = Field(
-        default=os.path.join(BASE_DIR, "media/"), env="MEDIA_ROOT"
+        default=os.path.join(BASE_DIR, "media/"), alias="MEDIA_ROOT"
     )
 
-    TIME_ZONE: str = Field(default="Europe/Berlin", env="TIME_ZONE")
+    TIME_ZONE: str = Field(default="Europe/Berlin", alias="TIME_ZONE")
 
-    COMPRESS_ENABLED: bool = Field(default=not DEBUG, env="COMPRESS_ENABLED")
+    COMPRESS_ENABLED: bool = Field(default=not DEBUG, alias="COMPRESS_ENABLED")
 
-    DJANGO_TABLES2_TEMPLATE = "django_tables2/bootstrap4.html"
+    DJANGO_TABLES2_TEMPLATE: str = "django_tables2/bootstrap4.html"
 
     if APP_LOAD.ENTITIES_LOAD is True:
         INSTALLED_APPS.append("entities")
     if APP_LOAD.DEVICES_LOAD is True:
         INSTALLED_APPS.append("devices")
-    if APP_LOAD.SUBSCRIPTIONS_LOAD is True:
+    if APP_LOAD.NOTIFICATIONS_LOAD is True:
         INSTALLED_APPS.append("subscriptions")
     if APP_LOAD.SEMANTICS_LOAD is True:
 
         INSTALLED_APPS.append("semantics")
 
-    class Config:
-        case_sensitive = False
-        env_file = ".env"
-        env_file_encoding = "utf-8"
+
+to_django(settings=Settings())
