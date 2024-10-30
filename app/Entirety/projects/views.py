@@ -127,7 +127,7 @@ class Update(ProjectSelfMixin, UpdateView):
             + " has updated the project "
             + self.object.name
         )
-        return reverse("projects:index")
+        return reverse("projects:detail", kwargs={"pk": self.object.pk})
 
     def get_form_kwargs(self):
         kwargs = super(Update, self).get_form_kwargs()
@@ -155,7 +155,7 @@ class Create(ProjectCreateMixin, CreateView):
             + " has created the project "
             + self.object.name
         )
-        return reverse("projects:index")
+        return reverse("projects:detail", kwargs={"pk": self.object.pk})
 
     def get_form_kwargs(self):
         kwargs = super(Create, self).get_form_kwargs()
