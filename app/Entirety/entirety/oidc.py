@@ -39,14 +39,14 @@ class CustomOIDCAB(OIDCAuthenticationBackend):
         user.save()
 
         logger.info(
-            user.first_name
+            user.username
             + " is accessing with roles "
             + roles.__str__()
         )
         return user
 
     def verify_claims(self, claims):
-        logger.info(claims.get("given_name") + " is verifying claim")
+        logger.info("User " + claims.get("preferred_username") + " is verifying claim")
         verified = super(CustomOIDCAB, self).verify_claims(claims)
         path = settings.OIDC_TOKEN_ROLE_PATH
         parsed_result = parse(path).find(
