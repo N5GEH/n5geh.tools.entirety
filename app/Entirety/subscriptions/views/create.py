@@ -58,6 +58,8 @@ class Create(ProjectContextMixin, CreateView):
             context["entities"] = forms.Entities(
                 prefix="entity", form_kwargs={"project": self.project}
             )
+            context["http"] = forms.HTTPForm()
+            context["mqtt"] = forms.MQTTForm()
         return context
 
     def post(self, request, *args, **kwargs):

@@ -5,6 +5,7 @@ from crispy_forms.layout import Layout, Fieldset, Div, HTML, Button, Field
 from crispy_forms.bootstrap import InlineCheckboxes
 
 from filip.models.ngsi_v2.base import AttrsFormat
+from filip.models.ngsi_v2.subscriptions import HttpMethods
 from filip.utils.simple_ql import Operator
 
 from subscriptions.models import Subscription
@@ -111,8 +112,9 @@ class EntitiesForm(forms.Form):
     entity_id_list = []
     entity_type_list = []
 
-    entity_id = DropdownOrTextField(choices=entity_id_list,
-                                    tooltip="Entity type or type pattern.")
+    entity_id = DropdownOrTextField(
+        choices=entity_id_list, tooltip="Entity type or type pattern."
+    )
 
     entity_type = forms.ChoiceField(choices=entity_type_list)
 
@@ -183,12 +185,10 @@ class EntitiesForm(forms.Form):
         }
 
         self.fields["entity_id"] = DropdownOrTextField(
-            choices=entity_id_list, **entity_kwargs,
-            tooltip="Entity id"
+            choices=entity_id_list, **entity_kwargs, tooltip="Entity id"
         )
         self.fields["entity_type"] = DropdownOrTextField(
-            choices=entity_type_list, **type_kwargs,
-            tooltip="Entity type"
+            choices=entity_type_list, **type_kwargs, tooltip="Entity type"
         )
 
         self.helper = FormHelper(self)
@@ -262,7 +262,7 @@ class SubscriptionForm(forms.ModelForm):
                 "between two consecutive notifications. "
                 "It is optional.",
             }
-        )
+        ),
         # help_text="Minimal period of time in seconds which must elapse "
         # "between two consecutive notifications. "
         # "It is optional.",
@@ -274,27 +274,10 @@ class SubscriptionForm(forms.ModelForm):
 
     # Notification
 
-    # TODO: httpCustom
-    http = HTTPURLField(
-        required=False,
-        widget=forms.TextInput(
-            attrs={
-                "data-bs-toggle": "tooltip",
-                "data-bs-placement": "top",
-                "title": "HTTP endpoint to receive the notification.",
-            }
-        ),
-    )
-    # TODO: mqttCustom
-    mqtt = MQTTURLField(
-        required=False,
-        widget=forms.TextInput(
-            attrs={
-                "data-bs-toggle": "tooltip",
-                "data-bs-placement": "top",
-                "title": "MQTT endpoint to receive the notification.",
-            }
-        ),
+    _notification_choices = [("http", "HTTP"), ("mqtt", "MQTT")]
+    endpoint_type = forms.ChoiceField(
+        required=True,
+        choices=_notification_choices,
     )
 
     metadata = forms.CharField(
@@ -305,7 +288,7 @@ class SubscriptionForm(forms.ModelForm):
                 "data-bs-placement": "top",
                 "title": "List of metadata to be included in notification messages.",
             }
-        )
+        ),
         # help_text="List of metadata to be included in notification messages.",
     )
     # metadata = forms.
@@ -354,3 +337,144 @@ class SubscriptionForm(forms.ModelForm):
                 }
             ),
         }
+
+
+class HTTPForm(forms.Form):
+    http_url = HTTPURLField(
+        required=False,
+        widget=forms.TextInput(
+            attrs={
+                "data-bs-toggle": "tooltip",
+                "data-bs-placement": "top",
+                "title": "HTTP endpoint to receive the notification.",
+            }
+        ),
+    )
+    http_method = forms.ChoiceField(
+        required=False,
+        choices=[(method.value, method.value) for method in HttpMethods],
+        widget=forms.Select(
+            attrs={
+                "data-bs-toggle": "tooltip",
+                "data-bs-placement": "top",
+                "title": "HTTP method to send the notification with.",
+            }
+        ),
+    )
+    http_qs = forms.JSONField(
+        required=False,
+        initial=dict,
+        widget=forms.TextInput(
+            attrs={
+                "data-bs-toggle": "tooltip",
+                "data-bs-placement": "top",
+                "title": "HTTP query parameters to include in the notification.",
+            }
+        ),
+    )
+    http_headers = forms.JSONField(
+        required=False,
+        initial=dict,
+        widget=forms.TextInput(
+            attrs={
+                "data-bs-toggle": "tooltip",
+                "data-bs-placement": "top",
+                "title": "HTTP headers to include in the notification.",
+            }
+        ),
+    )
+    http_payload = forms.CharField(
+        required=False,
+        widget=forms.TextInput(
+            attrs={
+                "data-bs-toggle": "tooltip",
+                "data-bs-placement": "top",
+                "title": "HTTP payload to include in the notification.",
+            }
+        ),
+    )
+    http_json = forms.JSONField(
+        required=False,
+        initial=dict,
+        widget=forms.TextInput(
+            attrs={
+                "data-bs-toggle": "tooltip",
+                "data-bs-placement": "top",
+                "title": "HTTP json to include in the notification.",
+            }
+        ),
+    )
+    http_ngsi = forms.CharField(
+        required=False,
+        widget=forms.TextInput(
+            attrs={
+                "data-bs-toggle": "tooltip",
+                "data-bs-placement": "top",
+                "title": "HTTP ngsi to include in the notification.",
+            }
+        ),
+    )
+    http_timeout = forms.IntegerField(
+        required=False,
+        widget=forms.NumberInput(
+            attrs={
+                "data-bs-toggle": "tooltip",
+                "data-bs-placement": "top",
+                "title": "maximum time (in milliseconds) the subscription waits for the response.",
+            }
+        ),
+    )
+
+
+class MQTTForm(forms.Form):
+    mqtt_url = MQTTURLField(
+        required=False,
+        widget=forms.TextInput(
+            attrs={
+                "data-bs-toggle": "tooltip",
+                "data-bs-placement": "top",
+                "title": "MQTT endpoint to receive the notification.",
+            }
+        ),
+    )
+    mqtt_topic = forms.CharField(
+        required=False,
+        widget=forms.TextInput(
+            attrs={
+                "data-bs-toggle": "tooltip",
+                "data-bs-placement": "top",
+                "title": "MQTT topic to use for the notification.",
+            }
+        ),
+    )
+    mqtt_payload = forms.CharField(
+        required=False,
+        widget=forms.TextInput(
+            attrs={
+                "data-bs-toggle": "tooltip",
+                "data-bs-placement": "top",
+                "title": "MQTT payload to include in the notification.",
+            }
+        ),
+    )
+    mqtt_json = forms.JSONField(
+        required=False,
+        initial=dict,
+        widget=forms.TextInput(
+            attrs={
+                "data-bs-toggle": "tooltip",
+                "data-bs-placement": "top",
+                "title": "MQTT json to include in the notification.",
+            }
+        ),
+    )
+    mqtt_ngsi = forms.CharField(
+        required=False,
+        widget=forms.TextInput(
+            attrs={
+                "data-bs-toggle": "tooltip",
+                "data-bs-placement": "top",
+                "title": "MQTT ngsi to include in the notification.",
+            }
+        ),
+    )

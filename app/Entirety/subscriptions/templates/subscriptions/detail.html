@@ -121,8 +121,15 @@
                 <div id="acc_c_notification" class="accordion-collapse collapse show"
                      aria-labelledby="acc_h_notification">
                     <div class="accordion-body">
-                        {{ form.http|as_crispy_field }}
-                        {{ form.mqtt|as_crispy_field }}
+                        {{ form.endpoint_type|as_crispy_field }}
+
+                        <div id="http" class="d-block">
+                            {% include "subscriptions/http.html" %}
+                        </div>
+                        <div id="mqtt" class="d-none">
+                            {% include "subscriptions/mqtt.html" %}
+                        </div>
+
                         {{ form.metadata|as_crispy_field }}
                         {#                        {{ form.n_attributes|as_crispy_field }}#}
                         {#                        {{ form.n_except_attributes|as_crispy_field }}#}

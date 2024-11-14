@@ -125,3 +125,17 @@ function removeEntity(event) {
         });
     }
 }
+
+document.getElementById('id_endpoint_type').addEventListener('change', function () {
+            var mqtt = document.getElementById('mqtt');
+            var http = document.getElementById('http');
+            if (this.value === 'mqtt') {
+                http.classList.add('d-none');
+                mqtt.classList.remove('d-none');
+                mqtt.classList.add('d-block');
+            } else {
+                mqtt.classList.add('d-none');
+                http.classList.remove('d-none');
+                http.classList.add('d-block');
+            }
+        });
