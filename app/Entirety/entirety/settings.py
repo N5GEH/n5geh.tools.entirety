@@ -318,8 +318,10 @@ class Settings(BaseSettings):
     IOTA_URL: AnyUrl = Field(default="http://localhost:4041", alias="IOTA_URL")
 
     # SECURITY
+    # Warning: These settings can cause your setup to be insecure! Check the Django documentation for further information.
 
-    SECURITY_SECURE_PROXY_SSL_HEADER: tuple[str, str] = Field(default=("HTTP_X_FORWARDED_PROTO", "https"))
+    # USE_X_FORWARDED_HOST: bool = True
+    # SECURITY_SECURE_PROXY_SSL_HEADER: tuple[str, str] = Field(default=("HTTP_X_FORWARDED_PROTO", "https"))
 
     # CSRF
     CSRF_TRUSTED_ORIGINS: list = Field(default=[], alias="CSRF_TRUSTED_ORIGINS ")
