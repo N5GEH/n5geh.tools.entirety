@@ -404,6 +404,7 @@ class HTTPCustomForm(forms.Form):
             }
         ),
     )
+    # TODO: fix NGSI error
     # ngsi = forms.CharField(
     #     required=False,
     #     initial=None,
@@ -513,6 +514,7 @@ class MQTTCustomForm(forms.Form):
             }
         ),
     )
+    # TODO: fix NGSI error
     # ngsi = forms.CharField(
     #     required=False,
     #     initial=None,
