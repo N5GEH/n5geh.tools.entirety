@@ -190,11 +190,18 @@ class Create(ProjectContextMixin, TemplateView):
     def post(self, request, *args, **kwargs):
         # load data model
         if "load" in self.request.POST:
+            context = super(Create, self).get_context_data(**kwargs)
             if self.request.POST.get("data_model") == "..":
                 entity_json = {}
             else:
-                entity_json = parse_entity(self.request.POST.get("data_model"))
-            context = super(Create, self).get_context_data(**kwargs)
+                try:
+                    entity_json = parse_entity(self.request.POST.get("data_model"))
+                # except NotImplementedError as e:
+                except KeyError as e:
+                    messages.error(
+                        self.request, f"Error parsing data model: missing key {e}"
+                    )
+                    entity_json = {}
             basic_info = EntityForm(
                 self.project,
                 initial={"id": entity_json.get("id"), "type": entity_json.get("type")},
