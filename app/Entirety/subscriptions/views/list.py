@@ -1,4 +1,5 @@
 from django.conf import settings
+from django.contrib import messages
 from django.views.generic import ListView
 
 from filip.clients.ngsi_v2.cb import ContextBrokerClient
@@ -42,7 +43,11 @@ class List(ProjectContextAndViewOnlyMixin, ListView):
                 service_path=self.project.fiware_service_path,
             ),
         ) as cb_client:
-            subs_cb = cb_client.get_subscription_list()
+            subs_cb = []
+            try:
+                subs_cb = cb_client.get_subscription_list()
+            except Exception as e:
+                messages.error(self.request, e)
             for sub_cb in subs_cb:
                 sub = Subscription(uuid=sub_cb.id)
                 sub.description = sub_cb.description

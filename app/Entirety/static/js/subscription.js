@@ -126,16 +126,164 @@ function removeEntity(event) {
     }
 }
 
-document.getElementById('id_endpoint_type').addEventListener('change', function () {
-            var mqtt = document.getElementById('mqtt');
-            var http = document.getElementById('http');
-            if (this.value === 'mqtt') {
-                http.classList.add('d-none');
-                mqtt.classList.remove('d-none');
-                mqtt.classList.add('d-block');
-            } else {
-                mqtt.classList.add('d-none');
-                http.classList.remove('d-none');
-                http.classList.add('d-block');
-            }
-        });
+function showMqttSection() {
+    var mqtt = document.getElementById('mqtt');
+    var mqttCustom = document.getElementById('mqttCustom');
+    var http = document.getElementById('http');
+    var httpCustom = document.getElementById('httpCustom');
+
+    // Show only MQTT section
+    mqtt.classList.remove('d-none');
+    mqtt.classList.add('d-block');
+
+    // Hide HTTP and other sections
+    http.classList.add('d-none');
+    http.classList.remove('d-block');
+    httpCustom.classList.add('d-none');
+    httpCustom.classList.remove('d-block');
+    mqttCustom.classList.add('d-none');
+    mqttCustom.classList.remove('d-block');
+
+    // Enable only MQTT inputs
+    mqtt.querySelectorAll('input, select, textarea').forEach(function (input) {
+        input.disabled = false;
+    });
+    mqttCustom.querySelectorAll('input, select, textarea').forEach(function (input) {
+        input.disabled = true;
+    });
+    http.querySelectorAll('input, select, textarea').forEach(function (input) {
+        input.disabled = true;
+    });
+    httpCustom.querySelectorAll('input, select, textarea').forEach(function (input) {
+        input.disabled = true;
+    });
+}
+
+function showMqttCustomSection() {
+    var mqtt = document.getElementById('mqtt');
+    var mqttCustom = document.getElementById('mqttCustom');
+    var http = document.getElementById('http');
+    var httpCustom = document.getElementById('httpCustom');
+
+    // Show only MQTT Custom section
+    mqttCustom.classList.remove('d-none');
+    mqttCustom.classList.add('d-block');
+
+    // Hide other sections
+    mqtt.classList.add('d-none');
+    mqtt.classList.remove('d-block');
+    http.classList.add('d-none');
+    http.classList.remove('d-block');
+    httpCustom.classList.add('d-none');
+    httpCustom.classList.remove('d-block');
+
+    // Enable only MQTT Custom inputs
+    mqtt.querySelectorAll('input, select, textarea').forEach(function (input) {
+        input.disabled = true;
+    });
+    mqttCustom.querySelectorAll('input, select, textarea').forEach(function (input) {
+        input.disabled = false;
+    });
+    http.querySelectorAll('input, select, textarea').forEach(function (input) {
+        input.disabled = true;
+    });
+    httpCustom.querySelectorAll('input, select, textarea').forEach(function (input) {
+        input.disabled = true;
+    });
+}
+
+function showHttpSection() {
+    var mqtt = document.getElementById('mqtt');
+    var mqttCustom = document.getElementById('mqttCustom');
+    var http = document.getElementById('http');
+    var httpCustom = document.getElementById('httpCustom');
+
+    // Show only HTTP section
+    http.classList.remove('d-none');
+    http.classList.add('d-block');
+
+    // Hide other sections
+    mqtt.classList.add('d-none');
+    mqtt.classList.remove('d-block');
+    mqttCustom.classList.add('d-none');
+    mqttCustom.classList.remove('d-block');
+    httpCustom.classList.add('d-none');
+    httpCustom.classList.remove('d-block');
+
+    // Enable only HTTP inputs
+    http.querySelectorAll('input, select, textarea').forEach(function (input) {
+        input.disabled = false;
+    });
+    mqtt.querySelectorAll('input, select, textarea').forEach(function (input) {
+        input.disabled = true;
+    });
+    mqttCustom.querySelectorAll('input, select, textarea').forEach(function (input) {
+        input.disabled = true;
+    });
+    httpCustom.querySelectorAll('input, select, textarea').forEach(function (input) {
+        input.disabled = true;
+    });
+}
+
+function showHttpCustomSection() {
+    var mqtt = document.getElementById('mqtt');
+    var mqttCustom = document.getElementById('mqttCustom');
+    var http = document.getElementById('http');
+    var httpCustom = document.getElementById('httpCustom');
+
+    // Show only HTTP Custom section
+    httpCustom.classList.remove('d-none');
+    httpCustom.classList.add('d-block');
+
+    // Hide other sections
+    mqtt.classList.add('d-none');
+    mqtt.classList.remove('d-block');
+    mqttCustom.classList.add('d-none');
+    mqttCustom.classList.remove('d-block');
+    http.classList.add('d-none');
+    http.classList.remove('d-block');
+
+    // Enable only HTTP Custom inputs
+    httpCustom.querySelectorAll('input, select, textarea').forEach(function (input) {
+        input.disabled = false;
+    });
+    mqtt.querySelectorAll('input, select, textarea').forEach(function (input) {
+        input.disabled = true;
+    });
+    mqttCustom.querySelectorAll('input, select, textarea').forEach(function (input) {
+        input.disabled = true;
+    });
+    http.querySelectorAll('input, select, textarea').forEach(function (input) {
+        input.disabled = true;
+    });
+}
+
+function handleEndpointTypeChange(endpointType) {
+    if (endpointType.value === 'mqtt') {
+        showMqttSection();
+    } else if (endpointType.value === 'mqttCustom') {
+        showMqttCustomSection();
+    } else if (endpointType.value === 'http') {
+        showHttpSection();
+    } else if (endpointType.value === 'httpCustom') {
+        showHttpCustomSection();
+    }
+}
+
+document.addEventListener('DOMContentLoaded', function () {
+    var endpointType = document.getElementById('id_endpoint_type');
+
+    // Run appropriate function on page load
+    handleEndpointTypeChange(endpointType);
+
+    // Attach change event listener to dropdown
+    endpointType.addEventListener('change', function () {
+        handleEndpointTypeChange(this);
+    });
+});
+
+// Handle back/forward navigation using the pageshow event
+window.addEventListener('pageshow', function () {
+    var endpointType = document.getElementById('id_endpoint_type');
+    handleEndpointTypeChange(endpointType);
+});

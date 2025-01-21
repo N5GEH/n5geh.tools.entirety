@@ -123,12 +123,19 @@
                     <div class="accordion-body">
                         {{ form.endpoint_type|as_crispy_field }}
 
-                        <div id="http" class="d-block">
-                            {% include "subscriptions/http.html" %}
+                        <div id="mqttCustom" class="d-none">
+                            {% include "subscriptions/mqtt_custom.html" %}
+                        </div>
+                        <div id="httpCustom" class="d-none">
+                            {% include "subscriptions/http_custom.html" %}
                         </div>
                         <div id="mqtt" class="d-none">
                             {% include "subscriptions/mqtt.html" %}
                         </div>
+                        <div id="http" class="d-block">
+                            {% include "subscriptions/http.html" %}
+                        </div>
+
 
                         {{ form.metadata|as_crispy_field }}
                         {#                        {{ form.n_attributes|as_crispy_field }}#}

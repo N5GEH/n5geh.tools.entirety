@@ -274,7 +274,12 @@ class SubscriptionForm(forms.ModelForm):
 
     # Notification
 
-    _notification_choices = [("http", "HTTP"), ("mqtt", "MQTT")]
+    _notification_choices = [
+        ("http", "HTTP"),
+        ("mqtt", "MQTT"),
+        ("httpCustom", "HTTPCustom"),
+        ("mqttCustom", "MQTTCustom"),
+    ]
     endpoint_type = forms.ChoiceField(
         required=True,
         choices=_notification_choices,
@@ -282,6 +287,7 @@ class SubscriptionForm(forms.ModelForm):
 
     metadata = forms.CharField(
         required=False,
+        initial=dict,
         widget=forms.TextInput(
             attrs={
                 "data-bs-toggle": "tooltip",
@@ -317,13 +323,6 @@ class SubscriptionForm(forms.ModelForm):
     # last_notification = forms.DateField(disabled=True, required=False)
     # last_failure = forms.DateField(disabled=True, required=False)
 
-    def clean(self):
-        cleaned_data = super().clean()
-        if not (bool(cleaned_data.get("http")) != bool(cleaned_data.get("mqtt"))):
-            message = "Exactly one of http or mqtt must have a value."
-            self.add_error("http", message)
-            self.add_error("mqtt", message)
-
     class Meta:
         model = Subscription
         exclude = ["uuid", "project"]
@@ -339,9 +338,9 @@ class SubscriptionForm(forms.ModelForm):
         }
 
 
-class HTTPForm(forms.Form):
-    http_url = HTTPURLField(
-        required=False,
+class HTTPCustomForm(forms.Form):
+    url = HTTPURLField(
+        required=True,
         widget=forms.TextInput(
             attrs={
                 "data-bs-toggle": "tooltip",
@@ -350,8 +349,8 @@ class HTTPForm(forms.Form):
             }
         ),
     )
-    http_method = forms.ChoiceField(
-        required=False,
+    method = forms.ChoiceField(
+        required=True,
         choices=[(method.value, method.value) for method in HttpMethods],
         widget=forms.Select(
             attrs={
@@ -361,9 +360,9 @@ class HTTPForm(forms.Form):
             }
         ),
     )
-    http_qs = forms.JSONField(
+    qs = forms.JSONField(
         required=False,
-        initial=dict,
+        initial=None,
         widget=forms.TextInput(
             attrs={
                 "data-bs-toggle": "tooltip",
@@ -372,9 +371,9 @@ class HTTPForm(forms.Form):
             }
         ),
     )
-    http_headers = forms.JSONField(
+    headers = forms.JSONField(
         required=False,
-        initial=dict,
+        initial=None,
         widget=forms.TextInput(
             attrs={
                 "data-bs-toggle": "tooltip",
@@ -383,8 +382,9 @@ class HTTPForm(forms.Form):
             }
         ),
     )
-    http_payload = forms.CharField(
+    payload = forms.CharField(
         required=False,
+        empty_value=None,
         widget=forms.TextInput(
             attrs={
                 "data-bs-toggle": "tooltip",
@@ -393,9 +393,9 @@ class HTTPForm(forms.Form):
             }
         ),
     )
-    http_json = forms.JSONField(
+    json = forms.JSONField(
         required=False,
-        initial=dict,
+        initial=None,
         widget=forms.TextInput(
             attrs={
                 "data-bs-toggle": "tooltip",
@@ -404,18 +404,20 @@ class HTTPForm(forms.Form):
             }
         ),
     )
-    http_ngsi = forms.CharField(
+    # ngsi = forms.CharField(
+    #     required=False,
+    #     initial=None,
+    #     widget=forms.TextInput(
+    #         attrs={
+    #             "data-bs-toggle": "tooltip",
+    #             "data-bs-placement": "top",
+    #             "title": "HTTP ngsi to include in the notification.",
+    #         }
+    #     ),
+    # )
+    timeout = forms.IntegerField(
         required=False,
-        widget=forms.TextInput(
-            attrs={
-                "data-bs-toggle": "tooltip",
-                "data-bs-placement": "top",
-                "title": "HTTP ngsi to include in the notification.",
-            }
-        ),
-    )
-    http_timeout = forms.IntegerField(
-        required=False,
+        initial=None,
         widget=forms.NumberInput(
             attrs={
                 "data-bs-toggle": "tooltip",
@@ -425,10 +427,42 @@ class HTTPForm(forms.Form):
         ),
     )
 
+    # def clean(self):
+    #     if ((self.cleaned_data["http_payload"] and self.cleaned_data["http_json"] and self.cleaned_data["http_ngsi"])
+    #             or (self.cleaned_data["http_payload"] and self.cleaned_data["http_json"]) or (self.cleaned_data[
+    #                                                                                               "http_json"] and
+    #                                                                                           self.cleaned_data[
+    #                                                                                               "http_ngsi"]) or (
+    #                     self.cleaned_data["http_payload"] and self.cleaned_data["http_ngsi"])):
+    #         raise ValidationError("Only one of HTTP Payload, HTTP JSON and HTTP NGSI must be provided.")
 
-class MQTTForm(forms.Form):
-    mqtt_url = MQTTURLField(
-        required=False,
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.helper = FormHelper(self)
+        self.helper.form_tag = False
+
+
+class HTTPForm(forms.Form):
+    url = HTTPURLField(
+        required=True,
+        widget=forms.TextInput(
+            attrs={
+                "data-bs-toggle": "tooltip",
+                "data-bs-placement": "top",
+                "title": "HTTP endpoint to receive the notification.",
+            }
+        ),
+    )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.helper = FormHelper(self)
+        self.helper.form_tag = False
+
+
+class MQTTCustomForm(forms.Form):
+    url = MQTTURLField(
+        required=True,
         widget=forms.TextInput(
             attrs={
                 "data-bs-toggle": "tooltip",
@@ -437,8 +471,8 @@ class MQTTForm(forms.Form):
             }
         ),
     )
-    mqtt_topic = forms.CharField(
-        required=False,
+    topic = forms.CharField(
+        required=True,
         widget=forms.TextInput(
             attrs={
                 "data-bs-toggle": "tooltip",
@@ -447,8 +481,19 @@ class MQTTForm(forms.Form):
             }
         ),
     )
-    mqtt_payload = forms.CharField(
+    qos = forms.ChoiceField(
+        choices=[(0, 0), (1, 1), (2, 2)],
+        widget=forms.Select(
+            attrs={
+                "data-bs-toggle": "tooltip",
+                "data-bs-placement": "top",
+                "title": "MQTT qos to send the notification with.",
+            }
+        ),
+    )
+    payload = forms.CharField(
         required=False,
+        empty_value=None,
         widget=forms.TextInput(
             attrs={
                 "data-bs-toggle": "tooltip",
@@ -457,9 +502,9 @@ class MQTTForm(forms.Form):
             }
         ),
     )
-    mqtt_json = forms.JSONField(
+    json = forms.JSONField(
         required=False,
-        initial=dict,
+        initial=None,
         widget=forms.TextInput(
             attrs={
                 "data-bs-toggle": "tooltip",
@@ -468,13 +513,65 @@ class MQTTForm(forms.Form):
             }
         ),
     )
-    mqtt_ngsi = forms.CharField(
-        required=False,
+    # ngsi = forms.CharField(
+    #     required=False,
+    #     initial=None,
+    #     widget=forms.TextInput(
+    #         attrs={
+    #             "data-bs-toggle": "tooltip",
+    #             "data-bs-placement": "top",
+    #             "title": "MQTT ngsi to include in the notification.",
+    #         }
+    #     ),
+    # )
+
+    # def clean(self):
+    #     if ((self.cleaned_data["payload"] and self.cleaned_data["json"] and self.cleaned_data["ngsi"])
+    #             or (self.cleaned_data["payload"] and self.cleaned_data["json"]) or (self.cleaned_data[
+    #                                                                                     "json"] and
+    #                                                                                 self.cleaned_data[
+    #                                                                                     "ngsi"]) or (
+    #                     self.cleaned_data["payload"] and self.cleaned_data["ngsi"])):
+    #         raise ValidationError("Only one of MQTT Payload, MQTT JSON and MQTT NGSI must be provided.")
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.helper = FormHelper(self)
+        self.helper.form_tag = False
+
+
+class MQTTForm(forms.Form):
+    url = MQTTURLField(
+        required=True,
         widget=forms.TextInput(
             attrs={
                 "data-bs-toggle": "tooltip",
                 "data-bs-placement": "top",
-                "title": "MQTT ngsi to include in the notification.",
+                "title": "MQTT endpoint to receive the notification.",
             }
         ),
     )
+    topic = forms.CharField(
+        required=True,
+        widget=forms.TextInput(
+            attrs={
+                "data-bs-toggle": "tooltip",
+                "data-bs-placement": "top",
+                "title": "MQTT topic to use for the notification.",
+            }
+        ),
+    )
+    qos = forms.ChoiceField(
+        choices=[(0, 0), (1, 1), (2, 2)],
+        widget=forms.Select(
+            attrs={
+                "data-bs-toggle": "tooltip",
+                "data-bs-placement": "top",
+                "title": "MQTT qos to send the notification with.",
+            }
+        ),
+    )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.helper = FormHelper(self)
+        self.helper.form_tag = False

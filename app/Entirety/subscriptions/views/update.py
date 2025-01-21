@@ -2,6 +2,7 @@ import logging
 import re
 
 from django.conf import settings
+from django.contrib import messages
 from django.urls import reverse
 from django.views.generic import UpdateView
 
@@ -15,6 +16,8 @@ from filip.models.ngsi_v2.subscriptions import (
     Subject,
     Http,
     Mqtt,
+    HttpCustom,
+    MqttCustom,
 )
 
 from projects.mixins import ProjectContextAndViewOnlyMixin
@@ -43,6 +46,14 @@ class Update(ProjectContextAndViewOnlyMixin, UpdateView):
                 prefix="entity",
                 form_kwargs={"project": self.project},
             )
+            context["http"] = forms.HTTPForm(self.request.POST, prefix="http")
+            context["httpCustom"] = forms.HTTPCustomForm(
+                self.request.POST, prefix="httpCustom"
+            )
+            context["mqtt"] = forms.MQTTForm(self.request.POST, prefix="mqtt")
+            context["mqttCustom"] = forms.MQTTCustomForm(
+                self.request.POST, prefix="mqttCustom"
+            )
         else:
             # Fill from context broker
             with ContextBrokerClient(
@@ -58,16 +69,48 @@ class Update(ProjectContextAndViewOnlyMixin, UpdateView):
                 form.initial["description"] = cb_sub.description
                 form.initial["throttling"] = cb_sub.throttling
                 form.initial["expires"] = cb_sub.expires
-
-                form.initial["http"] = (
-                    str(cb_sub.notification.http.url)
+                form.initial["endpoint_type"] = (
+                    "http"
                     if cb_sub.notification.http
-                    else None
+                    else (
+                        "mqtt"
+                        if cb_sub.notification.mqtt
+                        else (
+                            "mqttCustom"
+                            if cb_sub.notification.mqttCustom
+                            else "httpCustom"
+                        )
+                    )
                 )
-                form.initial["mqtt"] = (
-                    str(cb_sub.notification.mqtt.url)
+                context["http"] = (
+                    forms.HTTPForm(
+                        prefix="http", initial=cb_sub.notification.http.model_dump()
+                    )
+                    if cb_sub.notification.http
+                    else forms.HTTPForm(prefix="http")
+                )
+                context["mqtt"] = (
+                    forms.MQTTForm(
+                        prefix="mqtt", initial=cb_sub.notification.mqtt.model_dump()
+                    )
                     if cb_sub.notification.mqtt
-                    else None
+                    else forms.MQTTForm(prefix="mqtt")
+                )
+                context["httpCustom"] = (
+                    forms.HTTPCustomForm(
+                        prefix="httpCustom",
+                        initial=cb_sub.notification.httpCustom.model_dump(),
+                    )
+                    if cb_sub.notification.httpCustom
+                    else forms.HTTPCustomForm(prefix="httpCustom")
+                )
+                context["mqttCustom"] = (
+                    forms.MQTTCustomForm(
+                        prefix="mqttCustom",
+                        initial=cb_sub.notification.mqttCustom.model_dump(),
+                    )
+                    if cb_sub.notification.mqttCustom
+                    else forms.MQTTCustomForm(prefix="mqttCustom")
                 )
                 form.initial["metadata"] = (
                     ",".join(cb_sub.notification.metadata)
@@ -143,6 +186,10 @@ class Update(ProjectContextAndViewOnlyMixin, UpdateView):
             raise PermissionError
         entities_set = context["entities"]
         attributes = context["attributes"]
+        http = context["http"]
+        http_custom = context["httpCustom"]
+        mqtt = context["mqtt"]
+        mqtt_custom = context["mqttCustom"]
 
         if form.is_valid() and entities_set.is_valid():
 
@@ -192,57 +239,117 @@ class Update(ProjectContextAndViewOnlyMixin, UpdateView):
                         service_path=self.project.fiware_service_path,
                     ),
                 ) as cb_client:
-                    cb_sub = cb_client.get_subscription(kwargs["pk"])
-                    cb_sub.description = form.cleaned_data["description"]
-                    cb_sub.throttling = form.cleaned_data["throttling"]
-                    cb_sub.expires = form.cleaned_data["expires"]
-                    cb_sub.subject = Subject(
-                        entities=entities,
-                        condition=Condition(
-                            attrs=attributes.cleaned_data["attributes"]
-                        ),
-                    )
-                    cb_sub.notification = Notification(
-                        http=(
-                            Http(url=form.cleaned_data["http"])
-                            if form.cleaned_data["http"]
-                            else None
-                        ),
-                        mqtt=(
-                            Mqtt(
-                                url=form.cleaned_data["mqtt"],
-                                topic=f"{settings.MQTT_BASE_TOPIC}/{self.project.uuid}",
+                    if (
+                        (
+                            form.cleaned_data["endpoint_type"] == "http"
+                            and http.is_valid()
+                        )
+                        or (
+                            form.cleaned_data["endpoint_type"] == "mqtt"
+                            and mqtt.is_valid()
+                        )
+                        or (
+                            form.cleaned_data["endpoint_type"] == "httpCustom"
+                            and http_custom.is_valid()
+                        )
+                        or (
+                            form.cleaned_data["endpoint_type"] == "mqttCustom"
+                            and mqtt_custom.is_valid()
+                        )
+                    ):
+                        try:
+                            cb_sub = cb_client.get_subscription(kwargs["pk"])
+                            cb_sub.description = form.cleaned_data["description"]
+                            cb_sub.throttling = form.cleaned_data["throttling"]
+                            cb_sub.expires = form.cleaned_data["expires"]
+                            cb_sub.subject = Subject(
+                                entities=entities,
+                                condition=Condition(
+                                    attrs=attributes.cleaned_data["attributes"]
+                                ),
                             )
-                            if form.cleaned_data["mqtt"]
-                            else None
-                        ),
-                        metadata=(
-                            form.cleaned_data["metadata"].split(",")
-                            if form.cleaned_data["metadata"]
-                            else None
-                        ),
-                        # attrs=form.cleaned_data["n_attributes"].split(",")
-                        # if form.cleaned_data["n_attributes"]
-                        # else None,
-                        # exceptAttrs=form.cleaned_data["n_except_attributes"].split(",")
-                        # if form.cleaned_data["n_except_attributes"]
-                        # else None,
-                        attrsFormat=form.cleaned_data["attributes_format"],
-                        onlyChangedAttrs=form.cleaned_data["only_changed_attributes"],
-                    )
-                    cb_client.update_subscription(cb_sub)
+                            cb_sub.notification = Notification(
+                                http=(
+                                    Http(**http.cleaned_data)
+                                    if form.cleaned_data["endpoint_type"] == "http"
+                                    else None
+                                ),
+                                httpCustom=(
+                                    HttpCustom(**http_custom.cleaned_data)
+                                    if form.cleaned_data["endpoint_type"]
+                                    == "httpCustom"
+                                    else None
+                                ),
+                                mqttCustom=(
+                                    MqttCustom(**mqtt_custom.cleaned_data)
+                                    if form.cleaned_data["endpoint_type"]
+                                    == "mqttCustom"
+                                    else None
+                                ),
+                                mqtt=(
+                                    Mqtt(**mqtt.cleaned_data)
+                                    if form.cleaned_data["endpoint_type"] == "mqtt"
+                                    else None
+                                ),
+                                metadata=(
+                                    form.cleaned_data["metadata"].split(",")
+                                    if form.cleaned_data["endpoint_type"] == "mqtt"
+                                    else None
+                                ),
+                                # attrs=form.cleaned_data["n_attributes"].split(",")
+                                # if form.cleaned_data["n_attributes"]
+                                # else None,
+                                # exceptAttrs=form.cleaned_data["n_except_attributes"].split(",")
+                                # if form.cleaned_data["n_except_attributes"]
+                                # else None,
+                                attrsFormat=form.cleaned_data["attributes_format"],
+                                onlyChangedAttrs=form.cleaned_data[
+                                    "only_changed_attributes"
+                                ],
+                            )
+                            # cb_sub.notification = Notification(
+                            #     http=(
+                            #         Http(url=form.cleaned_data["http"])
+                            #         if form.cleaned_data["http"]
+                            #         else None
+                            #     ),
+                            #     mqtt=(
+                            #         Mqtt(
+                            #             url=form.cleaned_data["mqtt"],
+                            #             topic=f"{settings.MQTT_BASE_TOPIC}/{self.project.uuid}",
+                            #         )
+                            #         if form.cleaned_data["mqtt"]
+                            #         else None
+                            #     ),
+                            #     metadata=(
+                            #         form.cleaned_data["metadata"].split(",")
+                            #         if form.cleaned_data["metadata"]
+                            #         else None
+                            #     ),
+                            #     # attrs=form.cleaned_data["n_attributes"].split(",")
+                            #     # if form.cleaned_data["n_attributes"]
+                            #     # else None,
+                            #     # exceptAttrs=form.cleaned_data["n_except_attributes"].split(",")
+                            #     # if form.cleaned_data["n_except_attributes"]
+                            #     # else None,
+                            #     attrsFormat=form.cleaned_data["attributes_format"],
+                            #     onlyChangedAttrs=form.cleaned_data["only_changed_attributes"],
+                            # )
+                            cb_client.update_subscription(cb_sub)
 
-                logger.info(
-                    str(
-                        self.request.user.first_name
-                        if self.request.user.first_name
-                        else self.request.user.username
-                    )
-                    + " has updated the subscription with name "
-                    + self.object.uuid
-                    + f" in project {self.project.name}"
-                )
-                return self.form_valid(form)
+                            logger.info(
+                                str(
+                                    self.request.user.first_name
+                                    if self.request.user.first_name
+                                    else self.request.user.username
+                                )
+                                + " has updated the subscription with name "
+                                + self.object.uuid
+                                + f" in project {self.project.name}"
+                            )
+                            return self.form_valid(form)
+                        except Exception as e:
+                            messages.error(self.request, e)
 
         logger.error(
             str(
