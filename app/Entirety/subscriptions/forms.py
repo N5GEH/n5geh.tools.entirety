@@ -404,18 +404,17 @@ class HTTPCustomForm(forms.Form):
             }
         ),
     )
-    # TODO: fix NGSI error
-    # ngsi = forms.CharField(
-    #     required=False,
-    #     initial=None,
-    #     widget=forms.TextInput(
-    #         attrs={
-    #             "data-bs-toggle": "tooltip",
-    #             "data-bs-placement": "top",
-    #             "title": "HTTP ngsi to include in the notification.",
-    #         }
-    #     ),
-    # )
+    ngsi = forms.JSONField(
+        required=False,
+        initial=None,
+        widget=forms.TextInput(
+            attrs={
+                "data-bs-toggle": "tooltip",
+                "data-bs-placement": "top",
+                "title": "HTTP ngsi to include in the notification.",
+            }
+        ),
+    )
     timeout = forms.IntegerField(
         required=False,
         initial=None,
@@ -514,18 +513,17 @@ class MQTTCustomForm(forms.Form):
             }
         ),
     )
-    # TODO: fix NGSI error
-    # ngsi = forms.CharField(
-    #     required=False,
-    #     initial=None,
-    #     widget=forms.TextInput(
-    #         attrs={
-    #             "data-bs-toggle": "tooltip",
-    #             "data-bs-placement": "top",
-    #             "title": "MQTT ngsi to include in the notification.",
-    #         }
-    #     ),
-    # )
+    ngsi = forms.JSONField(
+        required=False,
+        initial=None,
+        widget=forms.TextInput(
+            attrs={
+                "data-bs-toggle": "tooltip",
+                "data-bs-placement": "top",
+                "title": "MQTT ngsi to include in the notification.",
+            }
+        ),
+    )
 
     # def clean(self):
     #     if ((self.cleaned_data["payload"] and self.cleaned_data["json"] and self.cleaned_data["ngsi"])
