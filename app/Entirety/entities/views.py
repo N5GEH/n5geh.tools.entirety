@@ -190,16 +190,20 @@ class Create(ProjectContextMixin, TemplateView):
     def post(self, request, *args, **kwargs):
         # load data model
         if "load" in self.request.POST:
+            context = super(Create, self).get_context_data(**kwargs)
             if self.request.POST.get("data_model") == "..":
                 entity_json = {}
+                basic_info = EntityForm(self.project)
             else:
                 entity_json = parse_entity(self.request.POST.get("data_model"))
-            context = super(Create, self).get_context_data(**kwargs)
-            basic_info = EntityForm(
-                self.project,
-                initial={"id": entity_json.get("id"), "type": entity_json.get("type")},
-            )
-            basic_info.fields["type"].widget.attrs["readonly"] = True
+                basic_info = EntityForm(
+                    self.project,
+                    initial={
+                        "id": entity_json.get("id"),
+                        "type": entity_json.get("type"),
+                    },
+                )
+                basic_info.fields["type"].widget.attrs["readonly"] = True
             initial = []
             for attr_key, attr_value in entity_json.items():
                 if attr_key not in MANDATORY_ENTITY_FIELDS:
