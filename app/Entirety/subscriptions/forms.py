@@ -338,7 +338,49 @@ class SubscriptionForm(forms.ModelForm):
         }
 
 
-class HTTPCustomForm(forms.Form):
+class CustomPayloadForm(forms.Form):
+    payload = forms.CharField(
+        required=False,
+        empty_value=None,
+        widget=forms.TextInput(
+            attrs={
+                "data-bs-toggle": "tooltip",
+                "data-bs-placement": "top",
+                "title": "Text payload to include in the notification. "
+                "Only one field of Payload, JSON and NGSI can be used at "
+                "one time.",
+            }
+        ),
+    )
+    json = forms.JSONField(
+        required=False,
+        initial=None,
+        widget=forms.TextInput(
+            attrs={
+                "data-bs-toggle": "tooltip",
+                "data-bs-placement": "top",
+                "title": "JSON payload (default null) to include in the notification. "
+                "Only one field of Payload, JSON and NGSI can be used at "
+                "one time.",
+            }
+        ),
+    )
+    ngsi = forms.JSONField(
+        required=False,
+        initial=None,
+        widget=forms.TextInput(
+            attrs={
+                "data-bs-toggle": "tooltip",
+                "data-bs-placement": "top",
+                "title": "NGSI payload (default null) to include in the notification. "
+                "Only one field of Payload, JSON and NGSI can be used at "
+                "one time.",
+            }
+        ),
+    )
+
+
+class HTTPCustomForm(CustomPayloadForm):
     url = HTTPURLField(
         required=True,
         widget=forms.TextInput(
@@ -379,39 +421,6 @@ class HTTPCustomForm(forms.Form):
                 "data-bs-toggle": "tooltip",
                 "data-bs-placement": "top",
                 "title": "HTTP headers to include in the notification.",
-            }
-        ),
-    )
-    payload = forms.CharField(
-        required=False,
-        empty_value=None,
-        widget=forms.TextInput(
-            attrs={
-                "data-bs-toggle": "tooltip",
-                "data-bs-placement": "top",
-                "title": "HTTP payload to include in the notification.",
-            }
-        ),
-    )
-    json = forms.JSONField(
-        required=False,
-        initial=None,
-        widget=forms.TextInput(
-            attrs={
-                "data-bs-toggle": "tooltip",
-                "data-bs-placement": "top",
-                "title": "HTTP json to include in the notification.",
-            }
-        ),
-    )
-    ngsi = forms.JSONField(
-        required=False,
-        initial=None,
-        widget=forms.TextInput(
-            attrs={
-                "data-bs-toggle": "tooltip",
-                "data-bs-placement": "top",
-                "title": "HTTP ngsi to include in the notification.",
             }
         ),
     )
@@ -460,7 +469,7 @@ class HTTPForm(forms.Form):
         self.helper.form_tag = False
 
 
-class MQTTCustomForm(forms.Form):
+class MQTTCustomForm(CustomPayloadForm):
     url = MQTTURLField(
         required=True,
         widget=forms.TextInput(
@@ -488,39 +497,6 @@ class MQTTCustomForm(forms.Form):
                 "data-bs-toggle": "tooltip",
                 "data-bs-placement": "top",
                 "title": "MQTT qos to send the notification with.",
-            }
-        ),
-    )
-    payload = forms.CharField(
-        required=False,
-        empty_value=None,
-        widget=forms.TextInput(
-            attrs={
-                "data-bs-toggle": "tooltip",
-                "data-bs-placement": "top",
-                "title": "MQTT payload to include in the notification.",
-            }
-        ),
-    )
-    json = forms.JSONField(
-        required=False,
-        initial=None,
-        widget=forms.TextInput(
-            attrs={
-                "data-bs-toggle": "tooltip",
-                "data-bs-placement": "top",
-                "title": "MQTT json to include in the notification.",
-            }
-        ),
-    )
-    ngsi = forms.JSONField(
-        required=False,
-        initial=None,
-        widget=forms.TextInput(
-            attrs={
-                "data-bs-toggle": "tooltip",
-                "data-bs-placement": "top",
-                "title": "MQTT ngsi to include in the notification.",
             }
         ),
     )
