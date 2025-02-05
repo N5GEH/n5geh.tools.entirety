@@ -15,7 +15,9 @@ class Attributes(ProjectContextMixin, View):
 
     def post(self, request, *args, **kwargs):
         # get entities from form
-        entities_set = forms.Entities(self.request.POST, prefix="entity")
+        entities_set = forms.Entities(
+            self.request.POST, prefix="entity", form_kwargs={"project": self.project}
+        )
         # Create attributes form from post request
         form = forms.AttributesForm(request.POST)
 

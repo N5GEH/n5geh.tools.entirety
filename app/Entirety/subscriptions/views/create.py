@@ -2,6 +2,7 @@ import logging
 import re
 
 from django.conf import settings
+from django.contrib import messages
 from django.urls import reverse
 from django.views.generic import CreateView
 
@@ -15,6 +16,8 @@ from filip.models.ngsi_v2.subscriptions import (
     Subject,
     Http,
     Mqtt,
+    HttpCustom,
+    MqttCustom,
 )
 
 from projects.mixins import ProjectContextMixin
@@ -53,11 +56,23 @@ class Create(ProjectContextMixin, CreateView):
                 prefix="entity",
                 form_kwargs={"project": self.project},
             )
+            context["http"] = forms.HTTPForm(self.request.POST, prefix="http")
+            context["httpCustom"] = forms.HTTPCustomForm(
+                self.request.POST, prefix="httpCustom"
+            )
+            context["mqtt"] = forms.MQTTForm(self.request.POST, prefix="mqtt")
+            context["mqttCustom"] = forms.MQTTCustomForm(
+                self.request.POST, prefix="mqttCustom"
+            )
         else:
             context["attributes"] = forms.AttributesForm()
             context["entities"] = forms.Entities(
                 prefix="entity", form_kwargs={"project": self.project}
             )
+            context["http"] = forms.HTTPForm(prefix="http")
+            context["httpCustom"] = forms.HTTPCustomForm(prefix="httpCustom")
+            context["mqtt"] = forms.MQTTForm(prefix="mqtt")
+            context["mqttCustom"] = forms.MQTTCustomForm(prefix="mqttCustom")
         return context
 
     def post(self, request, *args, **kwargs):
@@ -66,6 +81,10 @@ class Create(ProjectContextMixin, CreateView):
         context = self.get_context_data()
         entities_set = context["entities"]
         attributes = context["attributes"]
+        http = context["http"]
+        http_custom = context["httpCustom"]
+        mqtt = context["mqtt"]
+        mqtt_custom = context["mqttCustom"]
 
         if form.is_valid() and entities_set.is_valid():
             data_set = [entity_form.cleaned_data for entity_form in entities_set]
@@ -83,21 +102,27 @@ class Create(ProjectContextMixin, CreateView):
                         entity_selector = entity_form.cleaned_data["entity_selector"]
                         type_selector = entity_form.cleaned_data["type_selector"]
                         pattern = EntityPattern(
-                            id=entity_form.cleaned_data["entity_id"]
-                            if entity_selector == "id"
-                            else None,
-                            idPattern=re.compile(entity_form.cleaned_data["entity_id"])
-                            if entity_selector == "id_pattern"
-                            else None,
-                            type=entity_form.cleaned_data["entity_type"]
-                            if entity_form.cleaned_data["entity_type"]
-                            and type_selector == "type"
-                            else None,
-                            typePattern=re.compile(
+                            id=(
+                                entity_form.cleaned_data["entity_id"]
+                                if entity_selector == "id"
+                                else None
+                            ),
+                            idPattern=(
+                                re.compile(entity_form.cleaned_data["entity_id"])
+                                if entity_selector == "id_pattern"
+                                else None
+                            ),
+                            type=(
                                 entity_form.cleaned_data["entity_type"]
-                            )
-                            if type_selector == "type_pattern"
-                            else None,
+                                if entity_form.cleaned_data["entity_type"]
+                                and type_selector == "type"
+                                else None
+                            ),
+                            typePattern=(
+                                re.compile(entity_form.cleaned_data["entity_type"])
+                                if type_selector == "type_pattern"
+                                else None
+                            ),
                         )
                         entities.append(pattern)
             with ContextBrokerClient(
@@ -107,55 +132,87 @@ class Create(ProjectContextMixin, CreateView):
                     service_path=self.project.fiware_service_path,
                 ),
             ) as cb_client:
-                cb_sub = CBSubscription(
-                    description=form.cleaned_data["description"],
-                    throttling=form.cleaned_data["throttling"],
-                    expires=form.cleaned_data["expires"],
-                    subject=Subject(
-                        entities=entities,
-                        condition=Condition(
-                            attrs=attributes.cleaned_data["attributes"]
-                        ),
-                    ),
-                    notification=Notification(
-                        http=Http(url=form.cleaned_data["http"])
-                        if form.cleaned_data["http"]
-                        else None,
-                        mqtt=Mqtt(
-                            url=form.cleaned_data["mqtt"],
-                            topic=f"{settings.MQTT_BASE_TOPIC}/{self.project.uuid}",
-                        )
-                        if form.cleaned_data["mqtt"]
-                        else None,
-                        metadata=form.cleaned_data["metadata"].split(",")
-                        if form.cleaned_data["metadata"]
-                        else None,
-                        # attrs=form.cleaned_data["n_attributes"].split(",")
-                        # if form.cleaned_data["n_attributes"]
-                        # else None,
-                        # exceptAttrs=form.cleaned_data["n_except_attributes"].split(",")
-                        # if form.cleaned_data["n_except_attributes"]
-                        # else None,
-                        attrsFormat=form.cleaned_data["attributes_format"],
-                        onlyChangedAttrs=form.cleaned_data["only_changed_attributes"],
-                    ),
-                )
-                cb_uuid = cb_client.post_subscription(cb_sub)
-                instance.pk = cb_uuid
-                instance.project = self.project
-
-                logger.info(
-                    str(
-                        self.request.user.first_name
-                        if self.request.user.first_name
-                        else self.request.user.username
+                if (
+                    (form.cleaned_data["endpoint_type"] == "http" and http.is_valid())
+                    or (
+                        form.cleaned_data["endpoint_type"] == "mqtt" and mqtt.is_valid()
                     )
-                    + " has created the subscription with name "
-                    + instance.name
-                    + f" in project {self.project.name}"
-                )
-                return self.form_valid(form)
-
+                    or (
+                        form.cleaned_data["endpoint_type"] == "httpCustom"
+                        and http_custom.is_valid()
+                    )
+                    or (
+                        form.cleaned_data["endpoint_type"] == "mqttCustom"
+                        and mqtt_custom.is_valid()
+                    )
+                ):
+                    try:
+                        cb_sub = CBSubscription(
+                            description=form.cleaned_data["description"],
+                            throttling=form.cleaned_data["throttling"],
+                            expires=form.cleaned_data["expires"],
+                            subject=Subject(
+                                entities=entities,
+                                condition=Condition(
+                                    attrs=attributes.cleaned_data["attributes"]
+                                ),
+                            ),
+                            notification=Notification(
+                                http=(
+                                    Http(**http.cleaned_data)
+                                    if form.cleaned_data["endpoint_type"] == "http"
+                                    else None
+                                ),
+                                httpCustom=(
+                                    HttpCustom(**http_custom.cleaned_data)
+                                    if form.cleaned_data["endpoint_type"]
+                                    == "httpCustom"
+                                    else None
+                                ),
+                                mqttCustom=(
+                                    MqttCustom(**mqtt_custom.cleaned_data)
+                                    if form.cleaned_data["endpoint_type"]
+                                    == "mqttCustom"
+                                    else None
+                                ),
+                                mqtt=(
+                                    Mqtt(**mqtt.cleaned_data)
+                                    if form.cleaned_data["endpoint_type"] == "mqtt"
+                                    else None
+                                ),
+                                metadata=(
+                                    form.cleaned_data["metadata"].split(",")
+                                    if form.cleaned_data["endpoint_type"] == "mqtt"
+                                    else None
+                                ),
+                                # attrs=form.cleaned_data["n_attributes"].split(",")
+                                # if form.cleaned_data["n_attributes"]
+                                # else None,
+                                # exceptAttrs=form.cleaned_data["n_except_attributes"].split(",")
+                                # if form.cleaned_data["n_except_attributes"]
+                                # else None,
+                                attrsFormat=form.cleaned_data["attributes_format"],
+                                onlyChangedAttrs=form.cleaned_data[
+                                    "only_changed_attributes"
+                                ],
+                            ),
+                        )
+                        cb_uuid = cb_client.post_subscription(cb_sub)
+                        instance.pk = cb_uuid
+                        instance.project = self.project
+                        logger.info(
+                            str(
+                                self.request.user.first_name
+                                if self.request.user.first_name
+                                else self.request.user.username
+                            )
+                            + " has created the subscription with uuid "
+                            + cb_uuid
+                            + f" in project {self.project.name}"
+                        )
+                        return self.form_valid(form)
+                    except Exception as e:
+                        messages.error(self.request, e)
         logger.error(
             str(
                 self.request.user.first_name

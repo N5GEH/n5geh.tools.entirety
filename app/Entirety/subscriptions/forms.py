@@ -5,6 +5,7 @@ from crispy_forms.layout import Layout, Fieldset, Div, HTML, Button, Field
 from crispy_forms.bootstrap import InlineCheckboxes
 
 from filip.models.ngsi_v2.base import AttrsFormat
+from filip.models.ngsi_v2.subscriptions import HttpMethods
 from filip.utils.simple_ql import Operator
 
 from subscriptions.models import Subscription
@@ -111,8 +112,9 @@ class EntitiesForm(forms.Form):
     entity_id_list = []
     entity_type_list = []
 
-    entity_id = DropdownOrTextField(choices=entity_id_list,
-                                    tooltip="Entity type or type pattern.")
+    entity_id = DropdownOrTextField(
+        choices=entity_id_list, tooltip="Entity type or type pattern."
+    )
 
     entity_type = forms.ChoiceField(choices=entity_type_list)
 
@@ -183,12 +185,10 @@ class EntitiesForm(forms.Form):
         }
 
         self.fields["entity_id"] = DropdownOrTextField(
-            choices=entity_id_list, **entity_kwargs,
-            tooltip="Entity id"
+            choices=entity_id_list, **entity_kwargs, tooltip="Entity id"
         )
         self.fields["entity_type"] = DropdownOrTextField(
-            choices=entity_type_list, **type_kwargs,
-            tooltip="Entity type"
+            choices=entity_type_list, **type_kwargs, tooltip="Entity type"
         )
 
         self.helper = FormHelper(self)
@@ -262,7 +262,7 @@ class SubscriptionForm(forms.ModelForm):
                 "between two consecutive notifications. "
                 "It is optional.",
             }
-        )
+        ),
         # help_text="Minimal period of time in seconds which must elapse "
         # "between two consecutive notifications. "
         # "It is optional.",
@@ -274,38 +274,27 @@ class SubscriptionForm(forms.ModelForm):
 
     # Notification
 
-    # TODO: httpCustom
-    http = HTTPURLField(
-        required=False,
-        widget=forms.TextInput(
-            attrs={
-                "data-bs-toggle": "tooltip",
-                "data-bs-placement": "top",
-                "title": "HTTP endpoint to receive the notification.",
-            }
-        ),
-    )
-    # TODO: mqttCustom
-    mqtt = MQTTURLField(
-        required=False,
-        widget=forms.TextInput(
-            attrs={
-                "data-bs-toggle": "tooltip",
-                "data-bs-placement": "top",
-                "title": "MQTT endpoint to receive the notification.",
-            }
-        ),
+    _notification_choices = [
+        ("http", "HTTP"),
+        ("mqtt", "MQTT"),
+        ("httpCustom", "HTTPCustom"),
+        ("mqttCustom", "MQTTCustom"),
+    ]
+    endpoint_type = forms.ChoiceField(
+        required=True,
+        choices=_notification_choices,
     )
 
     metadata = forms.CharField(
         required=False,
+        initial=dict,
         widget=forms.TextInput(
             attrs={
                 "data-bs-toggle": "tooltip",
                 "data-bs-placement": "top",
                 "title": "List of metadata to be included in notification messages.",
             }
-        )
+        ),
         # help_text="List of metadata to be included in notification messages.",
     )
     # metadata = forms.
@@ -334,13 +323,6 @@ class SubscriptionForm(forms.ModelForm):
     # last_notification = forms.DateField(disabled=True, required=False)
     # last_failure = forms.DateField(disabled=True, required=False)
 
-    def clean(self):
-        cleaned_data = super().clean()
-        if not (bool(cleaned_data.get("http")) != bool(cleaned_data.get("mqtt"))):
-            message = "Exactly one of http or mqtt must have a value."
-            self.add_error("http", message)
-            self.add_error("mqtt", message)
-
     class Meta:
         model = Subscription
         exclude = ["uuid", "project"]
@@ -354,3 +336,218 @@ class SubscriptionForm(forms.ModelForm):
                 }
             ),
         }
+
+
+class CustomPayloadForm(forms.Form):
+    payload = forms.CharField(
+        required=False,
+        empty_value=None,
+        widget=forms.TextInput(
+            attrs={
+                "data-bs-toggle": "tooltip",
+                "data-bs-placement": "top",
+                "title": "Text payload to include in the notification. "
+                "Only one field of Payload, JSON and NGSI can be used at "
+                "one time.",
+            }
+        ),
+    )
+    json = forms.JSONField(
+        required=False,
+        initial=None,
+        widget=forms.TextInput(
+            attrs={
+                "data-bs-toggle": "tooltip",
+                "data-bs-placement": "top",
+                "title": "JSON payload (default null) to include in the notification. "
+                "Only one field of Payload, JSON and NGSI can be used at "
+                "one time.",
+            }
+        ),
+    )
+    ngsi = forms.JSONField(
+        required=False,
+        initial=None,
+        widget=forms.TextInput(
+            attrs={
+                "data-bs-toggle": "tooltip",
+                "data-bs-placement": "top",
+                "title": "NGSI payload (default null) to include in the notification. "
+                "Only one field of Payload, JSON and NGSI can be used at "
+                "one time.",
+            }
+        ),
+    )
+
+
+class HTTPCustomForm(CustomPayloadForm):
+    url = HTTPURLField(
+        required=True,
+        widget=forms.TextInput(
+            attrs={
+                "data-bs-toggle": "tooltip",
+                "data-bs-placement": "top",
+                "title": "HTTP endpoint to receive the notification.",
+            }
+        ),
+    )
+    method = forms.ChoiceField(
+        required=True,
+        choices=[(method.value, method.value) for method in HttpMethods],
+        widget=forms.Select(
+            attrs={
+                "data-bs-toggle": "tooltip",
+                "data-bs-placement": "top",
+                "title": "HTTP method to send the notification with.",
+            }
+        ),
+    )
+    qs = forms.JSONField(
+        required=False,
+        initial=None,
+        widget=forms.TextInput(
+            attrs={
+                "data-bs-toggle": "tooltip",
+                "data-bs-placement": "top",
+                "title": "HTTP query parameters to include in the notification.",
+            }
+        ),
+    )
+    headers = forms.JSONField(
+        required=False,
+        initial=None,
+        widget=forms.TextInput(
+            attrs={
+                "data-bs-toggle": "tooltip",
+                "data-bs-placement": "top",
+                "title": "HTTP headers to include in the notification.",
+            }
+        ),
+    )
+    timeout = forms.IntegerField(
+        required=False,
+        initial=None,
+        widget=forms.NumberInput(
+            attrs={
+                "data-bs-toggle": "tooltip",
+                "data-bs-placement": "top",
+                "title": "maximum time (in milliseconds) the subscription waits for the response.",
+            }
+        ),
+    )
+
+    # def clean(self):
+    #     if ((self.cleaned_data["http_payload"] and self.cleaned_data["http_json"] and self.cleaned_data["http_ngsi"])
+    #             or (self.cleaned_data["http_payload"] and self.cleaned_data["http_json"]) or (self.cleaned_data[
+    #                                                                                               "http_json"] and
+    #                                                                                           self.cleaned_data[
+    #                                                                                               "http_ngsi"]) or (
+    #                     self.cleaned_data["http_payload"] and self.cleaned_data["http_ngsi"])):
+    #         raise ValidationError("Only one of HTTP Payload, HTTP JSON and HTTP NGSI must be provided.")
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.helper = FormHelper(self)
+        self.helper.form_tag = False
+
+
+class HTTPForm(forms.Form):
+    url = HTTPURLField(
+        required=True,
+        widget=forms.TextInput(
+            attrs={
+                "data-bs-toggle": "tooltip",
+                "data-bs-placement": "top",
+                "title": "HTTP endpoint to receive the notification.",
+            }
+        ),
+    )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.helper = FormHelper(self)
+        self.helper.form_tag = False
+
+
+class MQTTCustomForm(CustomPayloadForm):
+    url = MQTTURLField(
+        required=True,
+        widget=forms.TextInput(
+            attrs={
+                "data-bs-toggle": "tooltip",
+                "data-bs-placement": "top",
+                "title": "MQTT endpoint to receive the notification.",
+            }
+        ),
+    )
+    topic = forms.CharField(
+        required=True,
+        widget=forms.TextInput(
+            attrs={
+                "data-bs-toggle": "tooltip",
+                "data-bs-placement": "top",
+                "title": "MQTT topic to use for the notification.",
+            }
+        ),
+    )
+    qos = forms.ChoiceField(
+        choices=[(0, 0), (1, 1), (2, 2)],
+        widget=forms.Select(
+            attrs={
+                "data-bs-toggle": "tooltip",
+                "data-bs-placement": "top",
+                "title": "MQTT qos to send the notification with.",
+            }
+        ),
+    )
+
+    # def clean(self):
+    #     if ((self.cleaned_data["payload"] and self.cleaned_data["json"] and self.cleaned_data["ngsi"])
+    #             or (self.cleaned_data["payload"] and self.cleaned_data["json"]) or (self.cleaned_data[
+    #                                                                                     "json"] and
+    #                                                                                 self.cleaned_data[
+    #                                                                                     "ngsi"]) or (
+    #                     self.cleaned_data["payload"] and self.cleaned_data["ngsi"])):
+    #         raise ValidationError("Only one of MQTT Payload, MQTT JSON and MQTT NGSI must be provided.")
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.helper = FormHelper(self)
+        self.helper.form_tag = False
+
+
+class MQTTForm(forms.Form):
+    url = MQTTURLField(
+        required=True,
+        widget=forms.TextInput(
+            attrs={
+                "data-bs-toggle": "tooltip",
+                "data-bs-placement": "top",
+                "title": "MQTT endpoint to receive the notification.",
+            }
+        ),
+    )
+    topic = forms.CharField(
+        required=True,
+        widget=forms.TextInput(
+            attrs={
+                "data-bs-toggle": "tooltip",
+                "data-bs-placement": "top",
+                "title": "MQTT topic to use for the notification.",
+            }
+        ),
+    )
+    qos = forms.ChoiceField(
+        choices=[(0, 0), (1, 1), (2, 2)],
+        widget=forms.Select(
+            attrs={
+                "data-bs-toggle": "tooltip",
+                "data-bs-placement": "top",
+                "title": "MQTT qos to send the notification with.",
+            }
+        ),
+    )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.helper = FormHelper(self)
+        self.helper.form_tag = False
