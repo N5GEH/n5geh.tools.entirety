@@ -193,6 +193,7 @@ class Create(ProjectContextMixin, TemplateView):
             context = super(Create, self).get_context_data(**kwargs)
             if self.request.POST.get("data_model") == "..":
                 entity_json = {}
+                basic_info = EntityForm(self.project)
             else:
                 try:
                     entity_json = parse_entity(self.request.POST.get("data_model"))
@@ -201,12 +202,16 @@ class Create(ProjectContextMixin, TemplateView):
                     messages.error(
                         self.request, f"Error parsing data model: missing key {e}"
                     )
-                    entity_json = {}
-            basic_info = EntityForm(
-                self.project,
-                initial={"id": entity_json.get("id"), "type": entity_json.get("type")},
-            )
-            basic_info.fields["type"].widget.attrs["readonly"] = True
+                    entity_json = dict()
+                basic_info = EntityForm(
+                    self.project,
+                    initial={
+                        "id": entity_json.get("id"),
+                        "type": entity_json.get("type"),
+                    },
+                )
+                if basic_info.initial.get("type"):
+                    basic_info.fields["type"].widget.attrs["readonly"] = True
             initial = []
             for attr_key, attr_value in entity_json.items():
                 if attr_key not in MANDATORY_ENTITY_FIELDS:
