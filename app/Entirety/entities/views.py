@@ -203,7 +203,8 @@ class Create(ProjectContextMixin, TemplateView):
                         "type": entity_json.get("type"),
                     },
                 )
-                basic_info.fields["type"].widget.attrs["readonly"] = True
+                if basic_info.initial.get("type"):
+                    basic_info.fields["type"].widget.attrs["readonly"] = True
             initial = []
             for attr_key, attr_value in entity_json.items():
                 if attr_key not in MANDATORY_ENTITY_FIELDS:
