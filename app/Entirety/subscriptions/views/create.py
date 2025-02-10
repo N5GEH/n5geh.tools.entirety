@@ -89,42 +89,62 @@ class Create(ProjectContextMixin, CreateView):
         if form.is_valid() and entities_set.is_valid():
             data_set = [entity_form.cleaned_data for entity_form in entities_set]
             # Otherwise choices are empty
-            attributes.fields["attributes"].choices = utils.load_attributes(
-                self.project, data_set
-            )
-            if attributes.is_valid():
-                instance = form.save(commit=False)
+            try:
+                attributes.fields["attributes"].choices = utils.load_attributes(
+                    self.project, data_set
+                )
+                if attributes.is_valid():
+                    instance = form.save(commit=False)
 
-                entities = []
+                    entities = []
 
-                for entity_form in entities_set:
-                    if entity_form.cleaned_data:
-                        entity_selector = entity_form.cleaned_data["entity_selector"]
-                        type_selector = entity_form.cleaned_data["type_selector"]
-                        pattern = EntityPattern(
-                            id=(
-                                entity_form.cleaned_data["entity_id"]
-                                if entity_selector == "id"
-                                else None
-                            ),
-                            idPattern=(
-                                re.compile(entity_form.cleaned_data["entity_id"])
-                                if entity_selector == "id_pattern"
-                                else None
-                            ),
-                            type=(
-                                entity_form.cleaned_data["entity_type"]
-                                if entity_form.cleaned_data["entity_type"]
-                                and type_selector == "type"
-                                else None
-                            ),
-                            typePattern=(
-                                re.compile(entity_form.cleaned_data["entity_type"])
-                                if type_selector == "type_pattern"
-                                else None
-                            ),
-                        )
-                        entities.append(pattern)
+                    for entity_form in entities_set:
+                        if entity_form.cleaned_data:
+                            entity_selector = entity_form.cleaned_data[
+                                "entity_selector"
+                            ]
+                            type_selector = entity_form.cleaned_data["type_selector"]
+                            pattern = EntityPattern(
+                                id=(
+                                    entity_form.cleaned_data["entity_id"]
+                                    if entity_selector == "id"
+                                    else None
+                                ),
+                                idPattern=(
+                                    utils.safe_compile(
+                                        entity_form.cleaned_data["entity_id"]
+                                    )
+                                    if entity_selector == "id_pattern"
+                                    else None
+                                ),
+                                type=(
+                                    entity_form.cleaned_data["entity_type"]
+                                    if entity_form.cleaned_data["entity_type"]
+                                    and type_selector == "type"
+                                    else None
+                                ),
+                                typePattern=(
+                                    utils.safe_compile(
+                                        entity_form.cleaned_data["entity_type"]
+                                    )
+                                    if type_selector == "type_pattern"
+                                    else None
+                                ),
+                            )
+                            entities.append(pattern)
+            except re.error as e:
+                logger.error(
+                    str(
+                        self.request.user.first_name
+                        if self.request.user.first_name
+                        else self.request.user.username
+                    )
+                    + " tried creating the subscription "
+                    + " but failed "
+                    f" in project {self.project.name}"
+                )
+                messages.error(request, e)
+                return self.form_invalid(form)
             with ContextBrokerClient(
                 url=settings.CB_URL,
                 fiware_header=FiwareHeader(
