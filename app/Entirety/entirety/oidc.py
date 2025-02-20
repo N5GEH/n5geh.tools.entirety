@@ -52,7 +52,14 @@ class CustomOIDCAB(OIDCAuthenticationBackend):
             value = []
         is_user = settings.OIDC_USER_ROLE in value
 
-        return verified and is_user
+        if verified and is_user:
+            return True
+        else:
+            messages.error(
+                self.request,
+                "User must have at least the role " + settings.OIDC_USER_ROLE,
+            )
+            return False
 
     def authenticate(self, request, **kwargs):
         try:
