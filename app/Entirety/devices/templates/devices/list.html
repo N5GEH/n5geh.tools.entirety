@@ -36,17 +36,24 @@
             {% csrf_token %}
          <div class="row justify-content-center">
              <div class="col-8">
-                <div class="p-3 border border-light rounded-pill bg-light">
-                        <div class="input-group border-0 shadow-none">
-                            <input name="search-pattern" type="text" class="form-control border-light rounded-pill"
-                                   placeholder="Filter devices ..."/>
-                            <span class="input-group-btn">
-                                <button class="btn btn-info btn-lg bg-light border-light" type="submit"
-                                        value="search">
-                                    <i class="bi-search"></i>
-                                </button>
-                            </span>
+                 <div class="row justify-content-center">
+                    <div class="col-10"> <!-- Adjusted column size -->
+                        <div class="p-3 border border-light rounded bg-light" style="width:100%;"> <!-- Set width to 100% -->
+                            <div class="input-group border-0 shadow-none">
+                                <input name="search-pattern" type="text" class="form-control rounded" placeholder="Filter devices ..." />
+                                <div class="input-group-append">
+                                    <button type="submit"
+                                            class="btn btn bi-search rounded-pill bg-primary ms-2"
+                                            data-bs-toggle="tooltip"
+                                            title="Start Search"
+                                            id="search-button"
+                                            style="color:white;">
+                                        Search
+                                    </button>
+                                </div>
+                            </div>
                         </div>
+                    </div>
                 </div>
              </div>
          </div>
@@ -153,24 +160,27 @@
   <div class="tab-pane container fade" id="groups">
   {% endif %}
     <h3>Services Group</h3>
-    <form action="" method="GET" >
-            {% csrf_token %}
-         <div class="row justify-content-center">
-             <div class="col-8">
-                <div class="p-3 border border-light rounded-pill bg-light">
-                        <div class="input-group border-0 shadow-none">
-                            <input name="search-pattern-groups" type="text" class="form-control border-light rounded-pill"
-                                   placeholder="Filter service groups ..."/>
-                            <span class="input-group-btn">
-                                <button class="btn btn-info btn-lg bg-light border-light" type="submit"
-                                        value="search">
-                                    <i class="bi-search"></i>
-                                </button>
-                            </span>
+    <form action="" method="GET">
+        {% csrf_token %}
+        <div class="row justify-content-center">
+            <div class="col-6">
+                <div class="p-3 border border-light rounded bg-light" style="width:100%;">
+                    <div class="input-group border-0 shadow-none">
+                        <input name="search-pattern-groups" type="text" class="form-control rounded" placeholder="Filter service groups ..." />
+                        <div class="input-group-append">
+                            <button type="submit"
+                                    class="btn btn bi-search rounded-pill bg-primary ms-2"
+                                    data-bs-toggle="tooltip"
+                                    title="Start Search"
+                                    id="search-button"
+                                    style="color:white;">
+                                Search
+                            </button>
                         </div>
+                    </div>
                 </div>
-             </div>
-         </div>
+            </div>
+        </div>
     </form>
 
     <form action="{% url 'projects:devices:list_submit_group' project.uuid %}" method="POST" >
