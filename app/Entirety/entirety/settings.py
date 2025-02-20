@@ -384,7 +384,7 @@ class Settings(BaseSettings):
     LANGUAGE_CODE: str = Field(default="en-us", alias="LANGUAGE_CODE")
 
     STATIC_ROOT: DirectoryPath = Field(
-        default=os.path.join(BASE_DIR, "cache/"), alias="STATIC_ROOT"
+        default=os.path.join(BASE_DIR, "static/"), alias="STATIC_ROOT"
     )
     MEDIA_ROOT: DirectoryPath = Field(
         default=os.path.join(BASE_DIR, "media/"), alias="MEDIA_ROOT"
