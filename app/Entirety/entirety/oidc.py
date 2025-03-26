@@ -27,6 +27,7 @@ class CustomOIDCAB(OIDCAuthenticationBackend):
         user.first_name = claims.get("given_name", "")
         user.last_name = claims.get("family_name", "")
         user.username = claims.get("preferred_username", "")
+        user.email = claims.get("email", "")
 
         user.is_superuser = user.is_staff = settings.OIDC_SUPER_ADMIN_ROLE in roles
         user.is_server_admin = settings.OIDC_SERVER_ADMIN_ROLE in roles
@@ -38,21 +39,32 @@ class CustomOIDCAB(OIDCAuthenticationBackend):
 
         user.save()
 
-        logger.info(user.first_name + " is accessing with roles " + roles.__str__())
+        logger.info(user.username + " is accessing with roles " + roles.__str__())
         return user
 
     def verify_claims(self, claims):
-        logger.info(claims.get("given_name") + " is verifying claim")
+        logger.info("User " + claims.get("preferred_username") + " is verifying claim")
         verified = super(CustomOIDCAB, self).verify_claims(claims)
         path = settings.OIDC_TOKEN_ROLE_PATH
         parsed_result = parse(path).find(claims)
+        session = self.request.session
         if len(parsed_result) > 0:
             value = parsed_result[0].value
         else:
             value = []
         is_user = settings.OIDC_USER_ROLE in value
 
-        return verified and is_user
+        if not claims.get("email"):
+            messages.error(self.request, "User must have email configured")
+            return False
+        elif verified and is_user:
+            return True
+        else:
+            messages.error(
+                self.request,
+                "User must have at least the role " + settings.OIDC_USER_ROLE,
+            )
+            return False
 
     def authenticate(self, request, **kwargs):
         try:
