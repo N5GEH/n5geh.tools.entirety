@@ -54,9 +54,8 @@ class CustomOIDCAB(OIDCAuthenticationBackend):
             value = []
         is_user = settings.OIDC_USER_ROLE in value
 
-        if claims.get("email"):
+        if not claims.get("email"):
             messages.error(self.request, "User must have email configured")
-            session["oidc_id_token"] = None
             return False
         elif verified and is_user:
             return True
@@ -65,7 +64,6 @@ class CustomOIDCAB(OIDCAuthenticationBackend):
                 self.request,
                 "User must have at least the role " + settings.OIDC_USER_ROLE,
             )
-            session["oidc_id_token"] = None
             return False
 
     def authenticate(self, request, **kwargs):
