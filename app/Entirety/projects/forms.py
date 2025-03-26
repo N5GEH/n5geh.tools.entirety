@@ -1,5 +1,4 @@
 from crispy_forms.helper import FormHelper
-from crispy_forms.layout import Submit
 from django import forms
 from django.core.exceptions import ValidationError
 from django.db.models import Q
@@ -28,19 +27,28 @@ class ProjectForm(forms.ModelForm):
         self.fields["owner"].widget.attrs["data-bs-placement"] = "left"
         self.fields["owner"].widget.attrs[
             "title"
-        ] = "Owner is assigned automatically on project creation. It can only be updated by admin."
+        ] = "The owner is assigned automatically on project creation. It can only be updated by a server admin."
 
-        self.fields["users"].widget = forms.CheckboxSelectMultiple(
-            attrs={
-                "data-bs-toggle": "tooltip",
-                "data-bs-placement": "left",
-                "title": "Include or exclude users into project",
-            }
+        self.fields["logo"].required = False
+        self.fields["webpage_url"].required = False
+
+        self.fields["viewers"] = forms.ModelMultipleChoiceField(
+            queryset=(
+                User.objects.exclude(id=self.instance.owner_id)
+                & User.objects.exclude(id=user.id)
+            ).filter(is_server_admin=False),
+            widget=forms.CheckboxSelectMultiple,
+            required=False,
         )
-        self.fields["users"].queryset = (
-            User.objects.exclude(id=self.instance.owner_id)
-            & User.objects.exclude(id=user.id)
-        ).filter(is_server_admin=False)
+
+        self.fields["users"] = forms.ModelMultipleChoiceField(
+            widget=forms.CheckboxSelectMultiple,
+            queryset=(
+                User.objects.exclude(id=self.instance.owner_id)
+                & User.objects.exclude(id=user.id)
+            ).filter(is_server_admin=False),
+            required=False,
+        )
 
         if user in self.instance.maintainers.all():
             self.fields["maintainers"].disabled = True
@@ -52,34 +60,38 @@ class ProjectForm(forms.ModelForm):
                 "title"
             ] = "Inclusion or exclusion of maintainers into project can by done by project owners only."
         else:
-            self.fields["maintainers"].widget = forms.CheckboxSelectMultiple(
-                attrs={
-                    "data-bs-toggle": "tooltip",
-                    "data-bs-placement": "left",
-                    "title": "Include or exclude maintainers into project",
-                }
+            self.fields["maintainers"] = forms.ModelMultipleChoiceField(
+                queryset=(
+                    User.objects.exclude(id=self.instance.owner_id)
+                    & User.objects.exclude(id=user.id)
+                ).filter(is_server_admin=False),
+                widget=forms.CheckboxSelectMultiple,
+                required=False,
             )
-            self.fields["maintainers"].queryset = (
-                User.objects.exclude(id=self.instance.owner_id)
-                & User.objects.exclude(id=user.id)
-            ).filter(is_server_admin=False)
 
-        self.fields["viewers"].widget = forms.CheckboxSelectMultiple(
-            attrs={
-                "data-bs-toggle": "tooltip",
-                "data-bs-placement": "left",
-                "title": "Include or exclude viewers into project",
-            }
-        )
-        self.fields["viewers"].queryset = (
-            User.objects.exclude(id=self.instance.owner_id)
-            & User.objects.exclude(id=user.id)
-        ).filter(is_server_admin=False)
+        self.helper.form_tag = False
 
-        self.helper.layout.append(Submit(name="save", value="Save"))
-
-        self.fields["logo"].required = False
-        self.fields["webpage_url"].required = False
+        if self.is_bound:
+            self.fields["viewers"].initial = [
+                int(id) for id in self.data.getlist("viewers")
+            ]
+            self.fields["users"].initial = [
+                int(id) for id in self.data.getlist("users")
+            ]
+            self.fields["maintainers"].initial = [
+                int(id) for id in self.data.getlist("maintainers")
+            ]
+        else:
+            if self.instance.pk:
+                self.fields["viewers"].initial = list(
+                    self.instance.viewers.values_list("id", flat=True)
+                )
+                self.fields["users"].initial = list(
+                    self.instance.users.values_list("id", flat=True)
+                )
+                self.fields["maintainers"].initial = list(
+                    self.instance.maintainers.values_list("id", flat=True)
+                )
 
     def clean(self):
         cleaned_data = super().clean()
@@ -88,6 +100,18 @@ class ProjectForm(forms.ModelForm):
             FiwareHeader(service=service)
         except Exception as e:
             raise ValidationError(e)
+
+    def save(self, commit=True):
+        instance = super().save(commit=True)
+
+        instance.viewers.set(self.cleaned_data["viewers"])
+        instance.users.set(self.cleaned_data["users"])
+        instance.maintainers.set(self.cleaned_data["maintainers"])
+
+        if commit:
+            instance.save()
+
+        return instance
 
     class Meta:
         model = Project
@@ -98,9 +122,6 @@ class ProjectForm(forms.ModelForm):
             "webpage_url",
             "logo",
             "owner",
-            "maintainers",
-            "users",
-            "viewers",
         ]
         widgets = {
             "name": forms.TextInput(

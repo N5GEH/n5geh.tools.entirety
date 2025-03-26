@@ -1,0 +1,35 @@
+{
+    "$id": "https://n5geh.github.io/n5geh.test-datamodel.io/Sensor.json",
+    "type": "object",
+    "$schema": "http://json-schema.org/schema#",
+    "required": [
+        "id",
+        "type"
+    ],
+    "properties": {
+        "id": {
+            "type": "string"
+        },
+        "type": {
+            "enum": [
+                "Device"
+            ],
+            "type": "string"
+        },
+        "modelName": {
+            "type": "string",
+            "description": "Sensor model name."
+        },
+        "manufacturer": {
+            "type": "string",
+            "description": "Sensor manufacturer name."
+        },
+        "documentation": {
+            "type": "string",
+            "format": "uri",
+            "description": "A link to documentation."
+        }
+    },
+    "description": "This entity captures the static properties of common iot sensor",
+    "$schemaVersion": "0.0.3"
+}

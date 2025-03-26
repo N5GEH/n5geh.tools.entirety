@@ -1,6 +1,7 @@
 import json
 from enum import Enum
-
+import pydantic
+from pydantic import ConfigDict
 import requests
 from django.conf import settings
 from django.core.exceptions import ValidationError
@@ -23,6 +24,17 @@ class AttributeTypes(Enum):
     NUMBER = "Number"
 
 
+class EntityTableItem(pydantic.BaseModel):
+    """
+    Temporary class to store entity data for the table
+    """
+
+    model_config = ConfigDict(extra="allow")
+    id: str
+    type: str
+    attrs: int
+
+
 def get_entities_list(self, id_pattern, type_pattern, project):
     data = []
     with ContextBrokerClient(
@@ -35,8 +47,12 @@ def get_entities_list(self, id_pattern, type_pattern, project):
             for entity in cb_client.get_entity_list(
                 id_pattern=id_pattern, type_pattern=type_pattern
             ):
-                entity_to_add = entity.copy()
-                entity_to_add.attrs = len(entity.dict()) - 2
+                entity_to_add = EntityTableItem(
+                    id=entity.id,
+                    type=entity.type,
+                    attrs=len(entity.model_dump(exclude={"id", "type"})),
+                    **entity.model_dump(exclude={"id", "type"})
+                )
                 data.append(entity_to_add)
         except requests.RequestException as err:
             raise err
@@ -51,7 +67,7 @@ def post_entity(self, entity, update, project):
         ),
     ) as cb_client:
         try:
-            cb_client.post_entity(entity, update)
+            cb_client.post_entity(entity, patch=update)
         except requests.RequestException as err:
             return json.loads(err.response.text).get("description")
         except Exception as err:

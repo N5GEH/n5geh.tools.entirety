@@ -1,7 +1,9 @@
 import logging
 
+from django.contrib import messages
 from mozilla_django_oidc.auth import OIDCAuthenticationBackend
 from django.conf import settings
+from jsonpath_ng import parse
 
 logger = logging.getLogger(__name__)
 
@@ -16,16 +18,16 @@ class CustomOIDCAB(OIDCAuthenticationBackend):
         return self.__set_user_values(user, claims)
 
     def __set_user_values(self, user, claims):
-        logger.info(
-            user.first_name
-            + " is accessing with roles "
-            + claims.get("roles").__str__()
-        )
-        roles = claims.get("roles", [])
+
+        path = settings.OIDC_TOKEN_ROLE_PATH
+        parsed_result = parse(path).find(claims)
+        if len(parsed_result) > 0:
+            roles = parsed_result[0].value
 
         user.first_name = claims.get("given_name", "")
         user.last_name = claims.get("family_name", "")
         user.username = claims.get("preferred_username", "")
+        user.email = claims.get("email", "")
 
         user.is_superuser = user.is_staff = settings.OIDC_SUPER_ADMIN_ROLE in roles
         user.is_server_admin = settings.OIDC_SERVER_ADMIN_ROLE in roles
@@ -37,12 +39,37 @@ class CustomOIDCAB(OIDCAuthenticationBackend):
 
         user.save()
 
+        logger.info(user.username + " is accessing with roles " + roles.__str__())
         return user
 
     def verify_claims(self, claims):
-        logger.info(claims.get("given_name") + " is verifying claim")
+        logger.info("User " + claims.get("preferred_username") + " is verifying claim")
         verified = super(CustomOIDCAB, self).verify_claims(claims)
-        is_user = settings.OIDC_USER_ROLE in claims.get(
-            settings.OIDC_TOKEN_ROLE_FIELD, []
-        )
-        return verified and is_user
+        path = settings.OIDC_TOKEN_ROLE_PATH
+        parsed_result = parse(path).find(claims)
+        session = self.request.session
+        if len(parsed_result) > 0:
+            value = parsed_result[0].value
+        else:
+            value = []
+        is_user = settings.OIDC_USER_ROLE in value
+
+        if not claims.get("email"):
+            messages.error(self.request, "User must have email configured")
+            return False
+        elif verified and is_user:
+            return True
+        else:
+            messages.error(
+                self.request,
+                "User must have at least the role " + settings.OIDC_USER_ROLE,
+            )
+            return False
+
+    def authenticate(self, request, **kwargs):
+        try:
+            user = super().authenticate(request, **kwargs)
+            return user
+        except Exception as e:
+            messages.error(self.request, "Authentication Error: " + e.__str__())
+            return None

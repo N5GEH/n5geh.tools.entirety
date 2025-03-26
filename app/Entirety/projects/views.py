@@ -31,30 +31,30 @@ class Index(LoginRequiredMixin, ListView):
             )
         )
         if self.request.user.is_server_admin:
-            return Project.objects.order_by("date_modified").filter(
+            return Project.objects.order_by("-date_modified").filter(
                 name__icontains=self.request.GET.get("search", default="")
             )
         elif self.request.user.is_project_admin:
             return (
-                Project.objects.order_by("date_modified")
+                Project.objects.order_by("-date_modified")
                 .filter(
                     name__icontains=self.request.GET.get("search", default=""),
                     owner=self.request.user,
                 )
                 .distinct()
-                | Project.objects.order_by("date_modified")
+                | Project.objects.order_by("-date_modified")
                 .filter(
                     name__icontains=self.request.GET.get("search", default=""),
                     users=self.request.user,
                 )
                 .distinct()
-                | Project.objects.order_by("date_modified")
+                | Project.objects.order_by("-date_modified")
                 .filter(
                     name__icontains=self.request.GET.get("search", default=""),
                     maintainers=self.request.user,
                 )
                 .distinct()
-                | Project.objects.order_by("date_modified")
+                | Project.objects.order_by("-date_modified")
                 .filter(
                     name__icontains=self.request.GET.get("search", default=""),
                     viewers=self.request.user,
@@ -64,19 +64,19 @@ class Index(LoginRequiredMixin, ListView):
 
         else:
             return (
-                Project.objects.order_by("date_modified")
+                Project.objects.order_by("-date_modified")
                 .filter(
                     name__icontains=self.request.GET.get("search", default=""),
                     users=self.request.user,
                 )
                 .distinct()
-                | Project.objects.order_by("date_modified")
+                | Project.objects.order_by("-date_modified")
                 .filter(
                     name__icontains=self.request.GET.get("search", default=""),
                     maintainers=self.request.user,
                 )
                 .distinct()
-                | Project.objects.order_by("date_modified")
+                | Project.objects.order_by("-date_modified")
                 .filter(
                     name__icontains=self.request.GET.get("search", default=""),
                     viewers=self.request.user,
@@ -127,7 +127,7 @@ class Update(ProjectSelfMixin, UpdateView):
             + " has updated the project "
             + self.object.name
         )
-        return reverse("projects:index")
+        return reverse("projects:detail", kwargs={"pk": self.object.pk})
 
     def get_form_kwargs(self):
         kwargs = super(Update, self).get_form_kwargs()
@@ -155,7 +155,7 @@ class Create(ProjectCreateMixin, CreateView):
             + " has created the project "
             + self.object.name
         )
-        return reverse("projects:index")
+        return reverse("projects:detail", kwargs={"pk": self.object.pk})
 
     def get_form_kwargs(self):
         kwargs = super(Create, self).get_form_kwargs()

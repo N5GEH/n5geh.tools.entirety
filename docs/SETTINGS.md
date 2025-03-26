@@ -213,11 +213,11 @@ Server admins can create/update projects for any project admin.
 >
 > *default:* super_admin
 
-### OIDC_TOKEN_ROLE_FIELD
+### OIDC_TOKEN_ROLE_PATH
 
-> *description:* Field in ID token that represents user roles.
+> *description:* Path in ID token that represents user roles. Each level is seperated by a "."; mind the leading ".". Further information on how to include the roles in the token, please, refer to our [deployment guide](https://github.com/N5GEH/n5geh.tutorials.entirety_step_by_step/blob/main/README.md#configure-oidc-provider-oidc-auth-only)
 >
-> *default:* roles
+> *default:* $.entirety.roles
 
 ### OIDC_USER_ROLE
 
