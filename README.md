@@ -4,6 +4,35 @@
 [![Conventional Commits](https://img.shields.io/badge/Conventional%20Commits-1.0.0-yellow.svg)](https://conventionalcommits.org)
 [![semantic-release](https://github.com/N5GEH/n5geh.tools.entirety/actions/workflows/semantic-release.yml/badge.svg)](https://github.com/N5GEH/n5geh.tools.entirety/actions/workflows/semantic-release.yml)
 
+Entirety is a python-based graphical user interface (GUI) meant to provide easy access to some of FIWARE's Generic Enablers (GE) without requiring deeper knowledge on their APIs: Context Brokers like [Orion](https://fiware-orion.readthedocs.io/en/master/) and the [IoT Agent JSON](https://github.com/telefonicaid/iotagent-json/tree/master). 
+For the communication with the GE APIs, Entirety relies on the [FIWARE Library for Python (FiLiP)](https://github.com/RWTH-EBC/FiLiP). 
+
+Entirety holds modules (as displayed on the left hand side of the GUI) providing features to perform CRUD (create, read, update, delete) operations to entities in the Context Broker, devices in the IoT Agent, and subscriptions / notifications to QuantumLeap or other applications. Furthermore, Entirety provides a graphical overview of the semantic relationships between entities in the Semantics module as well as a store for standardizes data models that can be either created or imported from external sources, like the [Smart Data Models Program](https://smartdatamodels.org//) in the Data Models module.
+
+This project is currently in the process of contribution to FIWARE by the [Institute for Energy Efficient Buildings and Indoor Climate of RWTH Aachen University](https://www.ebc.eonerc.rwth-aachen.de/cms/~dmzz/e-on-erc-ebc/?lidx=1). You can find more GEs in the [FIWARE catalogue](https://github.com/Fiware/catalogue/).
+
+## Table of Contents
+
+- [n5geh.tools.entirety](#n5gehtoolsentirety)
+  - [Table of Contents](#table-of-contents)
+  - [Built With](#built-with)
+  - [Roadmap](#roadmap)
+  - [Deployment](#deployment)
+  - [Contributing](#contributing)
+  - [Development](#development)
+    - [Prerequisites](#prerequisites)
+      - [Installing dependencies](#installing-dependencies)
+      - [create .env File](#create-env-file)
+  - [Usage](#usage)
+    - [Required](#required)
+    - [Optional](#optional)
+    - [OIDC](#oidc)
+  - [Changelog](#changelog)
+  - [Contact](#contact)
+  - [License](#license)
+  - [Further project information](#further-project-information)
+  - [Acknowledgments](#acknowledgments)
+
 ## Built With
 
 - Django 4.1
@@ -14,8 +43,9 @@
 Have a look at our [roadmap](./docs/ROADMAP.md) to see what features we plan to work on in the short and long run. We kindly invite you to participate in [discussions](https://github.com/N5GEH/n5geh.tools.entirety/discussions) about possible features as well.
 ## Deployment
 
-To deploy the application please refer to
-our [deployment guide](https://github.com/N5GEH/n5geh.tutorials.entirety_step_by_step)
+To deploy Entirety via docker, please, refer to
+our [deployment guide](https://github.com/N5GEH/n5geh.tutorials.entirety_step_by_step), that also gives an overview of the used environment variables.
+If you wish to deploy Entirety for development purposes on your local machine, you can follow the [development](#deployment) and [usage](#usage) paragraphs.
 
 ## Contributing
 
@@ -94,6 +124,8 @@ provide following settings in your env file.
 * [OIDC_RP_CLIENT_SECRET](./docs/SETTINGS.md#oidc_rp_client_secret)
 
 For a full list of settings see [settings](./docs/SETTINGS.md).
+
+Currently, there is no tutorial for Entirety since the user interface should be self explanatory. To discover more information about certain fields and buttons, we provide short tool tips if you hover over the corresponding buttons and fields.
 
 ## Changelog
 
