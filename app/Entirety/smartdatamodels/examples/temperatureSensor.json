@@ -1,0 +1,28 @@
+{
+    "$id": "https://n5geh.github.io/n5geh.test-datamodel.io/TemperatureSensor.json",
+    "type": "object",
+    "allOf": [
+        {
+            "$ref": "https://n5geh.github.io/n5geh.test-datamodel.io/Sensor.json"
+        },
+        {
+            "required": [
+                "temperature"
+            ],
+            "properties": {
+                "type": {
+                    "enum": [
+                        "TemperatureSensor"
+                    ],
+                    "type": "string"
+                },
+                "temperature": {
+                    "type": "number"
+                }
+            }
+        }
+    ],
+    "$schema": "http://json-schema.org/schema#",
+    "description": "This entity captures the static properties of common temperature sensor",
+    "$schemaVersion": "0.0.3"
+}

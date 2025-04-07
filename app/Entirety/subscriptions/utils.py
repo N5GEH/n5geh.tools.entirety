@@ -1,10 +1,17 @@
 import re
 import itertools
-
 from filip.clients.ngsi_v2.cb import ContextBrokerClient
 from filip.models import FiwareHeader
-
 from django.conf import settings
+
+
+def safe_compile(pattern):
+    """Attempt to compile a regex pattern safely."""
+    try:
+        return re.compile(pattern)
+    except re.error as e:
+        # Log or handle the error as needed
+        raise re.error(f"Regular expression {pattern} invalid: {e}")
 
 
 def load_attributes(project, data_set):
@@ -22,7 +29,7 @@ def load_attributes(project, data_set):
             entity_type = data["entity_type"]
             if entity_type:
                 if type_selector == "type_pattern":
-                    pattern = re.compile(entity_type)
+                    pattern = safe_compile(entity_type)
                     tmp_attrs = itertools.chain.from_iterable(
                         [
                             list(t["attrs"].keys())
@@ -45,9 +52,9 @@ def load_attributes(project, data_set):
                 if entity_id:
                     entities = cb_client.get_entity_list(
                         entity_ids=entity_id if entity_selector == "id" else None,
-                        id_pattern=entity_id
-                        if entity_selector == "id_pattern"
-                        else None,
+                        id_pattern=(
+                            entity_id if entity_selector == "id_pattern" else None
+                        ),
                     )
                     for entity in entities:
                         attributes.extend(cb_client.get_entity_attributes(entity.id))

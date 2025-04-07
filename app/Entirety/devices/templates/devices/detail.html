@@ -1,4 +1,6 @@
 {% extends '_base.html' %}
+{% load crispy_forms_tags %}
+
 
 {% block title %}
     {% if action == "Create" %}
@@ -14,27 +16,32 @@
 
 {% block content %}
     {% if action == "Create" %}
-        <h3 class="mt-5">Create Device</h3>
+        <span class="h3">Create Device</span>
     {% elif action == "Edit" %}
-        <h3 class="mt-5">Edit Device</h3>
+        <span class="h3">Edit Device</span>
     {% elif action == "Create_Group" %}
-        <h3 class="mt-5">Create Service Group</h3>
+        <span class="h3">Create Service Group</span>
     {% elif action == "Edit_Group" %}
-        <h3 class="mt-5">Edit Service Group</h3>
+        <span class="h3">Edit Service Group</span>
     {% endif %}
 
     {% if action == "Create" %}
         <form action="{% url 'projects:devices:create_submit' project.uuid %}" method="post" novalidate>
+            {% crispy smart_data_model_form %}
+            <button class="btn btn-success bi bi-file-earmark-arrow-down rounded-pill" type="submit" name="load">Load</button>
     {% elif action == "Edit" %}
         <form action="{% url 'projects:devices:edit_submit' project.uuid %}" method="post" novalidate>
     {% elif action == "Create_Group" %}
         <form action="{% url 'projects:devices:create_submit_group' project.uuid %}" method="post" novalidate>
+            {% crispy smart_data_model_form %}
+            <button class="btn btn-success bi bi-file-earmark-arrow-down rounded-pill" type="submit" name="load">Load</button>
     {% elif action == "Edit_Group" %}
         <form action="{% url 'projects:devices:edit_submit_group' project.uuid %}" method="post" novalidate>
     {% endif %}
         {% csrf_token %}
             {% include 'accordion.html' %}
-            <button class="btn btn-primary rounded-pill" type="submit">Save</button>
+            <button class="btn btn-primary rounded-pill" type="submit" name="submit" {% if view_only %}
+                    disabled {% endif %}>Save</button>
         </form>
 
 {% endblock %}

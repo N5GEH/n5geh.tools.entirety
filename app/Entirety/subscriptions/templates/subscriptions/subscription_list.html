@@ -9,7 +9,8 @@
         <span class="d-flex flex-grow-1 mb-2">
             <span class="h3">Subscriptions</span>
             <a href="{% url "projects:subscriptions:create" project_id=project.uuid %}"
-               class="btn btn-primary mb-1 ms-3" data-bs-toggle="tooltip" data-bs-placement="bottom"
+               class="btn btn-primary mb-1 ms-3 {% if view_only %}
+                        disabled {% endif %}" data-bs-toggle="tooltip" data-bs-placement="bottom"
                title="Create new subscription">
                 <i class="bi bi-plus"></i>
             </a>
@@ -17,7 +18,7 @@
     </div>
 
 
-    <div class="d-flex">
+    <div class="row g-4 mt-3 mb-3">
         {% for subscription in object_list %}
             {% include "subscriptions/panel.html" %}
         {% endfor %}

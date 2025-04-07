@@ -11,24 +11,26 @@
             <form action="">
                 <div class="p-3 border border-light rounded bg-light" style="width:120%">
                     <div class="input-group border-0 shadow-none">
-                        <input type="text" class="form-control rounded" placeholder="Search entities by ..." name="search-entity">
+                        <input type="text" class="form-control rounded" placeholder="Search entities by ..."
+                               name="search-entity">
                         <div class="btn-group">
-                        <select class="form-select-sm btn dropdown-toggle rounded mx-1" name="search-options"
-                        style="width: 140px;">
-                        <option  class="dropdown-item" disabled>Options</option>
-                        <option class="dropdown-item" value="id" selected>ID</option>
-                        <option class="dropdown-item" value="type">Type</option>
-                        </select>
-                    </div>
-                    <div class="input-group-append">
-                        <button type="submit"
-                                class="btn btn bi-search rounded-pill bg-primary" 
-                                data-bs-toggle="tooltip"
-                                title="Start Search"
-                                id="search-button"
-                                style="color:white;"
-                        > Search
-                        </button>
+                            <select class="form-select-sm btn dropdown-toggle rounded mx-1" name="search-options"
+                                    style="width: 140px;">
+                                <option class="dropdown-item" disabled>Options</option>
+                                <option class="dropdown-item" value="id" selected>ID</option>
+                                <option class="dropdown-item" value="type">Type</option>
+                            </select>
+                        </div>
+                        <div class="input-group-append">
+                            <button type="submit"
+                                    class="btn btn bi-search rounded-pill bg-primary"
+                                    data-bs-toggle="tooltip"
+                                    title="Start Search"
+                                    id="search-button"
+                                    style="color:white;">
+                                Search
+                            </button>
+                        </div>
                     </div>
                 </div>
             </form>
@@ -39,39 +41,47 @@
         <div class="btn-group dropup">
             <span data-bs-toggle="dropdown" aria-expanded="false">
                 <button type="button" class="btn btn-primary mb-1 ms-auto dropdown-toggle"
-                        data-bs-toggle="tooltip" data-bs-placement="bottom"  title="Create Entity">
+                        data-bs-toggle="tooltip" data-bs-placement="bottom" title="Create Entity" {% if view_only %}
+                        disabled {% endif %}>
                     <i class="bi bi-plus"></i>
                 </button>
             </span>
             <ul class="dropdown-menu dropdown-menu-dark">
-                <li><a class="dropdown-item" href="{% url "projects:entities:create" project_id=project.uuid %}">Create
+                <li><a class="dropdown-item {% if view_only %}
+                        disabled {% endif %}" href="{% url "projects:entities:create" project_id=project.uuid %}">Create
                     Entity</a></li>
-                <li><a class="dropdown-item" href="{% url "projects:entities:create_batch" project_id=project.uuid %}">Create
+                <li><a class="dropdown-item {% if view_only %}
+                        disabled {% endif %}" href="{% url "projects:entities:create_batch" project_id=project.uuid %}">Create
                     Multiple Entities</a></li>
             </ul>
         </div>
 
         {% csrf_token %}
-        <span data-bs-toggle="modal" data-bs-target="#deleteConfirmModal">
-            <button type="button" class="btn btn-danger mb-1"  data-bs-toggle="tooltip" data-bs-placement="bottom" title="Delete Entity" >
+        <span data-bs-toggle="modal" {% if not view_only %}
+              data-bs-target="#deleteConfirmModal" {% endif %}>
+            <button type="button" class="btn btn-danger mb-1" data-bs-toggle="tooltip" data-bs-placement="bottom"
+                    title="Delete Entity" {% if view_only %}
+                    disabled {% endif %}>
                 <i class="bi bi-trash"></i>
             </button>
         </span>
         <button type="submit" class="btn btn-secondary mb-1" data-bs-toggle="tooltip" data-bs-placement="bottom"
-                title="Edit Entity" name="Edit" value="Edit">
-            <i class="bi bi-pen"></i>
+                title="Inspect Entity" name="Edit" value="Edit">
+            <i class="bi bi-eye"></i>
         </button>
-        <button class="btn btn-primary bi-arrow-clockwise" href="{% url 'projects:entities:list' project_id=project.uuid %}"
-                data-bs-toggle="tooltip" id="refreshEntitiesList" name="Refresh" value="Refresh" title="Restore Entity Table" style="float: right">
+        <button class="btn btn-primary bi-arrow-clockwise"
+                href="{% url 'projects:entities:list' project_id=project.uuid %}"
+                data-bs-toggle="tooltip" id="refreshEntitiesList" name="Refresh" value="Refresh"
+                title="Restore Entity Table" style="float: right">
         </button>
-        
+
 
         {% csrf_token %}
         {% render_table table %}
 
 
-
-        <div class="modal fade" id="deleteConfirmModal" tabindex="-1" aria-labelledby="deleteConfirmModalLabel" aria-hidden="true">
+        <div class="modal fade" id="deleteConfirmModal" tabindex="-1" aria-labelledby="deleteConfirmModalLabel"
+             aria-hidden="true">
             <div class="modal-dialog">
                 <div class="modal-content">
                     <div class="modal-header">
@@ -87,11 +97,13 @@
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                         <button type="button" class="btn btn-secondary" data-bs-toggle="modal"
-                                data-bs-target="#deleteModal">Advance Selection</button>
+                                data-bs-target="#deleteModal">Advance Selection
+                        </button>
                         {% csrf_token %}
                         <button type="submit" class="btn btn-danger" data-bs-toggle="tooltip" data-bs-placement="bottom"
                                 title="Force delete selected entities without deleting their associations" name="Delete"
-                                value="Delete">Force Delete</button>
+                                value="Delete">Force Delete
+                        </button>
 
                     </div>
                 </div>
@@ -129,15 +141,15 @@
         </div>
 
     </form>
-    
+
     <script>
         /**
          * The search button is activated by pressing enter
          */
-        document.addEventListener("DOMContentLoaded", function() {
+        document.addEventListener("DOMContentLoaded", function () {
             var searchInput = document.getElementById('search-entity');
             var searchButton = document.getElementById('search-button');
-            searchInput.addEventListener("keydown", function(e) {
+            searchInput.addEventListener("keydown", function (e) {
                 if (e.key === "Enter") {
                     e.preventDefault();
                     searchButton.click();
@@ -145,5 +157,5 @@
             });
         });
     </script>
-    
+
 {% endblock %}

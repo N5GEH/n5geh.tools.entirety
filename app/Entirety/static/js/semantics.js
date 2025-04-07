@@ -964,9 +964,24 @@ var selectionmenu = {
         },
         {
             content: 'Add entity',
-            select: function () {
+            select: function (ele) {
                 createUrl = currentUrl.split('/semantics/')[0]
                 var newUrl = createUrl + "/entities/create/";
+
+                let attributes = [
+                    {
+                        name: 'refEntity (replace it with relationship name)',
+                        type: 'Relationship',
+                        value: ele.id(),
+                        // metadata: {}
+                    }
+                ];
+
+                attributes.forEach((attribute, index) => {
+                    let attrString = `${attribute.name};${attribute.type};${attribute.value};${encodeURIComponent(JSON.stringify(attribute.metadata))}`;
+                    newUrl += `?attributes=${encodeURIComponent(attrString)}`;
+                });
+
                 window.location.href = newUrl;
             }
         },
@@ -1079,5 +1094,3 @@ function scrollToDetail() {
 function scrollToMain() {
     window.scrollTo({top: 0, behavior: "smooth"});
 }
-
-

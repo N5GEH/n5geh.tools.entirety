@@ -1,4 +1,5 @@
 {% extends '_base.html' %}
+{% load crispy_forms_tags %}
 {% load compress %}
 {% load static %}
 
@@ -6,10 +7,18 @@
 
 {% block content %}
     <span class="h3">{% if update_entity %} Update Entity {{ update_entity }} {% else %} Create New Entity {% endif %}</span>
+    {% if update_entity %}
+    {% else %}
+        <form method="post" action="">
+            {% crispy smart_data_model_form %}
+            <button class="btn btn-success bi bi-file-earmark-arrow-down rounded-pill" type="submit" name="load">Load</button>
+        </form>
+    {% endif %}
     <form method="post" action="">
         <div>
             {% include 'accordion.html' %}
-            <button class="btn btn-warning rounded-pill" type="submit">{% if update_entity %} Update {% else %} Create {% endif %}</button>
+            <button class="btn btn-warning rounded-pill" type="submit" name="submit" {% if view_only %}
+                disabled {% endif %}>{% if update_entity %} Update {% else %} Create {% endif %}</button>
         </div>
     </form>
 

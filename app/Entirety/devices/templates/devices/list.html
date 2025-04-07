@@ -36,42 +36,57 @@
             {% csrf_token %}
          <div class="row justify-content-center">
              <div class="col-8">
-                <div class="p-3 border border-light rounded-pill bg-light">
-                        <div class="input-group border-0 shadow-none">
-                            <input name="search-pattern" type="text" class="form-control border-light rounded-pill"
-                                   placeholder="Filter devices ..."/>
-                            <span class="input-group-btn">
-                                <button class="btn btn-info btn-lg bg-light border-light" type="submit"
-                                        value="search">
-                                    <i class="bi-search"></i>
-                                </button>
-                            </span>
+                 <div class="row justify-content-center">
+                    <div class="col-10"> <!-- Adjusted column size -->
+                        <div class="p-3 border border-light rounded bg-light" style="width:100%;"> <!-- Set width to 100% -->
+                            <div class="input-group border-0 shadow-none">
+                                <input name="search-pattern" type="text" class="form-control rounded" placeholder="Filter devices ..." />
+                                <div class="input-group-append">
+                                    <button type="submit"
+                                            class="btn btn bi-search rounded-pill bg-primary ms-2"
+                                            data-bs-toggle="tooltip"
+                                            title="Start Search"
+                                            id="search-button"
+                                            style="color:white;">
+                                        Search
+                                    </button>
+                                </div>
+                            </div>
                         </div>
+                    </div>
                 </div>
              </div>
          </div>
     </form>
 
-    <form action="{% url 'projects:devices:list_submit' project.uuid %}" method="POST" >
-        {% csrf_token %}
-        <div>
-            <button type="submit" class="btn btn-primary mb-1 ms-auto" data-toggle="tooltip" data-placement="bottom"
-                    title="Create Device" value="True" name="Create">
+        <form action="{% url 'projects:devices:list_submit' project.uuid %}" method="POST">
+            {% csrf_token %}
+            <div>
+                <!-- Dropdown button for creating devices -->
+                <div class="btn-group">
+                    <button type="submit" class="btn btn-primary mb-1 ms-auto dropdown-toggle"
+                            data-bs-toggle="dropdown" aria-expanded="false" data-toggle="tooltip"
+                            data-placement="bottom" title="Create Device"value="True" name="Create"
+                            {% if view_only %} disabled {% endif %}>
                         <i class="bi bi-plus"></i>
-            </button>
-            <button type="submit" class="btn btn-primary mb-1 ms-auto" data-toggle="tooltip" data-placement="bottom"
-                    title="Create Multiple Device" value="True" name="BatchCreate">
-                        <i class="bi bi-file-earmark-plus"></i>
-            </button>
-            <button type="button" class="btn btn-danger mb-1" data-toggle="tooltip" data-placement="bottom"
-                    title="Delete Device" data-bs-toggle="modal" data-bs-target="#deleteModal">
-                        <i class="bi bi-trash"></i>
-            </button>
-            <button type="submit" class="btn btn-secondary mb-1" data-toggle="tooltip" data-placement="bottom"
-                    title="Edit Device" value="True" name="Edit">
-                        <i class="bi bi-pen"></i>
-            </button>
-         </div>
+                    </button>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="{% url 'projects:devices:create' project.uuid %}">Create Device</a></li>
+                        <li><a class="dropdown-item" href="{% url 'projects:devices:create_batch' project.uuid %}">Create
+                                Multiple Devices</a></li>
+                    </ul>
+                </div>
+
+                <button type="button" class="btn btn-danger mb-1" data-toggle="tooltip" data-placement="bottom"
+                        title="Delete Device" data-bs-toggle="modal" {% if not view_only %} data-bs-target="#deleteModal" {% endif %} {% if view_only %}
+                    disabled {% endif %}>
+                    <i class="bi bi-trash"></i>
+                </button>
+                <button type="submit" class="btn btn-secondary mb-1" data-toggle="tooltip" data-placement="bottom"
+                        title="Inspect Device" value="True" name="Edit">
+                    <i class="bi bi-eye"></i>
+                </button>
+            </div>
 
             {% render_table tables.0 %}
 
@@ -145,42 +160,57 @@
   <div class="tab-pane container fade" id="groups">
   {% endif %}
     <h3>Services Group</h3>
-    <form action="" method="GET" >
-            {% csrf_token %}
-         <div class="row justify-content-center">
-             <div class="col-8">
-                <div class="p-3 border border-light rounded-pill bg-light">
-                        <div class="input-group border-0 shadow-none">
-                            <input name="search-pattern-groups" type="text" class="form-control border-light rounded-pill"
-                                   placeholder="Filter service groups ..."/>
-                            <span class="input-group-btn">
-                                <button class="btn btn-info btn-lg bg-light border-light" type="submit"
-                                        value="search">
-                                    <i class="bi-search"></i>
-                                </button>
-                            </span>
+    <form action="" method="GET">
+        {% csrf_token %}
+        <div class="row justify-content-center">
+            <div class="col-6">
+                <div class="p-3 border border-light rounded bg-light" style="width:100%;">
+                    <div class="input-group border-0 shadow-none">
+                        <input name="search-pattern-groups" type="text" class="form-control rounded" placeholder="Filter service groups ..." />
+                        <div class="input-group-append">
+                            <button type="submit"
+                                    class="btn btn bi-search rounded-pill bg-primary ms-2"
+                                    data-bs-toggle="tooltip"
+                                    title="Start Search"
+                                    id="search-button"
+                                    style="color:white;">
+                                Search
+                            </button>
                         </div>
+                    </div>
                 </div>
-             </div>
-         </div>
+            </div>
+        </div>
     </form>
 
     <form action="{% url 'projects:devices:list_submit_group' project.uuid %}" method="POST" >
-        {% csrf_token %}
-        <div>
-            <button type="submit" class="btn btn-primary mb-1 ms-auto" data-toggle="tooltip" data-placement="bottom"
-                    title="Create Service Group" value="True" name="Create_Group">
+            {% csrf_token %}
+            <div>
+                <!-- Dropdown button for creating service groups -->
+                <div class="btn-group">
+                    <button type="button" class="btn btn-primary mb-1 ms-auto dropdown-toggle"
+                            data-bs-toggle="dropdown" aria-expanded="false" data-toggle="tooltip"
+                            data-placement="bottom" title="Create Service Group"value="True" name="Create_Group" {% if view_only %}
+                    disabled {% endif %}>
                         <i class="bi bi-plus"></i>
-            </button>
-            <button type="button" class="btn btn-danger mb-1" data-toggle="tooltip" data-placement="bottom"
-                    title="Delete Service Group" data-bs-toggle="modal" data-bs-target="#deleteModal_group">
-                        <i class="bi bi-trash"></i>
-            </button>
-            <button type="submit" class="btn btn-secondary mb-1" data-toggle="tooltip" data-placement="bottom"
-                    title="Edit Service Group" value="True" name="Edit_Group">
-                        <i class="bi bi-pen"></i>
-            </button>
-         </div>
+                    </button>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="{% url 'projects:devices:create_group' project.uuid %}">Create Service Group</a></li>
+{#                        <li><a class="dropdown-item" href="{% url 'projects:devices:create_batch_group' project.uuid %}">Create Multiple Service Groups</a></li>#}
+                    </ul>
+                </div>
+
+                <button type="button" class="btn btn-danger mb-1" data-toggle="tooltip" data-placement="bottom"
+                        title="Delete Service Group" data-bs-toggle="modal"  {% if not view_only %}
+                    data-bs-target="#deleteModal_group" {% endif %} {% if view_only %}
+                    disabled {% endif %}>
+                    <i class="bi bi-trash"></i>
+                </button>
+                <button type="submit" class="btn btn-secondary mb-1" data-toggle="tooltip" data-placement="bottom"
+                        title="Inspect Service Group" value="True" name="Edit_Group">
+                    <i class="bi bi-eye"></i>
+                </button>
+            </div>
 
             {% render_table tables.1 %}
 

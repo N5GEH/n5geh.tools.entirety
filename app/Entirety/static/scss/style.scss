@@ -7,36 +7,16 @@
 @import "scrollbar";
 
 
-
-.card-header {
-  .bi-power {
-    color: red;
-    &.active {
-      color: lawngreen;
-    }
-  }
-}
-
-.card-footer {
-  .bi-gear {
-    color: $color-sidebar;
-  }
-  .bi-trash {
-    color: red;
-  }
-}
-
-// card on hover
-.card:hover{
-    transform:scale(1.05);
-}
-
-// card image small
-.card-img-top{
-   height: 200px;
-   object-fit: fill;
-}
-
 h1{
   color: $primary
+}
+
+.dropdown-scrollable-checkboxes {
+    @extend .dropdown-scrollable !optional;
+    max-height: 150px;
+    overflow-y: auto;
+}
+
+.form-check[aria-hidden="false"] {
+    display: block;
 }
