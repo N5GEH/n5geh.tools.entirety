@@ -6,7 +6,7 @@ Here is some information about our structure and terminology.
 
 - [**General Features**](#general-features): In this section, we have listed all the features, that are relevant for the whole Entirety app, e. g. design style, user management, etc.
 
-- [**App-Specific Features**](#app-specific-features): In this section, we have sorted the features based on the relevant sub-apps. The planned features for devices processing, for example, will be placed under [Devices App](#devices-app).
+- [**App-Specific Features**](#app-specific-features): In this section, we have sorted the features based on the relevant sub-apps. For example, the planned features for devices processing, will be placed under [Devices App](#devices-app).
 - Legend:
   - x = planned
   - o = ongoing
@@ -44,8 +44,8 @@ Depending on the necessity, difficulty, and our internal capacity, the features 
 |--------------------|--------------------------------------------------------------------------------------------|-------------|-----------|
 | Batch Create       | User can create multiple entities with similar entity attributes.                          | &check; |           |
 | Batch Delete       | User can delete multiple selected entities with a special view for all the associations.   | &check; |           |
-| Data Model Support | Allow user to create entities based on the predefined data model from the `Data Model App` | o            |    |
-| Change of Relationships | Currently, FiLiP prevents us from updating a relationship attribute. In order to adjust relationships this needs to be fixed or another function of FiLiP needs to be used. |             | x   |
+| Data Model Support | Allow user to create entities based on the predefined data model from the `Data Model App` | &check;            |    |
+| Change of Relationships | Currently, FiLiP prevents us from updating a relationship attribute. In order to adjust relationships this needs to be fixed or another function of FiLiP needs to be used. |             | &check;   |
 
 ### Notifications App
 
@@ -53,7 +53,7 @@ Depending on the necessity, difficulty, and our internal capacity, the features 
 |--------------------------------|-------------------------------------------------------------|-------------|-----------|
 | Expression builder             | Expressions can be created from the app.                    | o     |           |
 | Auto-load available attributes | Load available attributes on matching entities.             | &check; |           |
-| Load Subscriptions             | Synchronize existing subscriptions with the context broker. |             | x   |
+| Load Subscriptions             | Synchronize existing subscriptions with the context broker. | &check;            |    |
 
 ### Devices App
 
@@ -63,13 +63,13 @@ Depending on the necessity, difficulty, and our internal capacity, the features 
 | Batch Delete         | User can delete the devices matching the filter, or delete multiple selected devices.                                                                              | &check;     |           |
 | Multi-Entity Support | User can use the Multi-Entity feature as described [here](https://iotagent-node-lib.readthedocs.io/en/latest/advanced-topics.html#multientity-plugin-multientity). |             | x   |
 | Service Group CRUD   | CRUD operations of service group                                                                                                                                   | &check; |           |
-| Data Model Support | Allow user to create entities based on the predefined data model from the `Data Model App` | o            |    |
+| Data Model Support | Allow user to create entities based on the predefined data model from the `Data Model App` | &check;            |    |
 
 ### Data Model App
 
 | Short Name           | Descriptions                                             | Short-Term | Long-Term |
 |----------------------|----------------------------------------------------------|------------|-----------|
-| JSON-Schema Support  | Allow users to work with data model based on JSON-Schema. | o    |           |
+| JSON-Schema Support  | Allow users to work with data model based on JSON-Schema. | &check;    |           |
 | Brick-Schema Support | Allow users to import data model based on Brick-Schema   |            | x   |
 
 

@@ -213,6 +213,7 @@ class Update(ProjectContextAndViewOnlyMixin, UpdateView):
                                 id=(
                                     entity_form.cleaned_data["entity_id"]
                                     if entity_selector == "id"
+                                    and entity_form.cleaned_data["entity_id"]
                                     else None
                                 ),
                                 idPattern=(
@@ -220,6 +221,7 @@ class Update(ProjectContextAndViewOnlyMixin, UpdateView):
                                         entity_form.cleaned_data["entity_id"]
                                     )
                                     if entity_selector == "id_pattern"
+                                    and entity_form.cleaned_data["entity_id"]
                                     else None
                                 ),
                                 type=(
@@ -233,11 +235,26 @@ class Update(ProjectContextAndViewOnlyMixin, UpdateView):
                                         entity_form.cleaned_data["entity_type"]
                                     )
                                     if type_selector == "type_pattern"
+                                    and entity_form.cleaned_data["entity_type"]
                                     else None
                                 ),
                             )
                             entities.append(pattern)
             except re.error as e:
+                logger.error(
+                    str(
+                        self.request.user.first_name
+                        if self.request.user.first_name
+                        else self.request.user.username
+                    )
+                    + " tried updating the subscription with name "
+                    + self.object.uuid
+                    + " but failed "
+                    f" in project {self.project.name}"
+                )
+                messages.error(request, e)
+                return self.form_invalid(form)
+            except ValueError as e:
                 logger.error(
                     str(
                         self.request.user.first_name
