@@ -30,17 +30,20 @@ Entirety uses the concept of projects to separate the database into independent 
 
 ![Create new project](GUI_TUTORIALS/images/image-2.png)
 
--	After saving the project, you can review the project information by clicking on project image or placeholder.
--	You can edit the project information by clicking on the `edit` button below each project.
--   Delete a project, by clicking on the `delete` button below the project.
-
-![Project overview with demo project](GUI_TUTORIALS/images/image-3.png)
-
--	In order to access the project data, you need to click on a project.
+-	After saving the project, you can review the project information.
 -   The available modules are displayed on the left sidebar.
 -   To get back to the available projects, click on the `Projects` button in the lower left corner in the sidebar.
 
-![Project details](GUI_TUTORIALS/images/image-4.png)
+
+![Project overview with demo project](GUI_TUTORIALS/images/image-4.png)
+
+
+-   If you are a `Server Admin`, you can see all available projects. Otherwise, you will see all project your use has access to.
+-	In order to access any project data, you need to click on a `project image` or `placeholder / whitespace`.
+-	You can edit the project information by clicking on the `edit` button below each project.
+-   Delete a project, by clicking on the `delete` button below the project.
+
+![Project details](GUI_TUTORIALS/images/image-3.png)
 
 
 ## *Connectivity*
