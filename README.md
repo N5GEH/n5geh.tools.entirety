@@ -4,8 +4,8 @@
 [![Conventional Commits](https://img.shields.io/badge/Conventional%20Commits-1.0.0-yellow.svg)](https://conventionalcommits.org)
 [![semantic-release](https://github.com/N5GEH/n5geh.tools.entirety/actions/workflows/semantic-release.yml/badge.svg)](https://github.com/N5GEH/n5geh.tools.entirety/actions/workflows/semantic-release.yml)
 
-Entirety is a python-based graphical user interface (GUI) meant to provide easy access to some of FIWARE's Generic Enablers (GE) without requiring deeper knowledge on their APIs: Context Brokers like [Orion](https://fiware-orion.readthedocs.io/en/master/) and the [IoT Agent JSON](https://github.com/telefonicaid/iotagent-json/tree/master). 
-For the communication with the GE APIs, Entirety relies on the [FIWARE Library for Python (FiLiP)](https://github.com/RWTH-EBC/FiLiP). 
+Entirety is a web-based graphical user interface (GUI) meant to provide easy access to some of FIWARE's Generic Enablers (GE) without requiring deeper knowledge on their APIs: Context Brokers like [Orion](https://fiware-orion.readthedocs.io/en/master/) and the [IoT Agent JSON](https://github.com/telefonicaid/iotagent-json/tree/master). 
+Entirety is python-based and relies on the [FIWARE Library for Python (FiLiP)](https://github.com/RWTH-EBC/FiLiP) for the communication with the GE APIs. 
 
 Entirety holds modules (as displayed on the left hand side of the GUI) providing features to perform CRUD (create, read, update, delete) operations to entities in the Context Broker, devices in the IoT Agent, and subscriptions / notifications to QuantumLeap or other applications. Furthermore, Entirety provides a graphical overview of the semantic relationships between entities in the Semantics module as well as a store for standardizes data models that can be either created or imported from external sources, like the [Smart Data Models Program](https://smartdatamodels.org//) in the Data Models module.
 
@@ -17,13 +17,14 @@ This project is currently in the process of contribution to FIWARE by the [Insti
   - [Table of Contents](#table-of-contents)
   - [Built With](#built-with)
   - [Roadmap](#roadmap)
-  - [Deployment](#deployment)
+  - [User Guide](#user-guide)
+  - [Deployment Guide](#deployment-guide)
   - [Contributing](#contributing)
   - [Development](#development)
     - [Prerequisites](#prerequisites)
       - [Installing dependencies](#installing-dependencies)
       - [create .env File](#create-env-file)
-  - [Usage](#usage)
+    - [Get started](#get-started)
     - [Required](#required)
     - [Optional](#optional)
     - [OIDC](#oidc)
@@ -39,14 +40,20 @@ This project is currently in the process of contribution to FIWARE by the [Insti
 - Django 4.1
 - Bootstrap 5.2
 - htmx 1.8.2
+- Python 3.8/3.9
 
 ## Roadmap
 Have a look at our [roadmap](./docs/ROADMAP.md) to see what features we plan to work on in the short and long run. We kindly invite you to participate in [discussions](https://github.com/N5GEH/n5geh.tools.entirety/discussions) about possible features as well.
-## Deployment
 
-To deploy Entirety via docker, please, refer to
-our [deployment guide](https://github.com/N5GEH/n5geh.tutorials.entirety_step_by_step), that also gives an overview of the used environment variables.
-If you wish to deploy Entirety for development purposes on your local machine, you can follow the [development](#deployment) and [usage](#usage) paragraphs.
+## User Guide
+
+The [user guide](./docs/USERGUIDE.md) describes how the GUI works and guides you through the functionalities of Entirety.
+
+## Deployment Guide
+
+To deploy Entirety via docker, please, refer to our [deployment guide](https://github.com/N5GEH/n5geh.tutorials.entirety_step_by_step), that also gives an overview of the used environment variables.
+If you wish to deploy Entirety for development purposes on your local machine, you can follow the [development](#deployment) and [get started](#get-started) paragraphs.
+
 
 ## Contributing
 
@@ -81,7 +88,7 @@ pre-commit
   cp .env.EXAMPLE .env
 ```
 
-## Usage
+### Get started
 
 Migrate Database
 

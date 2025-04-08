@@ -3,7 +3,7 @@
 ### ALLOWED_HOSTS
 
 > *description:* Hosts that are allowed to access the application.
-> Only neccessary if DJANGO_DEBUG=FALSE
+> Only neccessary if DJANGO_DEBUG=FALSE .
 >
 > *default:* []
 
@@ -15,37 +15,37 @@
 
 ### COMPRESS_ENABLED
 
-> *description:* Compress js/css files
+> *description:* Compress js/css files.
 >
 > *default:* not DJANGO_DEBUG
 
 ### DATABASE_USER
 
-> *description:* Database user name
+> *description:* Database user name.
 >
 > *default:* postgres
 
 ### DATABASE_PASSWORD
 
-> *description:* Database password
+> *description:* Database password.
 >
 > *default:* postgrespw
 
 ### DATABASE_HOST
 
-> *description:* Database host name
+> *description:* Database host name.
 >
 > *default:* localhost
 
 ### DATABASE_PORT
 
-> *description:* Database port
+> *description:* Database port.
 >
 > *default:* 5432
 
 ### DEVICES_LOAD
 
-> *description:* Toggle this boolean if you want to switch Devices application on or off
+> *description:* Toggle this boolean if you want to switch Devices application on or off.
 >
 > *default:* True
 
@@ -57,13 +57,13 @@
 
 ### DJANGO_SECRET_KEY
 
-> *description:* Django secret (min. 32 characters)
+> *description:* Django secret (min. 32 characters).
 >
 > *default:* Auto generated key
 
 ### ENTITIES_LOAD
 
-> *description:* Toggle this boolean if you want to switch Entities application on or off
+> *description:* Toggle this boolean if you want to switch Entities application on or off.
 >
 > *default:* True
 
@@ -75,13 +75,13 @@
 
 ### LANGUAGE_CODE
 
-> *description:* Application default language
+> *description:* Application default language.
 >
 > *default:* en-us
 
 ### LOCAL_AUTH
 
-> *description:* Use local authentication
+> *description:* Use local authentication. If False, OIDC configuration needs to be provided.
 >
 > *default:* True
 >
@@ -105,55 +105,55 @@
 
 ### LOKI_ENABLE
 
-> *description:* Toggle to enable/disable loki logging
+> *description:* Toggle to enable/disable loki logging.
 >
 > *default:* False
 
 ### LOKI_HOST
 
-> *description:* Host name of loki logging server
+> *description:* Host name of loki logging server.
 >
 > *default:* 3100
 
 ### LOKI_LEVEL
 
-> *description:* Logging level for loki logging server
+> *description:* Logging level for loki logging server.
 >
 > *default:* INFO
 
 ### LOKI_PORT
 
-> *description:* Port of loki logging server
+> *description:* Port of loki logging server.
 >
 > *default:* localhost
 
 ### LOKI_PROTOCOL
 
-> *description:* Protocol http or https of loki logging server
+> *description:* Protocol http or https of loki logging server.
 >
 > *default:* http
 
 ### LOKI_SRC_HOST
 
-> *description:* Label name of source host sending logs to loki logging server
+> *description:* Label name of source host sending logs to loki logging server.
 >
 > *default:* entirety
 
 ### LOKI_TIMEOUT
 
-> *description:* Request to loki server by http or https time out
+> *description:* Request to loki server by http or https time out.
 >
 > *default:* 0.5
 
 ### LOKI_TIMEZONE
 
-> *description:* Timezone for formatting timestamp for loki logs
+> *description:* Timezone for formatting timestamp for loki logs.
 >
 > *default:* Europe/Berlin
 
 ### NOTIFICATIONS_LOAD
 
-> *description:* Toggle this boolean if you want to switch Notifications application on or off
+> *description:* Toggle this boolean if you want to switch Notifications application on or off.
 >
 > *default:* True
 
@@ -215,7 +215,7 @@ Server admins can create/update projects for any project admin.
 
 ### OIDC_TOKEN_ROLE_PATH
 
-> *description:* Path in ID token that represents user roles. Each level is seperated by a "."; mind the leading ".". Further information on how to include the roles in the token, please, refer to our [deployment guide](https://github.com/N5GEH/n5geh.tutorials.entirety_step_by_step/blob/main/README.md#configure-oidc-provider-oidc-auth-only)
+> *description:* Path in ID token that represents user roles. Each level is seperated by a "."; mind the leading ".". Further information on how to include the roles in the token, please, check our [deployment guide](https://github.com/N5GEH/n5geh.tutorials.entirety_step_by_step/blob/main/README.md#configure-oidc-provider-oidc-auth-only).
 >
 > *default:* $.entirety.roles
 
@@ -233,12 +233,12 @@ Server admins can create/update projects for any project admin.
 
 ### TIME_ZONE
 
-> *description:* Application timezone
+> *description:* Application timezone.
 >
 > *default:* Europe/Berlin
 
 ### WEB_HOST
 
-> *description:* Hostname under which the application will be accessible
+> *description:* Hostname under which the application will be accessible.
 >
 > *default:* localhost
