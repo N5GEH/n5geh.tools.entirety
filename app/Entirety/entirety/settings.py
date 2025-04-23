@@ -318,7 +318,7 @@ class Settings(BaseSettings):
     IOTA_URL: AnyUrl = Field(default="http://localhost:4041", alias="IOTA_URL")
 
     # CSRF
-    CSRF_TRUSTED_ORIGINS: list = Field(default=[], alias="CSRF_TRUSTED_ORIGINS ")
+    CSRF_TRUSTED_ORIGINS: list = Field(default=[], alias="CSRF_TRUSTED_ORIGINS")
 
     # Database
     # https://docs.djangoproject.com/en/4.0/ref/settings/#databases
