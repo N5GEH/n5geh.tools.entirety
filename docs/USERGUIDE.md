@@ -1,6 +1,8 @@
 # Entirety User Guide
 
-Entirety is a browser-based tool developed to facilitate the work with dedicated FIWARE APIs. It is structured into different modules that are designed to interact with specific FIWARE Generic Enablers (GE). This tutorial will guide you through the basics of the Entirety GUI and then through the usage of each module.
+Entirety is a browser-based tool developed to facilitate the work with dedicated FIWARE APIs. It is structured into different modules that are designed to interact with specific FIWARE Generic Enablers (GE). This tutorial will guide you through the basics of the Entirety GUI and then through the usage of each module. 
+
+Note: Usually, we provide useful tooltips to buttons and fields you can read by hovering over them.
 
 
 ##	*LOGIN*
