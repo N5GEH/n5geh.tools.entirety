@@ -1,4 +1,4 @@
-# *Entities Module*
+# Entities Module
 
 The Entities module is developed to interact with the Orion Context Broker (CB).
 It allows users to manage entities within the CB.
@@ -10,17 +10,18 @@ Users are able to create, update, retrieve, and delete entities via the "Entitie
 
 You can use the search bar at the top to filter for entities by either ID or type. Currently, the search is case sensitive!
 
-- [*Entities Module*](#entities-module)
-  - [*Create / Inspect New Entity*](#create--inspect-new-entity)
-  - [*Delete an Entity*](#delete-an-entity)
+- [Entities Module](#entities-module)
+  - [Create Entity](#create-entity)
+  - [Create Multiple Entities:](#create-multiple-entities)
+  - [Delete an Entity](#delete-an-entity)
 
 
-## *Create / Inspect New Entity*
-By clicking the *+*, you can either create a single entity or have the possibility to batch create one or more entities. Click on the desired option.
+## Create Entity
+
+By clicking the *+*, you can either create a single entity or have the possibility to batch create one or more entities. Click on *Create Entity*.
 -	Create Entity: By clicking the *+* , you can create a new entity in two ways:
-    - Raw:  by filling in the *Entity ID* and the *Entity Type*. Attributes can be added but are not mandatory. If you add an attribute, *Attribute Name* and *Attribute Type* are mandatory while *Attribute Value* and *Metadata* are optional.
+    - Raw: By filling in the *Entity ID* and the *Entity Type*. Attributes can be added but are not mandatory. If you add an attribute, *Attribute Name* and *Attribute Type* are mandatory while *Attribute Value* and *Metadata* are optional.
     - From data model: You can also load *Entity Type* and pre-defined attributes by loading from a data model. Choose an existing data model and click on the *Load* button.
-- Confirm by clicking on the *Create* button.
 
 By checking an entity and clicking on the *eye* button, you can inspect an entity.
 The dialog is the same as for creating an entity but the fields ID and type cannot be changed. A click on the red bin below each attribute will delete the attribute. *Note:* You have to click the *Update* button at the bottom in order to make the changes effective.
@@ -29,13 +30,13 @@ The dialog is the same as for creating an entity but the fields ID and type cann
 
 ![Alt text](images/image-7.png)
 
-- Batch Multiple Entities: 
+## Create Multiple Entities: 
     
-    If you are familiar with the syntax of the context brokers, you can use this option to fill in a valid JSON and create multiple entities and their attributes. Confirm by clicking on the *Create* button.
+If you are familiar with the syntax of the context brokers, you can use this option to fill in a valid JSON and create multiple entities and their attributes. 
 
 ![Alt text](images/image-6-multiple.png)
 
-## *Delete an Entity*
+## Delete an Entity
 
 To delete an entity, select the desired entity and click on the *bin*. This will open a dialog box with different options as described below.
  
