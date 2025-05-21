@@ -17,7 +17,7 @@
     <form method="post" action="">
         <div>
             {% include 'accordion.html' %}
-            <button class="btn btn-warning rounded-pill" type="submit" name="submit" {% if view_only %}
+            <button class="btn btn-primary rounded-pill" type="submit" name="submit" {% if view_only %}
                 disabled {% endif %}>{% if update_entity %} Update {% else %} Create {% endif %}</button>
         </div>
     </form>
