@@ -5,6 +5,7 @@
 {% block content %}
     <form method="post" action="">
         <div>
+            {% csrf_token %}
             {% include 'accordion.html' %}
             <button class="btn btn-danger rounded-pill" type="submit">Delete</button>
         </div>
