@@ -9,7 +9,10 @@ from users import views
 urlpatterns = [path("", views.user_info, name="user")]
 
 if settings.LOCAL_AUTH:
-    urlpatterns += [path("", include("django.contrib.auth.urls"))]
+    urlpatterns += [
+        path("", include("django.contrib.auth.urls")),
+        path("signup/", views.signup_view, name="signup"),
+    ]
 else:
     urlpatterns += [
         path("login/", OIDCAuthenticateClass.as_view(), name="login"),

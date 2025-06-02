@@ -1,10 +1,11 @@
 from urllib.parse import urlencode
 
 from django.conf import settings
+from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 
-from users.forms import UserForm
+from users.forms import UserForm, SignupForm
 
 
 @login_required()
@@ -32,3 +33,15 @@ def provider_logout(request):
             )
         )
     return logout_url
+
+
+def signup_view(request):
+    if request.method == "POST":
+        form = SignupForm(request.POST)
+        if form.is_valid():
+            user = form.save()
+            login(request, user)  # Log them in after signup
+            return redirect("home")  # Redirect to homepage or dashboard
+    else:
+        form = SignupForm()
+    return render(request, "registration/signup.html", {"form": form})

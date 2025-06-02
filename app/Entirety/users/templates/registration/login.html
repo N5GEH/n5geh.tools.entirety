@@ -4,6 +4,7 @@
 {% block title %}Log In{% endblock %}
 
 {% block content %}
+    <h2 class="mb-4">Login</h2>
     <div class="d-flex">
         <form method="post" class="col-12 col-xl-6">
             {% csrf_token %}
@@ -13,4 +14,7 @@
             </button>
         </form>
     </div>
+     <p class="mt-3">
+        Don't have an account? <a href="{% url 'signup' %}">Sign up</a>
+    </p>
 {% endblock %}
