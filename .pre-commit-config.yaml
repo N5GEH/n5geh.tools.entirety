@@ -1,22 +1,28 @@
 exclude: '^static/[bootstrap|htmx]/'
+default_install_hook_types:
+  - pre-commit
+  - commit-msg
 repos:
-#-   repo: https://github.com/pre-commit/pre-commit-hooks
-#    rev: v4.5.0
-#    hooks:
-#    -   id: check-yaml
-#    -   id: end-of-file-fixer
-#    -   id: trailing-whitespace
-#
-#-   repo: https://github.com/psf/black
-#    rev: 24.1.1
-#    hooks:
-#    -   id: black
-
-
--   repo: local
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.5.0
     hooks:
-      - id: validate-commit-msg
-        name: validate-commit-msg
-        language: pygrep
-        entry: ^(CDD|CDTS)-[0-9]+\s-\s
-        stages: [commit-msg]
+      - id: check-yaml
+      - id: end-of-file-fixer
+      - id: trailing-whitespace
+
+  - repo: https://github.com/psf/black
+    rev: 24.1.1
+    hooks:
+      - id: black
+
+  - repo: https://github.com/compilerla/conventional-pre-commit
+    rev: v4.0.0
+    hooks:
+      - id: conventional-pre-commit
+        stages: [ commit-msg ]
+        args: [
+          "--force-scope",
+          "--verbose",
+          "--scopes",
+          "entirety,entities,users,subscriptions,smartdatamodels,devices,semantics"
+        ]
