@@ -1,23 +1,24 @@
 exclude: '^static/[bootstrap|htmx]/'
 repos:
--   repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v4.5.0
-    hooks:
-    -   id: check-yaml
-    -   id: end-of-file-fixer
-    -   id: trailing-whitespace
-#    -   id: commit-msg
-#        args: [ '--regex', '.*SPECIALWORD.*', '--error-message', 'Commit message must include SPECIALWORD' ]
+#-   repo: https://github.com/pre-commit/pre-commit-hooks
+#    rev: v4.5.0
+#    hooks:
+#    -   id: check-yaml
+#    -   id: end-of-file-fixer
+#    -   id: trailing-whitespace
+##    -   id: commit-msg
+##        args: [ '--regex', '.*SPECIALWORD.*', '--error-message', 'Commit message must include SPECIALWORD' ]
+#
+#-   repo: https://github.com/psf/black
+#    rev: 24.1.1
+#    hooks:
+#    -   id: black
 
--   repo: https://github.com/psf/black
-    rev: 24.1.1
-    hooks:
-    -   id: black
-
--   repo: local
+  - repo: local
     hooks:
       - id: validate-commit-msg
         name: validate-commit-msg
-        entry: ./script.sh
-        language: script
+        language: pygrep
+        entry: ^(CDD|CDTS)-[0-9]+\s-\s
         stages: [commit-msg]
+
