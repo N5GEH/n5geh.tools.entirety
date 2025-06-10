@@ -6,7 +6,19 @@ repos:
     -   id: check-yaml
     -   id: end-of-file-fixer
     -   id: trailing-whitespace
+#    -   id: commit-msg
+#        args: [ '--regex', '.*SPECIALWORD.*', '--error-message', 'Commit message must include SPECIALWORD' ]
+
 -   repo: https://github.com/psf/black
     rev: 24.1.1
     hooks:
     -   id: black
+
+-   repo: local
+    hooks:
+    -   id: validate-commit-msg
+        name: validate-commit-msg
+        language: pygrep
+        entry: ^(CDD|CDTS)-[0-9]+\s-\s
+        stages: [ commit-msg ]
+        args: [ --negate ]
