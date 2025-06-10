@@ -16,9 +16,8 @@ repos:
 
 -   repo: local
     hooks:
-    -   id: validate-commit-msg
+      - id: validate-commit-msg
         name: validate-commit-msg
-        language: pygrep
-        entry: ^(CDD|CDTS)-[0-9]+\s-\s
-        stages: [ commit-msg ]
-        args: [ --negate ]
+        entry: ./script.sh
+        language: script
+        stages: [commit-msg]
