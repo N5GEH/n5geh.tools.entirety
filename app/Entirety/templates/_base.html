@@ -7,7 +7,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <link rel="shortcut icon" type="image/x-icon" href="{% static 'img/favicon.ico' %}">
+    <link rel="shortcut icon" type="image/x-icon" href="{% static 'img/' %}{{ logo_filename }}">
     <title>Entirety - {% block title %}(Title){% endblock %}</title>
 
 
@@ -26,7 +26,7 @@
                 <span class="navbar-toggler-icon"></span>
             </button>
             <a class="navbar-brand" href="{% url "home" %}">
-                <img src="{% static 'img/n5geh.png' %}" alt="project logo" height="30"
+                <img src="{% static 'img/' %}{{ logo_filename }}" alt="project logo" height="30"
                      class="d-inline-block align-text-top">
                 <img src="{% static 'img/fiware.gif' %}" alt="fiware" height="30"
                      class="d-inline-block align-text-top">

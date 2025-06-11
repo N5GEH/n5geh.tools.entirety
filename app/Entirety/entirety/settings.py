@@ -157,6 +157,7 @@ class Settings(BaseSettings):
                     "django.template.context_processors.request",
                     "django.contrib.auth.context_processors.auth",
                     "django.contrib.messages.context_processors.messages",
+                    "entirety.context_processors.logo_filename",
                 ],
             },
         },
@@ -389,6 +390,8 @@ class Settings(BaseSettings):
     MEDIA_ROOT: DirectoryPath = Field(
         default=os.path.join(BASE_DIR, "media/"), alias="MEDIA_ROOT"
     )
+
+    LOGO_FILENAME: str = Field(default="Entirety-logo.png", alias="LOGO_FILENAME")
 
     TIME_ZONE: str = Field(default="Europe/Berlin", alias="TIME_ZONE")
 
