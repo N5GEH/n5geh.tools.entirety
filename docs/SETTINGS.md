@@ -242,3 +242,9 @@ Server admins can create/update projects for any project admin.
 > *description:* Hostname under which the application will be accessible
 >
 > *default:* localhost
+
+### LOGO_FILENAME
+
+> *description:* The filename of the image to be used as the logo, it should be uploaded to /app/Entirety/static/img folder.
+>
+> *default:* Entirety-logo.png
