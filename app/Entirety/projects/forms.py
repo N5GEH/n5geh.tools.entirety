@@ -51,14 +51,18 @@ class ProjectForm(forms.ModelForm):
         )
 
         if user in self.instance.maintainers.all():
-            self.fields["maintainers"].disabled = True
-            self.fields["maintainers"].required = False
-            self.fields["maintainers"].queryset = self.instance.maintainers.all()
-            self.fields["maintainers"].widget.attrs["data-bs-toggle"] = "tooltip"
-            self.fields["maintainers"].widget.attrs["data-bs-placement"] = "left"
-            self.fields["maintainers"].widget.attrs[
-                "title"
-            ] = "Inclusion or exclusion of maintainers into project can by done by project owners only."
+            self.fields["maintainers"] = forms.ModelMultipleChoiceField(
+                queryset=self.instance.maintainers.all(),
+                widget=forms.CheckboxSelectMultiple(
+                    attrs={
+                        "disabled": True,
+                        "data-bs-toggle": "tooltip",
+                        "data-bs-placement": "left",
+                        "title": "Inclusion or exclusion of maintainers into project can be done by project owners only.",
+                    }
+                ),
+                required=False,
+            )
         else:
             self.fields["maintainers"] = forms.ModelMultipleChoiceField(
                 queryset=(
