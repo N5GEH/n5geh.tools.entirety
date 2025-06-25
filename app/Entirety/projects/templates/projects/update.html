@@ -79,7 +79,8 @@
                                     <div class="form-check">
                                         <input class="form-check-input" type="checkbox" name="maintainers"
                                                id="maintainer_{{ maintainer.id }}" value="{{ maintainer.id }}"
-                                               {% if maintainer.id in form.fields.maintainers.initial %}checked{% endif %}>
+                                               {% if maintainer.id in form.fields.maintainers.initial %}checked{% endif %}
+                                                {% if user.id in form.fields.maintainers.initial %}disabled{% endif %}>
                                         <label class="form-check-label" for="viewer_{{ maintainer.id }}">
                                             {{ maintainer.username }}
                                         </label>
