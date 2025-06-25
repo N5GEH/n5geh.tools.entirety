@@ -84,7 +84,14 @@
 > *description:* Use local authentication
 >
 > *default:* True
+
+### LOCAL_AUTH_SIGNUP
+
+> *description:* Enable "sign up" function for new users. This parameter only takes effect when local authentication mode is used.
+> Note that the new registed user will have no access to any project by default.
 >
+> *default:* False
+
 ### LOGIN_REDIRECT_URL
 
 > *description:* Application successful login redirect url.

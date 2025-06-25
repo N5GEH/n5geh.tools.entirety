@@ -378,6 +378,8 @@ class Settings(BaseSettings):
         OIDC_TOKEN_ROLE_PATH: str = Field(
             default="$.entirety.roles", alias="OIDC_TOKEN_ROLE_PATH"
         )
+    else:
+        LOCAL_AUTH_SIGNUP: bool = Field(default=False, alias="LOCAL_AUTH_SIGNUP")
 
     # Internationalization
     # https://docs.djangoproject.com/en/4.0/topics/i18n/
