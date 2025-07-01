@@ -1,7 +1,7 @@
 # SUBSCRIPTIONS MODULE
 
 The "Notifications" module is designed to interact with the FIWARE Generic Enabler Orion.
-This module provides a user interface to manage and view NGSI-v2 `Subscriptions`, which can be used to subscribe to changes in specific entities and attributes, and then forward the data to external endpoints, such as time-series data base.
+This module provides a user interface to manage and view NGSI-v2 `Subscriptions`, which can be used to subscribe to changes in specific entities and attributes, and then forward the data to external endpoints, such as time-series database.
 
 ![Alt text](images/image-19.png)
 
