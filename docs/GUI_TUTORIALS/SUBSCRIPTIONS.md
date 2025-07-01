@@ -9,7 +9,7 @@ This module provides a user interface to manage and view NGSI-v2 `Subscriptions`
   - [Create New Subscription](#create-new-subscription)
 
 ## Create New Subscription
--	Creating a new Subscription: On clicking the blue + , you can create a new Subscription by filling in the `Name`, `Description`(free text to describe the subscription), `Throttling`(Minimum number of seconds that must elapse between two consecutive notifications) and `Expiries`(datetime that this subscription will expire).
+-	Creating a new Subscription: On clicking the blue + , you can create a new Subscription by filling in the `Name`, `Description`(free text to describe the subscription), `Throttling`(Minimum number of seconds that must elapse between two consecutive notifications) and `Expires`(datetime that this subscription will expire).
 
 ![Alt text](images/image-20.png)
 
@@ -17,7 +17,7 @@ This module provides a user interface to manage and view NGSI-v2 `Subscriptions`
 
 ![Alt text](images/image-21.png)
 
--	In the `Notificaton` section , mention the `HTTP` or `MQTTP` endpoints where you want to recieve the notifications.
+-	In the `Notificaton` section , mention the `HTTP` or `MQTTP` endpoints where you want to receive the notifications.
 -	Include the list of metadata you want to include with the notification.
 -	Also select the Attribute format (between `normalized` , `keyValues` or `values`, see more information [here](https://fiware-orion.readthedocs.io/en/master/orion-api.html#notification-messages) )
 
