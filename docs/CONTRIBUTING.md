@@ -11,7 +11,7 @@ Before we get started, here are a few things we expect from you (and that you sh
 - If you open a pull request, you must sign the [Individual Contributor License Agreement](Entirety%20Individual%20Contributor%20License%20Agreement_DRAFT.pdf) by stating in a comment "I have read the CLA Document and I hereby sign the CLA"
 - Please ensure that your contribution passes all tests. If there are test failures, you will need to address them before we can merge your contribution.
 - When adding content, please consider if it is widely valuable. Please don't add references or links to things you or your employer have created as others will do so if they appreciate it.
-- When reporting a vulnerability on the software, please, get in contact with the Entirety repository maintainers in order to discuss it in a private way.
+- When reporting a vulnerability on the software, please, get in contact with the Entirety repository maintainers ([entirety@eonerc.rwth-aachen.de](mailto:entirety@eonerc.rwth-aachen.de)) in order to discuss it in a private way.
 
 ## How to contribute 
 
