@@ -1,6 +1,6 @@
 # Entirety User Guide
 
-Entirety is a browser-based tool developed to facilitate the work with dedicated FIWARE APIs. It is structured into different modules that are designed to interact with specific FIWARE Generic Enablers (GE). This tutorial will guide you through the basics of the Entirety GUI and then through the usage of each module. 
+Entirety is a web-based tool developed to facilitate the work with dedicated FIWARE APIs. It is structured into different modules that are designed to interact with specific FIWARE Generic Enablers (GE). This tutorial will guide you through the basics of the Entirety GUI and then through the usage of each module. 
 
 Note: Usually, we provide useful tooltips to buttons and fields you can read by hovering over them.
 
@@ -18,7 +18,7 @@ When Entirety is not started in local auth mode, the login is handeled by the Op
 
 ## *PROJECTS*
 
-After a successful login, the projects will show.
+After a successful login, the projects will be shown.
 
 Entirety uses the concept of projects to separate the database into independent data spaces. Each project is bound to specific "fiware-service" headers, following FIWARE's approach to [multi-tenancy](https://fiware-orion.readthedocs.io/en/latest/orion-api.html#multi-tenancy). This ensures that data within projects can only be accessed and manipulated from within a project.
 -	The Projects page can be accessed by clicking on the top left corner button *Projects*.
@@ -54,7 +54,9 @@ The lefthand sidebar shows the connectivity between Entirety and the connected G
 
 
 ## *Modules*
-Modules are developed to interact with the GEs. Currently, Entirety supports interaction with the following Generic Enablers: Orion, IoT Agent-JSON, and (indirectly) QuantumLeap. Each module offers certain functions for dedicated tasks. Currently, Entirety offers the modules `Entities`, `Devices`, `Subscriptions`, `Data Models`, and `Semantics` are developed to communicate with these GEs.
+Modules are developed to interact with the GEs. 
+Currently, Entirety supports interaction with the following Generic Enablers: Orion, IoT Agent-JSON, and (indirectly) QuantumLeap.
+Entirety offers the modules `Entities`, `Devices`, `Subscriptions`, `Data Models`, and `Semantics`, that are developed to communicate with these GEs.
 The following pages will guide you through the use of each module.
 
 1. [Entities](GUI_TUTORIALS/ENTITIES.md)
