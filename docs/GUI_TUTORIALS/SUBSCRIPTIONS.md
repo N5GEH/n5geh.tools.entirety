@@ -17,7 +17,7 @@ This module provides a user interface to manage and view NGSI-v2 `Subscriptions`
 
 ![Alt text](images/image-21.png)
 
-- In the `Notification` section, first select a type of endpoint from `HTTP`, `HTTP Custom`, `MQTT`, and `MQTT Custom`. "Custom" offers more flexible parameter to configure each notification.
+- In the `Notification` section, first select a type of endpoint from `HTTP`, `HTTP Custom`, `MQTT`, and `MQTT Custom`. "Custom" offers more flexible parameters to configure each notification.
 -	Specify the endpoints where you want to receive the notifications.
 -	Include the list of metadata you want to include with the notification.
 -	Also select the Attribute format (between `normalized` , `keyValues` or `values`, see more information [here](https://fiware-orion.readthedocs.io/en/master/orion-api.html#notification-messages) )
