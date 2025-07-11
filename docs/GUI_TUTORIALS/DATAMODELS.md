@@ -2,7 +2,7 @@
 
 Data models define the structure and vocabularies of data in FIWARE platforms.
 It helps to improve the reusability and interoperability of data.
-In Entirety, the Data Models module allows users to create, manage, and use data models in other related modules such as `Entities Module` and `Devices Module`.
+In Entirety, the Data Models module allows users to create, manage, and use data models in other related modules such as `Entities` and `Devices`.
 
 - [Data Models Module](#data-models-module)
   - [Create Data Models](#create-data-models)
@@ -15,7 +15,7 @@ On the landing page of the *Data Models* module, you can see a list of all data 
 
 ## Create Data Models
 To create a "new" data model, click on the *+* button in the top left.
-By "new" we mean that you can either create a completely new data model from scratch or you can import an existing data model from a file, or a URL.
+By "new" we mean that you can either create a completely new data model from scratch or you can import an existing data model from a URL or copy the source code directly from another source.
 We recommend to always use import function if possible, as it will ensure that the data model is findable and reusable in the future.
 
 ![Alt text](images/create_data_model.png)
@@ -43,11 +43,11 @@ When creating a new entity or device/service groups, you can select a data model
 **In Entities Module:**
 
 ![Alt text](images/create_entity_from_data_model.png)
-Here you will pre-fill the *Entity Type* and the attributes of the entity.
+Here you can pre-fill the *Entity Type* and the attributes of the entity.
 An ID is automatically generated, but can be changed.
 
 **Device/Service Group**:
 
 ![Alt text](images/create_service_group_from_data_model.png)
-Here it is recommended to use data models to creat service groups for a specific device type.
+Here it is recommended to use data models to create service groups for a specific device type.
 With the ``Auto Provision`` option, you can enable the automatic creation of entities (following the data model) when a new device starts sending data to the IoT Agent.
