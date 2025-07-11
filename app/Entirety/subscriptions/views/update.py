@@ -268,7 +268,6 @@ class Update(ProjectContextAndViewOnlyMixin, UpdateView):
                 )
                 messages.error(request, e)
                 return self.form_invalid(form)
-
             with ContextBrokerClient(
                 url=settings.CB_URL,
                 fiware_header=FiwareHeader(
