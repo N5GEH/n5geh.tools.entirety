@@ -20,7 +20,7 @@ EXPOSE 8000
 # Get pip to download and install requirements:
 RUN python -m pip install --upgrade pip
 RUN pip install uwsgi
-RUN pip install -e git+https://jugit.fz-juelich.de/iek-10/public/ict-platform/fiware-applications/jsonschemaparser@v0.6.2#egg=jsonschemaparser
+RUN pip install git+https://jugit.fz-juelich.de/iek-10/public/ict-platform/fiware-applications/jsonschemaparser@v0.6.2#egg=jsonschemaparser
 RUN pip install --no-cache-dir -r ./requirements.txt
 
 # Runner script here

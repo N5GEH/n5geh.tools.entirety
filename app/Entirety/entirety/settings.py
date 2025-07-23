@@ -157,6 +157,7 @@ class Settings(BaseSettings):
                     "django.template.context_processors.request",
                     "django.contrib.auth.context_processors.auth",
                     "django.contrib.messages.context_processors.messages",
+                    "entirety.context_processors.logo_filename",
                 ],
             },
         },
@@ -318,7 +319,7 @@ class Settings(BaseSettings):
     IOTA_URL: AnyUrl = Field(default="http://localhost:4041", alias="IOTA_URL")
 
     # CSRF
-    CSRF_TRUSTED_ORIGINS: list = Field(default=[], alias="CSRF_TRUSTED_ORIGINS ")
+    CSRF_TRUSTED_ORIGINS: list = Field(default=[], alias="CSRF_TRUSTED_ORIGINS")
 
     # Database
     # https://docs.djangoproject.com/en/4.0/ref/settings/#databases
@@ -377,6 +378,8 @@ class Settings(BaseSettings):
         OIDC_TOKEN_ROLE_PATH: str = Field(
             default="$.entirety.roles", alias="OIDC_TOKEN_ROLE_PATH"
         )
+    else:
+        LOCAL_AUTH_SIGNUP: bool = Field(default=False, alias="LOCAL_AUTH_SIGNUP")
 
     # Internationalization
     # https://docs.djangoproject.com/en/4.0/topics/i18n/
@@ -389,6 +392,8 @@ class Settings(BaseSettings):
     MEDIA_ROOT: DirectoryPath = Field(
         default=os.path.join(BASE_DIR, "media/"), alias="MEDIA_ROOT"
     )
+
+    LOGO_FILENAME: str = Field(default="Entirety-logo.png", alias="LOGO_FILENAME")
 
     TIME_ZONE: str = Field(default="Europe/Berlin", alias="TIME_ZONE")
 

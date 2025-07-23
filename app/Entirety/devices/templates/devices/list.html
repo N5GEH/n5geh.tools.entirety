@@ -12,14 +12,14 @@
             <a class="nav-link" data-bs-toggle="tab" href="#devices">Devices</a>
         </li>
         <li class="nav-item">
-            <a class="nav-link active" data-bs-toggle="tab" href="#groups">Services Group</a>
+            <a class="nav-link active" data-bs-toggle="tab" href="#groups">Service Groups</a>
         </li>
     {% else %}
         <li class="nav-item">
             <a class="nav-link active" data-bs-toggle="tab" href="#devices">Devices</a>
         </li>
         <li class="nav-item">
-            <a class="nav-link" data-bs-toggle="tab" href="#groups">Services Group</a>
+            <a class="nav-link" data-bs-toggle="tab" href="#groups">Service Groups</a>
         </li>
     {% endif %}
 </ul>
@@ -159,7 +159,7 @@
   {% else %}
   <div class="tab-pane container fade" id="groups">
   {% endif %}
-    <h3>Services Group</h3>
+    <h3>Service Groups</h3>
     <form action="" method="GET">
         {% csrf_token %}
         <div class="row justify-content-center">
