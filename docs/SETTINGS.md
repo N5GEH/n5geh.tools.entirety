@@ -221,8 +221,12 @@ Server admins can create/update projects for any project admin.
 > *default:* super_admin
 
 ### OIDC_TOKEN_ROLE_PATH
-
-> *description:* Path in ID token that represents user roles. Each level is seperated by a "."; mind the leading ".". Further information on how to include the roles in the token, please, check our [deployment guide](https://github.com/N5GEH/n5geh.tutorials.entirety_step_by_step/blob/main/README.md#configure-oidc-provider-oidc-auth-only).
+> description: Specifies the JSONPath expression used to locate the array of user roles within the OIDC ID token. The path starts with `$` to represent the token's root, with each nested level separated by a dot (`.`).
+> For the default value, `$.entirety.roles`, the path is structured as follows:
+> - `entirety`: A top-level claim object. In our guide, this is named after the OIDC client.
+> - `roles`: The field within the entirety object that contains the array of role strings.
+>
+> Further information on how to include the roles in the token, please, check our [deployment guide](https://github.com/N5GEH/n5geh.tutorials.entirety_step_by_step/blob/main/README.md#configure-oidc-provider-oidc-auth-only).
 >
 > *default:* $.entirety.roles
 
