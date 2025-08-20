@@ -222,7 +222,7 @@ Server admins can create/update projects for any project admin.
 
 ### OIDC_TOKEN_ROLE_PATH
 > description: Specifies the JSONPath expression used to locate the array of user roles within the OIDC ID token. The path starts with `$` to represent the token's root, with each nested level separated by a dot (`.`).
->For the default value, `$.entirety.roles`, the path is structured as follows:
+> For the default value, `$.entirety.roles`, the path is structured as follows:
 > - `entirety`: A top-level claim object. In our guide, this is named after the OIDC client.
 > - `roles`: The field within the entirety object that contains the array of role strings.
 >
