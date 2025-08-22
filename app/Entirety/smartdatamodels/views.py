@@ -23,7 +23,7 @@ class SmartDataModelsList(ProjectContextAndViewOnlyMixin, ListView):
         return context
 
     def get_queryset(self):
-        return SmartDataModel.objects.order_by("date_modified").filter(
+        return SmartDataModel.objects.order_by("-date_modified").filter(
             name__icontains=self.request.GET.get("search", default="")
         )
 
