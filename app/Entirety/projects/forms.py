@@ -124,6 +124,7 @@ class ProjectForm(forms.ModelForm):
             "description",
             "fiware_service",
             "webpage_url",
+            "dashboard_url",
             "logo",
             "owner",
         ]
@@ -161,6 +162,13 @@ class ProjectForm(forms.ModelForm):
                     "data-bs-toggle": "tooltip",
                     "data-bs-placement": "left",
                     "title": "Project logo",
+                }
+            ),
+            "dashboard_url": forms.URLInput(
+                attrs={
+                    "data-bs-toggle": "tooltip",
+                    "data-bs-placement": "left",
+                    "title": "Project dashboard url",
                 }
             ),
         }
