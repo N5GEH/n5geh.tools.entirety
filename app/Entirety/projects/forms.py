@@ -31,6 +31,7 @@ class ProjectForm(forms.ModelForm):
 
         self.fields["logo"].required = False
         self.fields["webpage_url"].required = False
+        self.fields["dashboard_url"].required = False
 
         self.fields["viewers"] = forms.ModelMultipleChoiceField(
             queryset=(
