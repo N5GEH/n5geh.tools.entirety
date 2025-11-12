@@ -68,7 +68,7 @@ def get_devices(project: Project):
         return device_list
 
     except RuntimeError:
-        return [{}]
+        return [{"devices": [], "invalid_devices": []}]
 
 
 def post_device(device: Device, project: Project):
