@@ -179,7 +179,7 @@ class ServiceGroupCreateSubmitView(ProjectContextMixin, TemplateView):
                         + f" in project {self.project.name}"
                     )
                 except ValidationError as e:
-                    messages.error(request, e.raw_errors[0].exc.__str__())
+                    messages.error(request, e.errors()[0]['msg'])
 
             # get the project context data
             context: dict = super(ServiceGroupCreateSubmitView, self).get_context_data(
@@ -314,7 +314,7 @@ class ServiceGroupEditSubmitView(ProjectContextMixin, TemplateView):
                     + f" in project {self.project.name}"
                 )
             except ValidationError as e:
-                messages.error(request, e.raw_errors[0].exc.__str__())
+                messages.error(request, e.errors()[0]['msg'])
 
         context = {
             "basic_info": basic_info,

@@ -275,14 +275,15 @@ class Create(ProjectContextMixin, TemplateView):
                         entity.add_attributes({self.request.POST.get(keys[0]): attr})
                         i = i + 1
                     j = j + 1
-                res = post_entity(self, entity, False, self.project)
+                req_error = post_entity(self, entity, False, self.project)
             # handel the error from server
             except ValidationError as e:
-                messages.error(request, e.raw_errors[0].exc.__str__())
-            if res:
+                messages.error(request, e.errors()[0]['msg'])
+                return render(request, self.template_name, context)
+            if req_error:
                 messages.error(
                     self.request,
-                    "Entity not created. Reason: " + res,
+                    "Entity not created. Reason: " + req_error,
                 )
                 logger.error(
                     str(
@@ -293,7 +294,7 @@ class Create(ProjectContextMixin, TemplateView):
                     + " tried creating the entity with id "
                     + entity.id
                     + " but failed with error "
-                    + res
+                    + req_error
                     + f" in project {self.project.name}"
                 )
                 return render(request, self.template_name, context)
@@ -309,6 +310,8 @@ class Create(ProjectContextMixin, TemplateView):
                     + f" in project {self.project.name}"
                 )
                 return redirect("projects:entities:list", project_id=self.project.uuid)
+        else:
+            return redirect("projects:entities:list", project_id=self.project.uuid)
 
 
 class CreateBatch(ProjectContextMixin, TemplateView):
