@@ -2,8 +2,8 @@ import datetime
 from typing import List, Optional
 import tempfile
 import json
-from jsonschemaparser import JsonSchemaParser
-from jsonschemaparser.models import NormalizedModel
+from fidere import JsonSchemaParser
+from fidere.models import NormalizedModel
 from smartdatamodels.models import SmartDataModel
 from entities.requests import AttributeTypes
 import os
