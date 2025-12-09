@@ -75,7 +75,18 @@ class DeviceListView(ProjectContextAndViewOnlyMixin, MultiTableMixin, TemplateVi
         if not pattern:
             pattern = pop_data_from_session(request=self.request, key="search-pattern")
             pattern = "" if not pattern else pattern
-        devices = get_devices(self.project)
+        device_list = get_devices(self.project)
+        devices = device_list.devices
+        invalid_devices = device_list.invalid_devices
+        if invalid_devices:
+            messages.warning(
+                self.request,
+                f"{len(invalid_devices)} invalid devices found. Please check the log for more details.",
+            )
+            logger.warning(
+                f"{len(invalid_devices)} invalid devices found in project {self.project.name}: "
+                f"{invalid_devices}"
+            )
         # The filtering is now based on a general pattern
         return pattern_devices_filter(devices, pattern)
 

@@ -1,5 +1,5 @@
 # right now the static folder is a bit duplicated
-FROM python:3.9
+FROM python:3.10
 LABEL maintainer=""
 
 ENV PYTHONDONTWRITEBYTECODE=1
