@@ -480,99 +480,136 @@ function add_rel_legend() {
 }
 
 function autoComplete(event) {
-    var currentFocus;
-    event.addEventListener("input", function (e) {
+    let currentFocus;
+    const pageSize = 5;
 
-        var selectedOption = document.querySelector('.form-select-sm[name="searchOptions"] option:checked');
-        var selectedValue = selectedOption.getAttribute('data-value');
-        var arr = getData(selectedValue)
+    event.addEventListener("input", function () {
+        let selectedOption = document.querySelector('.form-select-sm[name="searchOptions"] option:checked');
+        let selectedValue = selectedOption.getAttribute('data-value');
+        let arr = getData(selectedValue);
 
-        var a, b, i, val = this.value
+        let val = this.value;
         closeAllLists();
-        if (!val) {
-            return false;
-        }
+        if (!val) return false;
+
         currentFocus = -1;
-        a = document.createElement("DIV")
-        a.setAttribute("id", this.id + "autocomplete-list")
-        a.setAttribute("class", "autocomplete-items");
-        var inputwidth = document.getElementById('searchentity');
 
+        let container = document.createElement("DIV");
+        container.setAttribute("id", this.id + "autocomplete-list");
+        container.setAttribute("class", "autocomplete-items");
+        container.style.maxHeight = "240px";
+        container.style.overflowY = "auto";
+        let inputWidth = this.offsetWidth;
+        container.style.width = inputWidth + "px";
 
-        this.parentNode.appendChild(a)
-        for (i = 0; i < arr.length; i++) {
-            if (arr[i].substring(0, val.length).toUpperCase() === val.toUpperCase()) {
-                b = document.createElement("DIV");
-                b.innerHTML = "<strong>" + arr[i].substring(0, val.length) + "</strong>";
-                b.innerHTML += arr[i].substring(val.length);
-                b.innerHTML += "<input type='hidden' value='" + arr[i] + "'>";
-                b.addEventListener("click", function (e) {
+        this.parentNode.appendChild(container);
+
+        let results = arr.filter(item =>
+            item.toUpperCase().startsWith(val.toUpperCase())
+        );
+
+        let offset = 0;
+
+        function render() {
+            let slice = results.slice(offset, offset + pageSize);
+
+            slice.forEach(item => {
+                let option = document.createElement("DIV");
+                option.innerHTML =
+                    "<strong>" + item.substring(0, val.length) + "</strong>" +
+                    item.substring(val.length) +
+                    "<input type='hidden' value='" + item + "'>";
+
+                option.addEventListener("click", function (e) {
+                    e.stopPropagation();
                     event.value = this.getElementsByTagName("input")[0].value;
                     closeAllLists();
                 });
-                var container = document.querySelector('.autocomplete-items');
-                container.style.width = inputwidth.offsetWidth + 'px';
-                console.log(inputwidth.offsetWidth + 'px')
-                a.appendChild(b);
+
+                container.appendChild(option);
+            });
+
+            offset += pageSize;
+
+            addLoadMoreButton();
+        }
+
+        function addLoadMoreButton() {
+            // Remove existing button
+            let old = container.querySelector(".load-more-btn");
+            if (old) old.remove();
+
+            if (offset < results.length) {
+                let loadMore = document.createElement("DIV");
+                loadMore.textContent = "Load more…";
+                loadMore.style.textAlign = "center";
+                loadMore.classList.add("load-more-btn");
+                loadMore.style.cursor = "pointer";
+                loadMore.style.fontWeight = "bold";
+                loadMore.style.padding = "6px";
+                loadMore.style.background = "#eee";
+
+                loadMore.addEventListener("click", function (e) {
+                    e.stopPropagation();   // 🔥 Important: prevents dropdown closing
+                    render();
+                });
+
+                container.appendChild(loadMore);
             }
         }
+
+        render();
     });
+
+    // KEYBOARD NAVIGATION (unchanged)
     event.addEventListener("keydown", function (e) {
-        var x = document.getElementById(this.id + "autocomplete-list");
-        if (x) x = x.getElementsByTagName("div");
-        if (e.keyCode === 40) {
+        let list = document.getElementById(this.id + "autocomplete-list");
+        if (list) list = list.getElementsByTagName("div");
+
+        if (e.keyCode === 40) { // DOWN
             currentFocus++;
-            addActive(x);
-        } else if (e.keyCode === 38) {
+            addActive(list);
+        } else if (e.keyCode === 38) { // UP
             currentFocus--;
-            addActive(x);
-        } else if (e.keyCode === 13) {
+            addActive(list);
+        } else if (e.keyCode === 13) { // ENTER
             e.preventDefault();
-            if (currentFocus > -1) {
-                if (x) x[currentFocus].click();
+            if (currentFocus > -1 && list[currentFocus]) {
+                list[currentFocus].click();
             }
         }
     });
 
     function addActive(x) {
-        /*a function to classify an item as "active":*/
         if (!x) return false;
-        /*start by removing the "active" class on all items:*/
         removeActive(x);
+
         if (currentFocus >= x.length) currentFocus = 0;
-        if (currentFocus < 0) currentFocus = (x.length - 1);
-        /*add class "autocomplete-active":*/
+        if (currentFocus < 0) currentFocus = x.length - 1;
+
         x[currentFocus].classList.add("autocomplete-active");
     }
 
     function removeActive(x) {
-        /*a function to remove the "active" class from all autocomplete items:*/
-        for (var i = 0; i < x.length; i++) {
+        for (let i = 0; i < x.length; i++)
             x[i].classList.remove("autocomplete-active");
-        }
     }
 
     function closeAllLists(elmnt) {
-        /*close all autocomplete lists in the document,
-        except the one passed as an argument:*/
-        var x = document.getElementsByClassName("autocomplete-items");
-        for (var i = 0; i < x.length; i++) {
-            if (elmnt != x[i] && elmnt != event) {
-                x[i].parentNode.removeChild(x[i]);
+        let items = document.getElementsByClassName("autocomplete-items");
+
+        for (let i = 0; i < items.length; i++) {
+            if (elmnt !== items[i] && !items[i].contains(elmnt)) {
+                items[i].parentNode.removeChild(items[i]);
             }
         }
     }
 
     function getData(selectedValue) {
-        if (selectedValue === 'id1') {
-            return entity_ids
-        } else if (selectedValue === 'type1') {
-            return types
-        } else if (selectedValue === 'relationship1') {
-            return relationships
-        } else if (selectedValue === 'name1') {
-            return entity_names
-        }
+        if (selectedValue === 'id1') return entity_ids;
+        if (selectedValue === 'type1') return types;
+        if (selectedValue === 'relationship1') return relationships;
+        if (selectedValue === 'name1') return entity_names;
     }
 
     document.addEventListener("click", function (e) {
