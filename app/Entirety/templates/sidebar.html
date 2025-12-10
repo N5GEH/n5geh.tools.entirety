@@ -66,6 +66,16 @@
                             </a>
                         </li>
                         {% endif %}
+                        {% if project.dashboard_url %}
+                        <li class="nav-item border-bottom d-inline-flex">
+                            <a href="{{ project.dashboard_url }}" class="nav-link btn-sidebar py-md-2"
+                               data-bs-toggle="tooltip" data-bs-placement="right" data-bs-custom-class="d-md-none"
+                               title="Dashboard" target="_blank" rel="noopener noreferrer">
+                                <i class="bi bi-diagram-3"></i>
+                                <span class="d-none d-md-inline-flex">Dashboard</span>
+                            </a>
+                        </li>
+                        {% endif %}
                     {% endif %}
                 {% endif %}
 

@@ -31,6 +31,7 @@ class ProjectForm(forms.ModelForm):
 
         self.fields["logo"].required = False
         self.fields["webpage_url"].required = False
+        self.fields["dashboard_url"].required = False
 
         self.fields["viewers"] = forms.ModelMultipleChoiceField(
             queryset=(
@@ -124,6 +125,7 @@ class ProjectForm(forms.ModelForm):
             "description",
             "fiware_service",
             "webpage_url",
+            "dashboard_url",
             "logo",
             "owner",
         ]
@@ -161,6 +163,13 @@ class ProjectForm(forms.ModelForm):
                     "data-bs-toggle": "tooltip",
                     "data-bs-placement": "left",
                     "title": "Project logo",
+                }
+            ),
+            "dashboard_url": forms.URLInput(
+                attrs={
+                    "data-bs-toggle": "tooltip",
+                    "data-bs-placement": "left",
+                    "title": "Project dashboard url",
                 }
             ),
         }

@@ -3,13 +3,19 @@
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](LICENSE)
 [![Conventional Commits](https://img.shields.io/badge/Conventional%20Commits-1.0.0-yellow.svg)](https://conventionalcommits.org)
 [![semantic-release](https://github.com/N5GEH/n5geh.tools.entirety/actions/workflows/semantic-release.yml/badge.svg)](https://github.com/N5GEH/n5geh.tools.entirety/actions/workflows/semantic-release.yml)
+<br/>
+[![](https://nexus.lab.fiware.org/repository/raw/public/badges/chapters/core.svg)](https://www.fiware.org/developers/catalogue/)
+![Status](https://nexus.lab.fiware.org/repository/raw/public/badges/statuses/incubating.svg)
 
-Entirety is a web-based graphical user interface (GUI) meant to provide easy access to some of FIWARE's Generic Enablers (GE) without requiring deeper knowledge on their APIs: Context Brokers like [Orion](https://fiware-orion.readthedocs.io/en/master/) and the [IoT Agent JSON](https://github.com/telefonicaid/iotagent-json/tree/master). 
-Entirety is python-based and relies on the [FIWARE Library for Python (FiLiP)](https://github.com/RWTH-EBC/FiLiP) for the communication with the GE APIs. 
+Entirety is a web-based graphical user interface (GUI) meant to provide easy access to some of FIWARE's Generic Enablers (GE) without requiring deeper knowledge on their APIs: Context Brokers like [Orion](https://fiware-orion.readthedocs.io/en/master/) and the [IoT Agent JSON](https://github.com/telefonicaid/iotagent-json/tree/master).
+Entirety is python-based and relies on the [FIWARE Library for Python (FiLiP)](https://github.com/RWTH-EBC/FiLiP) for the communication with the GE APIs.
 
 Entirety holds modules (as displayed on the left hand side of the GUI) providing features to perform CRUD (create, read, update, delete) operations to entities in the Context Broker, devices in the IoT Agent, and subscriptions / notifications to QuantumLeap or other applications. Furthermore, Entirety provides a graphical overview of the semantic relationships between entities in the Semantics module as well as a store for standardized data models that can be either created or imported from external sources, like the [Smart Data Models Program](https://smartdatamodels.org//) in the Data Models module.
 
-This project is currently in the process of contribution to FIWARE by the [Institute for Energy Efficient Buildings and Indoor Climate of RWTH Aachen University](https://www.ebc.eonerc.rwth-aachen.de/cms/~dmzz/e-on-erc-ebc/?lidx=1). You can find more GEs in the [FIWARE catalogue](https://github.com/Fiware/catalogue/).
+This project is part of [FIWARE](https://www.fiware.org/) contributed by
+[Institute for Energy Efficient Buildings and Indoor Climate of RWTH Aachen University](https://www.ebc.eonerc.rwth-aachen.de/cms/~dmzz/e-on-erc-ebc/?lidx=1).
+For more information check the FIWARE Catalogue entry for the
+[Core Context Management](https://github.com/Fiware/catalogue/tree/master/core).
 
 ## Table of Contents
 
@@ -40,7 +46,7 @@ This project is currently in the process of contribution to FIWARE by the [Insti
 - Django 4.1
 - Bootstrap 5.2
 - htmx 1.8.2
-- Python 3.8/3.9
+- Python 3.10/3.11
 
 ## Roadmap
 Have a look at our [roadmap](./docs/ROADMAP.md) to see what features we plan to work on in the short and long run. We kindly invite you to participate in [discussions](https://github.com/N5GEH/n5geh.tools.entirety/discussions) about possible features as well.

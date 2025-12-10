@@ -45,7 +45,7 @@ Depending on the necessity, difficulty, and our internal capacity, the features 
 | Batch Create       | User can create multiple entities with similar entity attributes.                          | &check; |           |
 | Batch Delete       | User can delete multiple selected entities with a special view for all the associations.   | &check; |           |
 | Data Model Support | Allow user to create entities based on the predefined data model from the `Data Model App` | &check;            |    |
-| Change of Relationships | Currently, FiLiP prevents us from updating a relationship attribute. In order to adjust relationships this needs to be fixed or another function of FiLiP needs to be used. |             | &check;   |
+| Change of Relationships | Currently, FiLiP prevents us from updating a relationship attribute. In order to adjust relationships this needs to be fixed or another function of FiLiP needs to be used. |     &check;         |   |
 
 ### Notifications App
 
@@ -70,7 +70,6 @@ Depending on the necessity, difficulty, and our internal capacity, the features 
 | Short Name           | Descriptions                                             | Short-Term | Long-Term |
 |----------------------|----------------------------------------------------------|------------|-----------|
 | JSON-Schema Support  | Allow users to work with data model based on JSON-Schema. | &check;    |           |
-| Brick-Schema Support | Allow users to import data model based on Brick-Schema   |            | x   |
 
 
 ### Semantic App

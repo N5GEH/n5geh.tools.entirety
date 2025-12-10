@@ -75,7 +75,18 @@ class DeviceListView(ProjectContextAndViewOnlyMixin, MultiTableMixin, TemplateVi
         if not pattern:
             pattern = pop_data_from_session(request=self.request, key="search-pattern")
             pattern = "" if not pattern else pattern
-        devices = get_devices(self.project)
+        device_list = get_devices(self.project)
+        devices = device_list.devices
+        invalid_devices = device_list.invalid_devices
+        if invalid_devices:
+            messages.warning(
+                self.request,
+                f"{len(invalid_devices)} invalid devices found. Please check the log for more details.",
+            )
+            logger.warning(
+                f"{len(invalid_devices)} invalid devices found in project {self.project.name}: "
+                f"{invalid_devices}"
+            )
         # The filtering is now based on a general pattern
         return pattern_devices_filter(devices, pattern)
 
@@ -250,7 +261,7 @@ class DeviceBatchCreateView(ProjectContextMixin, TemplateView):
                     + f" in project {self.project.name}"
                 )
             except ValidationError as e:
-                messages.error(request, e.raw_errors[0].exc.__str__())
+                messages.error(request, e.errors()[0]['msg'])
         # get the project context data
         json_form = DeviceBatchForm()
         context: dict = super(DeviceBatchCreateView, self).get_context_data(**kwargs)
@@ -342,7 +353,7 @@ class DeviceCreateSubmitView(ProjectContextMixin, TemplateView):
                         + f" in project {self.project.name}"
                     )
                 except ValidationError as e:
-                    messages.error(request, e.raw_errors[0].exc.__str__())
+                    messages.error(request, e.errors()[0]['msg'])
 
             # get the project context data
             context: dict = super(DeviceCreateSubmitView, self).get_context_data(
@@ -470,7 +481,7 @@ class DeviceEditSubmitView(ProjectContextMixin, TemplateView):
                     + f" in project {self.project.name}"
                 )
             except ValidationError as e:
-                messages.error(request, e.raw_errors[0].exc.__str__())
+                messages.error(request, e.errors()[0]['msg'])
 
         context = {
             "basic_info": basic_info,
@@ -558,6 +569,6 @@ class DeviceCreateBatchView(ProjectContextMixin, TemplateView):
                     + f" in project {self.project.name}"
                 )
             except ValidationError as e:
-                messages.error(self.request, e.raw_errors[0].exc.__str__())
+                messages.error(self.request, e.errors()[0]['msg'])
         else:
             return render(request, self.template_name, context)
