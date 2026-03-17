@@ -1,0 +1,118 @@
+x-logging:
+  &default-logging
+  driver: "json-file"
+  options:
+    max-size: "10m"
+    max-file: "2"
+
+services:
+  entirety-db:
+    image: postgres:${POSTGRES_VERSION:-14.5}
+    restart: unless-stopped
+    hostname: ${POSTGRES_HOST:-entirety-db}
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    logging: *default-logging
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-entirety}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgrespw}
+      POSTGRES_DB: ${POSTGRES_DB:-entirety}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    networks:
+      - entirety
+
+  entirety:
+    #image: ghcr.io/n5geh/n5geh.tools.entirety:${ENTIRETY_VERSION:-development}
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    restart: unless-stopped
+   # ports:
+   #   - "80:8000"
+    expose:
+       - 8000
+    logging: *default-logging
+    #   driver: none # in case you want to disable logging
+    environment:
+      - ENTITIES_LOAD=${ENTITIES_LOAD:-True}
+      - DEVICES_LOAD=${DEVICES_LOAD:-True}
+      - NOTIFICATIONS_LOAD=${NOTIFICATIONS_LOAD:-True}
+      - SEMANTICS_LOAD=${SEMANTICS_LOAD:-True}
+      - DATABASE_HOST=${POSTGRES_HOST:-entirety-db}
+      - DATABASE_PORT=${POSTGRES_PORT:-5432}
+      - DATABASE_USER=${POSTGRES_USER:-entirety}
+      - DATABASE_PASSWORD=${POSTGRES_PASSWORD:-postgrespw}
+      - DATABASE_NAME=${POSTGRES_DB:-entirety}
+      - DJANGO_SECRET_KEY=${DJANGO_SECRET_KEY}
+      - DJANGO_DEBUG=${DJANGO_DEBUG:-False}
+      - COMPRESS_ENABLED=${COMPRESS_ENABLED:-True}
+      - LOKI_ENABLE=${LOKI_ENABLE:-False}
+      # Uncomment if using LOKI --> set LOKI_ENABLE=True
+      # - LOKI_HOST=${LOKI_HOST:-localhost}
+      # - LOKI_LEVEL=${LOKI_LEVEL:-INFO}
+      # - LOKI_PORT=${LOKI_PORT:-3100}
+      # - LOKI_PROTOCOL=${LOKI_PROTOCOL:-http}
+      # - LOKI_SRC_HOST=${LOKI_SRC_HOST:-entirety}
+      # - LOKI_TIMEZONE=${LOKI_TIMEZONE:-Europe/Berlin}
+      - LOCAL_AUTH=${LOCAL_AUTH:-True}
+      # Uncomment if using OIDC --> set LOCAL_AUTH=False and adjust environment file
+      - OIDC_OP_AUTHORIZATION_ENDPOINT=${OIDC_OP_AUTHORIZATION_ENDPOINT}
+      - OIDC_OP_JWKS_ENDPOINT=${OIDC_OP_JWKS_ENDPOINT}
+      - OIDC_OP_TOKEN_ENDPOINT=${OIDC_OP_TOKEN_ENDPOINT}
+      - OIDC_OP_USER_ENDPOINT=${OIDC_OP_USER_ENDPOINT}
+      - OIDC_RP_CLIENT_ID=${OIDC_RP_CLIENT_ID}
+      - OIDC_RP_CLIENT_SECRET=${OIDC_RP_CLIENT_SECRET}
+      - OIDC_SUPER_ADMIN_ROLE=${OIDC_SUPER_ADMIN_ROLE}
+      - OIDC_SERVER_ADMIN_ROLE=${OIDC_SERVER_ADMIN_ROLE}
+      - OIDC_PROJECT_ADMIN_ROLE=${OIDC_PROJECT_ADMIN_ROLE}
+      - OIDC_USER_ROLE=${OIDC_USER_ROLE}
+      - OIDC_TOKEN_ROLE_PATH=${OIDC_TOKEN_ROLE_PATH}
+      - OIDC_OP_LOGOUT_ENDPOINT=${OIDC_OP_LOGOUT_ENDPOINT}
+      - OIDC_LOGIN_URL${OIDC_LOGIN_URL}
+      - OIDC_LOGIN_REDIRECT_URL${OIDC_LOGIN_REDIRECT_URL}
+      - OIDC_LOGOUT_REDIRECT_URL${OIDC_LOGOUT_REDIRECT_URL}
+      - LOGIN_URL=${LOGIN_URL:-/}
+      - LOGIN_REDIRECT_URL=${LOGIN_REDIRECT_URL:-/}
+      - LOGOUT_REDIRECT_URL=${LOGOUT_REDIRECT_URL:-/}
+      - STATIC_ROOT=${STATIC_ROOT:-/var/entirety/static/}
+      - MEDIA_ROOT=${MEDIA_ROOT:-/var/entirety/media/}
+      - CB_URL=${CB_URL:-http://orion:1026}
+      - IOTA_URL=${IOTA_URL:-http://iota:4041}
+      - QL_URL=${QL_URL:-http://ql:8668}
+      - CSRF_TRUSTED_ORIGINS=${CSRF_TRUSTED_ORIGINS:-[]}
+    volumes:
+      - static:${STATIC_ROOT:-/var/entirety/static/}
+      - media:${MEDIA_ROOT:-/var/entirety/media/}
+    depends_on:
+      - entirety-db
+    networks:
+      - entirety
+
+  nginx:
+    image: nginx:${NGINX_VERSION:-1.21.3}
+    hostname: ng
+    restart: unless-stopped
+    ports:
+       - "80:80"
+    logging: *default-logging
+    volumes:
+      - ./configs/nginx:/etc/nginx/templates/
+      - static:${STATIC_ROOT:-/var/entirety/static/}
+      - media:${MEDIA_ROOT:-/var/entirety/media/}
+    environment:
+      NGINX_ENVSUBST_TEMPLATE_SUFFIX: ".conf"
+      WEB_HOST: ${WEB_HOST:-localhost}
+    depends_on:
+      - entirety
+    networks:
+      - entirety
+
+
+volumes:
+  static:
+  pgdata:
+  media:
+
+networks:
+  entirety:

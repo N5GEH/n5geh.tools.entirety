@@ -195,14 +195,26 @@ class IOTAHealth(View):
         return _get_status(IoTAClient, settings.IOTA_URL, request)
 
 
-def _get_status(client, url, request):
-    with client(
-        url=url,
-        fiware_header=FiwareHeader(service="", service_path=""),
-    ) as fiware_client:
-        try:
+from filip.clients.exceptions import BaseHttpClientException
+
+def _get_status(client_cls, url, request):
+    try:
+        # Wrap everything in try so client construction + calls are safe
+        with client_cls(
+            url=url,
+            fiware_header=FiwareHeader(service="", service_path=""),
+        ) as fiware_client:
             version = fiware_client.get_version()
             if version:
+                # Broker is healthy
                 return render(request, "good_health.html")
-        except:
-            return render(request, "bad_health.html")
+            else:
+                # Version returned None → unhealthy
+                return render(request, "bad_health.html")
+    except BaseHttpClientException as e:
+        # CB unreachable or network error
+        return render(request, "bad_health.html")
+    except Exception as e:
+        # Catch anything unexpected
+        return render(request, "bad_health.html")
+
