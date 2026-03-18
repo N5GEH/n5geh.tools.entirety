@@ -329,6 +329,11 @@ class Settings(BaseSettings):
     LOGIN_URL: str = Field(default="/accounts/login", alias="LOGIN_URL")
     LOGOUT_REDIRECT_URL: str = Field(default="/", alias="LOGOUT_REDIRECT_URL")
 
+    KEYCLOAK_HOST: str = Field(alias="KEYCLOAK_HOST")
+    REALM: str = Field(alias="REALM")
+    KEYCLOAK_CLIENT_ID: str = Field(alias="KEYCLOAK_CLIENT_ID")
+    KEYCLOAK_CLIENT_SECRET: str = Field(alias="KEYCLOAK_CLIENT_SECRET")
+
     if not __auth.LOCAL_AUTH:
         INSTALLED_APPS.append("mozilla_django_oidc")
         MIDDLEWARE.append("mozilla_django_oidc.middleware.SessionRefresh")

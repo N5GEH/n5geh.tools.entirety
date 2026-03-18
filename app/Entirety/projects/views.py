@@ -8,7 +8,8 @@ from django.views import View
 from django.views.generic import ListView, DetailView
 from django.views.generic.edit import UpdateView, CreateView, DeleteView
 from filip.clients.ngsi_v2 import ContextBrokerClient, QuantumLeapClient, IoTAClient
-from filip.models import FiwareHeader
+from filip.models.base import FiwareHeaderSecure
+from keycloak import KeycloakOpenID
 
 from .forms import ProjectForm
 from .mixins import ProjectCreateMixin, ProjectSelfMixin, ProjectBaseMixin
@@ -197,12 +198,25 @@ class IOTAHealth(View):
 
 from filip.clients.exceptions import BaseHttpClientException
 
+
 def _get_status(client_cls, url, request):
     try:
+        keycloak = KeycloakOpenID(
+            server_url=settings.KEYCLOAK_HOST,
+            client_id=settings.KEYCLOAK_CLIENT_ID,
+            client_secret_key=settings.KEYCLOAK_CLIENT_SECRET,
+            realm_name=settings.REALM,
+        )
+        token = keycloak.token(grant_type="client_credentials")
+
+        # create secure fiware header with authorisation token
+        fiware_header = FiwareHeaderSecure(
+            service="", service_path="", authorization="Bearer %s" % token
+        )
         # Wrap everything in try so client construction + calls are safe
         with client_cls(
             url=url,
-            fiware_header=FiwareHeader(service="", service_path=""),
+            fiware_header=fiware_header,
         ) as fiware_client:
             version = fiware_client.get_version()
             if version:
@@ -217,4 +231,3 @@ def _get_status(client_cls, url, request):
     except Exception as e:
         # Catch anything unexpected
         return render(request, "bad_health.html")
-
