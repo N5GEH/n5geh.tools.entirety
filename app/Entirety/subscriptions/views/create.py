@@ -24,6 +24,7 @@ from projects.mixins import ProjectContextMixin
 from subscriptions.models import Subscription
 from subscriptions import utils
 from subscriptions import forms
+from utils.auth import get_fiware_header
 
 logger = logging.getLogger("subscriptions.views")
 
@@ -91,7 +92,7 @@ class Create(ProjectContextMixin, CreateView):
             # Otherwise choices are empty
             try:
                 attributes.fields["attributes"].choices = utils.load_attributes(
-                    self.project, data_set
+                    self, self.project, data_set
                 )
                 if attributes.is_valid():
                     instance = form.save(commit=False)
@@ -147,10 +148,7 @@ class Create(ProjectContextMixin, CreateView):
                 return self.form_invalid(form)
             with ContextBrokerClient(
                 url=settings.CB_URL,
-                fiware_header=FiwareHeader(
-                    service=self.project.fiware_service,
-                    service_path=self.project.fiware_service_path,
-                ),
+                fiware_header=get_fiware_header(self.request, self.project),
             ) as cb_client:
                 if (
                     (form.cleaned_data["endpoint_type"] == "http" and http.is_valid())

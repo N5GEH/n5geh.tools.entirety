@@ -19,4 +19,5 @@ psycopg2==2.9.11
 Pillow==10.3.0
 jsonpath_ng==1.6.1
 python-keycloak==5.8.1
+pyjwt==2.12.1
 git+https://jugit.fz-juelich.de/iek-10/public/ict-platform/fiware-applications/fidere.git@v1.0.0#egg=fidere

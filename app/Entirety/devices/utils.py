@@ -12,6 +12,8 @@ from filip.models.ngsi_v2.iot import (
 )
 from filip.models.base import DataType
 
+from utils.auth import get_fiware_header
+
 # global settings
 prefix_attributes = "attributes"
 prefix_commands = "commands"
@@ -27,7 +29,7 @@ JSONSchemaMap = {
 }
 
 
-def get_device_by_id(project: Project, device_id):
+def get_device_by_id(self, project: Project, device_id):
     """
     Get device by id for current project
     Args:
@@ -39,15 +41,12 @@ def get_device_by_id(project: Project, device_id):
     """
     with IoTAClient(
         url=settings.IOTA_URL,
-        fiware_header=FiwareHeader(
-            service=project.fiware_service,
-            service_path=project.fiware_service_path,
-        ),
+        fiware_header=get_fiware_header(self.request, project),
     ) as iota_client:
         return iota_client.get_device(device_id=device_id)
 
 
-def get_devices(project: Project):
+def get_devices(self, project: Project):
     """
     Get devices for current project
     Args:
@@ -59,10 +58,7 @@ def get_devices(project: Project):
     try:
         with IoTAClient(
             url=settings.IOTA_URL,
-            fiware_header=FiwareHeader(
-                service=project.fiware_service,
-                service_path=project.fiware_service_path,
-            ),
+            fiware_header=get_fiware_header(self.request, project),
         ) as iota_client:
             device_list = iota_client.get_device_list(include_invalid=True)
         return device_list
@@ -71,58 +67,46 @@ def get_devices(project: Project):
         return [{"devices": [], "invalid_devices": []}]
 
 
-def post_device(device: Device, project: Project):
+def post_device(self, device: Device, project: Project):
     """
     Post the device to IoTAgent
     """
     with IoTAClient(
         url=settings.IOTA_URL,
-        fiware_header=FiwareHeader(
-            service=project.fiware_service,
-            service_path=project.fiware_service_path,
-        ),
+        fiware_header=get_fiware_header(self.request, project),
     ) as iota_client:
         iota_client.post_device(device=device)
 
 
-def post_devices(devices: List[Device], project: Project):
+def post_devices(self, devices: List[Device], project: Project):
     """
     Post the device to IoTAgent
     """
     with IoTAClient(
         url=settings.IOTA_URL,
-        fiware_header=FiwareHeader(
-            service=project.fiware_service,
-            service_path=project.fiware_service_path,
-        ),
+        fiware_header=get_fiware_header(self.request, project),
     ) as iota_client:
         iota_client.post_devices(devices=devices)
 
 
-def update_device(device: Device, project: Project):
+def update_device(self, device: Device, project: Project):
     """
     Update the device to IoTAgent
     """
     with IoTAClient(
         url=settings.IOTA_URL,
-        fiware_header=FiwareHeader(
-            service=project.fiware_service,
-            service_path=project.fiware_service_path,
-        ),
+        fiware_header=get_fiware_header(self.request, project),
     ) as iota_client:
         iota_client.update_device(device=device)
 
 
-def delete_device(project: Project, device_id, **kwargs):
+def delete_device(self, project: Project, device_id, **kwargs):
     """
     Delete a devices by id
     """
     with IoTAClient(
         url=settings.IOTA_URL,
-        fiware_header=FiwareHeader(
-            service=project.fiware_service,
-            service_path=project.fiware_service_path,
-        ),
+        fiware_header=get_fiware_header(self.request, project),
     ) as iota_client:
         iota_client.delete_device(device_id=device_id, cb_url=settings.CB_URL, **kwargs)
 
@@ -281,7 +265,7 @@ def parse_request_data(data, BasicForm: Type[Form]):
 # service groups
 
 
-def get_service_groups(project: Project):
+def get_service_groups(self, project: Project):
     """
     Get all service groups for current project
     Args:
@@ -293,10 +277,7 @@ def get_service_groups(project: Project):
     try:
         with IoTAClient(
             url=settings.IOTA_URL,
-            fiware_header=FiwareHeader(
-                service=project.fiware_service,
-                service_path=project.fiware_service_path,
-            ),
+            fiware_header=get_fiware_header(self.request, project),
         ) as iota_client:
             service_groups = iota_client.get_group_list()
         return service_groups
@@ -321,7 +302,7 @@ def pattern_service_groups_filter(service_groups: list, pattern: str = None):
     return service_groups
 
 
-def get_service_group_by_apikey(project: Project, **kwargs):
+def get_service_group_by_apikey(self, project: Project, **kwargs):
     """
     Get service groups by apikey in current project by apikey and resource
     Args:
@@ -333,10 +314,7 @@ def get_service_group_by_apikey(project: Project, **kwargs):
     """
     with IoTAClient(
         url=settings.IOTA_URL,
-        fiware_header=FiwareHeader(
-            service=project.fiware_service,
-            service_path=project.fiware_service_path,
-        ),
+        fiware_header=get_fiware_header(self.request, project),
     ) as iota_client:
         return iota_client.get_group(**kwargs)
 
@@ -362,44 +340,35 @@ def build_service_group(data_basic, data_attributes):
     return service_group
 
 
-def post_service_group(service_group: ServiceGroup, project: Project):
+def post_service_group(self, service_group: ServiceGroup, project: Project):
     """
     Post the service group to IoTAgent
     """
     with IoTAClient(
         url=settings.IOTA_URL,
-        fiware_header=FiwareHeader(
-            service=project.fiware_service,
-            service_path=project.fiware_service_path,
-        ),
+        fiware_header=get_fiware_header(self.request, project),
     ) as iota_client:
         iota_client.post_group(service_group=service_group)
 
 
-def update_service_group(service_group: ServiceGroup, project: Project):
+def update_service_group(self, service_group: ServiceGroup, project: Project):
     """
     Update a service group
     """
     with IoTAClient(
         url=settings.IOTA_URL,
-        fiware_header=FiwareHeader(
-            service=project.fiware_service,
-            service_path=project.fiware_service_path,
-        ),
+        fiware_header=get_fiware_header(self.request, project),
     ) as iota_client:
         iota_client.update_group(service_group=service_group)
 
 
-def delete_service_group(project: Project, **kwargs):
+def delete_service_group(self, project: Project, **kwargs):
     """
     Delete a service group
     """
     with IoTAClient(
         url=settings.IOTA_URL,
-        fiware_header=FiwareHeader(
-            service=project.fiware_service,
-            service_path=project.fiware_service_path,
-        ),
+        fiware_header=get_fiware_header(self.request, project),
     ) as iota_client:
         iota_client.delete_group(**kwargs)
 

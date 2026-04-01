@@ -6,10 +6,10 @@ import requests
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from filip.clients.ngsi_v2 import ContextBrokerClient, IoTAClient
-from filip.models import FiwareHeader
 from filip.utils.filter import filter_subscriptions_by_entity
 
 from subscriptions.models import Subscription
+from utils.auth import get_fiware_header
 
 
 class AttributeTypes(Enum):
@@ -39,9 +39,7 @@ def get_entities_list(self, id_pattern, type_pattern, project):
     data = []
     with ContextBrokerClient(
         url=settings.CB_URL,
-        fiware_header=FiwareHeader(
-            service=project.fiware_service, service_path=project.fiware_service_path
-        ),
+        fiware_header=get_fiware_header(self.request, project),
     ) as cb_client:
         try:
             for entity in cb_client.get_entity_list(
@@ -62,9 +60,7 @@ def get_entities_list(self, id_pattern, type_pattern, project):
 def post_entity(self, entity, update, project):
     with ContextBrokerClient(
         url=settings.CB_URL,
-        fiware_header=FiwareHeader(
-            service=project.fiware_service, service_path=project.fiware_service_path
-        ),
+        fiware_header=get_fiware_header(self.request, project),
     ) as cb_client:
         try:
             cb_client.post_entity(entity, patch=update)
@@ -77,9 +73,7 @@ def post_entity(self, entity, update, project):
 def update_entity(self, entities, acton_type, project):
     with ContextBrokerClient(
         url=settings.CB_URL,
-        fiware_header=FiwareHeader(
-            service=project.fiware_service, service_path=project.fiware_service_path
-        ),
+        fiware_header=get_fiware_header(self.request, project),
     ) as cb_client:
         try:
             cb_client.update(entities=entities, action_type=acton_type)
@@ -90,40 +84,32 @@ def update_entity(self, entities, acton_type, project):
 def get_entity(self, entity_id, entity_type, project):
     with ContextBrokerClient(
         url=settings.CB_URL,
-        fiware_header=FiwareHeader(
-            service=project.fiware_service, service_path=project.fiware_service_path
-        ),
+        fiware_header=get_fiware_header(self.request, project),
     ) as cb_client:
         return cb_client.get_entity(entity_id, entity_type)
 
 
-def get_entities_types(project):
+def get_entities_types(self, project):
     with ContextBrokerClient(
         url=settings.CB_URL,
-        fiware_header=FiwareHeader(
-            service=project.fiware_service, service_path=project.fiware_service_path
-        ),
+        fiware_header=get_fiware_header(self.request, project),
     ) as cb_client:
         data = cb_client.get_entity_types(options="values")
     return data
 
 
-def delete_entity(entity_id, entity_type, project):
+def delete_entity(self, entity_id, entity_type, project):
     with ContextBrokerClient(
         url=settings.CB_URL,
-        fiware_header=FiwareHeader(
-            service=project.fiware_service, service_path=project.fiware_service_path
-        ),
+        fiware_header=get_fiware_header(self.request, project),
     ) as cb_client:
         return cb_client.delete_entity(entity_id, entity_type)
 
 
-def delete_entities(entities, project):
+def delete_entities(self, entities, project):
     with ContextBrokerClient(
         url=settings.CB_URL,
-        fiware_header=FiwareHeader(
-            service=project.fiware_service, service_path=project.fiware_service_path
-        ),
+        fiware_header=get_fiware_header(self.request, project),
     ) as cb_client:
         try:
             cb_client.delete_entities(entities)
@@ -131,60 +117,49 @@ def delete_entities(entities, project):
             return json.loads(err.response.text).get("description")
 
 
-def delete_subscription(sub_ids, project):
+def delete_subscription(self, sub_ids, project):
     with ContextBrokerClient(
         url=settings.CB_URL,
-        fiware_header=FiwareHeader(
-            service=project.fiware_service, service_path=project.fiware_service_path
-        ),
+        fiware_header=get_fiware_header(self.request, project),
     ) as cb_client:
         for sub_id in sub_ids:
             cb_client.delete_subscription(sub_id)
         Subscription.objects.filter(uuid__in=sub_ids).delete()
 
 
-def delete_relationship(entity_id, attribute_name, entity_type, project):
+def delete_relationship(self, entity_id, attribute_name, entity_type, project):
     with ContextBrokerClient(
         url=settings.CB_URL,
-        fiware_header=FiwareHeader(
-            service=project.fiware_service, service_path=project.fiware_service_path
-        ),
+        fiware_header=get_fiware_header(self.request, project),
     ) as cb_client:
         cb_client.delete_entity_attribute(
             entity_id=entity_id, attr_name=attribute_name, entity_type=entity_type
         )
 
 
-def delete_device(device_ids, project):
+def delete_device(self, device_ids, project):
     with IoTAClient(
         url=settings.IOTA_URL,
-        fiware_header=FiwareHeader(
-            service=project.fiware_service,
-            service_path=project.fiware_service_path,
-        ),
+        fiware_header=get_fiware_header(self.request, project),
     ) as iota_client:
         for device_id in device_ids:
             iota_client.delete_device(device_id=device_id)
 
 
-def get_subscriptions(entity_id, entity_type, project):
+def get_subscriptions(self, entity_id, entity_type, project):
     return filter_subscriptions_by_entity(
         entity_id=entity_id,
         entity_type=entity_type,
         url=settings.CB_URL,
-        fiware_header=FiwareHeader(
-            service=project.fiware_service, service_path=project.fiware_service_path
-        ),
+        fiware_header=get_fiware_header(self.request, project),
     )
 
 
-def get_devices(entity_id, project):
+def get_devices(self, entity_id, project):
     pass
     with IoTAClient(
         url=settings.IOTA_URL,
-        fiware_header=FiwareHeader(
-            service=project.fiware_service, service_path=project.fiware_service_path
-        ),
+        fiware_header=get_fiware_header(self.request, project),
     ) as iota_client:
         list_of_devices = iota_client.get_device_list()
         devices = []
@@ -194,12 +169,10 @@ def get_devices(entity_id, project):
         return devices
 
 
-def get_relationships(entity_id, project):
+def get_relationships(self, entity_id, project):
     with ContextBrokerClient(
         url=settings.CB_URL,
-        fiware_header=FiwareHeader(
-            service=project.fiware_service, service_path=project.fiware_service_path
-        ),
+        fiware_header=get_fiware_header(self.request, project),
     ) as cb_client:
         entities = cb_client.get_entity_list()
         relations = []

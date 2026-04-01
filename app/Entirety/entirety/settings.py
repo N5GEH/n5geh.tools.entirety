@@ -329,10 +329,16 @@ class Settings(BaseSettings):
     LOGIN_URL: str = Field(default="/accounts/login", alias="LOGIN_URL")
     LOGOUT_REDIRECT_URL: str = Field(default="/", alias="LOGOUT_REDIRECT_URL")
 
+    # TODO: Common OIDC anf Keycloack client variables
     KEYCLOAK_HOST: str = Field(alias="KEYCLOAK_HOST")
     REALM: str = Field(alias="REALM")
     KEYCLOAK_CLIENT_ID: str = Field(alias="KEYCLOAK_CLIENT_ID")
     KEYCLOAK_CLIENT_SECRET: str = Field(alias="KEYCLOAK_CLIENT_SECRET")
+    OIDC_STORE_ACCESS_TOKEN: bool = Field(default=True)
+    OIDC_STORE_ID_TOKEN: bool = Field(default=True)
+    OIDC_STORE_REFRESH_TOKEN: bool = Field(default=True)
+    SESSION_ENGINE: str = Field("django.contrib.sessions.backends.db")
+    SESSION_COOKIE_NAME: str = Field("sessionid")
 
     if not __auth.LOCAL_AUTH:
         INSTALLED_APPS.append("mozilla_django_oidc")

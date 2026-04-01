@@ -73,3 +73,30 @@ class CustomOIDCAB(OIDCAuthenticationBackend):
         except Exception as e:
             messages.error(self.request, "Authentication Error: " + e.__str__())
             return None
+
+    def get_token(self, payload):
+        token = super().get_token(payload)
+
+        access_token = token.get("access_token")
+        refresh_token = token.get("refresh_token")
+
+        # Store tokens in session
+        if self.request:
+            self.request.session["access_token"] = access_token
+            self.request.session["refresh_token"] = refresh_token
+
+        return token
+
+    def get_or_create_user(self, access_token, id_token, payload):
+        user = super(CustomOIDCAB, self).get_or_create_user(
+            access_token, id_token, payload
+        )
+
+        if self.request:
+            self.request.session["access_token"] = access_token
+
+            refresh_token = self.request.session.get("oidc_refresh_token")
+            if refresh_token:
+                self.request.session["refresh_token"] = refresh_token
+
+        return user

@@ -278,7 +278,7 @@ class Create(ProjectContextMixin, TemplateView):
                 req_error = post_entity(self, entity, False, self.project)
             # handel the error from server
             except ValidationError as e:
-                messages.error(request, e.errors()[0]['msg'])
+                messages.error(request, e.errors()[0]["msg"])
                 return render(request, self.template_name, context)
             if req_error:
                 messages.error(
@@ -494,7 +494,7 @@ class Delete(ProjectContextMixin, TemplateView):
             # subscriptions
             subscriptions = None
             if self.request.session.get("subscriptions"):
-                subscriptions_list = get_subscriptions(id, type, self.project)
+                subscriptions_list = get_subscriptions(self, id, type, self.project)
                 initial_subscriptions = []
                 for subs in subscriptions_list:
                     initial_subscriptions.append(
@@ -519,7 +519,9 @@ class Delete(ProjectContextMixin, TemplateView):
             # devices
             devices = None
             if self.request.session.get("devices"):
-                devices_list = get_devices(entity_id=entity.id, project=self.project)
+                devices_list = get_devices(
+                    self, entity_id=entity.id, project=self.project
+                )
                 initial_devices = []
                 for device in devices_list:
                     initial_devices.append(
@@ -540,7 +542,7 @@ class Delete(ProjectContextMixin, TemplateView):
             relationships = None
             if self.request.session.get("relationships"):
                 relationships_list = get_relationships(
-                    entity_id=entity.id, project=self.project
+                    self, entity_id=entity.id, project=self.project
                 )
                 initial_relationships = []
                 for rel in relationships_list:
@@ -591,10 +593,11 @@ class Delete(ProjectContextMixin, TemplateView):
             if re.search(r"device#\S+\d+-name", k)
         ]
         try:
-            delete_subscription(subs, self.project)
-            delete_device(devices, self.project)
+            delete_subscription(self, subs, self.project)
+            delete_device(self, devices, self.project)
             for entity in self.request.session.get("entities"):
                 delete_entity(
+                    self,
                     entity_id=entity.split("&")[0],
                     entity_type=entity.split("&")[1],
                     project=self.project,
@@ -617,6 +620,7 @@ class Delete(ProjectContextMixin, TemplateView):
                     type = self.request.POST.get(new_keys[1])
                     attr_name = self.request.POST.get(new_keys[2])
                     delete_relationship(
+                        self,
                         entity_id=id,
                         entity_type=type,
                         attribute_name=attr_name,

@@ -9,8 +9,9 @@ from django.views.generic import ListView, DetailView
 from django.views.generic.edit import UpdateView, CreateView, DeleteView
 from filip.clients.ngsi_v2 import ContextBrokerClient, QuantumLeapClient, IoTAClient
 from filip.models.base import FiwareHeaderSecure
-from keycloak import KeycloakOpenID
 
+from users.services import client_token_service
+from utils.auth import get_fiware_services
 from .forms import ProjectForm
 from .mixins import ProjectCreateMixin, ProjectSelfMixin, ProjectBaseMixin
 from .models import Project
@@ -31,59 +32,35 @@ class Index(LoginRequiredMixin, ListView):
                 else self.request.user.username
             )
         )
-        if self.request.user.is_server_admin:
-            return Project.objects.order_by("-date_modified").filter(
-                name__icontains=self.request.GET.get("search", default="")
-            )
-        elif self.request.user.is_project_admin:
+        search_query = self.request.GET.get("search", default="")
+        fiware_services = get_fiware_services(self.request)
+
+        # Base queryset filtered by fiware_services
+        qs = Project.objects.filter(
+            fiware_service__in=fiware_services, name__icontains=search_query
+        )
+
+        # Apply user role filters
+        user = self.request.user
+        if user.is_server_admin:
+            return qs.order_by("-date_modified")
+
+        elif user.is_project_admin:
+            # Projects where user is owner, users, maintainers, or viewers
             return (
-                Project.objects.order_by("-date_modified")
-                .filter(
-                    name__icontains=self.request.GET.get("search", default=""),
-                    owner=self.request.user,
-                )
-                .distinct()
-                | Project.objects.order_by("-date_modified")
-                .filter(
-                    name__icontains=self.request.GET.get("search", default=""),
-                    users=self.request.user,
-                )
-                .distinct()
-                | Project.objects.order_by("-date_modified")
-                .filter(
-                    name__icontains=self.request.GET.get("search", default=""),
-                    maintainers=self.request.user,
-                )
-                .distinct()
-                | Project.objects.order_by("-date_modified")
-                .filter(
-                    name__icontains=self.request.GET.get("search", default=""),
-                    viewers=self.request.user,
-                )
-                .distinct()
-            )
+                qs.filter(owner=user).distinct()
+                | qs.filter(users=user).distinct()
+                | qs.filter(maintainers=user).distinct()
+                | qs.filter(viewers=user).distinct()
+            ).order_by("-date_modified")
 
         else:
+            # Regular user: users, maintainers, viewers
             return (
-                Project.objects.order_by("-date_modified")
-                .filter(
-                    name__icontains=self.request.GET.get("search", default=""),
-                    users=self.request.user,
-                )
-                .distinct()
-                | Project.objects.order_by("-date_modified")
-                .filter(
-                    name__icontains=self.request.GET.get("search", default=""),
-                    maintainers=self.request.user,
-                )
-                .distinct()
-                | Project.objects.order_by("-date_modified")
-                .filter(
-                    name__icontains=self.request.GET.get("search", default=""),
-                    viewers=self.request.user,
-                )
-                .distinct()
-            )
+                qs.filter(users=user).distinct()
+                | qs.filter(maintainers=user).distinct()
+                | qs.filter(viewers=user).distinct()
+            ).order_by("-date_modified")
 
 
 class Detail(ProjectBaseMixin, DetailView):
@@ -201,33 +178,24 @@ from filip.clients.exceptions import BaseHttpClientException
 
 def _get_status(client_cls, url, request):
     try:
-        keycloak = KeycloakOpenID(
-            server_url=settings.KEYCLOAK_HOST,
-            client_id=settings.KEYCLOAK_CLIENT_ID,
-            client_secret_key=settings.KEYCLOAK_CLIENT_SECRET,
-            realm_name=settings.REALM,
-        )
-        token = keycloak.token(grant_type="client_credentials")
+        token = client_token_service.get_token()
 
-        # create secure fiware header with authorisation token
         fiware_header = FiwareHeaderSecure(
-            service="", service_path="", authorization="Bearer %s" % token
+            service="entirety",
+            service_path="/",
+            authorization=f"Bearer {token}",
         )
-        # Wrap everything in try so client construction + calls are safe
-        with client_cls(
-            url=url,
-            fiware_header=fiware_header,
-        ) as fiware_client:
+
+        with client_cls(url=url, fiware_header=fiware_header) as fiware_client:
             version = fiware_client.get_version()
+
             if version:
-                # Broker is healthy
                 return render(request, "good_health.html")
             else:
-                # Version returned None → unhealthy
                 return render(request, "bad_health.html")
+
     except BaseHttpClientException as e:
-        # CB unreachable or network error
         return render(request, "bad_health.html")
+
     except Exception as e:
-        # Catch anything unexpected
         return render(request, "bad_health.html")

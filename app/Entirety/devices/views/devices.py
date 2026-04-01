@@ -75,7 +75,7 @@ class DeviceListView(ProjectContextAndViewOnlyMixin, MultiTableMixin, TemplateVi
         if not pattern:
             pattern = pop_data_from_session(request=self.request, key="search-pattern")
             pattern = "" if not pattern else pattern
-        device_list = get_devices(self.project)
+        device_list = get_devices(self, self.project)
         devices = device_list.devices
         invalid_devices = device_list.invalid_devices
         if invalid_devices:
@@ -92,7 +92,7 @@ class DeviceListView(ProjectContextAndViewOnlyMixin, MultiTableMixin, TemplateVi
 
     def get_groups_data(self):
         pattern = self.request.GET.get("search-pattern-groups", default="")
-        groups_temp = get_service_groups(self.project)
+        groups_temp = get_service_groups(self, self.project)
         group_filter = pattern_service_groups_filter(groups_temp, pattern)
         # add dummy id
         groups = []
@@ -164,7 +164,9 @@ class DeviceListSubmitView(ProjectContextAndViewOnlyMixin, View):
             # get the entity id and type
             entities = []
             for device_id in devices_id:
-                device = get_device_by_id(project=self.project, device_id=device_id)
+                device = get_device_by_id(
+                    self, project=self.project, device_id=device_id
+                )
                 entity_id = device.entity_name
                 entity_type = device.entity_type
                 entities.append(f"{entity_id}&{entity_type}")
@@ -235,7 +237,7 @@ class DeviceBatchCreateView(ProjectContextMixin, TemplateView):
                 devices = [
                     Device(**device_dict) for device_dict in devices_json["devices"]
                 ]
-                post_devices(devices, project=self.project)
+                post_devices(self, devices, project=self.project)
                 logger.info(
                     "Devices created by "
                     + str(
@@ -261,7 +263,7 @@ class DeviceBatchCreateView(ProjectContextMixin, TemplateView):
                     + f" in project {self.project.name}"
                 )
             except ValidationError as e:
-                messages.error(request, e.errors()[0]['msg'])
+                messages.error(request, e.errors()[0]["msg"])
         # get the project context data
         json_form = DeviceBatchForm()
         context: dict = super(DeviceBatchCreateView, self).get_context_data(**kwargs)
@@ -319,7 +321,7 @@ class DeviceCreateSubmitView(ProjectContextMixin, TemplateView):
                         data_attributes=data_attributes,
                         data_commands=data_commands,
                     )
-                    post_device(device, project=self.project)
+                    post_device(self, device, project=self.project)
                     logger.info(
                         "Device created by "
                         + str(
@@ -353,7 +355,7 @@ class DeviceCreateSubmitView(ProjectContextMixin, TemplateView):
                         + f" in project {self.project.name}"
                     )
                 except ValidationError as e:
-                    messages.error(request, e.errors()[0]['msg'])
+                    messages.error(request, e.errors()[0]["msg"])
 
             # get the project context data
             context: dict = super(DeviceCreateSubmitView, self).get_context_data(
@@ -383,7 +385,7 @@ class DeviceEditView(ProjectContextAndViewOnlyMixin, TemplateView):
         # get the selected devices from session
         device_id = pop_data_from_session(request, "devices")
         # device_id = request.GET["device_id"]
-        device = get_device_by_id(project=self.project, device_id=device_id)
+        device = get_device_by_id(self, project=self.project, device_id=device_id)
         logger.info(
             "Fetching single device for "
             + str(
@@ -455,7 +457,7 @@ class DeviceEditSubmitView(ProjectContextMixin, TemplateView):
                     data_attributes=data_attributes,
                     data_commands=data_commands,
                 )
-                update_device(device, project=self.project)
+                update_device(self, device, project=self.project)
                 logger.info(
                     "Device updated by "
                     + str(
@@ -481,7 +483,7 @@ class DeviceEditSubmitView(ProjectContextMixin, TemplateView):
                     + f" in project {self.project.name}"
                 )
             except ValidationError as e:
-                messages.error(request, e.errors()[0]['msg'])
+                messages.error(request, e.errors()[0]["msg"])
 
         context = {
             "basic_info": basic_info,
@@ -504,6 +506,7 @@ class DeviceDeleteView(ProjectContextMixin, View):
         for device_id in devices_id:
             try:
                 delete_device(
+                    self,
                     project=self.project,
                     device_id=device_id,
                     delete_entity=delete_entity,
@@ -545,7 +548,7 @@ class DeviceCreateBatchView(ProjectContextMixin, TemplateView):
             ]
 
             try:
-                post_device(devices_to_add, project=self.project)
+                post_device(self, devices_to_add, project=self.project)
                 logger.info(
                     "Batch of devices created by "
                     + str(
@@ -569,6 +572,6 @@ class DeviceCreateBatchView(ProjectContextMixin, TemplateView):
                     + f" in project {self.project.name}"
                 )
             except ValidationError as e:
-                messages.error(self.request, e.errors()[0]['msg'])
+                messages.error(self.request, e.errors()[0]["msg"])
         else:
             return render(request, self.template_name, context)
