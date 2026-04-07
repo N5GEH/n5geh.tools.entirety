@@ -68,7 +68,8 @@ class Create(ProjectContextMixin, CreateView):
         else:
             context["attributes"] = forms.AttributesForm()
             context["entities"] = forms.Entities(
-                prefix="entity", form_kwargs={"project": self.project}
+                prefix="entity",
+                form_kwargs={"project": self.project, "request": self.request},
             )
             context["http"] = forms.HTTPForm(prefix="http")
             context["httpCustom"] = forms.HTTPCustomForm(prefix="httpCustom")
@@ -92,7 +93,7 @@ class Create(ProjectContextMixin, CreateView):
             # Otherwise choices are empty
             try:
                 attributes.fields["attributes"].choices = utils.load_attributes(
-                    self, self.project, data_set
+                    self, self.project, data_set, request
                 )
                 if attributes.is_valid():
                     instance = form.save(commit=False)

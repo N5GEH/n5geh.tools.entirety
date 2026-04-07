@@ -22,7 +22,9 @@ class Entities(ProjectContextMixin, View):
         request.POST = post
 
         entities = forms.Entities(
-            request.POST, prefix="entity", form_kwargs={"project": self.project}
+            request.POST,
+            prefix="entity",
+            form_kwargs={"project": self.project, "request": request},
         )
 
         return render(request, "subscriptions/entities.html", {"entities": entities})

@@ -58,7 +58,8 @@ class AttributesForm(forms.Form):
 
 
 class EntityIdList:
-    def __init__(self, project):
+    def __init__(self, project, request):
+        self.request = request
         self.list = get_entities_list(self, None, None, project)
         pass
 
@@ -70,8 +71,9 @@ class EntityIdList:
 
 
 class EntityTypeList:
-    def __init__(self, project):
-        self.list = get_entities_types(project)
+    def __init__(self, project, request):
+        self.request = request
+        self.list = get_entities_types(self, project)
         pass
 
     def type_list(self):
@@ -120,13 +122,16 @@ class EntitiesForm(forms.Form):
 
     def __init__(self, *args, **kwargs):
         project = None
+        request = None
         if "project" in kwargs:
             project = kwargs.pop("project")
+        if "request" in kwargs:
+            request = kwargs.pop("request")
         super(EntitiesForm, self).__init__(*args, **kwargs)
 
         if project != None:
-            entity_id_list = EntityIdList(project).id_list()
-            entity_type_list = EntityTypeList(project).type_list()
+            entity_id_list = EntityIdList(project, request).id_list()
+            entity_type_list = EntityTypeList(project, request).type_list()
         else:
             entity_id_list = []
             entity_type_list = []

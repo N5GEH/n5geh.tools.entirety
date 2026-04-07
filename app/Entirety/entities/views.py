@@ -135,7 +135,7 @@ class EntityList(ProjectContextAndViewOnlyMixin, SingleTableMixin, TemplateView)
                 entity = ContextEntity(id=id, type=type)
                 entities.append(entity)
 
-            res = delete_entities(entities=entities, project=self.project)
+            res = delete_entities(self, entities=entities, project=self.project)
             if res:
                 messages.error(self.request, res)
             return redirect(
@@ -160,7 +160,7 @@ class Create(ProjectContextMixin, TemplateView):
     form_class = EntityForm
 
     def get_context_data(self, **kwargs):
-        basic_info = EntityForm(self.project)
+        basic_info = EntityForm(self.project, self.request)
 
         # Extract query parameters for the attributes formset
         attributes_data = self.request.GET.getlist("attributes", [])
@@ -193,7 +193,7 @@ class Create(ProjectContextMixin, TemplateView):
             context = super(Create, self).get_context_data(**kwargs)
             if self.request.POST.get("data_model") == "..":
                 entity_json = {}
-                basic_info = EntityForm(self.project)
+                basic_info = EntityForm(self.project, self.request)
             else:
                 try:
                     entity_json = parse_entity(self.request.POST.get("data_model"))
@@ -205,6 +205,7 @@ class Create(ProjectContextMixin, TemplateView):
                     entity_json = dict()
                 basic_info = EntityForm(
                     self.project,
+                    self.request,
                     initial={
                         "id": entity_json.get("id"),
                         "type": entity_json.get("type"),
@@ -235,7 +236,9 @@ class Create(ProjectContextMixin, TemplateView):
             return render(request, self.template_name, context)
             # create entity
         elif "submit" in self.request.POST:
-            basic_info = EntityForm(initial=request.POST, project=self.project)
+            basic_info = EntityForm(
+                initial=request.POST, project=self.project, request=self.request
+            )
             attributes_form_set = formset_factory(AttributeForm, max_num=0)
             attributes = attributes_form_set(request.POST, prefix="attr")
             context = self.get_context_data(**kwargs)
@@ -364,7 +367,9 @@ class Update(ProjectContextAndViewOnlyMixin, TemplateView):
         type = kwargs.get("entity_type")
         entity = get_entity(self, id, type, self.project)
         basic_info = EntityForm(
-            initial={"id": entity.id, "type": entity.type}, project=self.project
+            initial={"id": entity.id, "type": entity.type},
+            project=self.project,
+            request=self.request,
         )
         basic_info.fields["id"].widget.attrs["readonly"] = True
         basic_info.fields["type"].widget.attrs["readonly"] = True
@@ -401,7 +406,9 @@ class Update(ProjectContextAndViewOnlyMixin, TemplateView):
             id=self.request.POST.get("id"),
             type=self.request.POST.get("type"),
         )
-        basic_info = EntityForm(initial=request.POST, project=self.project)
+        basic_info = EntityForm(
+            initial=request.POST, project=self.project, request=self.request
+        )
         basic_info.fields["id"].widget.attrs["readonly"] = True
         basic_info.fields["type"].widget.attrs["readonly"] = True
         attributes_form_set = formset_factory(AttributeForm, max_num=0)

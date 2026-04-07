@@ -16,11 +16,11 @@ def safe_compile(pattern):
         raise re.error(f"Regular expression {pattern} invalid: {e}")
 
 
-def load_attributes(self, project, data_set):
+def load_attributes(self, project, data_set, request):
     attributes = []
     with ContextBrokerClient(
         url=settings.CB_URL,
-        fiware_header=get_fiware_header(self.request, project),
+        fiware_header=get_fiware_header(request, project),
     ) as cb_client:
         types = cb_client.get_entity_types()
         for data in data_set:
