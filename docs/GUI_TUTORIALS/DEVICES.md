@@ -36,7 +36,7 @@ Either create a device from scratch or pre-load information from a data model.
 ![Alt text](images/image-13.png)
 
 ### Create Multiple Devices
-If you are familiar with the syntax of the IoT Agent JSON, you can use this option to fill in a valid JSON and create multiple devices. 
+If you are familiar with the syntax of the IoT Agent JSON, you can use this option to fill in a valid JSON and create multiple devices.
 
 ![Alt text](images/image-14.png)
 
@@ -63,4 +63,4 @@ For each service group, the fields *Resource* and *API Key* are mandatory. The *
 
 Back: [Entirety GUI](../USERGUIDE.md#modules)
 
-Further: [Subscriptions](Subscriptions.md)
+Further: [Subscriptions](SUBSCRIPTIONS.md)
