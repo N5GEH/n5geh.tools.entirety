@@ -5,11 +5,12 @@ from django.db.models import Q
 from filip.models import FiwareHeader
 
 from users.models import User
+from utils.auth import get_fiware_services
 from .models import Project
 
 
 class ProjectForm(forms.ModelForm):
-    def __init__(self, user, *args, **kwargs):
+    def __init__(self, user, request, *args, **kwargs):
         super(ProjectForm, self).__init__(*args, **kwargs)
 
         self.helper = FormHelper(self)
@@ -75,6 +76,11 @@ class ProjectForm(forms.ModelForm):
             )
 
         self.helper.form_tag = False
+
+        self.fields["fiware_service"] = forms.ChoiceField()
+        self.fields["fiware_service"].choices = [
+            (x, x) for x in get_fiware_services(request)
+        ]
 
         if self.is_bound:
             self.fields["viewers"].initial = [
@@ -144,13 +150,14 @@ class ProjectForm(forms.ModelForm):
                     "title": "Project description",
                 }
             ),
-            "fiware_service": forms.TextInput(
-                attrs={
-                    "data-bs-toggle": "tooltip",
-                    "data-bs-placement": "left",
-                    "title": "Fiware service",
-                }
-            ),
+            # "fiware_service": forms.Select(),
+            # "fiware_service": forms.TextInput(
+            #     attrs={
+            #         "data-bs-toggle": "tooltip",
+            #         "data-bs-placement": "left",
+            #         "title": "Fiware service",
+            #     }
+            # ),
             "webpage_url": forms.URLInput(
                 attrs={
                     "data-bs-toggle": "tooltip",

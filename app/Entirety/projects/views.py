@@ -110,6 +110,7 @@ class Update(ProjectSelfMixin, UpdateView):
     def get_form_kwargs(self):
         kwargs = super(Update, self).get_form_kwargs()
         kwargs["user"] = self.request.user
+        kwargs["request"] = self.request
         return kwargs
 
 
@@ -138,6 +139,7 @@ class Create(ProjectCreateMixin, CreateView):
     def get_form_kwargs(self):
         kwargs = super(Create, self).get_form_kwargs()
         kwargs["user"] = self.request.user
+        kwargs["request"] = self.request
         return kwargs
 
 
