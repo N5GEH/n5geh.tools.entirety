@@ -252,32 +252,41 @@ class Create(ProjectContextMixin, TemplateView):
                 entity_keys = [
                     k for k, v in self.request.POST.items() if re.search(r"attr-\d+", k)
                 ]
-                i = j = 0
-                while i < (len(entity_keys) / 4):
-                    keys = [
+                # Extract unique indices from the keys to handle deleted attributes
+                indices = set()
+                for key in entity_keys:
+                    match = re.search(r"attr-(\d+)", key)
+                    if match:
+                        indices.add(int(match.group(1)))
+
+                # Iterate through actual indices (in sorted order)
+                for i in sorted(indices):
+                    new_keys = [
                         k
                         for k, v in self.request.POST.items()
-                        if k in entity_keys and re.search(j.__str__(), k)
+                        if k in entity_keys and re.search(r"attr-" + i.__str__(), k)
                     ]
-                    if any(keys):
+                    if any(new_keys):
                         attr = ContextAttribute()
                         try:
                             attr.metadata = (
-                                json.loads(self.request.POST.get(keys[3]))
-                                if self.request.POST.get(keys[3])
+                                json.loads(self.request.POST.get(new_keys[3]))
+                                if self.request.POST.get(new_keys[3])
                                 else {}
                             )
-                        except ValueError as e:
+                        except Exception as e:
                             messages.error(
                                 self.request,
                                 "Metadata JSON is invalid, error: " + e.args.__str__(),
                             )
                             return render(request, self.template_name, context)
-                        attr.value = self.request.POST.get(keys[2])
-                        attr.type = self.request.POST.get(keys[1])
-                        entity.add_attributes({self.request.POST.get(keys[0]): attr})
-                        i = i + 1
-                    j = j + 1
+
+                        attr.value = self.request.POST.get(new_keys[2])
+                        attr.type = self.request.POST.get(new_keys[1])
+                        entity.add_attributes(
+                            {self.request.POST.get(new_keys[0]): attr}
+                        )
+
                 req_error = post_entity(self, entity, False, self.project)
             # handel the error from server
             except ValidationError as e:
@@ -422,12 +431,19 @@ class Update(ProjectContextAndViewOnlyMixin, TemplateView):
         entity_keys = [
             k for k, v in self.request.POST.items() if re.search(r"attr-\d+", k)
         ]
-        i = j = 0
-        while i < (len(entity_keys) / 4):
+        # Extract unique indices from the keys to handle deleted attributes
+        indices = set()
+        for key in entity_keys:
+            match = re.search(r"attr-(\d+)", key)
+            if match:
+                indices.add(int(match.group(1)))
+
+        # Iterate through actual indices (in sorted order)
+        for i in sorted(indices):
             new_keys = [
                 k
                 for k, v in self.request.POST.items()
-                if k in entity_keys and re.search(i.__str__(), k)
+                if k in entity_keys and re.search(r"attr-" + i.__str__(), k)
             ]
             if any(new_keys):
                 attr = ContextAttribute()
@@ -447,8 +463,6 @@ class Update(ProjectContextAndViewOnlyMixin, TemplateView):
                 attr.value = self.request.POST.get(new_keys[2])
                 attr.type = self.request.POST.get(new_keys[1])
                 entity.add_attributes({self.request.POST.get(new_keys[0]): attr})
-                i = i + 1
-            j = j + 1
 
         # res = update_entity(self, entity)
         res = post_entity(self, entity, True, self.project)
@@ -612,27 +626,27 @@ class Delete(ProjectContextMixin, TemplateView):
         except RequestException as e:
             messages.error(request, e.response.content.decode("utf-8"))
 
-        i = 0
-        while i < (len(rels) / 3):
+        for i in range(len(rels) // 3):
             for set_item in rels_set:
                 new_keys = [
                     k
                     for k, v in self.request.POST.items()
                     if k in rels
                     and re.search(set_item, k)
-                    and re.search(r"rel#\S+#+-" + i.__str__(), k)
+                    and re.search(rf"rel#\S+#+-{i}", k)
                 ]
-                if new_keys is not []:
-                    id = self.request.POST.get(new_keys[0])
-                    type = self.request.POST.get(new_keys[1])
+
+                if new_keys:
+                    entity_id = self.request.POST.get(new_keys[0])
+                    entity_type = self.request.POST.get(new_keys[1])
                     attr_name = self.request.POST.get(new_keys[2])
+
                     delete_relationship(
                         self,
-                        entity_id=id,
-                        entity_type=type,
+                        entity_id=entity_id,
+                        entity_type=entity_type,
                         attribute_name=attr_name,
                         project=self.project,
                     )
-            i = i + 1
         # TODO: logging
         return redirect("projects:entities:list", project_id=self.project.uuid)
