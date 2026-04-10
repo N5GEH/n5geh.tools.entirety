@@ -249,12 +249,19 @@ class Create(ProjectContextMixin, TemplateView):
                 entity_keys = [
                     k for k, v in self.request.POST.items() if re.search(r"attr-\d+", k)
                 ]
-                i = j = 0
-                while i < (len(entity_keys) / 4):
+                # Extract unique indices from the keys to handle deleted attributes
+                indices = set()
+                for key in entity_keys:
+                    match = re.search(r"attr-(\d+)", key)
+                    if match:
+                        indices.add(int(match.group(1)))
+                
+                # Iterate through actual indices (in sorted order)
+                for i in sorted(indices):
                     keys = [
                         k
                         for k, v in self.request.POST.items()
-                        if k in entity_keys and re.search(j.__str__(), k)
+                        if k in entity_keys and re.search(r"attr-" + i.__str__(), k)
                     ]
                     if any(keys):
                         attr = ContextAttribute()
@@ -273,8 +280,6 @@ class Create(ProjectContextMixin, TemplateView):
                         attr.value = self.request.POST.get(keys[2])
                         attr.type = self.request.POST.get(keys[1])
                         entity.add_attributes({self.request.POST.get(keys[0]): attr})
-                        i = i + 1
-                    j = j + 1
                 req_error = post_entity(self, entity, False, self.project)
             # handel the error from server
             except ValidationError as e:
@@ -415,12 +420,19 @@ class Update(ProjectContextAndViewOnlyMixin, TemplateView):
         entity_keys = [
             k for k, v in self.request.POST.items() if re.search(r"attr-\d+", k)
         ]
-        i = j = 0
-        while i < (len(entity_keys) / 4):
+        # Extract unique indices from the keys to handle deleted attributes
+        indices = set()
+        for key in entity_keys:
+            match = re.search(r"attr-(\d+)", key)
+            if match:
+                indices.add(int(match.group(1)))
+        
+        # Iterate through actual indices (in sorted order)
+        for i in sorted(indices):
             new_keys = [
                 k
                 for k, v in self.request.POST.items()
-                if k in entity_keys and re.search(i.__str__(), k)
+                if k in entity_keys and re.search(r"attr-" + i.__str__(), k)
             ]
             if any(new_keys):
                 attr = ContextAttribute()
@@ -440,8 +452,6 @@ class Update(ProjectContextAndViewOnlyMixin, TemplateView):
                 attr.value = self.request.POST.get(new_keys[2])
                 attr.type = self.request.POST.get(new_keys[1])
                 entity.add_attributes({self.request.POST.get(new_keys[0]): attr})
-                i = i + 1
-            j = j + 1
 
         # res = update_entity(self, entity)
         res = post_entity(self, entity, True, self.project)

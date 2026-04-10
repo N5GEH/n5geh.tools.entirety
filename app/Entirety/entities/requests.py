@@ -67,7 +67,7 @@ def post_entity(self, entity, update, project):
         ),
     ) as cb_client:
         try:
-            cb_client.post_entity(entity, patch=update)
+            cb_client.post_entity(entity, update=update)
         except requests.RequestException as err:
             return json.loads(err.response.text).get("description")
         except Exception as err:
