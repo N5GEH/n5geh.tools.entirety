@@ -137,7 +137,7 @@ class EntityList(ProjectContextAndViewOnlyMixin, SingleTableMixin, TemplateView)
 
             res = delete_entities(self, entities=entities, project=self.project)
             if res:
-                messages.error(self.request, res)
+                messages.error(self.request, res["message"])
             return redirect(
                 "projects:entities:list",
                 project_id=self.project.uuid,
@@ -471,7 +471,7 @@ class Update(ProjectContextAndViewOnlyMixin, TemplateView):
             # messages.error(self.request, "Entity not updated. Reason: " + str(res))
             messages.error(
                 self.request,
-                "Entity not updated. Reason: " + res,
+                "Entity not updated. Reason: " + res["message"],
             )
             logger.error(
                 str(
@@ -482,7 +482,7 @@ class Update(ProjectContextAndViewOnlyMixin, TemplateView):
                 + " tried updating the entity with id "
                 + entity.id
                 + " but failed with error "
-                + res
+                + res["message"]
                 + f" in project {self.project.name}"
             )
             return render(request, self.template_name, context)

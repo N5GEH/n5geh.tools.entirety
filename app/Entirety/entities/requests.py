@@ -65,7 +65,7 @@ def post_entity(self, entity, update, project):
         try:
             cb_client.post_entity(entity, update=update)
         except requests.RequestException as err:
-            return json.loads(err.response.text).get("description")
+            return json.loads(err.response.text)
         except Exception as err:
             return err.args[0][0].exc.args[0]
 
@@ -114,7 +114,7 @@ def delete_entities(self, entities, project):
         try:
             cb_client.delete_entities(entities)
         except Exception as err:
-            return json.loads(err.response.text).get("description")
+            return json.loads(err.response.text)
 
 
 def delete_subscription(self, sub_ids, project):
