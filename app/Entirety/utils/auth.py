@@ -47,9 +47,6 @@ def refresh_access_token(request):
 
 
 def get_valid_token(request):
-    if settings.LOCAL_AUTH:
-        return client_token_service.get_token()
-
     token = request.session.get("access_token")
 
     if not token:
@@ -76,13 +73,9 @@ def get_valid_token(request):
 
 
 def get_fiware_services(request):
-
-    if settings.LOCAL_AUTH:
-        token = client_token_service.get_token()
-    else:
-        token = request.session.get("access_token")
-        if not token:
-            return []
+    token = request.session.get("access_token")
+    if not token:
+        return []
 
     try:
         # TODO: verify signature

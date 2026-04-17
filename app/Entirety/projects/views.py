@@ -33,12 +33,11 @@ class Index(LoginRequiredMixin, ListView):
             )
         )
         search_query = self.request.GET.get("search", default="")
-        fiware_services = get_fiware_services(self.request)
+        qs = Project.objects.filter(name__icontains=search_query)
 
-        # Base queryset filtered by fiware_services
-        qs = Project.objects.filter(
-            fiware_service__in=fiware_services, name__icontains=search_query
-        )
+        if not settings.LOCAL_AUTH:
+            fiware_services = get_fiware_services(self.request)
+            qs = qs.filter(fiware_service__in=fiware_services)
 
         # Apply user role filters
         user = self.request.user
@@ -180,7 +179,9 @@ from filip.clients.exceptions import BaseHttpClientException
 
 def _get_status(client_cls, url, request):
     try:
-        token = client_token_service.get_token()
+        token = None
+        if not settings.LOCAL_AUTH:
+            token = client_token_service.get_token()
 
         fiware_header = FiwareHeaderSecure(
             service="entirety",

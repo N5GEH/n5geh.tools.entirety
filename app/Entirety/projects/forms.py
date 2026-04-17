@@ -1,5 +1,6 @@
 from crispy_forms.helper import FormHelper
 from django import forms
+from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.db.models import Q
 from filip.models import FiwareHeader
@@ -77,10 +78,20 @@ class ProjectForm(forms.ModelForm):
 
         self.helper.form_tag = False
 
-        self.fields["fiware_service"] = forms.ChoiceField()
-        self.fields["fiware_service"].choices = [
-            (x, x) for x in get_fiware_services(request)
-        ]
+        self.fields["fiware_service"] = forms.CharField(
+            widget=forms.TextInput(
+                attrs={
+                    "data-bs-toggle": "tooltip",
+                    "data-bs-placement": "left",
+                    "title": "Fiware service",
+                }
+            )
+        )
+        if not settings.LOCAL_AUTH:
+            self.fields["fiware_service"] = forms.ChoiceField()
+            self.fields["fiware_service"].choices = [
+                (x, x) for x in get_fiware_services(request)
+            ]
 
         if self.is_bound:
             self.fields["viewers"].initial = [
