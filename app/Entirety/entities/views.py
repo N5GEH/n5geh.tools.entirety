@@ -293,21 +293,11 @@ class Create(ProjectContextMixin, TemplateView):
                 messages.error(request, e.errors()[0]["msg"])
                 return render(request, self.template_name, context)
             if req_error:
-                messages.error(
-                    self.request,
-                    "Entity not created. Reason: " + req_error,
-                )
+                messages.error(self.request, req_error["message"])
                 logger.error(
-                    str(
-                        self.request.user.first_name
-                        if self.request.user.first_name
-                        else self.request.user.username
-                    )
-                    + " tried creating the entity with id "
-                    + entity.id
-                    + " but failed with error "
-                    + req_error
-                    + f" in project {self.project.name}"
+                    f"{self.request.user.first_name if self.request.user.first_name else self.request.user.username} "
+                    f"tried creating the entity with id {entity.id} but failed with error {req_error.get('detail', req_error['message'])} "
+                    f"(code: {req_error.get('code')}) in project {self.project.name}"
                 )
                 return render(request, self.template_name, context)
             else:
@@ -358,9 +348,7 @@ class CreateBatch(ProjectContextMixin, TemplateView):
                     messages.error(self.request, "No pattern for json matched !")
                     return render(request, self.template_name, context)
             if res is not None:
-                messages.error(
-                    self.request, "Entity not created. Reason: " + res.__str__()
-                )
+                messages.error(self.request, res["message"])
                 return render(request, self.template_name, context)
             return redirect("projects:entities:list", project_id=self.project.uuid)
         else:
@@ -468,11 +456,7 @@ class Update(ProjectContextAndViewOnlyMixin, TemplateView):
         res = post_entity(self, entity, True, self.project)
 
         if res:
-            # messages.error(self.request, "Entity not updated. Reason: " + str(res))
-            messages.error(
-                self.request,
-                "Entity not updated. Reason: " + res["message"],
-            )
+            messages.error(self.request, res["message"])
             logger.error(
                 str(
                     self.request.user.first_name
@@ -614,15 +598,23 @@ class Delete(ProjectContextMixin, TemplateView):
             if re.search(r"device#\S+\d+-name", k)
         ]
         try:
-            delete_subscription(self, subs, self.project)
-            delete_device(self, devices, self.project)
+            delete_subscriptions_error = delete_subscription(self, subs, self.project)
+            if delete_subscriptions_error:
+                messages.error(self.request, delete_subscriptions_error["message"])
+
+            delete_devices_error = delete_device(self, devices, self.project)
+            if delete_devices_error:
+                messages.error(self.request, delete_devices_error["message"])
+
             for entity in self.request.session.get("entities"):
-                delete_entity(
+                delete_entity_error = delete_entity(
                     self,
                     entity_id=entity.split("&")[0],
                     entity_type=entity.split("&")[1],
                     project=self.project,
                 )
+                if delete_entity_error:
+                    messages.error(self.request, delete_entity_error["message"])
         except RequestException as e:
             messages.error(request, e.response.content.decode("utf-8"))
 
@@ -641,12 +633,14 @@ class Delete(ProjectContextMixin, TemplateView):
                     entity_type = self.request.POST.get(new_keys[1])
                     attr_name = self.request.POST.get(new_keys[2])
 
-                    delete_relationship(
+                    delete_relationship_error = delete_relationship(
                         self,
                         entity_id=entity_id,
                         entity_type=entity_type,
                         attribute_name=attr_name,
                         project=self.project,
                     )
+                    if delete_relationship_error:
+                        messages.error(self.request, delete_relationship_error["message"])
         # TODO: logging
         return redirect("projects:entities:list", project_id=self.project.uuid)
