@@ -10,14 +10,15 @@ from users.services import client_token_service
 
 def get_fiware_header(request, project):
     token = get_valid_token(request)
+    header_kwargs = {
+        "service": project.fiware_service,
+        "service_path": project.fiware_service_path,
+    }
 
-    return FiwareHeaderSecure(
-        service=project.fiware_service,
-        service_path=project.fiware_service_path,
-        authorization=f"Bearer {token}",
-    )
+    if token:
+        header_kwargs["authorization"] = f"Bearer {token}"
 
-
+    return FiwareHeaderSecure(**header_kwargs)
 def refresh_access_token(request):
     refresh_token = request.session.get("refresh_token")
 
