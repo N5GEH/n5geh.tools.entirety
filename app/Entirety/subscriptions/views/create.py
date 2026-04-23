@@ -55,7 +55,7 @@ class Create(ProjectContextMixin, CreateView):
             context["entities"] = forms.Entities(
                 self.request.POST,
                 prefix="entity",
-                form_kwargs={"project": self.project},
+                form_kwargs={"project": self.project, "request": self.request},
             )
             context["http"] = forms.HTTPForm(self.request.POST, prefix="http")
             context["httpCustom"] = forms.HTTPCustomForm(
