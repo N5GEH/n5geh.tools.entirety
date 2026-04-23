@@ -159,10 +159,10 @@ class Update(ProjectContextAndViewOnlyMixin, UpdateView):
                 context["entities"] = forms.Entities(
                     prefix="entity",
                     initial=entities_initial,
-                    form_kwargs={"project": self.project},
+                    form_kwargs={"project": self.project, "request": self.request},
                 )
                 attr_choices = utils.load_attributes(
-                    self, self.project, entities_initial
+                    self, self.project, entities_initial, self.request
                 )
                 context["attributes"] = forms.AttributesForm(
                     choices=attr_choices,
@@ -196,7 +196,7 @@ class Update(ProjectContextAndViewOnlyMixin, UpdateView):
                 data_set = [entity_form.cleaned_data for entity_form in entities_set]
                 # Otherwise choices are empty
                 attributes.fields["attributes"].choices = utils.load_attributes(
-                    self, self.project, data_set
+                    self, self.project, data_set, self.request
                 )
                 if attributes.is_valid():
                     form.save(commit=False)
