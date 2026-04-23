@@ -183,12 +183,14 @@ def _get_status(client_cls, url, request):
         if not settings.LOCAL_AUTH:
             token = client_token_service.get_token()
 
-        fiware_header = FiwareHeaderSecure(
-            service="entirety",
-            service_path="/",
-            authorization=f"Bearer {token}",
-        )
+        fiware_header_kwargs = {
+            "service": "entirety",
+            "service_path": "/",
+        }
+        if token:
+            fiware_header_kwargs["authorization"] = f"Bearer {token}"
 
+        fiware_header = FiwareHeaderSecure(**fiware_header_kwargs)
         with client_cls(url=url, fiware_header=fiware_header) as fiware_client:
             version = fiware_client.get_version()
 
