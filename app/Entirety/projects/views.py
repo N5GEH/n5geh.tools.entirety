@@ -8,8 +8,9 @@ from django.views import View
 from django.views.generic import ListView, DetailView
 from django.views.generic.edit import UpdateView, CreateView, DeleteView
 from filip.clients.ngsi_v2 import ContextBrokerClient, QuantumLeapClient, IoTAClient
-from filip.models import FiwareHeader
+from filip.models.base import FiwareHeaderSecure
 
+from utils.auth import get_fiware_services, get_valid_token
 from .forms import ProjectForm
 from .mixins import ProjectCreateMixin, ProjectSelfMixin, ProjectBaseMixin
 from .models import Project
@@ -30,59 +31,34 @@ class Index(LoginRequiredMixin, ListView):
                 else self.request.user.username
             )
         )
-        if self.request.user.is_server_admin:
-            return Project.objects.order_by("-date_modified").filter(
-                name__icontains=self.request.GET.get("search", default="")
-            )
-        elif self.request.user.is_project_admin:
+        search_query = self.request.GET.get("search", default="")
+        qs = Project.objects.filter(name__icontains=search_query)
+
+        if not settings.LOCAL_AUTH:
+            fiware_services = get_fiware_services(self.request)
+            qs = qs.filter(fiware_service__in=fiware_services)
+
+        # Apply user role filters
+        user = self.request.user
+        if user.is_server_admin:
+            return qs.order_by("-date_modified")
+
+        elif user.is_project_admin:
+            # Projects where user is owner, users, maintainers, or viewers
             return (
-                Project.objects.order_by("-date_modified")
-                .filter(
-                    name__icontains=self.request.GET.get("search", default=""),
-                    owner=self.request.user,
-                )
-                .distinct()
-                | Project.objects.order_by("-date_modified")
-                .filter(
-                    name__icontains=self.request.GET.get("search", default=""),
-                    users=self.request.user,
-                )
-                .distinct()
-                | Project.objects.order_by("-date_modified")
-                .filter(
-                    name__icontains=self.request.GET.get("search", default=""),
-                    maintainers=self.request.user,
-                )
-                .distinct()
-                | Project.objects.order_by("-date_modified")
-                .filter(
-                    name__icontains=self.request.GET.get("search", default=""),
-                    viewers=self.request.user,
-                )
-                .distinct()
-            )
+                qs.filter(owner=user).distinct()
+                | qs.filter(users=user).distinct()
+                | qs.filter(maintainers=user).distinct()
+                | qs.filter(viewers=user).distinct()
+            ).order_by("-date_modified")
 
         else:
+            # Regular user: users, maintainers, viewers
             return (
-                Project.objects.order_by("-date_modified")
-                .filter(
-                    name__icontains=self.request.GET.get("search", default=""),
-                    users=self.request.user,
-                )
-                .distinct()
-                | Project.objects.order_by("-date_modified")
-                .filter(
-                    name__icontains=self.request.GET.get("search", default=""),
-                    maintainers=self.request.user,
-                )
-                .distinct()
-                | Project.objects.order_by("-date_modified")
-                .filter(
-                    name__icontains=self.request.GET.get("search", default=""),
-                    viewers=self.request.user,
-                )
-                .distinct()
-            )
+                qs.filter(users=user).distinct()
+                | qs.filter(maintainers=user).distinct()
+                | qs.filter(viewers=user).distinct()
+            ).order_by("-date_modified")
 
 
 class Detail(ProjectBaseMixin, DetailView):
@@ -132,6 +108,7 @@ class Update(ProjectSelfMixin, UpdateView):
     def get_form_kwargs(self):
         kwargs = super(Update, self).get_form_kwargs()
         kwargs["user"] = self.request.user
+        kwargs["request"] = self.request
         return kwargs
 
 
@@ -160,6 +137,7 @@ class Create(ProjectCreateMixin, CreateView):
     def get_form_kwargs(self):
         kwargs = super(Create, self).get_form_kwargs()
         kwargs["user"] = self.request.user
+        kwargs["request"] = self.request
         return kwargs
 
 
@@ -195,14 +173,31 @@ class IOTAHealth(View):
         return _get_status(IoTAClient, settings.IOTA_URL, request)
 
 
-def _get_status(client, url, request):
-    with client(
-        url=url,
-        fiware_header=FiwareHeader(service="", service_path=""),
-    ) as fiware_client:
-        try:
+from filip.clients.exceptions import BaseHttpClientException
+
+
+def _get_status(client_cls, url, request):
+    try:
+        token = get_valid_token(request)
+
+        fiware_header_kwargs = {
+            "service": "entirety",
+            "service_path": "/",
+        }
+        if token:
+            fiware_header_kwargs["authorization"] = f"Bearer {token}"
+
+        fiware_header = FiwareHeaderSecure(**fiware_header_kwargs)
+        with client_cls(url=url, fiware_header=fiware_header) as fiware_client:
             version = fiware_client.get_version()
+
             if version:
                 return render(request, "good_health.html")
-        except:
-            return render(request, "bad_health.html")
+            else:
+                return render(request, "bad_health.html")
+
+    except BaseHttpClientException as e:
+        return render(request, "bad_health.html")
+
+    except Exception as e:
+        return render(request, "bad_health.html")

@@ -329,6 +329,9 @@ class Settings(BaseSettings):
     LOGIN_URL: str = Field(default="/accounts/login", alias="LOGIN_URL")
     LOGOUT_REDIRECT_URL: str = Field(default="/", alias="LOGOUT_REDIRECT_URL")
 
+    SESSION_ENGINE: str = Field("django.contrib.sessions.backends.db")
+    SESSION_COOKIE_NAME: str = Field("sessionid")
+
     if not __auth.LOCAL_AUTH:
         INSTALLED_APPS.append("mozilla_django_oidc")
         MIDDLEWARE.append("mozilla_django_oidc.middleware.SessionRefresh")
@@ -377,6 +380,12 @@ class Settings(BaseSettings):
         OIDC_USER_ROLE: str = Field(default="user", alias="OIDC_USER_ROLE")
         OIDC_TOKEN_ROLE_PATH: str = Field(
             default="$.entirety.roles", alias="OIDC_TOKEN_ROLE_PATH"
+        )
+        OIDC_STORE_ACCESS_TOKEN: bool = Field(
+            default=True, alias="OIDC_STORE_ACCESS_TOKEN"
+        )
+        OIDC_STORE_REFRESH_TOKEN: bool = Field(
+            default=True, alias="OIDC_STORE_REFRESH_TOKEN"
         )
     else:
         LOCAL_AUTH_SIGNUP: bool = Field(default=False, alias="LOCAL_AUTH_SIGNUP")

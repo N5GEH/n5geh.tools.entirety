@@ -150,7 +150,7 @@ class ServiceGroupCreateSubmitView(ProjectContextMixin, TemplateView):
                     service_group = build_service_group(
                         data_basic=data_basic, data_attributes=data_attributes
                     )
-                    post_service_group(service_group, project=self.project)
+                    post_service_group(self, service_group, project=self.project)
                     add_data_to_session(request, "to_servicegroup", True)
                     logger.info(
                         "Service group created by "
@@ -179,7 +179,7 @@ class ServiceGroupCreateSubmitView(ProjectContextMixin, TemplateView):
                         + f" in project {self.project.name}"
                     )
                 except ValidationError as e:
-                    messages.error(request, e.errors()[0]['msg'])
+                    messages.error(request, e.errors()[0]["msg"])
 
             # get the project context data
             context: dict = super(ServiceGroupCreateSubmitView, self).get_context_data(
@@ -228,7 +228,7 @@ class ServiceGroupEditView(ProjectContextAndViewOnlyMixin, TemplateView):
         resource = pop_data_from_session(request, "resource")
         apikey = pop_data_from_session(request, "apikey")
         service_group = get_service_group_by_apikey(
-            project=self.project, apikey=apikey, resource=resource
+            self, project=self.project, apikey=apikey, resource=resource
         )
         logger.info(
             "Fetching single service group for "
@@ -287,7 +287,7 @@ class ServiceGroupEditSubmitView(ProjectContextMixin, TemplateView):
                 service_group = build_service_group(
                     data_basic=data_basic, data_attributes=data_attributes
                 )
-                update_service_group(service_group, project=self.project)
+                update_service_group(self, service_group, project=self.project)
                 add_data_to_session(request, "to_servicegroup", True)
                 logger.info(
                     "Service group updated by "
@@ -314,7 +314,7 @@ class ServiceGroupEditSubmitView(ProjectContextMixin, TemplateView):
                     + f" in project {self.project.name}"
                 )
             except ValidationError as e:
-                messages.error(request, e.errors()[0]['msg'])
+                messages.error(request, e.errors()[0]["msg"])
 
         context = {
             "basic_info": basic_info,
@@ -336,7 +336,7 @@ class ServiceGroupDeleteView(ProjectContextMixin, View):
             resource, apikey = service.split(";")
             try:
                 delete_service_group(
-                    project=self.project, resource=resource, apikey=apikey
+                    self, project=self.project, resource=resource, apikey=apikey
                 )
                 logger.info(
                     "Service group deleted by "

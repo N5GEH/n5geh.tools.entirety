@@ -135,9 +135,9 @@ class EntityList(ProjectContextAndViewOnlyMixin, SingleTableMixin, TemplateView)
                 entity = ContextEntity(id=id, type=type)
                 entities.append(entity)
 
-            res = delete_entities(entities=entities, project=self.project)
+            res = delete_entities(self, entities=entities, project=self.project)
             if res:
-                messages.error(self.request, res)
+                messages.error(self.request, res["message"])
             return redirect(
                 "projects:entities:list",
                 project_id=self.project.uuid,
@@ -160,7 +160,7 @@ class Create(ProjectContextMixin, TemplateView):
     form_class = EntityForm
 
     def get_context_data(self, **kwargs):
-        basic_info = EntityForm(self.project)
+        basic_info = EntityForm(self.project, self.request)
 
         # Extract query parameters for the attributes formset
         attributes_data = self.request.GET.getlist("attributes", [])
@@ -193,7 +193,7 @@ class Create(ProjectContextMixin, TemplateView):
             context = super(Create, self).get_context_data(**kwargs)
             if self.request.POST.get("data_model") == "..":
                 entity_json = {}
-                basic_info = EntityForm(self.project)
+                basic_info = EntityForm(self.project, self.request)
             else:
                 try:
                     entity_json = parse_entity(self.request.POST.get("data_model"))
@@ -205,6 +205,7 @@ class Create(ProjectContextMixin, TemplateView):
                     entity_json = dict()
                 basic_info = EntityForm(
                     self.project,
+                    self.request,
                     initial={
                         "id": entity_json.get("id"),
                         "type": entity_json.get("type"),
@@ -235,7 +236,9 @@ class Create(ProjectContextMixin, TemplateView):
             return render(request, self.template_name, context)
             # create entity
         elif "submit" in self.request.POST:
-            basic_info = EntityForm(initial=request.POST, project=self.project)
+            basic_info = EntityForm(
+                initial=request.POST, project=self.project, request=self.request
+            )
             attributes_form_set = formset_factory(AttributeForm, max_num=0)
             attributes = attributes_form_set(request.POST, prefix="attr")
             context = self.get_context_data(**kwargs)
@@ -249,53 +252,52 @@ class Create(ProjectContextMixin, TemplateView):
                 entity_keys = [
                     k for k, v in self.request.POST.items() if re.search(r"attr-\d+", k)
                 ]
-                i = j = 0
-                while i < (len(entity_keys) / 4):
-                    keys = [
+                # Extract unique indices from the keys to handle deleted attributes
+                indices = set()
+                for key in entity_keys:
+                    match = re.search(r"attr-(\d+)", key)
+                    if match:
+                        indices.add(int(match.group(1)))
+
+                # Iterate through actual indices (in sorted order)
+                for i in sorted(indices):
+                    new_keys = [
                         k
                         for k, v in self.request.POST.items()
-                        if k in entity_keys and re.search(j.__str__(), k)
+                        if k in entity_keys and re.search(r"attr-" + i.__str__(), k)
                     ]
-                    if any(keys):
+                    if any(new_keys):
                         attr = ContextAttribute()
                         try:
                             attr.metadata = (
-                                json.loads(self.request.POST.get(keys[3]))
-                                if self.request.POST.get(keys[3])
+                                json.loads(self.request.POST.get(new_keys[3]))
+                                if self.request.POST.get(new_keys[3])
                                 else {}
                             )
-                        except ValueError as e:
+                        except Exception as e:
                             messages.error(
                                 self.request,
                                 "Metadata JSON is invalid, error: " + e.args.__str__(),
                             )
                             return render(request, self.template_name, context)
-                        attr.value = self.request.POST.get(keys[2])
-                        attr.type = self.request.POST.get(keys[1])
-                        entity.add_attributes({self.request.POST.get(keys[0]): attr})
-                        i = i + 1
-                    j = j + 1
+
+                        attr.value = self.request.POST.get(new_keys[2])
+                        attr.type = self.request.POST.get(new_keys[1])
+                        entity.add_attributes(
+                            {self.request.POST.get(new_keys[0]): attr}
+                        )
+
                 req_error = post_entity(self, entity, False, self.project)
             # handel the error from server
             except ValidationError as e:
-                messages.error(request, e.errors()[0]['msg'])
+                messages.error(request, e.errors()[0]["msg"])
                 return render(request, self.template_name, context)
             if req_error:
-                messages.error(
-                    self.request,
-                    "Entity not created. Reason: " + req_error,
-                )
+                messages.error(self.request, req_error["message"])
                 logger.error(
-                    str(
-                        self.request.user.first_name
-                        if self.request.user.first_name
-                        else self.request.user.username
-                    )
-                    + " tried creating the entity with id "
-                    + entity.id
-                    + " but failed with error "
-                    + req_error
-                    + f" in project {self.project.name}"
+                    f"{self.request.user.first_name if self.request.user.first_name else self.request.user.username} "
+                    f"tried creating the entity with id {entity.id} but failed with error {req_error.get('detail', req_error['message'])} "
+                    f"(code: {req_error.get('code')}) in project {self.project.name}"
                 )
                 return render(request, self.template_name, context)
             else:
@@ -346,9 +348,7 @@ class CreateBatch(ProjectContextMixin, TemplateView):
                     messages.error(self.request, "No pattern for json matched !")
                     return render(request, self.template_name, context)
             if res is not None:
-                messages.error(
-                    self.request, "Entity not created. Reason: " + res.__str__()
-                )
+                messages.error(self.request, res["message"])
                 return render(request, self.template_name, context)
             return redirect("projects:entities:list", project_id=self.project.uuid)
         else:
@@ -364,7 +364,9 @@ class Update(ProjectContextAndViewOnlyMixin, TemplateView):
         type = kwargs.get("entity_type")
         entity = get_entity(self, id, type, self.project)
         basic_info = EntityForm(
-            initial={"id": entity.id, "type": entity.type}, project=self.project
+            initial={"id": entity.id, "type": entity.type},
+            project=self.project,
+            request=self.request,
         )
         basic_info.fields["id"].widget.attrs["readonly"] = True
         basic_info.fields["type"].widget.attrs["readonly"] = True
@@ -401,7 +403,9 @@ class Update(ProjectContextAndViewOnlyMixin, TemplateView):
             id=self.request.POST.get("id"),
             type=self.request.POST.get("type"),
         )
-        basic_info = EntityForm(initial=request.POST, project=self.project)
+        basic_info = EntityForm(
+            initial=request.POST, project=self.project, request=self.request
+        )
         basic_info.fields["id"].widget.attrs["readonly"] = True
         basic_info.fields["type"].widget.attrs["readonly"] = True
         attributes_form_set = formset_factory(AttributeForm, max_num=0)
@@ -415,12 +419,19 @@ class Update(ProjectContextAndViewOnlyMixin, TemplateView):
         entity_keys = [
             k for k, v in self.request.POST.items() if re.search(r"attr-\d+", k)
         ]
-        i = j = 0
-        while i < (len(entity_keys) / 4):
+        # Extract unique indices from the keys to handle deleted attributes
+        indices = set()
+        for key in entity_keys:
+            match = re.search(r"attr-(\d+)", key)
+            if match:
+                indices.add(int(match.group(1)))
+
+        # Iterate through actual indices (in sorted order)
+        for i in sorted(indices):
             new_keys = [
                 k
                 for k, v in self.request.POST.items()
-                if k in entity_keys and re.search(i.__str__(), k)
+                if k in entity_keys and re.search(r"attr-" + i.__str__(), k)
             ]
             if any(new_keys):
                 attr = ContextAttribute()
@@ -440,18 +451,12 @@ class Update(ProjectContextAndViewOnlyMixin, TemplateView):
                 attr.value = self.request.POST.get(new_keys[2])
                 attr.type = self.request.POST.get(new_keys[1])
                 entity.add_attributes({self.request.POST.get(new_keys[0]): attr})
-                i = i + 1
-            j = j + 1
 
         # res = update_entity(self, entity)
         res = post_entity(self, entity, True, self.project)
 
         if res:
-            # messages.error(self.request, "Entity not updated. Reason: " + str(res))
-            messages.error(
-                self.request,
-                "Entity not updated. Reason: " + res,
-            )
+            messages.error(self.request, res["message"])
             logger.error(
                 str(
                     self.request.user.first_name
@@ -461,7 +466,7 @@ class Update(ProjectContextAndViewOnlyMixin, TemplateView):
                 + " tried updating the entity with id "
                 + entity.id
                 + " but failed with error "
-                + res
+                + res["message"]
                 + f" in project {self.project.name}"
             )
             return render(request, self.template_name, context)
@@ -494,7 +499,7 @@ class Delete(ProjectContextMixin, TemplateView):
             # subscriptions
             subscriptions = None
             if self.request.session.get("subscriptions"):
-                subscriptions_list = get_subscriptions(id, type, self.project)
+                subscriptions_list = get_subscriptions(self, id, type, self.project)
                 initial_subscriptions = []
                 for subs in subscriptions_list:
                     initial_subscriptions.append(
@@ -519,7 +524,9 @@ class Delete(ProjectContextMixin, TemplateView):
             # devices
             devices = None
             if self.request.session.get("devices"):
-                devices_list = get_devices(entity_id=entity.id, project=self.project)
+                devices_list = get_devices(
+                    self, entity_id=entity.id, project=self.project
+                )
                 initial_devices = []
                 for device in devices_list:
                     initial_devices.append(
@@ -540,7 +547,7 @@ class Delete(ProjectContextMixin, TemplateView):
             relationships = None
             if self.request.session.get("relationships"):
                 relationships_list = get_relationships(
-                    entity_id=entity.id, project=self.project
+                    self, entity_id=entity.id, project=self.project
                 )
                 initial_relationships = []
                 for rel in relationships_list:
@@ -591,37 +598,49 @@ class Delete(ProjectContextMixin, TemplateView):
             if re.search(r"device#\S+\d+-name", k)
         ]
         try:
-            delete_subscription(subs, self.project)
-            delete_device(devices, self.project)
+            delete_subscriptions_error = delete_subscription(self, subs, self.project)
+            if delete_subscriptions_error:
+                messages.error(self.request, delete_subscriptions_error["message"])
+
+            delete_devices_error = delete_device(self, devices, self.project)
+            if delete_devices_error:
+                messages.error(self.request, delete_devices_error["message"])
+
             for entity in self.request.session.get("entities"):
-                delete_entity(
+                delete_entity_error = delete_entity(
+                    self,
                     entity_id=entity.split("&")[0],
                     entity_type=entity.split("&")[1],
                     project=self.project,
                 )
+                if delete_entity_error:
+                    messages.error(self.request, delete_entity_error["message"])
         except RequestException as e:
             messages.error(request, e.response.content.decode("utf-8"))
 
-        i = 0
-        while i < (len(rels) / 3):
+        for i in range(len(rels) // 3):
             for set_item in rels_set:
                 new_keys = [
                     k
                     for k, v in self.request.POST.items()
                     if k in rels
                     and re.search(set_item, k)
-                    and re.search(r"rel#\S+#+-" + i.__str__(), k)
+                    and re.search(rf"rel#\S+#+-{i}", k)
                 ]
-                if new_keys is not []:
-                    id = self.request.POST.get(new_keys[0])
-                    type = self.request.POST.get(new_keys[1])
+
+                if new_keys:
+                    entity_id = self.request.POST.get(new_keys[0])
+                    entity_type = self.request.POST.get(new_keys[1])
                     attr_name = self.request.POST.get(new_keys[2])
-                    delete_relationship(
-                        entity_id=id,
-                        entity_type=type,
+
+                    delete_relationship_error = delete_relationship(
+                        self,
+                        entity_id=entity_id,
+                        entity_type=entity_type,
                         attribute_name=attr_name,
                         project=self.project,
                     )
-            i = i + 1
+                    if delete_relationship_error:
+                        messages.error(self.request, delete_relationship_error["message"])
         # TODO: logging
         return redirect("projects:entities:list", project_id=self.project.uuid)

@@ -6,6 +6,7 @@ from filip.models import FiwareHeader
 from filip.models.ngsi_v2.base import Status as CBStatus
 from projects.mixins import ProjectContextMixin
 from subscriptions.models import Subscription
+from utils.auth import get_fiware_header
 
 
 class Status(ProjectContextMixin, View):
@@ -18,10 +19,7 @@ class Status(ProjectContextMixin, View):
         sub = Subscription.objects.get(pk=uuid)
         with ContextBrokerClient(
             url=settings.CB_URL,
-            fiware_header=FiwareHeader(
-                service=self.project.fiware_service,
-                service_path=self.project.fiware_service_path,
-            ),
+            fiware_header=get_fiware_header(self.request, self.project),
         ) as cb_client:
             sub_cb = cb_client.get_subscription(uuid)
             sub_cb.status = (

@@ -8,6 +8,7 @@ from filip.models.ngsi_v2.subscriptions import Subscription as SubscriptionCB
 
 from projects.mixins import ProjectContextAndViewOnlyMixin
 from subscriptions.models import Subscription
+from utils.auth import get_fiware_header
 
 
 class List(ProjectContextAndViewOnlyMixin, ListView):
@@ -38,10 +39,7 @@ class List(ProjectContextAndViewOnlyMixin, ListView):
         Subscription.objects.all().delete()
         with ContextBrokerClient(
             url=settings.CB_URL,
-            fiware_header=FiwareHeader(
-                service=self.project.fiware_service,
-                service_path=self.project.fiware_service_path,
-            ),
+            fiware_header=get_fiware_header(self.request, self.project),
         ) as cb_client:
             subs_cb = []
             try:

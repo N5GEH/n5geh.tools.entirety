@@ -4,6 +4,8 @@ from filip.clients.ngsi_v2.cb import ContextBrokerClient
 from filip.models import FiwareHeader
 from django.conf import settings
 
+from utils.auth import get_fiware_header
+
 
 def safe_compile(pattern):
     """Attempt to compile a regex pattern safely."""
@@ -14,14 +16,11 @@ def safe_compile(pattern):
         raise re.error(f"Regular expression {pattern} invalid: {e}")
 
 
-def load_attributes(project, data_set):
+def load_attributes(self, project, data_set, request):
     attributes = []
     with ContextBrokerClient(
         url=settings.CB_URL,
-        fiware_header=FiwareHeader(
-            service=project.fiware_service,
-            service_path=project.fiware_service_path,
-        ),
+        fiware_header=get_fiware_header(request, project),
     ) as cb_client:
         types = cb_client.get_entity_types()
         for data in data_set:

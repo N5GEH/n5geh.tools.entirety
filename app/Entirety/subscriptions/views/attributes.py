@@ -16,7 +16,9 @@ class Attributes(ProjectContextMixin, View):
     def post(self, request, *args, **kwargs):
         # get entities from form
         entities_set = forms.Entities(
-            self.request.POST, prefix="entity", form_kwargs={"project": self.project}
+            self.request.POST,
+            prefix="entity",
+            form_kwargs={"project": self.project, "request": self.request},
         )
         # Create attributes form from post request
         form = forms.AttributesForm(request.POST)
@@ -26,7 +28,7 @@ class Attributes(ProjectContextMixin, View):
         if entities_set.is_valid():
             data_set = [entity_form.cleaned_data for entity_form in entities_set]
             # Load attributes from context broker
-            attributes = utils.load_attributes(self.project, data_set)
+            attributes = utils.load_attributes(self, self.project, data_set, request)
 
         form.fields["attributes"].choices = attributes
         return render(request, "subscriptions/attributes.html", {"attributes": form})

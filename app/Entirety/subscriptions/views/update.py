@@ -24,6 +24,7 @@ from projects.mixins import ProjectContextAndViewOnlyMixin
 from subscriptions.models import Subscription
 from subscriptions import utils
 from subscriptions import forms
+from utils.auth import get_fiware_header
 
 logger = logging.getLogger("subscriptions.views")
 
@@ -58,10 +59,7 @@ class Update(ProjectContextAndViewOnlyMixin, UpdateView):
             # Fill from context broker
             with ContextBrokerClient(
                 url=settings.CB_URL,
-                fiware_header=FiwareHeader(
-                    service=self.project.fiware_service,
-                    service_path=self.project.fiware_service_path,
-                ),
+                fiware_header=get_fiware_header(self.request, self.project),
             ) as cb_client:
                 form = context["form"]
                 cb_sub = cb_client.get_subscription(form.instance.uuid)
@@ -161,9 +159,11 @@ class Update(ProjectContextAndViewOnlyMixin, UpdateView):
                 context["entities"] = forms.Entities(
                     prefix="entity",
                     initial=entities_initial,
-                    form_kwargs={"project": self.project},
+                    form_kwargs={"project": self.project, "request": self.request},
                 )
-                attr_choices = utils.load_attributes(self.project, entities_initial)
+                attr_choices = utils.load_attributes(
+                    self, self.project, entities_initial, self.request
+                )
                 context["attributes"] = forms.AttributesForm(
                     choices=attr_choices,
                     initial={"attributes": cb_sub.subject.condition.attrs},
@@ -196,7 +196,7 @@ class Update(ProjectContextAndViewOnlyMixin, UpdateView):
                 data_set = [entity_form.cleaned_data for entity_form in entities_set]
                 # Otherwise choices are empty
                 attributes.fields["attributes"].choices = utils.load_attributes(
-                    self.project, data_set
+                    self, self.project, data_set, self.request
                 )
                 if attributes.is_valid():
                     form.save(commit=False)
@@ -270,10 +270,7 @@ class Update(ProjectContextAndViewOnlyMixin, UpdateView):
                 return self.form_invalid(form)
             with ContextBrokerClient(
                 url=settings.CB_URL,
-                fiware_header=FiwareHeader(
-                    service=self.project.fiware_service,
-                    service_path=self.project.fiware_service_path,
-                ),
+                fiware_header=get_fiware_header(self.request, self.project),
             ) as cb_client:
                 if (
                     (form.cleaned_data["endpoint_type"] == "http" and http.is_valid())

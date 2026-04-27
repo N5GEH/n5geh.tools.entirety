@@ -24,6 +24,7 @@ from projects.mixins import ProjectContextMixin
 from subscriptions.models import Subscription
 from subscriptions import utils
 from subscriptions import forms
+from utils.auth import get_fiware_header
 
 logger = logging.getLogger("subscriptions.views")
 
@@ -54,7 +55,7 @@ class Create(ProjectContextMixin, CreateView):
             context["entities"] = forms.Entities(
                 self.request.POST,
                 prefix="entity",
-                form_kwargs={"project": self.project},
+                form_kwargs={"project": self.project, "request": self.request},
             )
             context["http"] = forms.HTTPForm(self.request.POST, prefix="http")
             context["httpCustom"] = forms.HTTPCustomForm(
@@ -67,7 +68,8 @@ class Create(ProjectContextMixin, CreateView):
         else:
             context["attributes"] = forms.AttributesForm()
             context["entities"] = forms.Entities(
-                prefix="entity", form_kwargs={"project": self.project}
+                prefix="entity",
+                form_kwargs={"project": self.project, "request": self.request},
             )
             context["http"] = forms.HTTPForm(prefix="http")
             context["httpCustom"] = forms.HTTPCustomForm(prefix="httpCustom")
@@ -91,7 +93,7 @@ class Create(ProjectContextMixin, CreateView):
             # Otherwise choices are empty
             try:
                 attributes.fields["attributes"].choices = utils.load_attributes(
-                    self.project, data_set
+                    self, self.project, data_set, request
                 )
                 if attributes.is_valid():
                     instance = form.save(commit=False)
@@ -147,10 +149,7 @@ class Create(ProjectContextMixin, CreateView):
                 return self.form_invalid(form)
             with ContextBrokerClient(
                 url=settings.CB_URL,
-                fiware_header=FiwareHeader(
-                    service=self.project.fiware_service,
-                    service_path=self.project.fiware_service_path,
-                ),
+                fiware_header=get_fiware_header(self.request, self.project),
             ) as cb_client:
                 if (
                     (form.cleaned_data["endpoint_type"] == "http" and http.is_valid())

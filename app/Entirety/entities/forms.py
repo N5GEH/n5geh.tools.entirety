@@ -7,14 +7,15 @@ from entities.requests import AttributeTypes, get_entities_types
 
 
 class EntityForm(forms.Form):
-    def __init__(self, project, *args, **kwargs):
+    def __init__(self, project, request, *args, **kwargs):
         super(EntityForm, self).__init__(*args, **kwargs)
+        self.request = request
         self.fields["type"] = forms.CharField(
             required=True,
             max_length=256,
             label="Entity Type",
             widget=ListTextWidget(
-                data_list=get_entities_types(project),
+                data_list=get_entities_types(self, project),
                 name="entity-type-list",
                 attrs={
                     "data-bs-toggle": "tooltip",

@@ -11,6 +11,7 @@ from filip.models import FiwareHeader
 
 from projects.mixins import ProjectContextMixin
 from subscriptions.models import Subscription
+from utils.auth import get_fiware_header
 
 logger = logging.getLogger("subscriptions.views")
 
@@ -34,10 +35,7 @@ class Delete(ProjectContextMixin, DeleteView):
         # delete in context broker
         with ContextBrokerClient(
             url=settings.CB_URL,
-            fiware_header=FiwareHeader(
-                service=self.project.fiware_service,
-                service_path=self.project.fiware_service_path,
-            ),
+            fiware_header=get_fiware_header(self.request, self.project),
         ) as cb_client:
             cb_client.delete_subscription(uuid)
 
