@@ -4,8 +4,7 @@ import jwt
 import requests
 from django.conf import settings
 from filip.models.base import FiwareHeaderSecure
-
-from users.services import client_token_service
+from jwt import PyJWKClient
 
 
 def get_fiware_header(request, project):
@@ -19,6 +18,8 @@ def get_fiware_header(request, project):
         header_kwargs["authorization"] = f"Bearer {token}"
 
     return FiwareHeaderSecure(**header_kwargs)
+
+
 def refresh_access_token(request):
     refresh_token = request.session.get("refresh_token")
 
@@ -26,11 +27,11 @@ def refresh_access_token(request):
         return None
 
     response = requests.post(
-        f"{settings.KEYCLOAK_HOST}/realms/{settings.REALM}/protocol/openid-connect/token",
+        settings.OIDC_OP_TOKEN_ENDPOINT,
         data={
             "grant_type": "refresh_token",
-            "client_id": settings.KEYCLOAK_CLIENT_ID,
-            "client_secret": settings.KEYCLOAK_CLIENT_SECRET,
+            "client_id": settings.OIDC_RP_CLIENT_ID,
+            "client_secret": settings.OIDC_RP_CLIENT_SECRET,
             "refresh_token": refresh_token,
         },
     )
@@ -54,8 +55,15 @@ def get_valid_token(request):
         return None
 
     try:
-        # TODO: verify signature
-        decoded = jwt.decode(token, options={"verify_signature": False})
+        jwks_client = PyJWKClient(settings.OIDC_OP_JWKS_ENDPOINT)
+        signing_key = jwks_client.get_signing_key_from_jwt(token)
+
+        decoded = jwt.decode(
+            token,
+            signing_key.key,
+            algorithms=[settings.OIDC_RP_SIGN_ALGO],
+            audience=settings.OIDC_RP_CLIENT_ID,
+        )
         exp = decoded.get("exp", 0)
 
         # refresh 60s before expiry
@@ -79,8 +87,15 @@ def get_fiware_services(request):
         return []
 
     try:
-        # TODO: verify signature
-        decoded = jwt.decode(token, options={"verify_signature": False})
+        jwks_client = PyJWKClient(settings.OIDC_OP_JWKS_ENDPOINT)
+        signing_key = jwks_client.get_signing_key_from_jwt(token)
+
+        decoded = jwt.decode(
+            token,
+            signing_key.key,
+            algorithms=[settings.OIDC_RP_SIGN_ALGO],
+            audience=settings.OIDC_RP_CLIENT_ID,
+        )
         return decoded.get("fiware-service", [])
     except Exception:
         return []

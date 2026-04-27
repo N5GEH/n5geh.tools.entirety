@@ -10,8 +10,7 @@ from django.views.generic.edit import UpdateView, CreateView, DeleteView
 from filip.clients.ngsi_v2 import ContextBrokerClient, QuantumLeapClient, IoTAClient
 from filip.models.base import FiwareHeaderSecure
 
-from users.services import client_token_service
-from utils.auth import get_fiware_services
+from utils.auth import get_fiware_services, get_valid_token
 from .forms import ProjectForm
 from .mixins import ProjectCreateMixin, ProjectSelfMixin, ProjectBaseMixin
 from .models import Project
@@ -179,9 +178,7 @@ from filip.clients.exceptions import BaseHttpClientException
 
 def _get_status(client_cls, url, request):
     try:
-        token = None
-        if not settings.LOCAL_AUTH:
-            token = client_token_service.get_token()
+        token = get_valid_token(request)
 
         fiware_header_kwargs = {
             "service": "entirety",
