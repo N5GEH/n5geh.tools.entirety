@@ -1,35 +1,36 @@
 # Settings
 
+This page documents environment variables consumed by `app/Entirety/entirety/settings.py`.
+
 ### ALLOWED_HOSTS
 
-> *description:* Hosts that are allowed to access the application.
-> Only neccessary if DJANGO_DEBUG=FALSE .
+> *description:* Hosts allowed to access the application.
 >
-> *default:* []
+> *default:* ["*"]
 
 ### CB_URL
 
-> *description:* Orion context broker url.
+> *description:* Orion Context Broker URL.
 >
 > *default:* http://localhost:1026
 
 ### COMPRESS_ENABLED
 
-> *description:* Compress js/css files.
+> *description:* Enable CSS/JS compression.
 >
 > *default:* not DJANGO_DEBUG
 
-### DATABASE_USER
+### CSRF_TRUSTED_ORIGINS
 
-> *description:* Database user name.
+> *description:* Trusted origins for CSRF-protected unsafe requests.
 >
-> *default:* postgres
+> *default:* []
 
-### DATABASE_PASSWORD
+### DATABASE_CONN_MAX_AGE
 
-> *description:* Database password.
+> *description:* Database connection lifetime in seconds.
 >
-> *default:* postgrespw
+> *default:* 0
 
 ### DATABASE_HOST
 
@@ -37,39 +38,63 @@
 >
 > *default:* localhost
 
+### DATABASE_NAME
+
+> *description:* Database name.
+>
+> *default:* postgres
+
+### DATABASE_OPTIONS
+
+> *description:* Additional database backend options.
+>
+> *default:* {}
+
+### DATABASE_PASSWORD
+
+> *description:* Database password.
+>
+> *default:* postgrespw
+
 ### DATABASE_PORT
 
 > *description:* Database port.
 >
 > *default:* 5432
 
+### DATABASE_USER
+
+> *description:* Database user name.
+>
+> *default:* postgres
+
 ### DEVICES_LOAD
 
-> *description:* Toggle this boolean if you want to switch Devices application on or off.
+> *description:* Toggle Devices application on or off.
 >
 > *default:* True
 
 ### DJANGO_DEBUG
 
-> *description:* Run Django with debug options. Not for production use!
+> *description:* Run Django in debug mode. Do not use in production.
 >
 > *default:* False
 
 ### DJANGO_SECRET_KEY
 
-> *description:* Django secret (min. 32 characters).
+> *description:* Django secret key (minimum 32 characters).
 >
-> *default:* Auto generated key
+> *default:* Auto-generated key
 
 ### ENTITIES_LOAD
 
-> *description:* Toggle this boolean if you want to switch Entities application on or off.
+> *description:* Toggle Entities application on or off.
 >
 > *default:* True
 
 ### IOTA_URL
 
-> *description:* IOT agent url.
+> *description:* IoT Agent URL.
 >
 > *default:* http://localhost:4041
 
@@ -81,138 +106,201 @@
 
 ### LOCAL_AUTH
 
-> *description:* Use local authentication. If False, OIDC configuration needs to be provided.
+> *description:* Use local authentication. If False, OIDC configuration must be provided.
 >
 > *default:* True
 
 ### LOCAL_AUTH_SIGNUP
 
-> *description:* Enable "sign up" function for new users. This parameter only takes effect when local authentication mode is used.
-> Note that the new registed user will have no access to any project by default.
+> *description:* Enable sign up for new users in local authentication mode only.
 >
 > *default:* False
 
 ### LOGIN_REDIRECT_URL
 
-> *description:* Application successful login redirect url.
+> *description:* Redirect URL after successful login.
 >
-> *default:* /oidc/callback/
+> *default:* /
 
 ### LOGIN_URL
 
-> *description:* Application login url. Requires further changes.
+> *description:* Login URL used by Django.
 >
-> *default:* /oidc/authenticate
+> *default:* /accounts/login
+
+### LOGO_FILENAME
+
+> *description:* Logo filename. The image should be available in `/app/Entirety/static/img`.
+>
+> *default:* Entirety-logo.png
 
 ### LOGOUT_REDIRECT_URL
 
-> *description:* Application successful logout redirect url.
+> *description:* Redirect URL after successful logout.
 >
 > *default:* /
 
 ### LOKI_ENABLE
 
-> *description:* Toggle to enable/disable loki logging.
+> *description:* Enable or disable Loki logging.
 >
 > *default:* False
 
 ### LOKI_HOST
 
-> *description:* Host name of loki logging server.
+> *description:* Host name of Loki logging server.
 >
-> *default:* 3100
+> *default:* localhost
 
 ### LOKI_LEVEL
 
-> *description:* Logging level for loki logging server.
+> *description:* Logging level for Loki.
 >
 > *default:* INFO
 
 ### LOKI_PORT
 
-> *description:* Port of loki logging server.
+> *description:* Port of Loki logging server.
 >
-> *default:* localhost
+> *default:* 3100
 
 ### LOKI_PROTOCOL
 
-> *description:* Protocol http or https of loki logging server.
+> *description:* Protocol of Loki logging server (`http` or `https`).
 >
 > *default:* http
 
 ### LOKI_SRC_HOST
 
-> *description:* Label name of source host sending logs to loki logging server.
+> *description:* Source host label sent with logs.
 >
 > *default:* entirety
 
 ### LOKI_TIMEOUT
 
-> *description:* Request to loki server by http or https time out.
+> *description:* HTTP(S) timeout in seconds for Loki requests.
 >
 > *default:* 0.5
 
 ### LOKI_TIMEZONE
 
-> *description:* Timezone for formatting timestamp for loki logs.
+> *description:* Time zone used for Loki log timestamps.
 >
 > *default:* Europe/Berlin
 
+### MEDIA_ROOT
+
+> *description:* Filesystem path where uploaded media files are stored.
+>
+> *default:* `<BASE_DIR>/media/`
+
+### MQTT_BASE_TOPIC
+
+> *description:* Base MQTT topic used by the application.
+>
+> *default:* /Entirety
+
 ### NOTIFICATIONS_LOAD
 
-> *description:* Toggle this boolean if you want to switch Notifications application on or off.
+> *description:* Toggle Notifications (`subscriptions`) application on or off.
 >
 > *default:* True
 
+### OIDC_LOGIN_REDIRECT_URL
+
+> *description:* Redirect URL after OIDC login (used when `LOCAL_AUTH=False`).
+>
+> *default:* /oidc/callback/
+
+### OIDC_LOGIN_URL
+
+> *description:* OIDC login endpoint (used when `LOCAL_AUTH=False`).
+>
+> *default:* /oidc/authenticate
+
 ### OIDC_OP_AUTHORIZATION_ENDPOINT
 
-> *description:* OIDC provider authorization endpoint.
+> *description:* OIDC provider authorization endpoint (`LOCAL_AUTH=False`).
 >
-> *default:* None
+> *default:* required
 
 ### OIDC_OP_JWKS_ENDPOINT
 
-> *description:* OIDC provider jwks endpoint.
+> *description:* OIDC provider JWKS endpoint (`LOCAL_AUTH=False`).
 >
-> *default:* None
+> *default:* required
+
+### OIDC_OP_LOGOUT_ENDPOINT
+
+> *description:* OIDC provider logout endpoint (`LOCAL_AUTH=False`).
+>
+> *default:* required
+
+### OIDC_OP_LOGOUT_URL_METHOD
+
+> *description:* Dotted Python path for logout URL builder (`LOCAL_AUTH=False`).
+>
+> *default:* users.views.provider_logout
 
 ### OIDC_OP_TOKEN_ENDPOINT
 
-> *description:* OIDC provider token endpoint.
+> *description:* OIDC provider token endpoint (`LOCAL_AUTH=False`).
 >
-> *default:* None
+> *default:* required
 
 ### OIDC_OP_USER_ENDPOINT
 
-> *description:* OIDC provider user endpoint.
+> *description:* OIDC provider userinfo endpoint (`LOCAL_AUTH=False`).
 >
-> *default:* None
+> *default:* required
 
 ### OIDC_PROJECT_ADMIN_ROLE
 
 > *description:* Project admin role configured in OIDC provider.
-Project admins can create projects and edit their own projects.
 >
 > *default:* project_admin
 
 ### OIDC_RP_CLIENT_ID
 
-> *description:* Client id from OIDC provider.
+> *description:* OIDC client ID (`LOCAL_AUTH=False`).
 >
-> *default:* None
+> *default:* required
 
 ### OIDC_RP_CLIENT_SECRET
 
-> *description:* Client secret from OIDC provider.
+> *description:* OIDC client secret (`LOCAL_AUTH=False`).
 >
-> *default:* None
+> *default:* required
+
+### OIDC_RP_SIGN_ALGO
+
+> *description:* OIDC signing algorithm.
+>
+> *default:* RS256
 
 ### OIDC_SERVER_ADMIN_ROLE
 
 > *description:* Server admin role configured in OIDC provider.
-Server admins can create/update projects for any project admin.
 >
 > *default:* server_admin
+
+### OIDC_STORE_ACCESS_TOKEN
+
+> *description:* Store OIDC access token in session (`LOCAL_AUTH=False`).
+>
+> *default:* True
+
+### OIDC_STORE_ID_TOKEN
+
+> *description:* Store OIDC ID token in session (`LOCAL_AUTH=False`).
+>
+> *default:* True
+
+### OIDC_STORE_REFRESH_TOKEN
+
+> *description:* Store OIDC refresh token in session (`LOCAL_AUTH=False`).
+>
+> *default:* True
 
 ### OIDC_SUPER_ADMIN_ROLE
 
@@ -221,41 +309,62 @@ Server admins can create/update projects for any project admin.
 > *default:* super_admin
 
 ### OIDC_TOKEN_ROLE_PATH
-> description: Specifies the JSONPath expression used to locate the array of user roles within the OIDC ID token. The path starts with `$` to represent the token's root, with each nested level separated by a dot (`.`).
-> For the default value, `$.entirety.roles`, the path is structured as follows:
-> - `entirety`: A top-level claim object. In our guide, this is named after the OIDC client.
-> - `roles`: The field within the entirety object that contains the array of role strings.
+
+> *description:* JSONPath to the roles array in the OIDC ID token.
 >
-> Further information on how to include the roles in the token, please, check our [deployment guide](https://github.com/N5GEH/n5geh.tutorials.entirety_step_by_step/blob/main/README.md#configure-oidc-provider-oidc-auth-only).
+> For default `$.entirety.roles`:
+> - `entirety`: top-level claim object (typically named after the OIDC client)
+> - `roles`: field containing role strings
+>
+> See the deployment guide for provider configuration details.
 >
 > *default:* $.entirety.roles
 
 ### OIDC_USER_ROLE
 
-> *description:* User role configured in OIDC provider.
+> *description:* Standard user role configured in OIDC provider.
 >
 > *default:* user
 
+### OIDC_LOGOUT_REDIRECT_URL
+
+> *description:* Redirect URL after OIDC logout (used when `LOCAL_AUTH=False`).
+>
+> *default:* /
+
 ### QL_URL
 
-> *description:* Quantum Leap url.
+> *description:* QuantumLeap URL.
 >
 > *default:* http://localhost:8668
 
+### SEMANTICS_LOAD
+
+> *description:* Toggle Semantics application on or off.
+>
+> *default:* True
+
+### SESSION_COOKIE_NAME
+
+> *description:* Name of the session cookie.
+>
+> *default:* sessionid
+
+### SESSION_ENGINE
+
+> *description:* Django session backend.
+>
+> *default:* django.contrib.sessions.backends.db
+
+### STATIC_ROOT
+
+> *description:* Filesystem path used by `collectstatic`.
+>
+> *default:* `<BASE_DIR>/static/`
+
 ### TIME_ZONE
 
-> *description:* Application timezone.
+> *description:* Application time zone.
 >
 > *default:* Europe/Berlin
 
-### WEB_HOST
-
-> *description:* Hostname under which the application will be accessible.
->
-> *default:* localhost
-
-### LOGO_FILENAME
-
-> *description:* The filename of the image to be used as the logo, it should be uploaded to /app/Entirety/static/img folder.
->
-> *default:* Entirety-logo.png
