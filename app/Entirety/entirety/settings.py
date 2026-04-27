@@ -381,9 +381,12 @@ class Settings(BaseSettings):
         OIDC_TOKEN_ROLE_PATH: str = Field(
             default="$.entirety.roles", alias="OIDC_TOKEN_ROLE_PATH"
         )
-        OIDC_STORE_ACCESS_TOKEN: bool = Field(default=True)
-        OIDC_STORE_ID_TOKEN: bool = Field(default=True)
-        OIDC_STORE_REFRESH_TOKEN: bool = Field(default=True)
+        OIDC_STORE_ACCESS_TOKEN: bool = Field(
+            default=True, alias="OIDC_STORE_ACCESS_TOKEN"
+        )
+        OIDC_STORE_REFRESH_TOKEN: bool = Field(
+            default=True, alias="OIDC_STORE_REFRESH_TOKEN"
+        )
     else:
         LOCAL_AUTH_SIGNUP: bool = Field(default=False, alias="LOCAL_AUTH_SIGNUP")
 
