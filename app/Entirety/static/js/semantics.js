@@ -24,7 +24,7 @@ var currentStyleCy = {
                 width: '20px',
                 height: '20px',
                 shape: 'ellipse',
-                label: 'data(label)',
+                label: 'data(id)',
                 backgroundColor: defaultnodecolor,
                 color: defaulttextcolor
             }
@@ -51,7 +51,7 @@ var currentStyleDetail = {
                 width: '20px',
                 height: '20px',
                 shape: 'ellipse',
-                label: 'data(label)',
+                label: 'data(id)',
                 'color': defaulttextcolor,
             },
         },
@@ -900,7 +900,7 @@ function colorEdges() {
 
 
 /**
- * This function adapts node labels as selected, otherwise default value name is set
+ * This function adapts node labels as selected, otherwise default value id is set
  */
 function changeLabel(labelName) {
     var nodeStyleMainGraph = currentStyleCy.styleSheets.find(function (styleObject) {
