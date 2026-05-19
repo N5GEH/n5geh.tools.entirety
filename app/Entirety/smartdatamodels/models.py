@@ -1,6 +1,7 @@
 from django.core.exceptions import ValidationError
 from django.db import models
 
+from projects.models import Project
 from users.models import User
 from utils.generators import generate_uuid
 
@@ -18,6 +19,7 @@ class SmartDataModel(models.Model):
     last_modified_by = models.ForeignKey(
         User, on_delete=models.CASCADE, related_name="last_modified_by"
     )
+    project = models.ForeignKey(Project, on_delete=models.CASCADE)
 
     def clean(self):
         if not self.jsonschema and not self.schema_link:

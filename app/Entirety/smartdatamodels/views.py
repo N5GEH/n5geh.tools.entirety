@@ -23,8 +23,10 @@ class SmartDataModelsList(ProjectContextAndViewOnlyMixin, ListView):
         return context
 
     def get_queryset(self):
-        return SmartDataModel.objects.order_by("-date_modified").filter(
-            name__icontains=self.request.GET.get("search", default="")
+        return (
+            SmartDataModel.objects.filter(project=self.project)
+            .order_by("-date_modified")
+            .filter(name__icontains=self.request.GET.get("search", default=""))
         )
 
 
@@ -37,6 +39,7 @@ class Create(ProjectContextMixin, CreateView):
         obj = form.save(commit=False)
         obj.owner = self.request.user
         obj.last_modified_by = self.request.user
+        obj.project = self.project
         return super(Create, self).form_valid(form)
 
     def get_success_url(self):
@@ -74,6 +77,9 @@ class Update(ProjectContextAndViewOnlyMixin, UpdateView):
             "projects:smartdatamodels:list", kwargs={"project_id": self.project.uuid}
         )
 
+    def get_queryset(self):
+        return SmartDataModel.objects.filter(project=self.project)
+
     def get_form_kwargs(self):
         kwargs = super(Update, self).get_form_kwargs()
         view_only = (
@@ -91,6 +97,9 @@ class Update(ProjectContextAndViewOnlyMixin, UpdateView):
 class Delete(ProjectContextMixin, DeleteView):
     template_name = "smartdatamodels/smartdatamodels_list.html"
     model = SmartDataModel
+
+    def get_queryset(self):
+        return SmartDataModel.objects.filter(project=self.project)
 
     def get_success_url(self):
         return reverse_lazy(
