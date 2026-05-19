@@ -6,14 +6,131 @@
     {% else %} New Project
     {% endif %}
 {% endblock %}
+
+{% block extra_head %}
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css">
+    <style>
+        .img-container img {
+            max-width: 100%;
+        }
+    </style>
+{% endblock %}
 {% block content %}
 
     <div class="container">
         <h2 class="my-4">{% if project.name %} Edit {{ project.name }} {% else %} Create New Project {% endif %}</h2>
-        <form action="" method="post" enctype="multipart/form-data"
+        <form id="project-form" action="" method="post" enctype="multipart/form-data"
               {% if form_submitted %}class="was-validated" {% endif %}>
             {% csrf_token %}
             {% crispy form %}
+
+            <div class="modal fade" id="cropModal" tabindex="-1" aria-labelledby="cropModalLabel" aria-hidden="true"
+                 data-bs-backdrop="static">
+                <div class="modal-dialog modal-md">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="cropModalLabel">Crop Project Logo</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="img-container">
+                                <img id="image-to-crop" src="" alt="Source Image">
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                            <button type="button" class="btn btn-primary" id="crop-btn">Crop & Save</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
+            <script>
+                document.addEventListener("DOMContentLoaded", function () {
+                    const logoInput = document.getElementById("logo-input");
+                    const form = document.getElementById('project-form');
+                    const cropModalEl = document.getElementById('cropModal');
+                    const cropModal = new bootstrap.Modal(cropModalEl);
+                    const imageToCrop = document.getElementById('image-to-crop');
+                    const cropBtn = document.getElementById('crop-btn');
+
+                    let cropper = null;
+                    let croppedBlob = null; // Holds our finalized image binary
+
+                    if (!logoInput) return;
+
+                    logoInput.addEventListener('change', function (e) {
+                        croppedBlob = null;
+                        const files = e.target.files;
+                        if (files && files.length > 0) {
+                            const file = files[0];
+
+                            const reader = new FileReader();
+                            reader.onload = function (event) {
+                                imageToCrop.src = event.target.result;
+                                cropModal.show();
+                            };
+                            reader.readAsDataURL(file);
+                        }
+                    });
+
+                    cropModalEl.addEventListener('shown.bs.modal', function () {
+                        cropper = new Cropper(imageToCrop, {
+                            aspectRatio: 160 / 150, // Matches your Django model: size=[160, 150]
+                            viewMode: 1,            // Restricts the crop box to not exceed the size of the canvas
+                            autoCropArea: 1,
+                        });
+                    });
+
+                    cropModalEl.addEventListener('hidden.bs.modal', function () {
+                        if (cropper) {
+                            cropper.destroy();
+                            cropper = null;
+                        }
+                    });
+
+                    cropBtn.addEventListener('click', function () {
+                        if (!cropper) return;
+
+                        const canvas = cropper.getCroppedCanvas({
+                            width: 160,
+                            height: 150,
+                        });
+
+                        canvas.toBlob(function (blob) {
+                            croppedBlob = blob;
+                            cropModal.hide();
+
+                            logoInput.classList.add("is-valid");
+                        }, 'image/jpeg');
+                    });
+
+                    form.addEventListener('submit', function (e) {
+                        if (logoInput.files.length > 0 && !croppedBlob) {
+                            e.preventDefault();
+                            alert("Please crop the image before submitting.");
+                            cropModal.show();
+                            return;
+                        }
+
+                        if (croppedBlob) {
+                            e.preventDefault();
+
+                            const dataTransfer = new DataTransfer();
+                            const croppedFile = new File([croppedBlob], "cropped_logo.jpg", {
+                                type: "image/jpeg"
+                            });
+
+                            dataTransfer.items.add(croppedFile);
+                            logoInput.files = dataTransfer.files;
+
+                            form.submit();
+                        }
+                    });
+                });
+            </script>
+
             <div class="btn-toolbar">
                 <div class="dropdown w-25">
                     <button class="btn btn-outline-secondary dropdown-toggle w-75" type="button" id="dropdownMenuButton"
