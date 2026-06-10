@@ -179,7 +179,7 @@ class Create(ProjectContextMixin, TemplateView):
 
         attributes_form_set = formset_factory(AttributeForm, max_num=0)
         attributes = attributes_form_set(prefix="attr", initial=attributes_initial_data)
-        smart_data_model_form = SmartDataModelQueryForm(initial={"data_model": ".."})
+        smart_data_model_form = SmartDataModelQueryForm(initial={"data_model": ".."}, project=self.project)
 
         context = super(Create, self).get_context_data(**kwargs)
         context["basic_info"] = basic_info
@@ -231,7 +231,7 @@ class Create(ProjectContextMixin, TemplateView):
             context["basic_info"] = basic_info
             context["attributes"] = attributes
             context["smart_data_model_form"] = SmartDataModelQueryForm(
-                initial=request.POST
+                initial=request.POST, project=self.project
             )
             return render(request, self.template_name, context)
             # create entity
