@@ -1,5 +1,6 @@
 {% extends '_base.html' %}
 {% load crispy_forms_tags %}
+{% load static %}
 
 {% block title %}
     {% if project.name %} {{ project.name }}
@@ -8,7 +9,7 @@
 {% endblock %}
 
 {% block extra_head %}
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css">
+    <link rel="stylesheet" href="{% static 'cropper/cropper.css' %}">
     <style>
         .img-container img {
             max-width: 100%;
@@ -39,13 +40,13 @@
                         </div>
                         <div class="modal-footer">
                             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                            <button type="button" class="btn btn-primary" id="crop-btn">Crop & Save</button>
+                            <button type="button" class="btn btn-primary" id="crop-btn">Crop</button>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
+            <script src="{% static 'cropper/cropper.js' %}" type="text/javascript"></script>
             <script>
                 document.addEventListener("DOMContentLoaded", function () {
                     const logoInput = document.getElementById("logo-input");
@@ -79,7 +80,13 @@
                         cropper = new Cropper(imageToCrop, {
                             aspectRatio: 160 / 150, // Matches your Django model: size=[160, 150]
                             viewMode: 1,            // Restricts the crop box to not exceed the size of the canvas
-                            autoCropArea: 1,
+                            autoCropArea: 0.8,   // ↓ allow margins
+                            zoomable: true,
+                            minCropBoxWidth: 50,
+                            minCropBoxHeight: 50,
+                            background: false,
+                            movable: true,
+                            dragMode: 'move',
                         });
                     });
 
@@ -170,7 +177,7 @@
                                 {% for user in form.users.field.queryset %}
                                     <div class="form-check">
                                         <input class="form-check-input" type="checkbox" name="users"
-                                               id="user_{{ viewer.id }}"
+                                               id="user_{{ user.id }}"
                                                value="{{ user.id }}" {% if user.id in form.fields.users.initial %}checked{% endif %}>
                                         <label class="form-check-label" for="user_{{ user.id }}">
                                             {{ user.username }}
