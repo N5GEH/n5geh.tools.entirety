@@ -17,6 +17,24 @@ h1{
     overflow-y: auto;
 }
 
-.form-check[aria-hidden="false"] {
-    display: block;
+.dropdown-menu {
+    max-height: 320px;
+    overflow-y: auto;
+}
+
+.item-row {
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.item-row:hover {
+    background: #f5f5f5;
+}
+
+.form-check-label {
+    cursor: pointer;
+}
+
+.dropdown .dropdown-menu .form-check.hidden-item {
+    display: none !important;
 }
