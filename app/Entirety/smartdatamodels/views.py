@@ -14,9 +14,9 @@ class SmartDataModelsList(ProjectContextAndViewOnlyMixin, ListView):
         context = super(SmartDataModelsList, self).get_context_data(**kwargs)
         context["view_only"] = (
             True
-            if self.request.user in self.project.viewers.all()
-            and self.request.user not in self.project.maintainers.all()
-            and self.request.user not in self.project.users.all()
+            if (self.request.user in self.project.viewers.all()) or self.project.is_viewer_public
+               and (self.request.user not in self.project.maintainers.all()) and not self.project.is_maintainer_public
+               and (self.request.user not in self.project.users.all()) and not self.project.is_maintainer_public
             and self.request.user is not self.project.owner
             else False
         )
@@ -51,9 +51,9 @@ class Create(ProjectContextMixin, CreateView):
         kwargs = super(Create, self).get_form_kwargs()
         view_only = (
             True
-            if self.request.user in self.project.viewers.all()
-            and self.request.user not in self.project.maintainers.all()
-            and self.request.user not in self.project.users.all()
+            if (self.request.user in self.project.viewers.all()) or self.project.is_viewer_public
+               and (self.request.user not in self.project.maintainers.all()) and not self.project.is_maintainer_public
+               and (self.request.user not in self.project.users.all()) and not self.project.is_maintainer_public
             and self.request.user is not self.project.owner
             else False
         )
@@ -84,9 +84,9 @@ class Update(ProjectContextAndViewOnlyMixin, UpdateView):
         kwargs = super(Update, self).get_form_kwargs()
         view_only = (
             True
-            if self.request.user in self.project.viewers.all()
-            and self.request.user not in self.project.maintainers.all()
-            and self.request.user not in self.project.users.all()
+            if (self.request.user in self.project.viewers.all()) or self.project.is_viewer_public
+               and (self.request.user not in self.project.maintainers.all()) and not self.project.is_maintainer_public
+               and (self.request.user not in self.project.users.all()) and not self.project.is_maintainer_public
             and self.request.user is not self.project.owner
             else False
         )

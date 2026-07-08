@@ -84,9 +84,9 @@ class EntityList(ProjectContextAndViewOnlyMixin, SingleTableMixin, TemplateView)
         context["selection_form"] = SelectionForm
         context["view_only"] = (
             True
-            if self.request.user in self.project.viewers.all()
-            and self.request.user not in self.project.maintainers.all()
-            and self.request.user not in self.project.users.all()
+            if (self.request.user in self.project.viewers.all()) or self.project.is_viewer_public
+               and (self.request.user not in self.project.maintainers.all()) and not self.project.is_maintainer_public
+               and (self.request.user not in self.project.users.all()) and not self.project.is_maintainer_public
             and self.request.user is not self.project.owner
             else False
         )
@@ -390,9 +390,9 @@ class Update(ProjectContextAndViewOnlyMixin, TemplateView):
         context["update_entity"] = entity.id
         context["view_only"] = (
             True
-            if self.request.user in self.project.viewers.all()
-            and self.request.user not in self.project.maintainers.all()
-            and self.request.user not in self.project.users.all()
+            if (self.request.user in self.project.viewers.all()) or self.project.is_viewer_public
+            and (self.request.user not in self.project.maintainers.all()) and not self.project.is_maintainer_public
+            and (self.request.user not in self.project.users.all()) and not self.project.is_maintainer_public
             and self.request.user is not self.project.owner
             else False
         )
