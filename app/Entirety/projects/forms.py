@@ -46,6 +46,37 @@ class ProjectForm(forms.ModelForm):
         self.fields["webpage_url"].required = False
         self.fields["dashboard_url"].required = False
 
+        self.fields["is_viewer_public"] = forms.BooleanField(
+            required=False,
+            initial=self.instance.is_viewer_public if self.instance.pk else False,
+            widget=forms.CheckboxInput(
+                attrs={
+                    "class": "form-check-input wildcard-toggle",
+                    "data-role": "viewers",
+                }
+            ),
+        )
+        self.fields["is_user_public"] = forms.BooleanField(
+            required=False,
+            initial=self.instance.is_user_public if self.instance.pk else False,
+            widget=forms.CheckboxInput(
+                attrs={
+                    "class": "form-check-input wildcard-toggle",
+                    "data-role": "users",
+                }
+            ),
+        )
+        self.fields["is_maintainer_public"] = forms.BooleanField(
+            required=False,
+            initial=self.instance.is_maintainer_public if self.instance.pk else False,
+            widget=forms.CheckboxInput(
+                attrs={
+                    "class": "form-check-input wildcard-toggle",
+                    "data-role": "maintainers",
+                }
+            ),
+        )
+
         self.fields["viewers"] = AllSelectableModelMultipleChoiceField(
             queryset=(
                 User.objects.exclude(id=self.instance.owner_id)
@@ -129,6 +160,10 @@ class ProjectForm(forms.ModelForm):
         instance.viewers.set(self.cleaned_data["viewers"])
         instance.users.set(self.cleaned_data["users"])
         instance.maintainers.set(self.cleaned_data["maintainers"])
+
+        instance.is_viewer_public = self.cleaned_data.get("is_viewer_public", False)
+        instance.is_user_public = self.cleaned_data.get("is_user_public", False)
+        instance.is_maintainer_public = self.cleaned_data.get("is_maintainer_public", False)
 
         if commit:
             instance.save()

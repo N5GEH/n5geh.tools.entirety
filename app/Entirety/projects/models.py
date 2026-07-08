@@ -25,17 +25,30 @@ class Project(models.Model):
     maintainers = models.ManyToManyField(User, related_name="maintainers", blank=True)
     viewers = models.ManyToManyField(User, related_name="viewers", blank=True)
 
+    is_viewer_public = models.BooleanField(
+        default=False,
+        help_text="If enabled, all users (including future ones) have viewer access.",
+    )
+    is_user_public = models.BooleanField(
+        default=False,
+        help_text="If enabled, all users (including future ones) have user access.",
+    )
+    is_maintainer_public = models.BooleanField(
+        default=False,
+        help_text="If enabled, all users (including future ones) have maintainer access.",
+    )
+
     def is_owner(self, user: User):
         return self.owner == user
 
     def is_user(self, user: User):
-        return user in self.users.all()
+        return self.is_user_public or user in self.users.all()
 
     def is_maintainer(self, user: User):
-        return user in self.maintainers.all()
+        return self.is_maintainer_public or user in self.maintainers.all()
 
     def is_viewer(self, user: User):
-        return user in self.viewers.all()
+        return self.is_viewer_public or user in self.viewers.all()
 
     def __str__(self):
         return self.name
