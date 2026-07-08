@@ -24,11 +24,11 @@ class SmartDataModelForm(forms.ModelForm):
 
 
 class SmartDataModelQueryForm(forms.Form):
-    def __init__(self, *args, **kwargs):
+    def __init__(self, project=None, *args, **kwargs):
         super(SmartDataModelQueryForm, self).__init__(*args, **kwargs)
         self.helper = FormHelper(self)
         self.helper.form_tag = False
-        qs = SmartDataModel.objects.all()
+        qs = SmartDataModel.objects.filter(project=project)
         list_of_schemas = []
         for set in qs:
             list_of_schemas.append({"name": set.name, "value": set.name})

@@ -93,7 +93,7 @@ class ServiceGroupCreateView(ProjectContextMixin, TemplateView):
         #     )
         #     basic_info = ServiceGroupBasic(initial={"resource": service_group_template.resource,
         #                                             "entity_type": service_group_template.entity_type})
-        smart_data_model_form = SmartDataModelQueryForm(initial={"data_model": ".."})
+        smart_data_model_form = SmartDataModelQueryForm(initial={"data_model": ".."}, project=self.project)
         attributes = Attributes(prefix=prefix_attributes)
         basic_info = ServiceGroupBasic(initial={"resource": "/iot/json"})
         context: dict = super(ServiceGroupCreateView, self).get_context_data(**kwargs)
@@ -126,7 +126,7 @@ class ServiceGroupCreateSubmitView(ProjectContextMixin, TemplateView):
                 **kwargs
             )
             context["smart_data_model_form"] = SmartDataModelQueryForm(
-                initial=request.POST
+                initial=request.POST, project=self.project
             )
             context = {
                 "basic_info": basic_info,
@@ -186,7 +186,7 @@ class ServiceGroupCreateSubmitView(ProjectContextMixin, TemplateView):
                 **kwargs
             )
             context["smart_data_model_form"] = SmartDataModelQueryForm(
-                initial=request.POST
+                initial=request.POST, project=self.project
             )
             context = {
                 "basic_info": basic_info,
@@ -206,7 +206,7 @@ class ServiceGroupDataModelCreateView(ProjectContextMixin, TemplateView):
         context = super(ServiceGroupDataModelCreateView, self).get_context_data(
             **kwargs
         )
-        context["smart_data_model_form"] = SmartDataModelQueryForm()
+        context["smart_data_model_form"] = SmartDataModelQueryForm(initial={"data_model": ".."}, project=self.project)
         return context
 
 

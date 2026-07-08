@@ -178,6 +178,7 @@ class ProjectForm(forms.ModelForm):
             ),
             "logo": forms.ClearableFileInput(
                 attrs={
+                    "id": "logo-input",
                     "data-bs-toggle": "tooltip",
                     "data-bs-placement": "left",
                     "title": "Project logo",
