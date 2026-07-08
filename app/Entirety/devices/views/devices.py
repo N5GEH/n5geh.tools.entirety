@@ -75,32 +75,40 @@ class DeviceListView(ProjectContextAndViewOnlyMixin, MultiTableMixin, TemplateVi
         if not pattern:
             pattern = pop_data_from_session(request=self.request, key="search-pattern")
             pattern = "" if not pattern else pattern
-        device_list = get_devices(self, self.project)
-        devices = device_list.devices
-        invalid_devices = device_list.invalid_devices
-        if invalid_devices:
-            messages.warning(
-                self.request,
-                f"{len(invalid_devices)} invalid devices found. Please check the log for more details.",
-            )
-            logger.warning(
-                f"{len(invalid_devices)} invalid devices found in project {self.project.name}: "
-                f"{invalid_devices}"
-            )
-        # The filtering is now based on a general pattern
-        return pattern_devices_filter(devices, pattern)
+        try:
+            device_list = get_devices(self, self.project)
+            devices = device_list.devices
+            invalid_devices = device_list.invalid_devices
+            if invalid_devices:
+                messages.warning(
+                    self.request,
+                    f"{len(invalid_devices)} invalid devices found. Please check the log for more details.",
+                )
+                logger.warning(
+                    f"{len(invalid_devices)} invalid devices found in project {self.project.name}: "
+                    f"{invalid_devices}"
+                )
+                # The filtering is now based on a general pattern
+                return pattern_devices_filter(devices, pattern)
+        except Exception as e:
+            messages.error(self.request, e)
+            return redirect("projects:devices:list", project_id=self.project.uuid)
 
     def get_groups_data(self):
         pattern = self.request.GET.get("search-pattern-groups", default="")
-        groups_temp = get_service_groups(self, self.project)
-        group_filter = pattern_service_groups_filter(groups_temp, pattern)
-        # add dummy id
-        groups = []
-        for i, group_temp in enumerate(group_filter):
-            group = _ServiceGroup(group_temp)
-            group.id = i + 1
-            groups.append(group)
-        return groups
+        try:
+            groups_temp = get_service_groups(self, self.project)
+            group_filter = pattern_service_groups_filter(groups_temp, pattern)
+            # add dummy id
+            groups = []
+            for i, group_temp in enumerate(group_filter):
+                group = _ServiceGroup(group_temp)
+                group.id = i + 1
+                groups.append(group)
+            return groups
+        except Exception as e:
+            messages.error(self.request, e)
+            return redirect("projects:devices:list", project_id=self.project.uuid)
 
     def get_tables(self):
         return [
