@@ -205,7 +205,7 @@ class DeviceCreateView(ProjectContextMixin, TemplateView):
         attributes = Attributes(prefix=prefix_attributes)
         commands = Commands(prefix=prefix_commands)
         context: dict = super(DeviceCreateView, self).get_context_data(**kwargs)
-        smart_data_model_form = SmartDataModelQueryForm(initial={"data_model": ".."})
+        smart_data_model_form = SmartDataModelQueryForm(initial={"data_model": ".."}, project=self.project)
         context = {
             "basic_info": basic_info,
             "attributes": attributes,
@@ -293,7 +293,7 @@ class DeviceCreateSubmitView(ProjectContextMixin, TemplateView):
             commands = Commands(prefix=prefix_commands)
 
             context["smart_data_model_form"] = SmartDataModelQueryForm(
-                initial=request.POST
+                initial=request.POST, project=self.project
             )
             context = {
                 "basic_info": basic_info,
@@ -362,7 +362,7 @@ class DeviceCreateSubmitView(ProjectContextMixin, TemplateView):
                 **kwargs
             )
             context["smart_data_model_form"] = SmartDataModelQueryForm(
-                initial=request.POST
+                initial=request.POST, project=self.project
             )
 
             context = {
