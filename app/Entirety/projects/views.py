@@ -34,10 +34,6 @@ class Index(LoginRequiredMixin, ListView):
         search_query = self.request.GET.get("search", default="")
         qs = Project.objects.filter(name__icontains=search_query)
 
-        if not settings.LOCAL_AUTH:
-            fiware_services = get_fiware_services(self.request)
-            qs = qs.filter(fiware_service__in=fiware_services)
-
         # Apply user role filters
         user = self.request.user
         if user.is_server_admin:

@@ -37,41 +37,41 @@ class List(ProjectContextAndViewOnlyMixin, ListView):
         # Use queryset not in the way it's intended
         data = []
         Subscription.objects.all().delete()
-        with ContextBrokerClient(
-            url=settings.CB_URL,
-            fiware_header=get_fiware_header(self.request, self.project),
-        ) as cb_client:
-            subs_cb = []
-            try:
+        subs_cb = []
+        try:
+            with ContextBrokerClient(
+                    url=settings.CB_URL,
+                    fiware_header=get_fiware_header(self.request, self.project),
+            ) as cb_client:
                 subs_cb = cb_client.get_subscription_list()
-            except Exception as e:
-                messages.error(self.request, e)
-            for sub_cb in subs_cb:
-                sub = Subscription(uuid=sub_cb.id)
-                sub.description = sub_cb.description
-                sub.status = sub_cb.status
-                sub.project = self.project
-                if not sub_cb.subject.entities:
-                    pass  # add nothing if no entities
-                else:
-                    if sub_cb.subject.entities[0].id:
-                        sub.entity_id = sub_cb.subject.entities[0].id
-                    if sub_cb.subject.entities[0].idPattern:
-                        sub.entity_id_pattern = sub_cb.subject.entities[
-                            0
-                        ].idPattern.pattern
-                    if sub_cb.subject.entities[0].type:
-                        sub.entity_type = sub_cb.subject.entities[0].type
-                    if sub_cb.subject.entities[0].typePattern:
-                        sub.entity_type_pattern = sub_cb.subject.entities[
-                            0
-                        ].typePattern.pattern
-                # get url
-                url = self.get_notification_url(sub_cb)
-                sub.notification_endpoint = url
+        except Exception as e:
+            messages.error(self.request, e)
+        for sub_cb in subs_cb:
+            sub = Subscription(uuid=sub_cb.id)
+            sub.description = sub_cb.description
+            sub.status = sub_cb.status
+            sub.project = self.project
+            if not sub_cb.subject.entities:
+                pass  # add nothing if no entities
+            else:
+                if sub_cb.subject.entities[0].id:
+                    sub.entity_id = sub_cb.subject.entities[0].id
+                if sub_cb.subject.entities[0].idPattern:
+                    sub.entity_id_pattern = sub_cb.subject.entities[
+                        0
+                    ].idPattern.pattern
+                if sub_cb.subject.entities[0].type:
+                    sub.entity_type = sub_cb.subject.entities[0].type
+                if sub_cb.subject.entities[0].typePattern:
+                    sub.entity_type_pattern = sub_cb.subject.entities[
+                        0
+                    ].typePattern.pattern
+            # get url
+            url = self.get_notification_url(sub_cb)
+            sub.notification_endpoint = url
 
-                sub.save()
-                data.append(sub)
+            sub.save()
+            data.append(sub)
         return data
 
     def get_context_data(self, **kwargs):
