@@ -9,6 +9,17 @@ from users.models import User
 from utils.auth import get_fiware_services
 from .models import Project
 
+from django.forms import ModelMultipleChoiceField
+
+
+class AllSelectableModelMultipleChoiceField(ModelMultipleChoiceField):
+    ALL_VALUE = "__all__"
+
+    def clean(self, value):
+        if value and self.ALL_VALUE in value:
+            return self.queryset
+        return super().clean(value)
+
 
 class ProjectForm(forms.ModelForm):
     def __init__(self, user, request, *args, **kwargs):
@@ -35,7 +46,38 @@ class ProjectForm(forms.ModelForm):
         self.fields["webpage_url"].required = False
         self.fields["dashboard_url"].required = False
 
-        self.fields["viewers"] = forms.ModelMultipleChoiceField(
+        self.fields["is_viewer_public"] = forms.BooleanField(
+            required=False,
+            initial=self.instance.is_viewer_public if self.instance.pk else False,
+            widget=forms.CheckboxInput(
+                attrs={
+                    "class": "form-check-input wildcard-toggle",
+                    "data-role": "viewers",
+                }
+            ),
+        )
+        self.fields["is_user_public"] = forms.BooleanField(
+            required=False,
+            initial=self.instance.is_user_public if self.instance.pk else False,
+            widget=forms.CheckboxInput(
+                attrs={
+                    "class": "form-check-input wildcard-toggle",
+                    "data-role": "users",
+                }
+            ),
+        )
+        self.fields["is_maintainer_public"] = forms.BooleanField(
+            required=False,
+            initial=self.instance.is_maintainer_public if self.instance.pk else False,
+            widget=forms.CheckboxInput(
+                attrs={
+                    "class": "form-check-input wildcard-toggle",
+                    "data-role": "maintainers",
+                }
+            ),
+        )
+
+        self.fields["viewers"] = AllSelectableModelMultipleChoiceField(
             queryset=(
                 User.objects.exclude(id=self.instance.owner_id)
                 & User.objects.exclude(id=user.id)
@@ -44,7 +86,7 @@ class ProjectForm(forms.ModelForm):
             required=False,
         )
 
-        self.fields["users"] = forms.ModelMultipleChoiceField(
+        self.fields["users"] = AllSelectableModelMultipleChoiceField(
             widget=forms.CheckboxSelectMultiple,
             queryset=(
                 User.objects.exclude(id=self.instance.owner_id)
@@ -54,7 +96,7 @@ class ProjectForm(forms.ModelForm):
         )
 
         if user in self.instance.maintainers.all():
-            self.fields["maintainers"] = forms.ModelMultipleChoiceField(
+            self.fields["maintainers"] = AllSelectableModelMultipleChoiceField(
                 queryset=self.instance.maintainers.all(),
                 widget=forms.CheckboxSelectMultiple(
                     attrs={
@@ -67,7 +109,7 @@ class ProjectForm(forms.ModelForm):
                 required=False,
             )
         else:
-            self.fields["maintainers"] = forms.ModelMultipleChoiceField(
+            self.fields["maintainers"] = AllSelectableModelMultipleChoiceField(
                 queryset=(
                     User.objects.exclude(id=self.instance.owner_id)
                     & User.objects.exclude(id=user.id)
@@ -93,27 +135,16 @@ class ProjectForm(forms.ModelForm):
                 (x, x) for x in get_fiware_services(request)
             ]
 
-        if self.is_bound:
-            self.fields["viewers"].initial = [
-                int(id) for id in self.data.getlist("viewers")
-            ]
-            self.fields["users"].initial = [
-                int(id) for id in self.data.getlist("users")
-            ]
-            self.fields["maintainers"].initial = [
-                int(id) for id in self.data.getlist("maintainers")
-            ]
-        else:
-            if self.instance.pk:
-                self.fields["viewers"].initial = list(
-                    self.instance.viewers.values_list("id", flat=True)
-                )
-                self.fields["users"].initial = list(
-                    self.instance.users.values_list("id", flat=True)
-                )
-                self.fields["maintainers"].initial = list(
-                    self.instance.maintainers.values_list("id", flat=True)
-                )
+        if self.instance.pk:
+            self.fields["viewers"].initial = list(
+                self.instance.viewers.values_list("id", flat=True)
+            )
+            self.fields["users"].initial = list(
+                self.instance.users.values_list("id", flat=True)
+            )
+            self.fields["maintainers"].initial = list(
+                self.instance.maintainers.values_list("id", flat=True)
+            )
 
     def clean(self):
         cleaned_data = super().clean()
@@ -129,6 +160,10 @@ class ProjectForm(forms.ModelForm):
         instance.viewers.set(self.cleaned_data["viewers"])
         instance.users.set(self.cleaned_data["users"])
         instance.maintainers.set(self.cleaned_data["maintainers"])
+
+        instance.is_viewer_public = self.cleaned_data.get("is_viewer_public", False)
+        instance.is_user_public = self.cleaned_data.get("is_user_public", False)
+        instance.is_maintainer_public = self.cleaned_data.get("is_maintainer_public", False)
 
         if commit:
             instance.save()

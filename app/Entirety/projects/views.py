@@ -44,20 +44,24 @@ class Index(LoginRequiredMixin, ListView):
             return qs.order_by("-date_modified")
 
         elif user.is_project_admin:
-            # Projects where user is owner, users, maintainers, or viewers
             return (
                 qs.filter(owner=user).distinct()
                 | qs.filter(users=user).distinct()
                 | qs.filter(maintainers=user).distinct()
                 | qs.filter(viewers=user).distinct()
+                | qs.filter(is_user_public=True).distinct()
+                | qs.filter(is_maintainer_public=True).distinct()
+                | qs.filter(is_viewer_public=True).distinct()
             ).order_by("-date_modified")
 
         else:
-            # Regular user: users, maintainers, viewers
             return (
                 qs.filter(users=user).distinct()
                 | qs.filter(maintainers=user).distinct()
                 | qs.filter(viewers=user).distinct()
+                | qs.filter(is_user_public=True).distinct()
+                | qs.filter(is_maintainer_public=True).distinct()
+                | qs.filter(is_viewer_public=True).distinct()
             ).order_by("-date_modified")
 
 

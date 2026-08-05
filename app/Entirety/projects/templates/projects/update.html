@@ -139,84 +139,180 @@
             </script>
 
             <div class="btn-toolbar">
-                <div class="dropdown w-25">
-                    <button class="btn btn-outline-secondary dropdown-toggle w-75" type="button" id="dropdownMenuButton"
+                <div class="dropdown w-25" data-group="viewers">
+                    <button class="btn btn-outline-secondary dropdown-toggle w-75" type="button"
                             data-bs-toggle="dropdown" aria-expanded="false">
-                        <i class="bi bi-people"></i>
                         Viewers
                     </button>
-                    <div class="dropdown-menu dropdown-scrollable-checkboxes" aria-labelledby="dropdownMenuButton">
-                        <div class="px-3 py-2">
-                            <input type="text" class="form-control" id="viewerSearch" placeholder="Search viewers...">
-                            <div id="viewerList" class="mt-2">
-                                {% for viewer in form.viewers.field.queryset %}
-                                    <div class="form-check">
-                                        <input class="form-check-input" type="checkbox" name="viewers"
-                                               id="viewer_{{ viewer.id }}" value="{{ viewer.id }}"
-                                               {% if viewer.id in form.fields.viewers.initial %}checked{% endif %}>
-                                        <label class="form-check-label" for="viewer_{{ viewer.id }}">
-                                            {{ viewer.username }}
-                                        </label>
-                                    </div>
-                                {% endfor %}
-                            </div>
+
+                    <div class="dropdown-menu dropdown-scrollable-checkboxes p-2">
+
+                        <input type="text" class="form-control mb-2 search-input" placeholder="Search viewers...">
+
+                        <div class="form-check form-switch border-bottom pb-2 mb-2 wildcard-row">
+                            <input class="form-check-input wildcard-toggle" type="checkbox"
+                                   name="is_viewer_public"
+                                   id="is_viewer_public"
+                                   data-role-group="viewers"
+                                   {% if form.fields.is_viewer_public.initial %}checked{% endif %}>
+                            <label class="form-check-label fw-semibold" for="is_viewer_public">
+                                Allow all users as viewers
+                            </label>
                         </div>
+
+                        <div class="form-check border-bottom pb-2 mb-2 select-all-row">
+                            <input class="form-check-input select-all" type="checkbox" id="viewers_all">
+                            <label class="form-check-label fw-semibold">Select all</label>
+                        </div>
+
+                        {% for viewer in form.viewers.field.queryset %}
+                            <div class="form-check d-flex align-items-center gap-2 item-row">
+                                <input class="form-check-input item-checkbox"
+                                       type="checkbox"
+                                       name="viewers"
+                                       value="{{ viewer.id }}"
+                                       id="viewer_{{ viewer.id }}"
+                                       {% if viewer.id in form.fields.viewers.initial %}checked{% endif %}>
+
+                                <label class="form-check-label flex-grow-1"
+                                       for="viewer_{{ viewer.id }}">
+                                    {{ viewer.username }}
+                                </label>
+                            </div>
+                        {% endfor %}
                     </div>
                 </div>
 
-                <div class="dropdown w-25">
-                    <button class="btn btn-outline-secondary dropdown-toggle w-75" type="button" id="dropdownMenuButton"
-                            data-bs-toggle="dropdown" aria-expanded="false">
-                        <i class="bi bi-people"></i>
+                <div class="dropdown w-25" data-group="users">
+                    <button class="btn btn-outline-secondary dropdown-toggle w-75" type="button"
+                            data-bs-toggle="dropdown">
                         Users
                     </button>
-                    <div class="dropdown-menu dropdown-scrollable-checkboxes" aria-labelledby="dropdownMenuButton">
-                        <div class="px-3 py-2">
-                            <input type="text" class="form-control" id="userSearch" placeholder="Search users...">
-                            <div id="userList" class="mt-2">
-                                {% for user in form.users.field.queryset %}
-                                    <div class="form-check">
-                                        <input class="form-check-input" type="checkbox" name="users"
-                                               id="user_{{ user.id }}"
-                                               value="{{ user.id }}" {% if user.id in form.fields.users.initial %}checked{% endif %}>
-                                        <label class="form-check-label" for="user_{{ user.id }}">
-                                            {{ user.username }}
-                                        </label>
-                                    </div>
-                                {% endfor %}
-                            </div>
+
+                    <div class="dropdown-menu dropdown-scrollable-checkboxes p-2">
+
+                        <input type="text" class="form-control mb-2 search-input" placeholder="Search users...">
+
+                        <div class="form-check form-switch border-bottom pb-2 mb-2 wildcard-row">
+                            <input class="form-check-input wildcard-toggle" type="checkbox"
+                                   name="is_user_public"
+                                   id="is_user_public"
+                                   data-role-group="users"
+                                   {% if form.fields.is_user_public.initial %}checked{% endif %}>
+                            <label class="form-check-label fw-semibold" for="is_user_public">
+                                Allow all users as users
+                            </label>
                         </div>
+
+                        <div class="form-check border-bottom pb-2 mb-2 select-all-row">
+                            <input class="form-check-input select-all" type="checkbox" id="users_all">
+                            <label class="form-check-label fw-semibold">Select all</label>
+                        </div>
+
+                        {% for user in form.users.field.queryset %}
+                            <div class="form-check d-flex align-items-center gap-2 item-row">
+                                <input class="form-check-input item-checkbox"
+                                       type="checkbox"
+                                       name="users"
+                                       value="{{ user.id }}"
+                                       id="user_{{ user.id }}"
+                                       {% if user.id in form.fields.users.initial %}checked{% endif %}>
+
+                                <label class="form-check-label flex-grow-1"
+                                       for="user_{{ user.id }}">
+                                    {{ user.username }}
+                                </label>
+                            </div>
+                        {% endfor %}
                     </div>
                 </div>
 
-                <div class="dropdown w-25">
-                    <button class="btn btn-outline-secondary dropdown-toggle w-75" type="button" id="dropdownMenuButton"
-                            data-bs-toggle="dropdown" aria-expanded="false">
-                        <i class="bi bi-people"></i>
+                <div class="dropdown w-25" data-group="maintainers">
+                    <button class="btn btn-outline-secondary dropdown-toggle w-75" type="button"
+                            data-bs-toggle="dropdown">
                         Maintainers
                     </button>
-                    <div class="dropdown-menu dropdown-scrollable-checkboxes" aria-labelledby="dropdownMenuButton">
-                        <div class="px-3 py-2">
-                            <input type="text" class="form-control" id="maintainerSearch" placeholder="Search maintainers...">
-                            <div id="maintainerList" class="mt-2">
-                                {% for maintainer in form.maintainers.field.queryset %}
-                                    <div class="form-check">
-                                        <input class="form-check-input" type="checkbox" name="maintainers"
-                                               id="maintainer_{{ maintainer.id }}" value="{{ maintainer.id }}"
-                                               {% if maintainer.id in form.fields.maintainers.initial %}checked{% endif %}
-                                               {% if user.id in form.fields.maintainers.initial %}disabled{% endif %}>
-                                        <label class="form-check-label" for="viewer_{{ maintainer.id }}">
-                                            {{ maintainer.username }}
-                                        </label>
-                                    </div>
-                                {% endfor %}
-                            </div>
+
+                    <div class="dropdown-menu dropdown-scrollable-checkboxes p-2">
+
+                        <input type="text" class="form-control mb-2 search-input" placeholder="Search maintainers...">
+
+                        <div class="form-check form-switch border-bottom pb-2 mb-2 wildcard-row">
+                            <input class="form-check-input wildcard-toggle" type="checkbox"
+                                   name="is_maintainer_public"
+                                   id="is_maintainer_public"
+                                   data-role-group="maintainers"
+                                   {% if form.fields.is_maintainer_public.initial %}checked{% endif %}>
+                            <label class="form-check-label fw-semibold" for="is_maintainer_public">
+                                Allow all users as maintainers
+                            </label>
                         </div>
+
+                        <div class="form-check border-bottom pb-2 mb-2 select-all-row">
+                            <input class="form-check-input select-all" type="checkbox" id="maintainers_all">
+                            <label class="form-check-label fw-semibold">Select all</label>
+                        </div>
+
+                        {% for maintainer in form.maintainers.field.queryset %}
+                            <div class="form-check d-flex align-items-center gap-2 item-row">
+                                <input class="form-check-input item-checkbox"
+                                       type="checkbox"
+                                       name="maintainers"
+                                       value="{{ maintainer.id }}"
+                                       id="maintainer_{{ maintainer.id }}"
+                                       {% if maintainer.id in form.fields.maintainers.initial %}checked{% endif %}
+                                       {% if user.id in form.fields.maintainers.initial %}disabled{% endif %}>
+
+                                <label class="form-check-label flex-grow-1"
+                                       for="maintainer_{{ maintainer.id }}">
+                                    {{ maintainer.username }}
+                                </label>
+                            </div>
+                        {% endfor %}
                     </div>
                 </div>
             </div>
             <input class="btn btn-primary mt-2" name="save" value="Save" type="submit" id="submit-id-save">
         </form>
     </div>
+
+    <script>
+        function updateWildcardState(toggle) {
+            const dropdown = toggle.closest('.dropdown-menu');
+            const isWildcard = toggle.checked;
+            const checkboxes = dropdown.querySelectorAll('.item-checkbox');
+            const selectAll = dropdown.querySelector('.select-all');
+            const rows = dropdown.querySelectorAll('.item-row');
+            const selectAllRow = dropdown.querySelector('.select-all-row');
+
+            checkboxes.forEach(cb => {
+                cb.disabled = isWildcard;
+                if (isWildcard) cb.checked = false;
+            });
+
+            if (selectAll) {
+                selectAll.disabled = isWildcard;
+                if (isWildcard) selectAll.checked = false;
+            }
+
+            rows.forEach(row => {
+                row.style.opacity = isWildcard ? '0.5' : '1';
+            });
+
+            if (selectAllRow) {
+                selectAllRow.style.opacity = isWildcard ? '0.5' : '1';
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', function () {
+            const toggles = document.querySelectorAll('.wildcard-toggle');
+            toggles.forEach(toggle => {
+                updateWildcardState(toggle);
+                toggle.addEventListener('change', function () {
+                    updateWildcardState(this);
+                });
+            });
+        });
+    </script>
 
 {% endblock %}
