@@ -88,8 +88,8 @@ class DeviceListView(ProjectContextAndViewOnlyMixin, MultiTableMixin, TemplateVi
                     f"{len(invalid_devices)} invalid devices found in project {self.project.name}: "
                     f"{invalid_devices}"
                 )
-                # The filtering is now based on a general pattern
-                return pattern_devices_filter(devices, pattern)
+            # The filtering is now based on a general pattern
+            return pattern_devices_filter(devices, pattern)
         except Exception as e:
             messages.error(self.request, e)
             return redirect("projects:devices:list", project_id=self.project.uuid)
@@ -137,9 +137,12 @@ class DeviceListView(ProjectContextAndViewOnlyMixin, MultiTableMixin, TemplateVi
             context["to_servicegroup"] = True
         context["view_only"] = (
             True
-            if (self.request.user in self.project.viewers.all()) or self.project.is_viewer_public
-               and (self.request.user not in self.project.maintainers.all()) and not self.project.is_maintainer_public
-               and (self.request.user not in self.project.users.all()) and not self.project.is_maintainer_public
+            if (self.request.user in self.project.viewers.all())
+            or self.project.is_viewer_public
+            and (self.request.user not in self.project.maintainers.all())
+            and not self.project.is_maintainer_public
+            and (self.request.user not in self.project.users.all())
+            and not self.project.is_maintainer_public
             and self.request.user is not self.project.owner
             else False
         )
@@ -213,7 +216,9 @@ class DeviceCreateView(ProjectContextMixin, TemplateView):
         attributes = Attributes(prefix=prefix_attributes)
         commands = Commands(prefix=prefix_commands)
         context: dict = super(DeviceCreateView, self).get_context_data(**kwargs)
-        smart_data_model_form = SmartDataModelQueryForm(initial={"data_model": ".."}, project=self.project)
+        smart_data_model_form = SmartDataModelQueryForm(
+            initial={"data_model": ".."}, project=self.project
+        )
         context = {
             "basic_info": basic_info,
             "attributes": attributes,
@@ -424,9 +429,12 @@ class DeviceEditView(ProjectContextAndViewOnlyMixin, TemplateView):
             commands = Commands(prefix=prefix_commands)
         context["view_only"] = (
             True
-            if (self.request.user in self.project.viewers.all()) or self.project.is_viewer_public
-               and (self.request.user not in self.project.maintainers.all()) and not self.project.is_maintainer_public
-               and (self.request.user not in self.project.users.all()) and not self.project.is_maintainer_public
+            if (self.request.user in self.project.viewers.all())
+            or self.project.is_viewer_public
+            and (self.request.user not in self.project.maintainers.all())
+            and not self.project.is_maintainer_public
+            and (self.request.user not in self.project.users.all())
+            and not self.project.is_maintainer_public
             and self.request.user is not self.project.owner
             else False
         )
