@@ -48,7 +48,12 @@ class Project(models.Model):
         return self.is_maintainer_public or user in self.maintainers.all()
 
     def is_viewer(self, user: User):
-        return self.is_viewer_public or user in self.viewers.all()
+        view_right = self.is_viewer_public or user in self.viewers.all()
+        higher_right = self.is_maintainer(user) or self.is_user(user) or self.is_owner(user)
+        if higher_right:
+            return False
+        else:
+            return view_right
 
     def __str__(self):
         return self.name
