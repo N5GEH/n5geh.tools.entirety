@@ -10,7 +10,7 @@ django_tables2==2.4.1
 django-cors-headers~=3.14.0
 django-compressor~=4.1
 django-libsass==0.9
-filip~=0.7.5
+filip~=0.7.6
 pydjantic~=1.1.0
 mozilla_django_oidc==2.0.0
 crispy-bootstrap5==0.7
@@ -18,6 +18,5 @@ pre-commit==2.20.0
 psycopg2==2.9.11
 Pillow==10.3.0
 jsonpath_ng==1.6.1
-python-keycloak==5.8.1
 pyjwt==2.12.1
 git+https://jugit.fz-juelich.de/iek-10/public/ict-platform/fiware-applications/fidere.git@v1.0.0#egg=fidere
