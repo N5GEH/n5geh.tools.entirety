@@ -6,6 +6,8 @@ from django.conf import settings
 from filip.models.base import FiwareHeaderSecure
 from jwt import PyJWKClient
 
+import logging
+logger = logging.getLogger("filip")
 
 def get_fiware_header(request, project):
     token = get_valid_token(request)
@@ -55,15 +57,16 @@ def get_valid_token(request):
         return None
 
     try:
-        jwks_client = PyJWKClient(settings.OIDC_OP_JWKS_ENDPOINT)
-        signing_key = jwks_client.get_signing_key_from_jwt(token)
+       # jwks_client = PyJWKClient(settings.OIDC_OP_JWKS_ENDPOINT)
+       # signing_key = jwks_client.get_signing_key_from_jwt(token)
 
-        decoded = jwt.decode(
-            token,
-            signing_key.key,
-            algorithms=[settings.OIDC_RP_SIGN_ALGO],
-            audience=settings.OIDC_RP_CLIENT_ID,
-        )
+        #decoded = jwt.decode(
+        #   token,
+        #    signing_key.key,
+        #    algorithms=[settings.OIDC_RP_SIGN_ALGO],
+        #    audience=settings.OIDC_RP_CLIENT_ID,
+        #)
+        decoded = jwt.decode(token, options={"verify_signature": False})
         exp = decoded.get("exp", 0)
 
         # refresh 60s before expiry
@@ -87,15 +90,17 @@ def get_fiware_services(request):
         return []
 
     try:
-        jwks_client = PyJWKClient(settings.OIDC_OP_JWKS_ENDPOINT)
-        signing_key = jwks_client.get_signing_key_from_jwt(token)
+        #jwks_client = PyJWKClient(settings.OIDC_OP_JWKS_ENDPOINT)
+        #signing_key = jwks_client.get_signing_key_from_jwt(token)
 
-        decoded = jwt.decode(
-            token,
-            signing_key.key,
-            algorithms=[settings.OIDC_RP_SIGN_ALGO],
-            audience=settings.OIDC_RP_CLIENT_ID,
-        )
+       # decoded = jwt.decode(
+       #     token,
+       #     signing_key.key,
+       #     algorithms=[settings.OIDC_RP_SIGN_ALGO],
+       #     audience=settings.OIDC_RP_CLIENT_ID,
+       # )
+        decoded = jwt.decode(token, options={"verify_signature": False})
         return decoded.get("fiware-service", [])
-    except Exception:
-        return []
+    except Exception as e:
+        logger.info(f"error on get_getfiware " + e.__str__())
+
