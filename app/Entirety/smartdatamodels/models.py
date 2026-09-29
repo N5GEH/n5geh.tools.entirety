@@ -12,7 +12,7 @@ class SmartDataModel(models.Model):
     )
     date_created = models.DateTimeField(auto_now_add=True)
     date_modified = models.DateTimeField(auto_now=True)
-    name = models.CharField(max_length=64, unique=True)
+    name = models.CharField(max_length=64)
     jsonschema = models.JSONField(verbose_name="json schema", null=True)
     schema_link = models.URLField(verbose_name="schema URL", null=True)
     owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name="owner")
