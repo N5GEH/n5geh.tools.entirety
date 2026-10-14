@@ -41,9 +41,9 @@ def delete_json_files_in_temp():
             print(f"[entirety.parser] Error deleting {json_file}: {e}", flush=True)
 
 
-def parser(schema_name):
+def parser(schema_name, project):
     # get data model object
-    data_model = SmartDataModel.objects.get(name=schema_name)
+    data_model = SmartDataModel.objects.get(name=schema_name, project=project)
     # check if schema link or json model
     if data_model.jsonschema:
         path = save_schema_to_temp_file(data_model.jsonschema)
@@ -66,8 +66,8 @@ def parser(schema_name):
         return model_class_pydantic.model_fields, data_model
 
 
-def parse_entity(schema_name):
-    model, name = parser(schema_name)
+def parse_entity(schema_name, project):
+    model, name = parser(schema_name, project)
     entity_json = extract_id_and_type(model, name)
     for key, value in model.items():
         # check for id and type
