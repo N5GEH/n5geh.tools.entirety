@@ -201,9 +201,7 @@ class Create(ProjectContextMixin, TemplateView):
                 basic_info = EntityForm(self.project, self.request)
             else:
                 try:
-                    entity_json = parse_entity(
-                        self.request.POST.get("data_model"), self.project
-                    )
+                    entity_json = parse_entity(self.request.POST.get("data_model"))
                 # except NotImplementedError as e:
                 except KeyError as e:
                     messages.error(
