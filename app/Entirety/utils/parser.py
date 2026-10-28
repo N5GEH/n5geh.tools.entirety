@@ -87,7 +87,7 @@ def parse_device(schema):
     model, name = parser(schema)
     entity_json = extract_id_and_type(model, name)
     device_json = {
-        "entity_name": entity_json["id"],
+        "entity_name": entity_json.get("id") if entity_json.get("id") else None,
         "entity_type": entity_json["type"],
         "device_id": None,
         "attributes": [],
