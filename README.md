@@ -57,7 +57,7 @@ The [user guide](./docs/USERGUIDE.md) describes how the GUI works and guides you
 
 ## Deployment Guide
 
-To deploy Entirety via docker, please, refer to our [deployment guide](https://github.com/N5GEH/n5geh.tutorials.entirety_step_by_step), that also gives an overview of the used environment variables.
+To deploy Entirety via docker, please, refer to our [docker deployment guide](docker/README.md).
 If you wish to deploy Entirety for development purposes on your local machine, you can follow the [development](#deployment) and [get started](#get-started) paragraphs.
 
 
