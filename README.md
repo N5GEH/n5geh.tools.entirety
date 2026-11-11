@@ -153,8 +153,6 @@ See [changelog](./docs/CHANGELOG.md) for detailed overview of changes.
 
 ## Contact
 
-[@SBlechmann](https://github.com/SBlechmann)
-
 [@sbanoeon](https://github.com/sbanoeon)
 
 [@djs0109](https://github.com/djs0109)

@@ -40,8 +40,9 @@ docker compose version
 
 ### N5GEH FIWARE platform
 
-You should have already deployed the [N5GEH FIWARE platform](https://github.com/N5GEH/n5geh.platform) and the platform you
-  are using to deploy Entirety has (network) access to it.
+You should have already deployed the [N5GEH FIWARE platform](https://github.com/N5GEH/n5geh.platform) and the platform you are using to deploy Entirety has (network) access to it.
+> **Note**: If you don't have resources to deploy a platform, there is a public available one for testing purpose.
+> Ask the [entirety admin](https://github.com/N5GEH/n5geh.tools.entirety#contact) for further details.
 
 ## Setup repository
 
@@ -71,7 +72,8 @@ Important: Do not commit the actual .env file or production secrets to git. Keep
 
 ### 2. Start the deployment
 
-Make the runner script file executable.
+The runner script `runner.sh` should be executable by default.
+If not you can make the file executable manually:
 
 ```bash
 chmod +x runner.sh
