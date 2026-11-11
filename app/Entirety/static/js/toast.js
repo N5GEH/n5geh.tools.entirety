@@ -1,9 +1,11 @@
-const toastElement = document.getElementById("toast")
-const toastBody = document.getElementById("toast-body")
+window.toastElement = window.toastElement || document.getElementById("toast");
+window.toastBody = window.toastBody || document.getElementById("toast-body");
 
-const toast = new bootstrap.Toast(toastElement, { delay: 2000 })
+window.toast = window.toast || new bootstrap.Toast(window.toastElement, { delay: 2000 });
+
 
 htmx.on("showMessage", (e) => {
-  toastBody.innerText = e.detail.value
-  toast.show()
-})
+  window.toastBody.innerText = e.detail.value;
+  window.toast.show();
+});
+

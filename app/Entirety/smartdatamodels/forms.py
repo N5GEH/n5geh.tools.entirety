@@ -31,7 +31,7 @@ class SmartDataModelQueryForm(forms.Form):
         qs = SmartDataModel.objects.filter(project=project)
         list_of_schemas = []
         for set in qs:
-            list_of_schemas.append({"name": set.name, "value": set.name})
+            list_of_schemas.append({"name": set.name, "value": set.uuid})
         list_of_schemas.append({"name": "..", "value": ".."})
         self.fields["data_model"] = forms.ChoiceField(
             label="Load data model",

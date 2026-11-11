@@ -84,9 +84,12 @@ class EntityList(ProjectContextAndViewOnlyMixin, SingleTableMixin, TemplateView)
         context["selection_form"] = SelectionForm
         context["view_only"] = (
             True
-            if (self.request.user in self.project.viewers.all()) or self.project.is_viewer_public
-               and (self.request.user not in self.project.maintainers.all()) and not self.project.is_maintainer_public
-               and (self.request.user not in self.project.users.all()) and not self.project.is_maintainer_public
+            if (self.request.user in self.project.viewers.all())
+            or self.project.is_viewer_public
+            and (self.request.user not in self.project.maintainers.all())
+            and not self.project.is_maintainer_public
+            and (self.request.user not in self.project.users.all())
+            and not self.project.is_maintainer_public
             and self.request.user is not self.project.owner
             else False
         )
@@ -179,7 +182,9 @@ class Create(ProjectContextMixin, TemplateView):
 
         attributes_form_set = formset_factory(AttributeForm, max_num=0)
         attributes = attributes_form_set(prefix="attr", initial=attributes_initial_data)
-        smart_data_model_form = SmartDataModelQueryForm(initial={"data_model": ".."}, project=self.project)
+        smart_data_model_form = SmartDataModelQueryForm(
+            initial={"data_model": ".."}, project=self.project
+        )
 
         context = super(Create, self).get_context_data(**kwargs)
         context["basic_info"] = basic_info
@@ -390,9 +395,12 @@ class Update(ProjectContextAndViewOnlyMixin, TemplateView):
         context["update_entity"] = entity.id
         context["view_only"] = (
             True
-            if (self.request.user in self.project.viewers.all()) or self.project.is_viewer_public
-            and (self.request.user not in self.project.maintainers.all()) and not self.project.is_maintainer_public
-            and (self.request.user not in self.project.users.all()) and not self.project.is_maintainer_public
+            if (self.request.user in self.project.viewers.all())
+            or self.project.is_viewer_public
+            and (self.request.user not in self.project.maintainers.all())
+            and not self.project.is_maintainer_public
+            and (self.request.user not in self.project.users.all())
+            and not self.project.is_maintainer_public
             and self.request.user is not self.project.owner
             else False
         )
@@ -641,6 +649,8 @@ class Delete(ProjectContextMixin, TemplateView):
                         project=self.project,
                     )
                     if delete_relationship_error:
-                        messages.error(self.request, delete_relationship_error["message"])
+                        messages.error(
+                            self.request, delete_relationship_error["message"]
+                        )
         # TODO: logging
         return redirect("projects:entities:list", project_id=self.project.uuid)
