@@ -85,6 +85,15 @@ services:
     volumes:
       - static:${STATIC_ROOT:-/var/entirety/static/}
       - media:${MEDIA_ROOT:-/var/entirety/media/}
+
+      - ./migrations/projects:/app/projects/migrations
+      - ./migrations/users:/app/users/migrations
+      - ./migrations/smartdatamodels:/app/smartdatamodels/migrations
+      - ./migrations/semantics:/app/semantics/migrations
+      - ./migrations/subscriptions:/app/subscriptions/migrations
+      - ./migrations/examples:/app/examples/migrations
+      - ./migrations/entirety:/app/entirety/migrations
+
     depends_on:
       - entirety-db
     networks:
