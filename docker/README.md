@@ -25,6 +25,14 @@ docker/
 - **`.env.EXAMPLE`** — Example environment configuration listing the variables required for deployment.
 - **`configs/nginx/default.conf.conf`** — Contains the Nginx server configuration used by the Nginx container.
 
+## Volume Mounts
+
+The Entirety Docker Compose configuration uses different types of volume mounts:
+
+- **Static and media files**: Named volumes are used to persist Django static and media files outside the application container. Their container paths can be configured through STATIC_ROOT and MEDIA_ROOT.
+
+- **Django migrations**: Migration directories are bind-mounted from the local migrations/ directory into the application directories inside the container. This keeps migration files on the host filesystem and separate from the application image.
+
 ## Prerequisites
 
 ### Docker
@@ -57,7 +65,19 @@ cd docker
 
 Run the following commands from the `docker/` directory.
 
-### 1. Configure environment variables
+### 1. Prepare migration directories
+
+The Django migration directories are currently not tracked in the Git repository. Therefore, they need to be created locally before starting the deployment.
+
+The migration directories are mounted into the corresponding application directories inside the container using Docker Compose bind mounts. This keeps migration files on the host filesystem, allowing newly generated migrations to persist across container rebuilds.
+
+Create the required local directories from the `docker/` directory:
+
+```bash
+mkdir -p migrations/{projects,users,smartdatamodels,semantics,subscriptions,examples,entirety}
+```
+
+### 2. Configure environment variables
 
 Create a .env file from the example configuration:
 
@@ -70,7 +90,7 @@ Review all required variables and ensure that secrets, passwords, tokens, hostna
 Important: Do not commit the actual .env file or production secrets to git. Keep .env.EXAMPLE as a template containing variable names and safe placeholder values.
 
 
-### 2. Start the deployment
+### 3. Start the deployment
 
 The runner script `runner.sh` should be executable by default.
 If not you can make the file executable manually:
@@ -85,7 +105,7 @@ Start the services directly with Docker Compose:
 docker compose up -d --build
 ```
 
-### 3. Verify the deployment
+### 4. Verify the deployment
 
 Check the status of the services:
 
